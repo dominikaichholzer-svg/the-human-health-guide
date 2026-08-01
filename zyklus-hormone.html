@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coach Oaki · Zyklus und Hormone erklärt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0D2E2B;
+    --bg-raised: #133D39;
+    --ink: #F4F3EC;
+    --ink-muted: #93B0AA;
+    --hairline: #2A5450;
+    --gold: #DCEB2E;
+    --gold-dim: rgba(220,235,46,0.16);
+    --radius: 14px;
+    --serif: 'Fraunces', serif;
+    --sans: 'Inter', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; background: var(--bg); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+  body{ min-height:100vh; display:flex; justify-content:center; padding: 28px 16px 40px; }
+  .app{ width:100%; max-width: 480px; }
+
+  .brandbar{ display:flex; justify-content:space-between; align-items:flex-start; padding-bottom: 18px; border-bottom: 1px solid var(--hairline); margin-bottom: 22px; }
+  .brandbar .name{ font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; }
+  .brandbar .tag{ font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-muted); text-align:right; }
+  .dot{ display:inline-block; width:6px; height:6px; border-radius:50%; background: var(--gold); margin-right:8px; }
+
+  .eyebrow{ font-family: var(--mono); font-size: 11px; letter-spacing:0.14em; text-transform:uppercase; color: var(--gold); margin-bottom: 12px; }
+  h1.hero{ font-family: var(--serif); font-weight: 400; font-size: 30px; line-height: 1.15; margin: 0 0 14px; }
+  h1.hero em{ font-style: italic; font-weight:500; color: var(--gold); }
+  p{ font-size: 14.5px; line-height:1.65; color: var(--ink); }
+  .lede{ color: var(--ink-muted); margin-bottom: 22px; }
+
+  section{ margin-bottom: 26px; }
+  h2.section-title{ font-family: var(--serif); font-weight: 400; font-size: 20px; margin: 0 0 12px; }
+
+  /* three factors */
+  .factor-wrap{ display:flex; flex-direction:column; gap: 8px; }
+  .factor{ background: var(--bg-raised); border:1px solid var(--hairline); border-radius: 10px; padding: 13px 14px; }
+  .factor .label{ font-family: var(--mono); font-size: 10px; letter-spacing:0.1em; text-transform:uppercase; color: var(--gold); margin-bottom: 5px; }
+  .factor p{ margin:0; font-size: 13.5px; }
+
+  .steps{ display:flex; flex-direction:column; gap: 8px; }
+  .step{ display:flex; gap:12px; align-items:flex-start; background: var(--bg-raised); border:1px solid var(--hairline); border-radius: 10px; padding: 12px 14px; }
+  .step .n{ font-family: var(--serif); font-style:italic; font-size: 16px; color: var(--gold); flex-shrink:0; }
+  .step p{ margin:0; font-size: 13.5px; }
+
+  .rec-card{ background: var(--gold-dim); border: 1px solid var(--gold); border-radius: var(--radius); padding: 18px 18px 16px; }
+  .rec-card h3{ font-family: var(--serif); font-weight:600; font-size: 18px; color: var(--gold); margin: 0 0 12px; }
+  .rec-row{ display:flex; gap: 10px; margin-bottom: 10px; }
+  .rec-row:last-child{ margin-bottom:0; }
+  .rec-label{ font-family: var(--mono); font-size: 10px; letter-spacing:0.08em; text-transform:uppercase; color: var(--ink-muted); width: 72px; flex-shrink:0; padding-top:1px; }
+  .rec-value{ font-size: 14px; line-height:1.45; }
+  .rec-value b{ color: var(--gold); }
+
+  .note-box{ background: var(--bg-raised); border-left: 3px solid var(--gold); border-radius: 8px; padding: 12px 14px; margin-top: 22px; }
+  .note-box p{ margin:0; font-size: 12.5px; color: var(--ink-muted); line-height:1.55; }
+
+  .bridge-box{ background: var(--gold-dim); border: 1px solid var(--gold); border-radius: 10px; padding: 14px 16px; margin-top: 8px; }
+  .bridge-box .label{ font-family: var(--mono); font-size: 10px; letter-spacing:0.1em; text-transform:uppercase; color: var(--gold); margin-bottom: 6px; }
+  .bridge-box p{ margin:0; font-size: 13.5px; }
+
+  footer.legal{ margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--hairline); font-size: 10.5px; color: #5C8B84; line-height:1.5; text-align:center; }
+
+  @media print{
+    html, body{ min-height: 0; height: auto; }
+    body{ padding: 16px 16px 18px; }
+    .factor, .step, .rec-card, .note-box{ break-inside: avoid; }
+    h2.section-title{ break-after: avoid; }
+    section{ break-inside: avoid; margin-bottom: 16px; }
+    footer.legal{ break-before: avoid; margin-top: 14px; padding-top: 10px; }
+    .steps{ gap: 6px; }
+    .step{ padding: 9px 14px; }
+    .factor-wrap{ gap: 6px; }
+    .factor{ padding: 10px 12px; }
+    .bridge-box{ padding: 11px 14px; }
+    .rec-card{ padding: 14px 16px 12px; }
+    .rec-row{ margin-bottom: 7px; }
+    .note-box{ margin-top: 14px; padding: 10px 14px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="brandbar">
+    <div class="name"><span class="dot"></span>COACH OAKI</div>
+    <div class="tag">ZYKLUS &amp;<br>HORMONE</div>
+  </div>
+
+  <div class="eyebrow">WAS DEINEN ZYKLUS WIRKLICH BEEINFLUSST</div>
+  <h1 class="hero">Dein Zyklus ist kein Zufall, er folgt <em>drei Hebeln</em>.</h1>
+  <p class="lede">Stress, Schlaf und Blutzucker steuern gemeinsam deinen Hormonhaushalt. Die gute Nachricht: alle drei kannst du mit einfachen Handgriffen sofort beeinflussen.</p>
+
+  <section>
+    <div class="factor-wrap">
+      <div class="factor">
+        <div class="label">01 · Stress</div>
+        <p>Dauerhafter Stress bringt über das Hormonsystem deinen Eisprung und Zyklus aus dem Takt.</p>
+      </div>
+      <div class="factor">
+        <div class="label">02 · Schlaf</div>
+        <p>Ein gestörter Rhythmus von Tag und Nacht verschiebt Cortisol und Melatonin und damit auch Östrogen und Progesteron.</p>
+      </div>
+      <div class="factor">
+        <div class="label">03 · Blutzucker</div>
+        <p>Starke Blutzuckerschwankungen erhöhen den Insulinspiegel und beeinflussen damit freies Testosteron und Östrogen im Blut.</p>
+      </div>
+    </div>
+    <div class="bridge-box">
+      <div class="label">Der gemeinsame Nenner</div>
+      <p>Alle drei Hebel laufen über deinen Darm. Dort werden Botenstoffe für dein Nervensystem gebildet, dort wird Blutzucker mitreguliert, und bestimmte Darmbakterien steuern sogar, wie viel Östrogen dein Körper wieder aufnimmt statt es auszuscheiden. Ein gesunder Darm ist damit die Basis, auf der Stress, Schlaf und Blutzucker erst richtig funktionieren.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="section-title">Deine Sofort Hacks.</h2>
+    <div class="steps">
+      <div class="step"><span class="n">01</span><p>4 Sekunden einatmen, 6 Sekunden ausatmen, das senkt Cortisol in unter 2 Minuten.</p></div>
+      <div class="step"><span class="n">02</span><p>Feste Schlafenszeit, jeden Tag zur gleichen Zeit ins Bett, auch am Wochenende.</p></div>
+      <div class="step"><span class="n">03</span><p>Erst Ballaststoffe oder Eiweiß essen, dann Kohlenhydrate, das glättet den Blutzuckeranstieg.</p></div>
+      <div class="step"><span class="n">04</span><p>Fermentiertes wie Sauerkraut oder Joghurt einbauen, das unterstützt die Darmbakterien, die deinen Östrogenspiegel mitregulieren.</p></div>
+      <div class="step"><span class="n">05</span><p>Kein Koffein auf leeren Magen, das treibt Cortisol zusätzlich nach oben.</p></div>
+      <div class="step"><span class="n">06</span><p>10 Minuten Spaziergang nach dem Essen, das federt Blutzuckerspitzen ab.</p></div>
+      <div class="step"><span class="n">07</span><p>Bildschirm 30 Minuten vor dem Schlafen weglegen, das schützt dein Melatonin.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="rec-card">
+      <h3>Meine Empfehlung</h3>
+      <div class="rec-row"><div class="rec-label">Start</div><div class="rec-value">Beginne mit <b>Schlaf und Darm</b>, sie sind die Basis für Stress und Blutzucker gleichermaßen.</div></div>
+      <div class="rec-row"><div class="rec-label">Umsetzung</div><div class="rec-value">Wähle <b>einen Hack</b> pro Woche statt alle sieben auf einmal, das hält durch.</div></div>
+      <div class="rec-row"><div class="rec-label">Geduld</div><div class="rec-value">Rechne mit <b>1 bis 2 Zyklen</b>, bis sich Veränderungen wirklich zeigen.</div></div>
+    </div>
+  </section>
+
+  <div class="note-box">
+    <p>Dieser Beitrag dient der allgemeinen Information und ersetzt keine medizinische Beratung. Bei starken Zyklusbeschwerden oder Verdacht auf PCOS sprich bitte mit deinem Arzt oder deiner Ärztin.</p>
+  </div>
+
+  <footer class="legal">© 2026 Coach Oaki · The Human Health Guide</footer>
+
+</div>
+</body>
+</html>

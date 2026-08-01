@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coach Oaki · Besser schlafen erklärt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0D2E2B;
+    --bg-raised: #133D39;
+    --ink: #F4F3EC;
+    --ink-muted: #93B0AA;
+    --hairline: #2A5450;
+    --gold: #DCEB2E;
+    --gold-dim: rgba(220,235,46,0.16);
+    --radius: 14px;
+    --serif: 'Fraunces', serif;
+    --sans: 'Inter', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; background: var(--bg); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+  body{ min-height:100vh; display:flex; justify-content:center; padding: 28px 16px 40px; }
+  .app{ width:100%; max-width: 480px; }
+
+  .brandbar{ display:flex; justify-content:space-between; align-items:flex-start; padding-bottom: 18px; border-bottom: 1px solid var(--hairline); margin-bottom: 22px; }
+  .brandbar .name{ font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; }
+  .brandbar .tag{ font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-muted); text-align:right; }
+  .dot{ display:inline-block; width:6px; height:6px; border-radius:50%; background: var(--gold); margin-right:8px; }
+
+  .eyebrow{ font-family: var(--mono); font-size: 11px; letter-spacing:0.14em; text-transform:uppercase; color: var(--gold); margin-bottom: 12px; }
+  h1.hero{ font-family: var(--serif); font-weight: 400; font-size: 30px; line-height: 1.15; margin: 0 0 14px; }
+  h1.hero em{ font-style: italic; font-weight:500; color: var(--gold); }
+  p{ font-size: 14.5px; line-height:1.65; color: var(--ink); }
+  .lede{ color: var(--ink-muted); margin-bottom: 22px; }
+
+  section{ margin-bottom: 26px; }
+  h2.section-title{ font-family: var(--serif); font-weight: 400; font-size: 20px; margin: 0 0 12px; }
+
+  /* sleep cycle visual */
+  .cycle-wrap{ background: var(--bg-raised); border:1px solid var(--hairline); border-radius: var(--radius); padding: 16px 16px 14px; }
+  .cycle-row{ display:flex; align-items:center; gap: 4px; margin-bottom: 10px; }
+  .cycle-block{ flex:1; height: 30px; border-radius: 6px; background: var(--gold-dim); border: 1px solid var(--gold); display:flex; align-items:center; justify-content:center; font-family: var(--mono); font-size: 9px; color: var(--gold); }
+  .cycle-caption{ font-size: 12px; color: var(--ink-muted); text-align:center; margin:0; }
+
+  .steps{ display:flex; flex-direction:column; gap: 8px; }
+  .step{ display:flex; gap:12px; align-items:flex-start; background: var(--bg-raised); border:1px solid var(--hairline); border-radius: 10px; padding: 12px 14px; }
+  .step .n{ font-family: var(--serif); font-style:italic; font-size: 16px; color: var(--gold); flex-shrink:0; }
+  .step p{ margin:0; font-size: 13.5px; }
+
+  .rec-card{ background: var(--gold-dim); border: 1px solid var(--gold); border-radius: var(--radius); padding: 18px 18px 16px; }
+  .rec-card h3{ font-family: var(--serif); font-weight:600; font-size: 18px; color: var(--gold); margin: 0 0 12px; }
+  .rec-row{ display:flex; gap: 10px; margin-bottom: 10px; }
+  .rec-row:last-child{ margin-bottom:0; }
+  .rec-label{ font-family: var(--mono); font-size: 10px; letter-spacing:0.08em; text-transform:uppercase; color: var(--ink-muted); width: 72px; flex-shrink:0; padding-top:1px; }
+  .rec-value{ font-size: 14px; line-height:1.45; }
+  .rec-value b{ color: var(--gold); }
+
+  .note-box{ background: var(--bg-raised); border-left: 3px solid var(--gold); border-radius: 8px; padding: 12px 14px; margin-top: 22px; }
+  .note-box p{ margin:0; font-size: 12.5px; color: var(--ink-muted); line-height:1.55; }
+
+  footer.legal{ margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--hairline); font-size: 10.5px; color: #5C8B84; line-height:1.5; text-align:center; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="brandbar">
+    <div class="name"><span class="dot"></span>COACH OAKI</div>
+    <div class="tag">SCHLAF &amp;<br>ERHOLUNG</div>
+  </div>
+
+  <div class="eyebrow">DER SCHLAF-TREND KURZ ERKLÄRT</div>
+  <h1 class="hero">Besser schlafen ist keine <em>Glückssache</em>.</h1>
+  <p class="lede">Wie viel du schläfst ist wichtig – wann du aufwachst, ist fast noch wichtiger. Der Grund: deine Schlafzyklen.</p>
+
+  <section>
+    <p>Dein Schlaf verläuft nicht gleichmäßig, sondern in Zyklen von rund <b>90 Minuten</b> – von leichtem Schlaf über Tiefschlaf bis zur Traumphase (REM) und wieder zurück. Wachst du mitten in einem Zyklus auf, z. B. im Tiefschlaf, fühlst du dich oft gerädert, selbst nach ausreichend Stunden. Wachst du dagegen am Ende eines Zyklus auf, fühlst du dich spürbar wacher.</p>
+    <p>Deshalb lohnt es sich, deine Schlafzeit nicht nach Stunden, sondern nach <b>ganzen 90-Minuten-Blöcken</b> zu planen.</p>
+  </section>
+
+  <section>
+    <div class="cycle-wrap">
+      <div class="cycle-row">
+        <div class="cycle-block">1 · 90 min</div>
+        <div class="cycle-block">2 · 90 min</div>
+        <div class="cycle-block">3 · 90 min</div>
+        <div class="cycle-block">4 · 90 min</div>
+        <div class="cycle-block">5 · 90 min</div>
+      </div>
+      <p class="cycle-caption">5 Zyklen ≈ 7,5 Stunden – ein typisches Ziel für die meisten Erwachsenen.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="section-title">Worauf du achten solltest.</h2>
+    <div class="steps">
+      <div class="step"><span class="n">01</span><p>Feste Schlafenszeit – dein Körper liebt Rhythmus, auch am Wochenende.</p></div>
+      <div class="step"><span class="n">02</span><p>Bildschirme mind. 30–60 Minuten vor dem Schlafen weglegen – blaues Licht bremst dein Müdewerden.</p></div>
+      <div class="step"><span class="n">03</span><p>Kein Koffein mehr ab dem späten Nachmittag – die Wirkung hält oft länger an, als man denkt.</p></div>
+      <div class="step"><span class="n">04</span><p>Kühles, dunkles Zimmer – dein Körper schläft in einer kühleren Umgebung leichter durch.</p></div>
+      <div class="step"><span class="n">05</span><p>Morgens Tageslicht tanken – das stellt deine innere Uhr für den Abend gleich mit.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="rec-card">
+      <h3>Meine Empfehlung</h3>
+      <div class="rec-row"><div class="rec-label">Zu Bett</div><div class="rec-value">Möglichst um <b>22:00 Uhr</b> – so bleibt genug Zeit für 5 volle Schlafzyklen vor einem frühen Aufstehen.</div></div>
+      <div class="rec-row"><div class="rec-label">Aufwachen</div><div class="rec-value">Plane in <b>90-Minuten-Schritten</b>, z. B. 22:00 → 5:30 Uhr (5 Zyklen) statt einer krummen Stundenzahl.</div></div>
+      <div class="rec-row"><div class="rec-label">Konstanz</div><div class="rec-value">Gleiche Zeit <b>jeden Tag</b> schlägt gelegentlich "mehr" Schlaf am Wochenende.</div></div>
+    </div>
+  </section>
+
+  <div class="note-box">
+    <p>Dieser Beitrag dient der allgemeinen Information und ersetzt keine medizinische Beratung. Bei anhaltenden Schlafproblemen sprich bitte mit deinem Arzt oder deiner Ärztin.</p>
+  </div>
+
+  <footer class="legal">© 2026 Coach Oaki · The Human Health Guide</footer>
+
+</div>
+</body>
+</html>

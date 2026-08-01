@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Human Health Guide · 20 Schonkost-Rezepte</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0D2E2B;
+    --bg-raised: #133D39;
+    --bg-raised-hover: #1A4B45;
+    --ink: #F4F3EC;
+    --ink-muted: #93B0AA;
+    --hairline: #2A5450;
+    --gold: #DCEB2E;
+    --gold-dim: rgba(220,235,46,0.16);
+    --radius: 14px;
+    --serif: 'Fraunces', serif;
+    --sans: 'Inter', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+
+    --paper: #F4F3EC;
+    --ink-dark: #12211F;
+    --ink-dark-muted: #5C6F6A;
+  }
+
+  *{ box-sizing: border-box; }
+
+  html,body{
+    margin:0; padding:0;
+    background: var(--paper);
+    color: var(--ink-dark);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding: 32px 16px 64px;
+  }
+
+  .app{
+    width:100%;
+    max-width: 560px;
+  }
+
+  .brandbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    padding-bottom: 22px;
+    border-bottom: 1px solid var(--hairline);
+    margin-bottom: 28px;
+  }
+  .brandbar .name{
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-dark);
+  }
+  .brandbar .tag{
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-dark-muted);
+    text-align:right;
+  }
+  .dot{
+    display:inline-block;
+    width:6px; height:6px;
+    border-radius:50%;
+    background: var(--gold);
+    margin-right:8px;
+  }
+
+  .eyebrow{
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color: var(--bg);
+    margin-bottom: 14px;
+  }
+
+  h1.hero{
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 40px;
+    line-height: 1.1;
+    margin: 0 0 20px;
+    color: var(--ink-dark);
+  }
+  h1.hero em{
+    font-style: italic;
+    font-weight:500;
+    color: var(--bg);
+  }
+
+  .lede{
+    color: var(--ink-dark-muted);
+    font-size: 16px;
+    line-height:1.6;
+    margin-bottom: 30px;
+  }
+
+  .stat-row{
+    display:flex;
+    gap: 22px;
+    margin-bottom: 28px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-dark-muted);
+    flex-wrap:wrap;
+  }
+  .stat-row b{ color: var(--ink-dark); font-weight:600; }
+
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    padding: 15px 22px;
+    background: var(--gold);
+    color: #0D2E2B;
+    border:none;
+    border-radius: var(--radius);
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 15px;
+    cursor:pointer;
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+  .btn:hover{ transform: translateY(-1px); background:#E8F259; }
+  .btn:active{ transform: translateY(0); }
+
+  .cat-heading{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin: 38px 0 14px;
+  }
+  .cat-heading:first-of-type{ margin-top: 0; }
+  .cat-heading .cat-label{
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color: var(--bg);
+    white-space:nowrap;
+  }
+  .cat-heading .cat-rule{
+    height:1px;
+    flex:1;
+    background: var(--hairline);
+  }
+
+  .recipes{
+    display:flex;
+    flex-direction:column;
+    gap: 10px;
+  }
+
+  .recipe{
+    background: var(--bg);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+    overflow:hidden;
+    transition: border-color 0.15s ease;
+  }
+  .recipe.open{ border-color: var(--gold); }
+
+  .recipe-head{
+    display:flex;
+    align-items:center;
+    gap: 14px;
+    width:100%;
+    background:none;
+    border:none;
+    text-align:left;
+    padding: 16px 18px;
+    cursor:pointer;
+    color: var(--ink);
+    font-family: var(--sans);
+  }
+  .recipe-num{
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 15px;
+    color: var(--gold);
+    flex-shrink:0;
+    width: 22px;
+  }
+  .recipe-title{
+    flex:1;
+    font-size: 15.5px;
+    font-weight:600;
+    line-height:1.35;
+  }
+  .recipe-chevron{
+    flex-shrink:0;
+    width:18px; height:18px;
+    color: var(--ink-muted);
+    transition: transform 0.2s ease;
+  }
+  .recipe.open .recipe-chevron{ transform: rotate(180deg); color: var(--gold); }
+
+  .recipe-body{
+    max-height:0;
+    overflow:hidden;
+    transition: max-height 0.3s ease;
+  }
+  .recipe.open .recipe-body{ max-height: 650px; }
+
+  .recipe-body-inner{
+    padding: 0 18px 20px;
+  }
+
+  .recipe-why{
+    font-size: 13.5px;
+    color: var(--ink-muted);
+    line-height:1.55;
+    margin: 0 0 16px;
+    padding-bottom:14px;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .recipe-why b{ color: var(--gold); font-weight:600; }
+
+  .recipe-cols{
+    display:flex;
+    gap: 20px;
+    flex-wrap:wrap;
+  }
+  .recipe-col{ flex: 1 1 180px; min-width:0; }
+  .recipe-col h4{
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color: var(--ink-muted);
+    margin: 0 0 10px;
+  }
+  .recipe-col ul, .recipe-col ol{
+    margin:0;
+    padding-left: 18px;
+    font-size: 14px;
+    line-height:1.6;
+    color: var(--ink);
+  }
+  .recipe-col li{ margin-bottom: 5px; }
+
+  footer.legal{
+    margin-top: 44px;
+    padding-top: 20px;
+    border-top: 1px solid var(--hairline);
+    font-size: 11.5px;
+    color: var(--ink-dark-muted);
+    line-height:1.6;
+  }
+  footer.legal .brand{
+    margin-top:10px;
+    font-family: var(--mono);
+    letter-spacing:0.05em;
+  }
+  footer.legal a{ color: var(--ink-dark-muted); }
+
+  .nutrition-row{
+    display:flex;
+    gap: 8px;
+    margin: 0 0 18px;
+  }
+  .nutrition-item{
+    flex: 1 1 0;
+    background: var(--bg-raised);
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    padding: 10px 6px;
+    text-align:center;
+  }
+  .nutrition-value{
+    display:block;
+    font-family: var(--serif);
+    font-style:italic;
+    font-size: 17px;
+    color: var(--gold);
+    line-height:1.2;
+  }
+  .nutrition-label{
+    display:block;
+    font-family: var(--mono);
+    font-size: 8.5px;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    color: var(--ink-muted);
+    margin-top: 3px;
+  }
+
+  @media (max-width: 380px){
+    h1.hero{ font-size: 32px; }
+    .recipe-cols{ flex-direction:column; gap:14px; }
+    .nutrition-row{ flex-wrap:wrap; }
+    .nutrition-item{ flex: 1 1 40%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <div class="brandbar">
+    <div class="name"><span class="dot"></span>THE HUMAN<br>HEALTH GUIDE</div>
+    <div class="tag">SCHONKOST<br>REZEPTE</div>
+  </div>
+
+  <div class="eyebrow">THE HUMAN HEALTH GUIDE · SCHONKOST-REZEPTE</div>
+  <h1 class="hero">20 Rezepte,<br>die deinen <em>Darm</em><br>sofort entlasten.</h1>
+  <p class="lede">Sanfte, leicht verdauliche Gerichte für Tage, an denen dein Bauch eine Pause braucht. Keine komplizierten Zutaten, keine langen Kochzeiten &ndash; nur das, was deinem Darm gerade guttut. Tipp auf ein Rezept, um es aufzuklappen.</p>
+  <div class="stat-row">
+    <span><b>20</b> Rezepte</span>
+    <span><b>&lt; 20</b> Min. Zubereitung</span>
+    <span><b>Darmschonend</b> &amp; einfach</span>
+  </div>
+
+  <a class="btn" id="pdfDownload" href="/20-schonkost-rezepte.pdf" download style="text-decoration:none; margin-bottom:34px;">
+    <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 3V13M10 13L6 9M10 13L14 9M4 16H16" stroke="#0D2E2B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Als PDF herunterladen
+  </a>
+
+  <div class="cat-heading">
+    <span class="cat-label">Frühstück</span>
+    <span class="cat-rule"></span>
+  </div>
+  <div class="recipes" id="cat-fruehstueck"></div>
+
+  <div class="cat-heading">
+    <span class="cat-label">Suppen</span>
+    <span class="cat-rule"></span>
+  </div>
+  <div class="recipes" id="cat-suppen"></div>
+
+  <div class="cat-heading">
+    <span class="cat-label">Hauptgerichte</span>
+    <span class="cat-rule"></span>
+  </div>
+  <div class="recipes" id="cat-haupt"></div>
+
+  <div class="cat-heading">
+    <span class="cat-label">Snacks &amp; Nachmittag</span>
+    <span class="cat-rule"></span>
+  </div>
+  <div class="recipes" id="cat-snacks"></div>
+
+  <footer class="legal">
+    Diese Rezepte dienen der allgemeinen Orientierung und ersetzen keine ärztliche oder ernährungsmedizinische Beratung. Höre bei akuten Beschwerden immer auf dein Körpergefühl und sprich Unklarheiten mit einer Fachperson ab.
+    <div class="brand">© 2026 The Human Health Guide — Your roadmap to better health.</div>
+  </footer>
+
+</div>
+
+<script>
+  const chevronSvg = `<svg class="recipe-chevron" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+  const categories = {
+    'cat-fruehstueck': [
+      {
+        title: 'Sanfter Haferbrei mit Banane',
+        why: 'Haferflocken quellen im Magen und wirken mild auf die Schleimhaut &ndash; ideal als erste Mahlzeit nach einem empfindlichen Bauchtag.',
+        naehrwerte: { kcal: 215, kh: 47, protein: 5, fett: 2 },
+        zutaten: ['4 EL zarte Haferflocken', '250 ml Wasser oder laktosefreie Milch', '1 reife Banane', '1 Prise Zimt'],
+        zubereitung: ['Haferflocken mit Wasser aufkochen und 5 Min. köcheln lassen', 'Banane zerdrücken und unterrühren', 'Mit Zimt bestreuen und lauwarm servieren']
+      },
+      {
+        title: 'Reisbrei mit gedünstetem Apfel',
+        why: 'Weißer Reis ist stärkereich und arm an Ballaststoffen &ndash; das entlastet die Verdauung spürbar.',
+        naehrwerte: { kcal: 279, kh: 66, protein: 4, fett: 1 },
+        zutaten: ['50 g weißer Rundkornreis', '300 ml Wasser', '1 Apfel', '1 TL Honig'],
+        zubereitung: ['Reis in Wasser weich köcheln (ca. 20 Min.)', 'Apfel schälen, würfeln und in wenig Wasser dünsten', 'Reisbrei mit Apfel und Honig servieren']
+      },
+      {
+        title: 'Weicher Grießbrei mit Zimt',
+        why: 'Grieß ist besonders fein und leicht bekömmlich, ganz ohne grobe Fasern.',
+        naehrwerte: { kcal: 318, kh: 50, protein: 15, fett: 6 },
+        zutaten: ['4 EL Weizengrieß', '300 ml laktosefreie Milch', '1 TL Zucker oder Honig', 'Zimt nach Geschmack'],
+        zubereitung: ['Milch erhitzen, Grieß einrühren', '3 Min. unter Rühren quellen lassen', 'Süßen und mit Zimt servieren']
+      },
+      {
+        title: 'Getoasteter Weißbrot-Toast mit Honig',
+        why: 'Geröstetes Weißbrot ist leichter verdaulich als frisches Brot oder Vollkorn &ndash; ein sanfter Klassiker.',
+        naehrwerte: { kcal: 223, kh: 47, protein: 5, fett: 2 },
+        zutaten: ['2 Scheiben Weißbrot', '1 EL Honig', 'Optional: dünne Bananenscheiben'],
+        zubereitung: ['Brot goldbraun toasten', 'Mit Honig bestreichen', 'Nach Belieben mit Banane belegen']
+      },
+      {
+        title: 'Kartoffel-Karotten-Brei zum Frühstück',
+        why: 'Herzhaft statt süß &ndash; Kartoffeln und Karotten sind stärkereich und besonders sanft zum Magen.',
+        naehrwerte: { kcal: 225, kh: 39, protein: 5, fett: 4 },
+        zutaten: ['2 kleine Kartoffeln', '1 Karotte', '150 ml Gemüsebrühe', '1 TL Butter'],
+        zubereitung: ['Kartoffeln und Karotte schälen, würfeln', 'In Brühe weich kochen (ca. 15 Min.)', 'Mit Butter fein pürieren']
+      }
+    ],
+    'cat-suppen': [
+      {
+        title: 'Klare Karottensuppe',
+        why: 'Gekochte Karotten sind ein Schonkost-Klassiker &ndash; mild im Geschmack und leicht verdaulich.',
+        naehrwerte: { kcal: 154, kh: 21, protein: 3, fett: 5 },
+        zutaten: ['4 Karotten', '500 ml Gemüsebrühe', '1 TL Butter', 'Etwas Salz'],
+        zubereitung: ['Karotten schälen und klein schneiden', 'In Brühe 15 Min. weich kochen', 'Pürieren, mit Butter verfeinern']
+      },
+      {
+        title: 'Kürbissuppe ohne Sahne',
+        why: 'Kürbis ist von Natur aus weich und ballaststoffarm, wenn er gut gegart ist.',
+        naehrwerte: { kcal: 160, kh: 32, protein: 5, fett: 1 },
+        zutaten: ['300 g Hokkaido-Kürbis', '500 ml Gemüsebrühe', '1 kleine Kartoffel', 'Muskat, Salz'],
+        zubereitung: ['Kürbis und Kartoffel würfeln', 'In Brühe weich kochen (ca. 20 Min.)', 'Fein pürieren und würzen']
+      },
+      {
+        title: 'Kartoffel-Fenchel-Suppe',
+        why: 'Fenchel wirkt traditionell beruhigend auf den Magen-Darm-Trakt, Kartoffeln machen die Suppe sämig.',
+        naehrwerte: { kcal: 296, kh: 49, protein: 8, fett: 6 },
+        zutaten: ['1 Fenchelknolle', '2 Kartoffeln', '500 ml Gemüsebrühe', '1 TL Olivenöl'],
+        zubereitung: ['Fenchel und Kartoffeln klein schneiden', 'In Brühe 20 Min. weich kochen', 'Pürieren und mit Öl beträufeln']
+      },
+      {
+        title: 'Hühnerbrühe mit Reis',
+        why: 'Ein bewährtes Hausmittel: leicht, warm und nährstoffreich, ohne den Bauch zu belasten.',
+        naehrwerte: { kcal: 145, kh: 25, protein: 4, fett: 1 },
+        zutaten: ['500 ml klare Hühnerbrühe', '2 EL weißer Reis', '1 Karotte, fein gewürfelt', 'Petersilie'],
+        zubereitung: ['Brühe aufkochen', 'Reis und Karotte zugeben, 15 Min. köcheln', 'Mit Petersilie bestreuen']
+      },
+      {
+        title: 'Zucchini-Kartoffel-Suppe',
+        why: 'Zucchini ist besonders faserarm, wenn die Schale entfernt wird &ndash; sanft und mild im Geschmack.',
+        naehrwerte: { kcal: 208, kh: 40, protein: 6, fett: 1 },
+        zutaten: ['1 Zucchini, geschält', '2 Kartoffeln', '500 ml Gemüsebrühe', 'Etwas Salz'],
+        zubereitung: ['Gemüse würfeln', 'In Brühe weich kochen (ca. 18 Min.)', 'Fein pürieren']
+      }
+    ],
+    'cat-haupt': [
+      {
+        title: 'Gedämpfter Fisch mit Kartoffelpüree',
+        why: 'Weißfisch ist fettarm und leicht verdaulich, gedämpft bleibt er besonders schonend.',
+        naehrwerte: { kcal: 438, kh: 52, protein: 30, fett: 9 },
+        zutaten: ['1 Filet Weißfisch (z.B. Seelachs)', '3 Kartoffeln', 'Etwas Milch, Butter', 'Zitrone, Salz'],
+        zubereitung: ['Fisch 10 Min. dämpfen, mit Zitrone beträufeln', 'Kartoffeln kochen und zu Püree stampfen', 'Zusammen servieren']
+      },
+      {
+        title: 'Gekochtes Hähnchenbrustfilet mit Karotten',
+        why: 'Mageres Hähnchen ist proteinreich und fettarm &ndash; ideal, wenn der Bauch Ruhe braucht.',
+        naehrwerte: { kcal: 215, kh: 10, protein: 32, fett: 4 },
+        zutaten: ['1 Hähnchenbrustfilet', '2 Karotten', 'Gemüsebrühe', 'Salz, Kräuter'],
+        zubereitung: ['Filet in Brühe 15 Min. gar ziehen lassen', 'Karotten separat weich kochen', 'In Scheiben schneiden und servieren']
+      },
+      {
+        title: 'Kartoffel-Möhren-Stampf',
+        why: 'Ein sättigendes, mildes Gericht ganz ohne Röststoffe oder Schärfe.',
+        naehrwerte: { kcal: 430, kh: 78, protein: 9, fett: 8 },
+        zutaten: ['4 Kartoffeln', '2 Karotten', 'Etwas Butter', 'Salz, Muskat'],
+        zubereitung: ['Kartoffeln und Karotten weich kochen', 'Zusammen stampfen', 'Mit Butter und Muskat abschmecken']
+      },
+      {
+        title: 'Gedünsteter Fenchel mit Reis',
+        why: 'Fenchel wird durchs Dünsten sehr weich und mild &ndash; kombiniert mit Reis eine leichte Hauptmahlzeit.',
+        naehrwerte: { kcal: 410, kh: 79, protein: 10, fett: 6 },
+        zutaten: ['1 Fenchelknolle', '80 g weißer Reis', '1 TL Olivenöl', 'Salz'],
+        zubereitung: ['Fenchel in Streifen schneiden, dünsten (15 Min.)', 'Reis parallel kochen', 'Zusammen anrichten, mit Öl beträufeln']
+      },
+      {
+        title: 'Weicher Nudel-Auflauf ohne Käse',
+        why: 'Verzicht auf Käse und Sahne macht diesen Klassiker deutlich bekömmlicher.',
+        naehrwerte: { kcal: 675, kh: 105, protein: 25, fett: 16 },
+        zutaten: ['150 g weiche Nudeln (z.B. Fadennudeln)', '1 Ei', '100 ml Gemüsebrühe', 'Etwas Butter'],
+        zubereitung: ['Nudeln bissfest kochen', 'Mit verquirltem Ei und Brühe mischen', 'In Auflaufform 15 Min. bei 180°C backen']
+      },
+      {
+        title: 'Gedämpftes Hühnchen mit Zucchini',
+        why: 'Beide Zutaten sind fettarm und mild &ndash; eine unkomplizierte, sanfte Mahlzeit.',
+        naehrwerte: { kcal: 199, kh: 6, protein: 33, fett: 4 },
+        zutaten: ['1 Hähnchenbrustfilet', '1 Zucchini, geschält', 'Gemüsebrühe', 'Salz, Kräuter'],
+        zubereitung: ['Hähnchen in Brühe gar dämpfen (ca. 15 Min.)', 'Zucchini in Scheiben dazugeben, 5 Min. mitdämpfen', 'Leicht salzen und servieren']
+      }
+    ],
+    'cat-snacks': [
+      {
+        title: 'Bananen-Kompott',
+        why: 'Reife Bananen sind von Natur aus weich und enthalten leicht verdauliche Kohlenhydrate.',
+        naehrwerte: { kcal: 214, kh: 55, protein: 3, fett: 1 },
+        zutaten: ['2 reife Bananen', '1 TL Zitronensaft', '1 Prise Zimt'],
+        zubereitung: ['Bananen in Scheiben schneiden', 'Mit Zitronensaft und Zimt vermengen', 'Kurz köcheln oder roh genießen']
+      },
+      {
+        title: 'Gedünsteter Apfel mit Zimt',
+        why: 'Durchs Dünsten wird der Apfel weich und die Fruchtsäure milder &ndash; schonender als roh.',
+        naehrwerte: { kcal: 78, kh: 20, protein: 0.5, fett: 0.3 },
+        zutaten: ['1 Apfel', '2 EL Wasser', 'Zimt nach Geschmack'],
+        zubereitung: ['Apfel schälen und in Spalten schneiden', 'Mit Wasser 8 Min. weich dünsten', 'Mit Zimt bestreuen']
+      },
+      {
+        title: 'Zwieback mit Honig',
+        why: 'Zwieback ist doppelt gebacken und dadurch besonders leicht verdaulich &ndash; ein bewährter Klassiker.',
+        naehrwerte: { kcal: 144, kh: 28, protein: 3, fett: 2 },
+        zutaten: ['2-3 Zwieback', '1 TL Honig'],
+        zubereitung: ['Zwieback mit Honig bestreichen', 'In Ruhe kauen und genießen']
+      },
+      {
+        title: 'Reiswaffeln mit Bananenpüree',
+        why: 'Neutral im Geschmack und leicht &ndash; ein unkomplizierter Snack für zwischendurch.',
+        naehrwerte: { kcal: 125, kh: 30, protein: 2, fett: 0.5 },
+        zutaten: ['2 Reiswaffeln', '1 kleine Banane'],
+        zubereitung: ['Banane mit einer Gabel zerdrücken', 'Auf die Reiswaffeln streichen', 'Sofort genießen']
+      }
+    ]
+  };
+
+  function renderCategory(id, items){
+    const wrap = document.getElementById(id);
+    items.forEach((item, idx) => {
+      const el = document.createElement('div');
+      el.className = 'recipe';
+      el.innerHTML = `
+        <button class="recipe-head" type="button">
+          <span class="recipe-num">${String(idx+1).padStart(2,'0')}</span>
+          <span class="recipe-title">${item.title}</span>
+          ${chevronSvg}
+        </button>
+        <div class="recipe-body">
+          <div class="recipe-body-inner">
+            <p class="recipe-why"><b>Warum schonend:</b> ${item.why}</p>
+            <div class="nutrition-row">
+              <div class="nutrition-item"><span class="nutrition-value">${item.naehrwerte.kcal}</span><span class="nutrition-label">kcal</span></div>
+              <div class="nutrition-item"><span class="nutrition-value">${item.naehrwerte.kh}g</span><span class="nutrition-label">Kohlenh.</span></div>
+              <div class="nutrition-item"><span class="nutrition-value">${item.naehrwerte.protein}g</span><span class="nutrition-label">Protein</span></div>
+              <div class="nutrition-item"><span class="nutrition-value">${item.naehrwerte.fett}g</span><span class="nutrition-label">Fett</span></div>
+            </div>
+            <div class="recipe-cols">
+              <div class="recipe-col">
+                <h4>Zutaten</h4>
+                <ul>${item.zutaten.map(z => `<li>${z}</li>`).join('')}</ul>
+              </div>
+              <div class="recipe-col">
+                <h4>Zubereitung</h4>
+                <ol>${item.zubereitung.map(z => `<li>${z}</li>`).join('')}</ol>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      el.querySelector('.recipe-head').addEventListener('click', () => {
+        el.classList.toggle('open');
+      });
+      wrap.appendChild(el);
+    });
+  }
+
+  let counter = 0;
+  Object.entries(categories).forEach(([id, items]) => renderCategory(id, items));
+</script>
+
+</body>
+</html>

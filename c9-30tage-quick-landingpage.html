@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coach Oaki · C9 – 13 Tage Challenge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0D2E2B;
+    --bg-raised: #133D39;
+    --ink: #F4F3EC;
+    --ink-muted: #93B0AA;
+    --hairline: #2A5450;
+    --gold: #DCEB2E;
+    --gold-dim: rgba(220,235,46,0.16);
+    --whatsapp: #25D366;
+    --radius: 14px;
+    --serif: 'Fraunces', serif;
+    --sans: 'Inter', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; background: var(--bg); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+  body{ min-height:100vh; display:flex; justify-content:center; padding: 28px 16px 40px; }
+  .app{ width:100%; max-width: 480px; }
+
+  .brandbar{ display:flex; justify-content:space-between; align-items:flex-start; padding-bottom: 18px; border-bottom: 1px solid var(--hairline); margin-bottom: 22px; }
+  .brandbar .name{ font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; }
+  .brandbar .tag{ font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-muted); text-align:right; }
+  .dot{ display:inline-block; width:6px; height:6px; border-radius:50%; background: var(--gold); margin-right:8px; }
+
+  .eyebrow{ font-family: var(--mono); font-size: 11px; letter-spacing:0.14em; text-transform:uppercase; color: var(--gold); margin-bottom: 12px; }
+  h1.hero{ font-family: var(--serif); font-weight: 400; font-size: 32px; line-height: 1.12; margin: 0 0 10px; }
+  h1.hero em{ font-style: italic; font-weight:500; color: var(--gold); }
+  .lede{ color: var(--ink-muted); font-size: 15px; line-height:1.55; margin-bottom: 18px; }
+
+  /* quick facts */
+  .facts{ display:flex; gap:10px; margin-bottom: 26px; }
+  .fact{ flex:1; background: var(--bg-raised); border:1px solid var(--hairline); border-radius: 10px; padding: 12px 8px; text-align:center; }
+  .fact .n{ font-family: var(--serif); font-size: 20px; color: var(--gold); line-height:1; margin-bottom:4px; }
+  .fact .l{ font-family: var(--mono); font-size: 9px; letter-spacing:0.05em; text-transform:uppercase; color: var(--ink-muted); }
+
+  /* quick value points */
+  .points{ display:flex; flex-direction:column; gap: 9px; margin-bottom: 26px; }
+  .point{ display:flex; gap:10px; align-items:flex-start; font-size: 14.5px; line-height:1.4; }
+  .point .check{ flex-shrink:0; width:19px; height:19px; border-radius:50%; background: var(--gold-dim); color: var(--gold); display:flex; align-items:center; justify-content:center; font-size:11px; margin-top:1px; }
+
+  /* mini roadmap */
+  section{ margin-bottom: 26px; }
+  h2.section-title{ font-family: var(--serif); font-weight: 400; font-size: 21px; margin: 0 0 14px; }
+  .journey{ position:relative; }
+  .journey-track{ position:relative; height:2px; background: repeating-linear-gradient(to right, var(--hairline) 0 6px, transparent 6px 12px); margin: 0 18px; }
+  .journey-steps{ display:flex; justify-content:space-between; margin-top: -10px; }
+  .journey-step{ display:flex; flex-direction:column; align-items:center; text-align:center; width: 33%; }
+  .journey-pin{ width:20px; height:20px; border-radius:50%; background: var(--bg); border:2px solid var(--gold); display:flex; align-items:center; justify-content:center; margin-bottom:10px; }
+  .journey-pin .inner{ width:7px; height:7px; border-radius:50%; background: var(--gold); }
+  .journey-step .label{ font-size: 12px; line-height:1.3; color: var(--ink); }
+
+  /* testimonial */
+  .testimonial{ background: var(--bg-raised); border:1px solid var(--hairline); border-radius: var(--radius); padding: 16px 18px; }
+  .testimonial p{ font-size: 13.5px; line-height:1.55; margin: 0 0 8px; font-style:italic; }
+  .testimonial .meta{ font-family: var(--mono); font-size: 10.5px; color: var(--gold); letter-spacing:0.05em; }
+
+  /* CTA */
+  .final-cta{ margin-top: 4px; }
+
+  .discount-badge{
+    display:flex; align-items:center; justify-content:center; gap:6px;
+    width:fit-content; margin: 0 auto 14px; padding: 7px 16px;
+    background: var(--gold-dim); border:1px solid var(--gold); border-radius: 999px;
+    font-family: var(--sans); font-weight: 700; font-size: 12.5px; color: var(--gold);
+    text-align:center; letter-spacing:0.01em;
+  }
+
+  .btn-whatsapp{
+    display:flex; align-items:center; justify-content:center; gap:10px; width:100%;
+    padding: 17px 22px; background: var(--whatsapp); color: #0A2018; border:none;
+    border-radius: var(--radius); font-family: var(--sans); font-weight: 700; font-size: 16px;
+    cursor:pointer; text-decoration:none;
+  }
+  .cta-sub{ text-align:center; font-family: var(--mono); font-size: 10.5px; color: var(--ink-muted); margin-top: 10px; letter-spacing:0.02em; }
+
+  .btn-video{
+    display:flex; align-items:center; justify-content:center; gap:8px; width:100%;
+    padding: 13px 22px; background: transparent; color: var(--ink-muted); border: 1px solid var(--hairline);
+    border-radius: var(--radius); font-family: var(--sans); font-weight: 600; font-size: 13.5px;
+    cursor:pointer; text-decoration:none; margin-top: 22px; transition: border-color .15s ease, color .15s ease;
+  }
+  .btn-video:hover{ border-color: var(--ink-muted); color: var(--ink); }
+  .btn-video svg{ flex-shrink:0; }
+
+  footer.legal{ margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--hairline); font-size: 10.5px; color: #5C8B84; line-height:1.5; text-align:center; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="brandbar">
+    <div class="name"><span class="dot"></span>COACH OAKI</div>
+    <div class="tag">C9 · 13-TAGE<br>CHALLENGE</div>
+  </div>
+
+  <div class="eyebrow">DIE KURZFASSUNG</div>
+  <h1 class="hero">In 13 Tagen <em>spürbar</em> verändert.</h1>
+  <p class="lede">Klarer Plan, echte Betreuung, kein Rätselraten. Alles, was du wissen musst – in 20 Sekunden.</p>
+
+  <div class="facts">
+    <div class="fact"><div class="n">13</div><div class="l">Tage</div></div>
+    <div class="fact"><div class="n">1:1</div><div class="l">Betreuung</div></div>
+    <div class="fact"><div class="n">-50%</div><div class="l">Sommer-Rabatt</div></div>
+  </div>
+
+  <div class="points">
+    <div class="point"><span class="check">✓</span>Klarer Tag-für-Tag-Plan, kein Kalorienzählen</div>
+    <div class="point"><span class="check">✓</span>Persönliche Betreuung per WhatsApp, keine allein gelassene App</div>
+    <div class="point"><span class="check">✓</span>Rezepte statt Verzicht – du musst nicht hungern</div>
+    <div class="point"><span class="check">✓</span>Keine spürbare Veränderung nach 9 Tagen? Geld zurück.</div>
+  </div>
+
+  <section>
+    <h2 class="section-title">In 3 Schritten los.</h2>
+    <div class="journey">
+      <div class="journey-track"></div>
+      <div class="journey-steps">
+        <div class="journey-step"><div class="journey-pin"><div class="inner"></div></div><div class="label">Kurzes Gespräch</div></div>
+        <div class="journey-step"><div class="journey-pin"><div class="inner"></div></div><div class="label">Start mit Plan</div></div>
+        <div class="journey-step"><div class="journey-pin"><div class="inner"></div></div><div class="label">Dein Ergebnis</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="testimonial">
+      <p>„Ich habe wieder mehr Energie und bin motivierter. Ich werde es sicher wiederholen.“</p>
+      <div class="meta">— Sarah B.</div>
+    </div>
+  </section>
+
+  <section>
+    <div class="testimonial">
+      <p>„Endlich ein Plan, den ich neben Job und Alltag wirklich durchziehen konnte – ohne Hungergefühl.“</p>
+      <div class="meta">— Laura R.</div>
+    </div>
+  </section>
+
+  <section>
+    <div class="testimonial">
+      <p>„Die Betreuung hat den Unterschied gemacht. Ich war an keinem Tag allein mit meinen Fragen.“</p>
+      <div class="meta">— Kathrin S.</div>
+    </div>
+  </section>
+
+  <div class="final-cta">
+    <div class="discount-badge">🔥 –50% Sommer-Rabatt gerade aktiv</div>
+
+    <a class="btn-whatsapp" href="https://chat.whatsapp.com/GDlzv61ZETIDR7j6JcNIuU?s=cl&amp;p=i&amp;ilr=2&amp;amv=0" rel="noopener">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.6 6.32A8.86 8.86 0 0 0 12.05 4a8.86 8.86 0 0 0-7.66 13.28L4 20l2.8-.36a8.86 8.86 0 0 0 5.25 1.7h.01a8.86 8.86 0 0 0 8.86-8.86 8.86 8.86 0 0 0-2.32-6.16Z" fill="#0A2018"/></svg>
+      Sichere dir kostenlose Infos
+    </a>
+    <div class="cta-sub">Antwort meist innerhalb weniger Stunden</div>
+
+    <a class="btn-video" href="#" target="_blank" rel="noopener">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.6"/><path d="M10 8.5L16 12L10 15.5V8.5Z" fill="currentColor"/></svg>
+      Lieber erst das Info-Video ansehen
+    </a>
+  </div>
+
+  <footer class="legal">© 2026 Coach Oaki · The Human Health Guide<br>Garantiebedingungen werden im persönlichen Gespräch geklärt.</footer>
+
+</div>
+</body>
+</html>

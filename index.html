@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Human Health Guide · Darm-Route Check</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0D2E2B;
+    --bg-raised: #133D39;
+    --bg-raised-hover: #1A4B45;
+    --ink: #F4F3EC;
+    --ink-muted: #93B0AA;
+    --hairline: #2A5450;
+    --gold: #DCEB2E;
+    --gold-dim: rgba(220,235,46,0.16);
+    --route-green: #2F6E5C;
+    --route-amber: #DCEB2E;
+    --route-red: #0F1715;
+    --radius: 14px;
+    --serif: 'Fraunces', serif;
+    --sans: 'Inter', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+  }
+
+  *{ box-sizing: border-box; }
+
+  html,body{
+    margin:0; padding:0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding: 32px 16px 64px;
+  }
+
+  .app{
+    width:100%;
+    max-width: 480px;
+  }
+
+  .brandbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    padding-bottom: 22px;
+    border-bottom: 1px solid var(--hairline);
+    margin-bottom: 28px;
+  }
+  .brandbar .name{
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+  .brandbar .tag{
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    text-align:right;
+  }
+  .dot{
+    display:inline-block;
+    width:6px; height:6px;
+    border-radius:50%;
+    background: var(--gold);
+    margin-right:8px;
+  }
+
+  /* --- Route / signature progress element --- */
+  .route-wrap{
+    margin-bottom: 26px;
+  }
+  .route-meta{
+    display:flex;
+    justify-content:space-between;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-muted);
+    letter-spacing: 0.06em;
+    margin-bottom:10px;
+  }
+  .route-track{
+    position:relative;
+    height: 10px;
+    border-radius: 6px;
+    background:
+      repeating-linear-gradient(
+        to right,
+        var(--hairline) 0 2px,
+        transparent 2px 10px
+      );
+    overflow: visible;
+  }
+  .route-track.banded{
+    background:
+      linear-gradient(to right,
+        var(--route-green) 0%, var(--route-green) 30.3%,
+        var(--route-amber) 30.3%, var(--route-amber) 63.6%,
+        var(--route-red) 63.6%, var(--route-red) 100%);
+    opacity: 0.9;
+  }
+  .route-fill{
+    position:absolute;
+    top:0; left:0; height:100%;
+    border-radius:6px;
+    background: var(--gold);
+    width: 0%;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  }
+  .route-pin{
+    position:absolute;
+    top:50%;
+    left:0%;
+    width: 18px; height:18px;
+    transform: translate(-50%,-50%);
+    transition: left 0.6s cubic-bezier(.4,0,.2,1);
+  }
+  .route-pin svg{ width:100%; height:100%; display:block; }
+  .route-bands-labels{
+    display:flex;
+    justify-content:space-between;
+    margin-top: 10px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    color: var(--ink-muted);
+  }
+
+  /* --- Screens --- */
+  .screen{ display:none; }
+  .screen.active{ display:block; animation: fadeIn 0.35s ease; }
+
+  @keyframes fadeIn{
+    from{ opacity:0; transform: translateY(6px); }
+    to{ opacity:1; transform: translateY(0); }
+  }
+
+  .eyebrow{
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color: var(--gold);
+    margin-bottom: 14px;
+  }
+
+  h1.hero{
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 42px;
+    line-height: 1.08;
+    margin: 0 0 20px;
+  }
+  h1.hero em{
+    font-style: italic;
+    font-weight:500;
+    color: var(--gold);
+  }
+
+  .lede{
+    color: var(--ink-muted);
+    font-size: 16px;
+    line-height:1.6;
+    margin-bottom: 32px;
+  }
+
+  .btn{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    width:100%;
+    padding: 18px 22px;
+    background: var(--gold);
+    color: #0D2E2B;
+    border:none;
+    border-radius: var(--radius);
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 16px;
+    cursor:pointer;
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+  .btn:hover{ transform: translateY(-1px); background:#E8F259; }
+  .btn:active{ transform: translateY(0); }
+  .btn:focus-visible{ outline: 2px solid var(--ink); outline-offset: 3px; }
+
+  .btn-ghost{
+    background: transparent;
+    color: var(--ink-muted);
+    border: 1px solid var(--hairline);
+    font-weight: 600;
+    padding: 12px 18px;
+    width:auto;
+  }
+  .btn-ghost:hover{ background: var(--bg-raised); color: var(--ink); }
+
+  .stat-row{
+    display:flex;
+    gap: 22px;
+    margin-top: 26px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-muted);
+    flex-wrap:wrap;
+  }
+  .stat-row b{ color: var(--ink); font-weight:600; }
+
+  .qnum{
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 15px;
+    color: var(--gold);
+    margin-bottom: 6px;
+  }
+
+  h2.qtitle{
+    font-family: var(--serif);
+    font-weight:400;
+    font-size: 28px;
+    line-height:1.22;
+    margin: 0 0 26px;
+  }
+
+  .options{
+    display:flex;
+    flex-direction:column;
+    gap: 10px;
+    margin-bottom: 22px;
+  }
+
+  .option{
+    text-align:left;
+    background: var(--bg-raised);
+    border: 1px solid var(--hairline);
+    color: var(--ink);
+    border-radius: var(--radius);
+    padding: 18px 18px;
+    font-family: var(--sans);
+    font-size: 15.5px;
+    line-height:1.4;
+    cursor:pointer;
+    transition: border-color 0.15s ease, background 0.15s ease, transform 0.1s ease;
+  }
+  .option:hover{ background: var(--bg-raised-hover); border-color: #3E7069; }
+  .option:active{ transform: scale(0.995); }
+  .option:focus-visible{ outline: 2px solid var(--gold); outline-offset:2px; }
+  .option.selected{ border-color: var(--gold); background: var(--gold-dim); }
+
+  .back-row{ margin-top: 6px; }
+
+  /* Lead form */
+  .field{ margin-bottom:18px; }
+  .field label{
+    display:block;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 8px;
+  }
+  .field input{
+    width:100%;
+    background: var(--bg-raised);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+    padding: 15px 16px;
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 15.5px;
+  }
+  .field input::placeholder{ color: #5C8B84; }
+  .field input:focus{ outline:none; border-color: var(--gold); }
+
+  .fineprint{
+    font-size: 12.5px;
+    color: var(--ink-muted);
+    line-height:1.6;
+    margin: 18px 0 26px;
+  }
+
+  /* Result */
+  .score-block{
+    text-align:center;
+    margin: 6px 0 30px;
+  }
+  .score-number{
+    font-family: var(--serif);
+    font-size: 76px;
+    line-height:1;
+    color: var(--gold);
+  }
+  .score-outof{
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--ink-muted);
+    letter-spacing:0.05em;
+  }
+
+  .zone-tag{
+    display:inline-block;
+    border: 1px solid var(--hairline);
+    border-radius: 999px;
+    padding: 7px 16px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    margin-bottom: 18px;
+    color: var(--gold);
+    border-color: var(--gold);
+  }
+
+  footer.legal{
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid var(--hairline);
+    font-size: 11.5px;
+    color: #5C8B84;
+    line-height:1.6;
+  }
+  footer.legal .brand{
+    margin-top:10px;
+    font-family: var(--mono);
+    letter-spacing:0.05em;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .screen.active{ animation:none; }
+    .route-fill, .route-pin{ transition:none; }
+  }
+
+  @media (max-width: 380px){
+    h1.hero{ font-size: 34px; }
+    h2.qtitle{ font-size: 24px; }
+    .score-number{ font-size: 60px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <div class="brandbar">
+    <div class="name"><span class="dot"></span>THE HUMAN<br>HEALTH GUIDE</div>
+    <div class="tag">DARM &amp;<br>ENERGIE-ROUTE</div>
+  </div>
+
+  <!-- Route / progress signature (shared between quiz + result) -->
+  <div class="route-wrap" id="routeWrap">
+    <div class="route-meta">
+      <span id="routeMetaLeft">0 / 8 beantwortet</span>
+      <span id="routeMetaRight"></span>
+    </div>
+    <div class="route-track" id="routeTrack">
+      <div class="route-fill" id="routeFill"></div>
+      <div class="route-pin" id="routePin">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="9" fill="#0D2E2B" stroke="#DCEB2E" stroke-width="2.5"/>
+          <circle cx="12" cy="12" r="3.4" fill="#DCEB2E"/>
+        </svg>
+      </div>
+    </div>
+    <div class="route-bands-labels" id="routeBandLabels" style="display:none;">
+      <span>0–8</span><span>9–16</span><span>17–24</span>
+    </div>
+  </div>
+
+  <!-- SCREEN 0: Landing -->
+  <section class="screen active" id="screen-landing">
+    <div class="eyebrow">THE HUMAN HEALTH GUIDE · DARM &amp; ENERGIE-ROUTE</div>
+    <h1 class="hero">Läuft dein Tag,<br>oder <em>schleppst</em><br>du dich durch?</h1>
+    <p class="lede">8 kurze Fragen zu Energie, Verdauung &amp; Ernährung. Am Ende bekommst du deine Position auf der Darm-Energie-Route – und den nächsten sinnvollen Schritt. Dauert etwa 60 Sekunden.</p>
+    <button class="btn" onclick="goTo('q', 0)">Route starten →</button>
+    <div class="stat-row">
+      <span><b>8</b> Fragen</span>
+      <span><b>60</b> Sekunden</span>
+      <span><b>Sofort</b>-Ergebnis</span>
+    </div>
+  </section>
+
+  <!-- SCREEN 1: Questions (rendered dynamically) -->
+  <section class="screen" id="screen-question">
+    <div class="qnum" id="qnum"></div>
+    <h2 class="qtitle" id="qtitle"></h2>
+    <div class="options" id="qoptions"></div>
+    <div class="back-row">
+      <button class="btn btn-ghost" id="backBtn" onclick="prevQuestion()">← zurück</button>
+    </div>
+  </section>
+
+  <!-- SCREEN 2: Lead capture -->
+  <section class="screen" id="screen-lead">
+    <div class="eyebrow">FAST GESCHAFFT</div>
+    <h1 class="hero" style="font-size:34px;">Deine Route<br>ist berechnet.</h1>
+    <p class="lede">Sag mir, wohin ich deine persönliche Auswertung schicken darf – dann zeige ich dir sofort deine Position auf der Route und deinen nächsten Schritt.</p>
+    <div class="field">
+      <label for="fname">Vorname</label>
+      <input type="text" id="fname" placeholder="Wie darf ich dich nennen?">
+    </div>
+    <div class="field">
+      <label for="femail">E-Mail</label>
+      <input type="email" id="femail" placeholder="dein@beispiel.de">
+    </div>
+    <button class="btn" onclick="submitLead()">Route anzeigen →</button>
+    <p class="fineprint">Mit dem Absenden erhältst du deine Auswertung und gelegentlich Impulse rund um Darm &amp; Energie. Abmeldung jederzeit möglich.</p>
+  </section>
+
+  <!-- SCREEN 3: Result -->
+  <section class="screen" id="screen-result">
+    <div class="eyebrow" id="resultEyebrow">DEINE POSITION</div>
+    <div class="score-block">
+      <div class="score-number" id="scoreNumber">0</div>
+      <div class="score-outof">von 24 Punkten</div>
+    </div>
+    <div style="text-align:center;">
+      <div class="zone-tag" id="zoneTag">RUHIGE STRECKE</div>
+    </div>
+    <h2 class="qtitle" id="resultTitle" style="font-size:26px; text-align:center;"></h2>
+    <p class="lede" id="resultBody" style="text-align:center;"></p>
+    <a class="btn" href="https://youtu.be/Jb-U16JUZmY" target="_blank" rel="noopener" style="display:block; text-align:center; text-decoration:none;">Info Video ansehen →</a>
+    <p class="fineprint" style="text-align:center;">Öffnet YouTube. Kurzes Video zu deinem nächsten Schritt.</p>
+  </section>
+
+  <footer class="legal">
+    Dieser Check dient der Selbsteinschätzung und ersetzt keine ärztliche oder ernährungsmedizinische Beratung. Ergebnisse können individuell variieren.
+    <div class="brand">© 2026 The Human Health Guide — Your roadmap to better health.</div>
+  </footer>
+
+</div>
+
+<script>
+  const questions = [
+    {
+      q: "Wie fühlst du dich in den ersten 30 Minuten nach dem Aufwachen?",
+      options: [
+        { text: "Wach und startklar", score: 0 },
+        { text: "Ich brauche eine kurze Anlaufphase", score: 1 },
+        { text: "Träge – erst der Kaffee weckt mich richtig", score: 2 },
+        { text: "Wie nach einer durchzechten Nacht, ganz ohne Alkohol", score: 3 },
+      ]
+    },
+    {
+      q: "Wie oft spannt oder drückt dein Bauch nach dem Essen?",
+      options: [
+        { text: "So gut wie nie", score: 0 },
+        { text: "Bei bestimmten Lebensmitteln", score: 1 },
+        { text: "Mehrmals pro Woche", score: 2 },
+        { text: "Nach fast jeder Mahlzeit", score: 3 },
+      ]
+    },
+    {
+      q: "Wie verlässlich ist dein Verdauungsrhythmus?",
+      options: [
+        { text: "Wie ein Uhrwerk, täglich", score: 0 },
+        { text: "Meistens zuverlässig", score: 1 },
+        { text: "Launisch – mal so, mal so", score: 2 },
+        { text: "Häufig aus dem Takt", score: 3 },
+      ]
+    },
+    {
+      q: "Wie laut meldet sich dein Süßhunger am Nachmittag?",
+      options: [
+        { text: "Er flüstert höchstens", score: 0 },
+        { text: "Ab und zu ein kurzes Zwicken", score: 1 },
+        { text: "Ein deutliches Rufen, fast täglich", score: 2 },
+        { text: "Ein Schreien, dem ich kaum widerstehe", score: 3 },
+      ]
+    },
+    {
+      q: "Kennst du das Leistungstief zwischen 14 und 16 Uhr?",
+      options: [
+        { text: "Nein, meine Energie bleibt stabil", score: 0 },
+        { text: "Nur an langen, stressigen Tagen", score: 1 },
+        { text: "Ja, fast täglich", score: 2 },
+        { text: "Ja, und ich komme danach kaum wieder in Schwung", score: 3 },
+      ]
+    },
+    {
+      q: "Wie liest sich dein Hautbild gerade?",
+      options: [
+        { text: "Klar und even", score: 0 },
+        { text: "Weitgehend in Ordnung", score: 1 },
+        { text: "Eher unrein oder fahl", score: 2 },
+        { text: "Anhaltende Probleme, die mich sichtbar stören", score: 3 },
+      ]
+    },
+    {
+      q: "Wie oft wirft dich ein Infekt aus der Bahn?",
+      options: [
+        { text: "Fast nie", score: 0 },
+        { text: "Ein- bis zweimal im Jahr", score: 1 },
+        { text: "Mehrmals im Jahr", score: 2 },
+        { text: "Gefühlt im Dauer-Abo", score: 3 },
+      ]
+    },
+    {
+      q: "Fühlt sich dein Kopf im Alltag klar an – oder eher wattig?",
+      options: [
+        { text: "Messerscharf", score: 0 },
+        { text: "Meistens klar", score: 1 },
+        { text: "Oft wie durch Nebel", score: 2 },
+        { text: "Dauerhaft neblig, ich verliere schnell den Faden", score: 3 },
+      ]
+    },
+  ];
+
+  const state = { current: 0, answers: new Array(questions.length).fill(null) };
+
+  function setRoute(percent, banded){
+    document.getElementById('routeFill').style.width = banded ? '0%' : percent + '%';
+    document.getElementById('routePin').style.left = percent + '%';
+    document.getElementById('routeTrack').classList.toggle('banded', !!banded);
+  }
+
+  function renderQuestion(){
+    const i = state.current;
+    const item = questions[i];
+    document.getElementById('qnum').textContent = String(i+1).padStart(2,'0');
+    document.getElementById('qtitle').textContent = item.q;
+    document.getElementById('routeMetaLeft').textContent = `${state.answers.filter(a=>a!==null).length} / ${questions.length} beantwortet`;
+    document.getElementById('routeMetaRight').textContent = `Frage ${i+1} von ${questions.length}`;
+    document.getElementById('routeBandLabels').style.display = 'none';
+
+    const optWrap = document.getElementById('qoptions');
+    optWrap.innerHTML = '';
+    item.options.forEach((opt, idx) => {
+      const b = document.createElement('button');
+      b.className = 'option' + (state.answers[i] === opt.score ? ' selected' : '');
+      b.textContent = opt.text;
+      b.onclick = () => selectAnswer(idx, opt.score);
+      optWrap.appendChild(b);
+    });
+
+    document.getElementById('backBtn').style.visibility = i === 0 ? 'hidden' : 'visible';
+    setRoute((i / questions.length) * 100, false);
+  }
+
+  function selectAnswer(idx, score){
+    state.answers[state.current] = score;
+    renderQuestion();
+    setTimeout(() => {
+      if(state.current < questions.length - 1){
+        state.current++;
+        renderQuestion();
+      } else {
+        setRoute(100, false);
+        goTo('lead');
+      }
+    }, 220);
+  }
+
+  function prevQuestion(){
+    if(state.current > 0){
+      state.current--;
+      renderQuestion();
+    }
+  }
+
+  async function submitLead(){
+    const name = document.getElementById('fname').value.trim();
+    const email = document.getElementById('femail').value.trim();
+    const score = state.answers.reduce((sum, s) => sum + (s || 0), 0);
+
+    const btn = document.querySelector('#screen-lead .btn');
+    const originalLabel = btn.textContent;
+    btn.textContent = 'Wird gesendet …';
+    btn.disabled = true;
+
+    try {
+      const res = await fetch('/.netlify/functions/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, score }),
+      });
+      if (!res.ok) {
+        console.error('MailerLite-Sync fehlgeschlagen:', await res.text());
+      }
+    } catch (err) {
+      // Netzwerkfehler o.ä. — Ergebnis trotzdem zeigen, damit der Besucher
+      // nicht hängen bleibt. Der Lead geht in diesem Fall aber nicht an
+      // MailerLite raus, daher lohnt es sich, den Fehler zu loggen/monitoren.
+      console.error('Subscribe-Request fehlgeschlagen:', err);
+    } finally {
+      btn.textContent = originalLabel;
+      btn.disabled = false;
+    }
+
+    showResult(name);
+  }
+
+  function showResult(name){
+    const score = state.answers.reduce((sum, s) => sum + (s || 0), 0);
+    document.getElementById('scoreNumber').textContent = score;
+
+    let zone, title, body;
+    if(score <= 8){
+      zone = 'RUHIGE STRECKE';
+      title = 'Deine Strecke läuft ruhig.';
+      body = 'Dein Darm-Energie-System läuft grundsätzlich rund. Ein paar gezielte Feinjustierungen bringen dich von „gut“ zu „spürbar mehr Energie“.';
+    } else if(score <= 16){
+      zone = 'KURVENREICHE STRECKE';
+      title = 'Erste Kurven-Warnschilder.';
+      body = 'Blähungen, ein Nachmittagstief, Heißhunger – dein Körper meldet sich bereits leise. Jetzt gegenzusteuern ist deutlich leichter, als später umzukehren.';
+    } else {
+      zone = 'BAUSTELLE VORAUS';
+      title = 'Mehrere Signale zeigen rot.';
+      body = 'Kein Grund zur Panik, aber ein klares Zeichen: Es ist Zeit für eine bewusste Routen-Korrektur, bevor sich die Baustelle vergrößert.';
+    }
+    document.getElementById('zoneTag').textContent = zone;
+    document.getElementById('resultTitle').textContent = title;
+    document.getElementById('resultBody').textContent = body;
+
+    document.getElementById('routeMetaLeft').textContent = 'Auswertung abgeschlossen';
+    document.getElementById('routeMetaRight').textContent = zone;
+    document.getElementById('routeBandLabels').style.display = 'flex';
+    setRoute((score/24)*100, true);
+
+    goTo('result');
+  }
+
+  function goTo(screen){
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    if(screen === 'q'){
+      state.current = 0;
+      document.getElementById('screen-question').classList.add('active');
+      renderQuestion();
+    } else {
+      document.getElementById('screen-' + screen).classList.add('active');
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+
+</body>
+</html>

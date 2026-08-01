@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coach Oaki · Darm und Haut erklärt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0D2E2B;
+    --bg-raised: #133D39;
+    --ink: #F4F3EC;
+    --ink-muted: #93B0AA;
+    --hairline: #2A5450;
+    --gold: #DCEB2E;
+    --gold-dim: rgba(220,235,46,0.16);
+    --radius: 14px;
+    --serif: 'Fraunces', serif;
+    --sans: 'Inter', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; background: var(--bg); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+  body{ min-height:100vh; display:flex; justify-content:center; padding: 28px 16px 40px; }
+  .app{ width:100%; max-width: 480px; }
+
+  .brandbar{ display:flex; justify-content:space-between; align-items:flex-start; padding-bottom: 18px; border-bottom: 1px solid var(--hairline); margin-bottom: 22px; }
+  .brandbar .name{ font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; }
+  .brandbar .tag{ font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-muted); text-align:right; }
+  .dot{ display:inline-block; width:6px; height:6px; border-radius:50%; background: var(--gold); margin-right:8px; }
+
+  .eyebrow{ font-family: var(--mono); font-size: 11px; letter-spacing:0.14em; text-transform:uppercase; color: var(--gold); margin-bottom: 12px; }
+  h1.hero{ font-family: var(--serif); font-weight: 400; font-size: 30px; line-height: 1.15; margin: 0 0 14px; }
+  h1.hero em{ font-style: italic; font-weight:500; color: var(--gold); }
+  p{ font-size: 14.5px; line-height:1.65; color: var(--ink); }
+  .lede{ color: var(--ink-muted); margin-bottom: 22px; }
+
+  section{ margin-bottom: 26px; }
+  h2.section-title{ font-family: var(--serif); font-weight: 400; font-size: 20px; margin: 0 0 12px; }
+
+  /* gut-skin axis flow visual */
+  .flow-wrap{ background: var(--bg-raised); border:1px solid var(--hairline); border-radius: var(--radius); padding: 16px 16px 14px; }
+  .flow-col{ display:flex; flex-direction:column; gap: 6px; margin-bottom: 10px; }
+  .flow-block{ display:flex; align-items:center; gap:10px; border-radius: 8px; background: var(--gold-dim); border: 1px solid var(--gold); padding: 9px 12px; }
+  .flow-block .num{ font-family: var(--mono); font-size: 10px; color: var(--gold); flex-shrink:0; }
+  .flow-block .txt{ font-size: 12.5px; line-height:1.4; }
+  .flow-arrow{ text-align:center; color: var(--gold); font-size: 13px; line-height:1; margin: -1px 0; }
+  .flow-caption{ font-size: 12px; color: var(--ink-muted); text-align:center; margin:0; }
+
+  .steps{ display:flex; flex-direction:column; gap: 8px; }
+  .step{ display:flex; gap:12px; align-items:flex-start; background: var(--bg-raised); border:1px solid var(--hairline); border-radius: 10px; padding: 12px 14px; }
+  .step .n{ font-family: var(--serif); font-style:italic; font-size: 16px; color: var(--gold); flex-shrink:0; }
+  .step p{ margin:0; font-size: 13.5px; }
+
+  .rec-card{ background: var(--gold-dim); border: 1px solid var(--gold); border-radius: var(--radius); padding: 18px 18px 16px; }
+  .rec-card h3{ font-family: var(--serif); font-weight:600; font-size: 18px; color: var(--gold); margin: 0 0 12px; }
+  .rec-row{ display:flex; gap: 10px; margin-bottom: 10px; }
+  .rec-row:last-child{ margin-bottom:0; }
+  .rec-label{ font-family: var(--mono); font-size: 10px; letter-spacing:0.08em; text-transform:uppercase; color: var(--ink-muted); width: 72px; flex-shrink:0; padding-top:1px; }
+  .rec-value{ font-size: 14px; line-height:1.45; }
+  .rec-value b{ color: var(--gold); }
+
+  .note-box{ background: var(--bg-raised); border-left: 3px solid var(--gold); border-radius: 8px; padding: 12px 14px; margin-top: 22px; }
+  .note-box p{ margin:0; font-size: 12.5px; color: var(--ink-muted); line-height:1.55; }
+
+  footer.legal{ margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--hairline); font-size: 10.5px; color: #5C8B84; line-height:1.5; text-align:center; }
+
+  @media print{
+    body{ padding: 22px 16px 30px; }
+    .flow-wrap, .step, .rec-card, .note-box, .cycle-wrap{ break-inside: avoid; }
+    h2.section-title{ break-after: avoid; }
+    section{ break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="brandbar">
+    <div class="name"><span class="dot"></span>COACH OAKI</div>
+    <div class="tag">DARM &amp;<br>HAUTBILD</div>
+  </div>
+
+  <div class="eyebrow">WARUM DARM UND HAUT ZUSAMMENHÄNGEN</div>
+  <h1 class="hero">Deine Haut zeigt, was in deinem <em>Darm</em> passiert.</h1>
+  <p class="lede">Unreine Haut und Cellulite werden oft nur von außen behandelt, mit Cremes, Peelings und Massagen. Dabei liegt eine der wichtigsten Ursachen viel tiefer: in deinem Darm.</p>
+
+  <section>
+    <p>Dein Darm beherbergt Billionen von Bakterien und rund <b>70 bis 80 % deiner Immunzellen</b>. Ist dieses Mikrobiom im Ungleichgewicht, zum Beispiel durch viel Zucker, wenig Ballaststoffe oder Stress, wird die Darmwand durchlässiger. Über diese "undichten" Stellen gelangen Entzündungsstoffe in deinen Blutkreislauf.</p>
+    <p>Dein Körper reagiert mit einer leichten, dauerhaften Entzündung, und die zeigt sich zuerst dort, wo Haut und Bindegewebe am empfindlichsten sind: <b>Unreinheiten</b> im Gesicht und ein geschwächtes, wassereinlagerndes Bindegewebe, das <b>Cellulite</b> sichtbarer macht.</p>
+  </section>
+
+  <section>
+    <div class="flow-wrap">
+      <div class="flow-col">
+        <div class="flow-block"><span class="num">01</span><span class="txt">Mikrobiom im Ungleichgewicht (Dysbiose)</span></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-block"><span class="num">02</span><span class="txt">Durchlässigere Darmwand ("Leaky Gut")</span></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-block"><span class="num">03</span><span class="txt">Entzündungsstoffe im Blutkreislauf</span></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-block"><span class="num">04</span><span class="txt">Sichtbar auf Haut &amp; Bindegewebe</span></div>
+      </div>
+      <p class="flow-caption">Der Zusammenhang zwischen Darm und Haut: was innen beginnt, zeigt sich außen.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="section-title">Worauf du achten solltest.</h2>
+    <div class="steps">
+      <div class="step"><span class="n">01</span><p>Ballaststoffreich essen: Gemüse, Vollkorn und Hülsenfrüchte füttern deine guten Darmbakterien.</p></div>
+      <div class="step"><span class="n">02</span><p>Fermentiertes einbauen: Sauerkraut, Kimchi oder Joghurt unterstützen ein vielfältiges Mikrobiom.</p></div>
+      <div class="step"><span class="n">03</span><p>Zucker und stark Verarbeitetes reduzieren: sie begünstigen Entzündungen und "ungünstige" Bakterien.</p></div>
+      <div class="step"><span class="n">04</span><p>Ausreichend trinken: unterstützt Verdauung, Lymphfluss und damit auch das Hautbild.</p></div>
+      <div class="step"><span class="n">05</span><p>Regelmäßig bewegen: fördert Darmperistaltik und Durchblutung von Haut und Bindegewebe.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="rec-card">
+      <h3>Meine Empfehlung</h3>
+      <div class="rec-row"><div class="rec-label">Fokus</div><div class="rec-value">Vielfalt vor Perfektion: <b>30 verschiedene Pflanzen</b> pro Woche gelten als guter Richtwert für ein starkes Mikrobiom.</div></div>
+      <div class="rec-row"><div class="rec-label">Geduld</div><div class="rec-value">Haut und Bindegewebszellen erneuern sich langsam: rechne mit <b>4 bis 8 Wochen</b>, bis Veränderungen sichtbar werden.</div></div>
+      <div class="rec-row"><div class="rec-label">Kombi</div><div class="rec-value">Ernährung, Bewegung und Flüssigkeit wirken <b>zusammen</b> stärker als jede Maßnahme für sich.</div></div>
+    </div>
+  </section>
+
+  <div class="note-box">
+    <p>Dieser Beitrag dient der allgemeinen Information und ersetzt keine medizinische Beratung. Bei anhaltenden Beschwerden der Haut oder der Verdauung sprich bitte mit deinem Arzt oder deiner Ärztin.</p>
+  </div>
+
+  <footer class="legal">© 2026 Coach Oaki · The Human Health Guide</footer>
+
+</div>
+</body>
+</html>

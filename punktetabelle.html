@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dominik Aichholzer Personal Training · Lebensmittelpunkte-Liste</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0D2E2B;
+    --bg-raised: #133D39;
+    --bg-raised-hover: #1A4B45;
+    --ink: #F4F3EC;
+    --ink-muted: #93B0AA;
+    --hairline: #2A5450;
+    --gold: #DCEB2E;
+    --gold-dim: rgba(220,235,46,0.16);
+    --pt-low: #2F6E5C;
+    --pt-mid: #DCEB2E;
+    --pt-high: #0F1715;
+    --radius: 14px;
+    --serif: 'Fraunces', serif;
+    --sans: 'Inter', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; background: var(--bg); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+  body{ min-height:100vh; display:flex; justify-content:center; padding: 32px 16px 64px; }
+  .app{ width:100%; max-width: 720px; }
+
+  .brandbar{ display:flex; justify-content:space-between; align-items:flex-start; padding-bottom: 22px; border-bottom: 1px solid var(--hairline); margin-bottom: 26px; }
+  .brandbar .name{ font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; }
+  .brandbar .tag{ font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-muted); text-align:right; }
+  .dot{ display:inline-block; width:6px; height:6px; border-radius:50%; background: var(--gold); margin-right:8px; }
+
+  .eyebrow{ font-family: var(--mono); font-size: 11px; letter-spacing:0.14em; text-transform:uppercase; color: var(--gold); margin-bottom: 14px; }
+  h1.hero{ font-family: var(--serif); font-weight: 400; font-size: 36px; line-height: 1.1; margin: 0 0 14px; }
+  h1.hero em{ font-style: italic; font-weight:500; color: var(--gold); }
+  .lede{ color: var(--ink-muted); font-size: 15.5px; line-height:1.6; margin-bottom: 28px; max-width: 56ch; }
+
+  /* legend */
+  .legend{ display:flex; gap:18px; flex-wrap:wrap; margin-bottom:24px; font-family: var(--mono); font-size:11px; color: var(--ink-muted); }
+  .legend .item{ display:flex; align-items:center; gap:7px; }
+  .legend .swatch{ width:10px; height:10px; border-radius:3px; }
+
+  /* search */
+  .search-wrap{ position:relative; margin-bottom: 22px; }
+  #searchInput{
+    width:100%; background: var(--bg-raised); border: 1px solid var(--hairline);
+    border-radius: var(--radius); padding: 15px 44px 15px 46px; color: var(--ink);
+    font-family: var(--sans); font-size: 16px;
+  }
+  #searchInput::placeholder{ color: #5C8B84; }
+  #searchInput:focus{ outline:none; border-color: var(--gold); }
+  .search-icon{ position:absolute; left:16px; top:50%; transform:translateY(-50%); color: var(--ink-muted); pointer-events:none; }
+  .clear-btn{
+    position:absolute; right:10px; top:50%; transform:translateY(-50%);
+    background:none; border:none; color: var(--ink-muted); font-family: var(--mono);
+    font-size: 11px; letter-spacing:0.05em; text-transform:uppercase; cursor:pointer; padding:8px;
+    display:none;
+  }
+
+  /* category nav */
+  .catnav{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom: 30px; }
+  .catnav button{
+    background: var(--bg-raised); border: 1px solid var(--hairline); color: var(--ink-muted);
+    font-family: var(--mono); font-size: 11px; letter-spacing:0.05em; text-transform:uppercase;
+    border-radius: 999px; padding: 8px 14px; cursor:pointer; transition: all .15s ease;
+  }
+  .catnav button:hover, .catnav button.active{ color: var(--ink); border-color: var(--gold); background: var(--gold-dim); }
+
+  .group{ margin-bottom: 34px; scroll-margin-top: 20px; }
+  .group-title{
+    font-family: var(--serif); font-style: italic; font-size: 24px; color: var(--gold);
+    margin: 0 0 4px;
+  }
+  .subgroup{ margin: 18px 0 10px; }
+  .subgroup-label{
+    display:inline-block; font-family: var(--mono); font-size: 10.5px; letter-spacing:0.1em;
+    text-transform:uppercase; color: var(--ink-muted); border: 1px solid var(--hairline);
+    border-radius: 999px; padding: 5px 12px; margin-bottom: 10px;
+  }
+
+  .rows{ display:flex; flex-direction:column; gap:1px; border-radius: var(--radius); overflow:hidden; }
+  .row{
+    display:flex; align-items:center; justify-content:space-between; gap: 14px;
+    background: var(--bg-raised); padding: 13px 16px; font-size: 15px;
+  }
+  .row .name{ flex:1; }
+  .row .points{
+    font-family: var(--mono); font-weight:600; font-size: 13px; min-width: 30px; text-align:center;
+    border-radius: 8px; padding: 4px 9px; color: #0D2E2B;
+  }
+  .row.hidden{ display:none; }
+  .group.all-hidden{ display:none; }
+
+  .no-results{ display:none; text-align:center; color: var(--ink-muted); padding: 40px 0; font-family: var(--mono); font-size: 13px; letter-spacing:0.05em; }
+
+  footer.legal{ margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--hairline); font-size: 11.5px; color: #5C8B84; line-height:1.6; }
+  footer.legal .brand{ margin-top:10px; font-family: var(--mono); letter-spacing:0.05em; }
+
+  @media (max-width: 380px){
+    h1.hero{ font-size: 28px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="brandbar">
+    <div class="name"><span class="dot"></span>DOMINIK AICHHOLZER<br>PERSONAL TRAINING</div>
+    <div class="tag">LEBENSMITTEL-<br>PUNKTE-LISTE</div>
+  </div>
+
+  <div class="eyebrow">WEGWEISER · KALORIEN-TANKSTELLE</div>
+  <h1 class="hero">Dein <em>Wegweiser</em><br>durch jeden Teller.</h1>
+  <p class="lede">Über 200 Lebensmittel, sortiert nach Punktwert – von 0 (wenig Kalorien) bis 10 (viel Kalorien). Tipp: Zubereitungsart und Saucen zählen extra dazu.</p>
+
+  <div class="legend">
+    <div class="item"><span class="swatch" style="background: var(--pt-low);"></span>0–3 · wenig Kalorien</div>
+    <div class="item"><span class="swatch" style="background: var(--pt-mid);"></span>4–6 · mittel</div>
+    <div class="item"><span class="swatch" style="background: var(--pt-high); border:1px solid var(--hairline);"></span>7–10 · viel Kalorien</div>
+  </div>
+
+  <div class="search-wrap">
+    <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+      <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <input type="text" id="searchInput" placeholder="Lebensmittel suchen … z.B. Lachs, Pommes, Reis">
+    <button class="clear-btn" id="clearBtn" onclick="clearSearch()">✕ leeren</button>
+  </div>
+
+  <div class="catnav" id="catnav"></div>
+
+  <div id="content"></div>
+  <div class="no-results" id="noResults">Kein Treffer. Versuch's mit einem anderen Begriff.</div>
+
+  <footer class="legal">
+    Diese Liste dient der groben Orientierung im Training und ersetzt keine individuelle Ernährungsberatung. *Wenn möglich, Bio-Qualität wählen.
+    <div class="brand">© 2026 Dominik Aichholzer Personal Training</div>
+  </footer>
+
+</div>
+
+<script>
+const data = [
+  { cat: "Eiweiß", sub: "Geflügel", items: [
+    ["Hühnerbrust (ohne Haut)",1],["Hühnerflügel/Schenkel",6],["Truthahnbrust (ohne Haut)",1],
+    ["Truthahnflügel/Schenkel",6],["Putenbrust (ohne Haut)",1],["Ente",7],["Gans",7],["Kleines Geflügel",6],
+  ]},
+  { cat: "Eiweiß", sub: "Schwein", items: [
+    ["Schweinskarree",4],["Schweineschnitzel",7],["Schweinsfilet",3],["Schweinsbraten",6],["Schweinsrippen",7],
+  ]},
+  { cat: "Eiweiß", sub: "Rind", items: [
+    ["Beef Jerky",3],["Rib Eye",5],["Rumpsteak",4],["T-Bone Steak",5],["Porterhouse Steak",4],
+    ["Hüftsteak",3],["Filet/Chateaubriand",2],["Sirloin Steak",5],["Kalb",2],["Gehacktes",5],
+    ["Tartar (nur Fleisch)",3],["Gehacktes légère",3],
+  ]},
+  { cat: "Eiweiß", sub: "Wild", items: [
+    ["Hirsch",3],["Reh",3],["Wildschwein",3],
+  ]},
+  { cat: "Eiweiß", sub: "Sonstiges Fleisch", items: [
+    ["Kaninchen",3],["Lamm",3],["Innereien",5],
+  ]},
+  { cat: "Eiweiß", sub: "Wurstware und Speck", items: [
+    ["Fleischkäse",9],["Bauchspeck",9],["Magerer Speck",7],["Diverse Würste",9],
+  ]},
+  { cat: "Eiweiß", sub: "Salami/Schinken", items: [
+    ["Putenschinken",3],["Rinderschinken",3],["Lachs (geräuchert)",3],["Lachs Sashimi",3],
+    ["Schweinsschinken (geräuchert)",8],["Kochschinken",6],["Diverse Salami (geräuchert)",8],["Trockenfleisch (Rind)",3],
+  ]},
+  { cat: "Eiweiß", sub: "Eier", items: [
+    ["Ganzes Ei",4],["Eiklar",1],
+  ]},
+  { cat: "Eiweiß", sub: "Milchprodukte", items: [
+    ["Proteinshake (fertig gekauft)",4],["Quark",4],["Magerquark",2],["1,5% fettarme Milch",3],
+    ["3,5% Vollmilch",4],["Mandelmilch",3],["Skyr",2],["Weichkäse (vollfett)",7],["Weichkäse (light)",4],
+    ["Hartkäse (vollfett)",7],["Hartkäse (light)",4],["Hüttenkäse",3],["Frischkäse (normal)",6],["Frischkäse (light)",4],
+    ["Feta",5],["Proteinjoghurt",4],["Mozzarella",6],["Parmesan",7],["Ricotta",4],["Burrata",8],["Camembert/Brie",7],
+  ]},
+  { cat: "Eiweiß", sub: "Fisch & Meeresfrüchte", items: [
+    ["Lachs",2],["Polardorsch",1],["Thunfisch",1],["Makrele",3],["Zander",2],["Kabeljau",2],
+    ["Hering",2],["Pangasius",2],["Hummer",2],["Krabben",2],["Auster",2],["Shrimps",1],["Muscheln",4],
+  ]},
+  { cat: "Eiweiß", sub: "Vegan", items: [
+    ["Tofu",2],["Linsen",3],["Kichererbsen",4],["Bohnen (rot)",4],["Tempeh",3],["Seitan",2],["Edamame",2],
+  ]},
+  { cat: "Eiweiß", sub: "Supplemente", items: [
+    ["Aminos/Whey",1],["BCAAs",1],["Creatin",1],
+  ]},
+
+  { cat: "Kohlenhydrate", sub: "Gemüse", items: [
+    ["Lauch",1],["Zwiebel",1],["Tomate",2],["Gurke",1],["Salat",1],["Zucchini",1],["Paprika",1],
+    ["Brokkoli",1],["Mais",4],["Karotte",3],["Spinat",1],["Rote Bete",2],["Chicorée",1],["Blattsalat",1],
+    ["Blumenkohl",1],["Aubergine",2],["Rahmspinat",3],["Romanesco",1],["Artischocke",3],["Kürbis",2],
+    ["Radieschen",1],["Bohne",2],["Erbse",2],["Spargel",1],["Fenchel",2],["Bambussprossen",1],["Mungosprossen",1],
+    ["Champignons/Pilze",1],["Rucola",1],["Sellerie",1],["Rotkohl",1],
+  ]},
+  { cat: "Kohlenhydrate", sub: "Obst", items: [
+    ["Kirsche",4],["Ananas",3],["Kaki",2],["Blaubeere",2],["Banane",5],["Apfel",2],["Orange",2],
+    ["Nektarine",2],["Pfirsich",3],["Himbeeren",2],["Erdbeere",2],["Honigmelone",4],["Wassermelone",3],
+    ["Brombeere",2],["Papaya",3],["Limette",1],["Rhabarber",2],["Trauben",6],["Kiwi",2],["Mango",4],
+    ["Grapefruit",2],["Feigen",4],["Datteln (getrocknet)",8],["Rosinen",8],
+  ]},
+  { cat: "Kohlenhydrate", sub: "Süßigkeiten/Snacks", items: [
+    ["Traubenzucker",6],["Choco Riegel",10],["Vollmilchschoki",10],["Zartbitterschoki",8],["Ben & Jerry's",10],
+    ["Cookies",10],["Marmelade",7],["Oatriegel",6],["Chips",10],["Nutella",10],["Erdnussbutter",6],
+    ["Fruchtchips",6],["Kuchen",10],["Redbull",10],["Zero Bars",5],["Proteinriegel",5],["Sonstige Süßigkeiten",10],
+    ["Schokocroissant",10],["Croissant",9],["Kornspitz",5],["Laugenspitz",7],["Kartoffelchips mit Öl (selbstgemacht)",4],
+    ["Whey mit Quark",3],["Whey mit Magerquark",2],["Eier-Omelett",5],["Porridge",4],["Porridge mit Beeren",4],["Popcorn",5],
+    ["Honig",8],["Zucker",9],["Ahornsirup",8],["Müsli/Granola",6],
+  ]},
+  { cat: "Kohlenhydrate", sub: "Carbs", items: [
+    ["Kartoffeln",3],["Süßkartoffeln",2],["Haferflocken",2],["Reis",2],["Nudeln",5],["Vollkornnudeln",4],
+    ["Couscous",5],["Reiswaffeln",2],["Maiswaffeln",3],["Wrapfladen",5],["Quinoa",2],["Amaranth",4],
+    ["Vollkornbrot",4],["Schwarzbrot",4],["Weißbrot",7],["Linsen-/Erbsen-Teigwaren",3],
+    ["Kidneybohnen",3],["Mungobohnen",3],["Glasnudeln",4],["Toastbrot",6],["Bagel",6],
+  ]},
+
+  { cat: "Fette", sub: "Fette (gesättigt)", items: [
+    ["Butter",7],["Sahne",10],["Rahm",8],["Schmalz",9],["Speck",8],
+  ]},
+  { cat: "Fette", sub: "Fette (ungesättigt)", items: [
+    ["Leinöl",2],["Kokosöl",2],["Olivenöl",2],["Rapsöl",5],["Kürbiskernöl",4],["Avocado",3],
+    ["Mandeln",2],["Walnüsse",2],["Erdnüsse",2],["Cashewkerne",2],["Pistazien",2],["Chiasamen",3],["Leinsamen",3],
+  ]},
+  { cat: "Fette", sub: "Supplemente", items: [
+    ["Omega 3",1],
+  ]},
+
+  { cat: "Fast Food", sub: "Fast Food", items: [
+    ["Pizza Prosciutto",8],["Dürüm",7],["Döner Kebap",7],["Burger",7],["Cheeseburger",8],["Pommes",9],
+    ["Chicken Nuggets",9],["Sushi",3],["Chinesisch",6],["Vietnamesisch",6],["Indisch",6],
+    ["Tacos",6],["Burrito",7],["Poke Bowl",5],["Falafel",6],["Gyros",7],
+  ]},
+
+  { cat: "Getränke", sub: "Alkoholfreie Getränke", items: [
+    ["Soft Drinks (mit Zucker)",10],["Soft Drinks (ohne Zucker)",2],["Mineralwasser still",1],["Mineralwasser prickelnd",2],
+    ["Coca Cola",10],["Sprite",10],["Fanta",10],["Apfelschorle",6],["Rivella",6],["Tee (ohne Zucker)",1],
+    ["Kaffee",2],["Cola Zero",2],["Cola Light",2],["Säfte",6],["Redbull",10],["Redbull Zero",2],
+    ["Latte Macchiato",4],["Cappuccino",3],["Espresso",2],["Hafermilch",3],["Sojamilch",3],["Kokosmilch (Getränk)",4],
+    ["Kombucha",3],["Bubble Tea",9],["Smoothie (gekauft)",7],
+  ]},
+  { cat: "Getränke", sub: "Alkoholische Getränke", items: [
+    ["Rotwein",6],["Weißwein",7],["Rosé Wein",7],["Champagne/Prosecco",7],["Starke Getränke (40 vol.%)",9],
+    ["Bittere Getränke (40 vol.%)",9],["Süße Getränke (10–30 vol.%)",10],["Bier",7],["Lager",7],
+    ["Radler sauer",7],["Radler süß",9],["Glühwein",10],["Cocktails",10],
+  ]},
+  { cat: "Getränke", sub: "Supplemente", items: [
+    ["Grüner Tee",1],
+  ]},
+
+  { cat: "Zubereitung", sub: "Zubereitung (dazu rechnen)", items: [
+    ["Wassergekocht",0],["Gegrillt",0],["Gedünstet",0],["In Kokosfett gebraten",2],["In Olivenöl gebraten",3],
+    ["Paniert",4],["Frittiert",7],
+  ]},
+
+  { cat: "Saucen", sub: "Saucen/Dressing (dazu rechnen)", items: [
+    ["Ketchup Zero Zucker",2],["Ketchup",6],["Senf",4],["Mayo",9],["Italiendressing",3],["Frenchdressing",5],
+    ["Olivenöl",3],["Apfelessig",3],["Kresseessig",2],["Rahmsauce",4],["Käsesauce",4],["Pfeffersauce",3],["Sojasauce",2],
+    ["Guacamole",4],["Hummus",3],["Pesto",6],["BBQ-Sauce",6],["Sweet-Chili-Sauce",6],
+  ]},
+];
+
+function pointColor(p){
+  if(p <= 3) return 'var(--pt-low)';
+  if(p <= 6) return 'var(--pt-mid)';
+  return 'var(--pt-high)';
+}
+function pointTextColor(p){
+  return p > 6 ? '#F4F3EC' : '#0D2E2B';
+}
+
+// group by category, preserving sub-order
+const categories = [];
+data.forEach(block => {
+  let c = categories.find(c => c.cat === block.cat);
+  if(!c){ c = { cat: block.cat, subs: [] }; categories.push(c); }
+  c.subs.push({ sub: block.sub, items: block.items });
+});
+
+const content = document.getElementById('content');
+const catnav = document.getElementById('catnav');
+
+categories.forEach((c, ci) => {
+  const slug = 'cat-' + ci;
+  const navBtn = document.createElement('button');
+  navBtn.textContent = c.cat;
+  navBtn.onclick = () => document.getElementById(slug).scrollIntoView({behavior:'smooth', block:'start'});
+  catnav.appendChild(navBtn);
+
+  const groupEl = document.createElement('div');
+  groupEl.className = 'group';
+  groupEl.id = slug;
+  groupEl.dataset.cat = c.cat;
+
+  const h = document.createElement('h2');
+  h.className = 'group-title';
+  h.textContent = c.cat;
+  groupEl.appendChild(h);
+
+  c.subs.forEach(s => {
+    const subWrap = document.createElement('div');
+    subWrap.className = 'subgroup';
+    const label = document.createElement('span');
+    label.className = 'subgroup-label';
+    label.textContent = s.sub;
+    subWrap.appendChild(label);
+
+    const rows = document.createElement('div');
+    rows.className = 'rows';
+    s.items.forEach(([name, pts]) => {
+      const row = document.createElement('div');
+      row.className = 'row';
+      row.dataset.name = name.toLowerCase();
+      row.innerHTML = `<span class="name">${name}</span><span class="points" style="background:${pointColor(pts)}; color:${pointTextColor(pts)};">${pts}</span>`;
+      rows.appendChild(row);
+    });
+    subWrap.appendChild(rows);
+    groupEl.appendChild(subWrap);
+  });
+
+  content.appendChild(groupEl);
+});
+
+const searchInput = document.getElementById('searchInput');
+const clearBtn = document.getElementById('clearBtn');
+const noResults = document.getElementById('noResults');
+
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.trim().toLowerCase();
+  clearBtn.style.display = q ? 'block' : 'none';
+  let anyVisible = false;
+
+  document.querySelectorAll('.group').forEach(group => {
+    let groupHasMatch = false;
+    group.querySelectorAll('.row').forEach(row => {
+      const match = !q || row.dataset.name.includes(q);
+      row.classList.toggle('hidden', !match);
+      if(match) groupHasMatch = true;
+    });
+    group.classList.toggle('all-hidden', !groupHasMatch);
+    if(groupHasMatch) anyVisible = true;
+  });
+
+  document.getElementById('catnav').style.display = q ? 'none' : 'flex';
+  noResults.style.display = (q && !anyVisible) ? 'block' : 'none';
+});
+
+function clearSearch(){
+  searchInput.value = '';
+  searchInput.dispatchEvent(new Event('input'));
+  searchInput.focus();
+}
+</script>
+</body>
+</html>
