@@ -94,10 +94,18 @@
 
   /* gift cards */
   .gifts{ display:flex; flex-direction:column; gap: 12px; margin-bottom: 26px; }
-  .gift-card{ display:flex; gap:14px; align-items:center; text-align:left; background: var(--bg-raised); border: 2px solid var(--hairline); border-radius: var(--radius); padding: 14px 16px; cursor:pointer; transition: border-color 0.15s ease, background 0.15s ease; }
+  .gift-card{ display:flex; gap:16px; align-items:center; text-align:left; background: var(--bg-raised); border: 2px solid var(--hairline); border-radius: var(--radius); padding: 14px 16px; cursor:pointer; transition: border-color 0.15s ease, background 0.15s ease; }
   .gift-card:hover{ border-color: #3E7069; }
   .gift-card.selected{ border-color: var(--gold); background: var(--gold-dim); }
-  .gift-thumb{ flex-shrink:0; width:52px; height:52px; border-radius: 10px; background: var(--gold-dim); border: 1px solid var(--hairline); display:flex; align-items:center; justify-content:center; font-family: var(--serif); font-style:italic; font-size:20px; color: var(--gold); }
+
+  /* Bildfläche pro Geschenk. Einfach "img" beim jeweiligen Geschenk unten
+     im Script setzen (z. B. "img: '/geschenk-1.jpg'"), dann erscheint hier
+     automatisch das Bild statt des Platzhalters. */
+  .gift-thumb{ flex-shrink:0; width:84px; height:84px; border-radius: 10px; overflow:hidden; background: var(--gold-dim); border: 1px solid var(--hairline); display:flex; align-items:center; justify-content:center; }
+  .gift-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .gift-thumb.placeholder{ background: transparent; border: 1px dashed var(--hairline); flex-direction:column; gap:4px; }
+  .gift-thumb.placeholder .ph-icon{ color: var(--ink-muted); }
+  .gift-thumb.placeholder .ph-label{ font-family: var(--mono); font-size: 8.5px; letter-spacing:0.05em; text-transform:uppercase; color: var(--ink-muted); }
   .gift-info .gift-title{ font-weight:700; font-size: 15px; margin-bottom:2px; }
   .gift-info .gift-desc{ font-size: 13px; color: var(--ink-muted); line-height:1.4; }
 
@@ -265,13 +273,15 @@
   ];
 
   // ============================================================
-  // Geschenke. Platzhalter, im Code leicht austauschbar.
-  // "thumb" ist ein kurzes Kürzel/Icon-Ersatz, kein echtes Bild nötig.
+  // Geschenke. "img" leer lassen (null) für den Bild-Platzhalter,
+  // oder einen Bildpfad eintragen (z. B. "/geschenk-1.jpg"), dann
+  // erscheint automatisch das Bild statt des Platzhalters.
+  // "thumb" ist nur die Nummer, die im Platzhalter angezeigt wird.
   // ============================================================
   const gifts = [
-    { id: 'geschenk_1', thumb: '01', title: 'Geschenk 1 – Titel', desc: 'Kurze Platzhalter-Beschreibung, was das Geschenk ist.' },
-    { id: 'geschenk_2', thumb: '02', title: 'Geschenk 2 – Titel', desc: 'Kurze Platzhalter-Beschreibung, was das Geschenk ist.' },
-    { id: 'geschenk_3', thumb: '03', title: 'Geschenk 3 – Titel', desc: 'Kurze Platzhalter-Beschreibung, was das Geschenk ist.' },
+    { id: 'geschenk_1', thumb: '01', img: null, title: 'Unsere kleinste Apotheke der Welt', desc: 'Kurze Platzhalter-Beschreibung, was das Geschenk ist.' },
+    { id: 'geschenk_2', thumb: '02', img: null, title: 'Gutschein für eine Gesichtsbehandlung', desc: 'Kurze Platzhalter-Beschreibung, was das Geschenk ist.' },
+    { id: 'geschenk_3', thumb: '03', img: null, title: 'Mystery Box', desc: 'Kurze Platzhalter-Beschreibung, was das Geschenk ist.' },
   ];
 
   // Platzhalter-Links für den bedingten Zwischenschritt (Schritt 7).
@@ -443,7 +453,10 @@
       card.type = 'button';
       card.className = 'gift-card';
       if(state.gift === g.id) card.classList.add('selected');
-      card.innerHTML = `<span class="gift-thumb">${g.thumb}</span><span class="gift-info"><span class="gift-title">${g.title}</span><br><span class="gift-desc">${g.desc}</span></span>`;
+      const thumbHtml = g.img
+        ? `<span class="gift-thumb"><img src="${g.img}" alt="${g.title}"></span>`
+        : `<span class="gift-thumb placeholder"><svg class="ph-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="1.6"/><circle cx="8.5" cy="9" r="1.5" fill="currentColor"/><path d="M21 15l-5-5-9 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="ph-label">Bild ${g.thumb}</span></span>`;
+      card.innerHTML = `${thumbHtml}<span class="gift-info"><span class="gift-title">${g.title}</span><br><span class="gift-desc">${g.desc}</span></span>`;
       card.onclick = () => {
         state.gift = g.id;
         document.querySelectorAll('.gift-card').forEach(c => c.classList.remove('selected'));
