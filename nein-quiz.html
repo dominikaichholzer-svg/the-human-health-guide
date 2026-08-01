@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coach Oaki · Kurzes Feedback</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     Farbschema/Branding: Platzhalter. Einfach die Variablen unten
+     austauschen, der Rest der Seite passt sich automatisch an.
+     ============================================================ */
+  :root{
+    --bg: #0D2E2B;
+    --bg-raised: #133D39;
+    --bg-raised-hover: #1A4B45;
+    --ink: #F4F3EC;
+    --ink-muted: #93B0AA;
+    --hairline: #2A5450;
+    --gold: #DCEB2E;
+    --gold-dim: rgba(220,235,46,0.16);
+    --error: #E8635A;
+    --radius: 14px;
+    --serif: 'Fraunces', serif;
+    --sans: 'Inter', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; background: var(--bg); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+  body{ min-height:100vh; display:flex; justify-content:center; padding: 32px 16px 64px; }
+  .app{ width:100%; max-width: 480px; }
+
+  .brandbar{ display:flex; justify-content:space-between; align-items:flex-start; padding-bottom: 22px; border-bottom: 1px solid var(--hairline); margin-bottom: 28px; }
+  .brandbar .name{ font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; }
+  .brandbar .tag{ font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-muted); text-align:right; }
+  .dot{ display:inline-block; width:6px; height:6px; border-radius:50%; background: var(--gold); margin-right:8px; }
+
+  /* progress bar */
+  .progress-wrap{ margin-bottom: 26px; }
+  .progress-meta{ display:flex; justify-content:space-between; font-family: var(--mono); font-size: 11px; color: var(--ink-muted); letter-spacing:0.06em; margin-bottom:10px; }
+  .progress-track{ position:relative; height: 6px; border-radius: 6px; background: var(--hairline); overflow:hidden; }
+  .progress-fill{ position:absolute; top:0; left:0; height:100%; border-radius:6px; background: var(--gold); width:0%; transition: width 0.4s cubic-bezier(.4,0,.2,1); }
+
+  .screen{ display:none; }
+  .screen.active{ display:block; animation: fadeIn 0.35s ease; }
+  @keyframes fadeIn{ from{ opacity:0; transform: translateY(6px); } to{ opacity:1; transform: translateY(0); } }
+  @media (prefers-reduced-motion: reduce){ .screen.active{ animation:none; } .progress-fill{ transition:none; } }
+
+  .eyebrow{ font-family: var(--mono); font-size: 11px; letter-spacing:0.14em; text-transform:uppercase; color: var(--gold); margin-bottom: 14px; }
+  h1.hero{ font-family: var(--serif); font-weight: 400; font-size: 36px; line-height: 1.12; margin: 0 0 18px; }
+  h1.hero em{ font-style: italic; font-weight:500; color: var(--gold); }
+  .lede{ color: var(--ink-muted); font-size: 15.5px; line-height:1.6; margin-bottom: 30px; }
+
+  .btn{ display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding: 18px 22px; background: var(--gold); color: #0D2E2B; border:none; border-radius: var(--radius); font-family: var(--sans); font-weight: 700; font-size: 16px; cursor:pointer; text-decoration:none; transition: transform 0.15s ease, background 0.15s ease; }
+  .btn:hover{ transform: translateY(-1px); background:#E8F259; }
+  .btn:active{ transform: translateY(0); }
+  .btn:disabled{ opacity:0.6; cursor:default; transform:none; }
+
+  .btn-outline{ display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding: 16px 22px; background: transparent; color: var(--gold); border: 1px solid var(--gold); border-radius: var(--radius); font-family: var(--sans); font-weight: 700; font-size: 15px; cursor:pointer; text-decoration:none; transition: background 0.15s ease; margin-bottom: 12px; }
+  .btn-outline:hover{ background: var(--gold-dim); }
+
+  .btn-ghost{ background: transparent; color: var(--ink-muted); border: 1px solid var(--hairline); font-weight: 600; padding: 12px 18px; width:auto; }
+  .btn-ghost:hover{ background: var(--bg-raised); color: var(--ink); }
+
+  .qnum{ font-family: var(--serif); font-style: italic; font-size: 15px; color: var(--gold); margin-bottom: 6px; }
+  h2.qtitle{ font-family: var(--serif); font-weight:400; font-size: 25px; line-height:1.25; margin: 0 0 10px; }
+  .qsubtitle{ color: var(--ink-muted); font-size: 14px; line-height:1.55; margin: 0 0 22px; }
+
+  .options{ display:flex; flex-direction:column; gap: 10px; margin-bottom: 8px; }
+  .option{ text-align:left; background: var(--bg-raised); border: 1px solid var(--hairline); color: var(--ink); border-radius: var(--radius); padding: 16px 18px; font-family: var(--sans); font-size: 15px; line-height:1.4; cursor:pointer; transition: border-color 0.15s ease, background 0.15s ease, transform 0.1s ease; }
+  .option:hover{ background: var(--bg-raised-hover); border-color: #3E7069; }
+  .option:active{ transform: scale(0.995); }
+  .option.selected{ border-color: var(--gold); background: var(--gold-dim); }
+
+  .freetext-wrap{ margin: 14px 0 8px; display:none; }
+  .freetext-wrap.visible{ display:block; }
+  textarea, .field input{ width:100%; background: var(--bg-raised); border: 1px solid var(--hairline); border-radius: var(--radius); padding: 15px 16px; color: var(--ink); font-family: var(--sans); font-size: 15px; resize: vertical; }
+  textarea{ min-height: 96px; line-height:1.5; }
+  textarea::placeholder, .field input::placeholder{ color: #5C8B84; }
+  textarea:focus, .field input:focus{ outline:none; border-color: var(--gold); }
+
+  .nav-row{ display:flex; justify-content:space-between; align-items:center; margin-top: 20px; gap: 12px; }
+  .nav-row .btn{ flex:1; }
+
+  .field{ margin-bottom:16px; }
+  .field label{ display:block; font-family: var(--mono); font-size: 11px; letter-spacing:0.08em; text-transform:uppercase; color: var(--ink-muted); margin-bottom: 8px; }
+  .field .error-msg{ display:none; color: var(--error); font-size: 12.5px; margin-top:6px; }
+  .field.invalid input{ border-color: var(--error); }
+  .field.invalid .error-msg{ display:block; }
+
+  .fineprint{ font-size: 12.5px; color: var(--ink-muted); line-height:1.6; margin: 16px 0 0; }
+
+  /* gift cards */
+  .gifts{ display:flex; flex-direction:column; gap: 12px; margin-bottom: 26px; }
+  .gift-card{ display:flex; gap:14px; align-items:center; text-align:left; background: var(--bg-raised); border: 2px solid var(--hairline); border-radius: var(--radius); padding: 14px 16px; cursor:pointer; transition: border-color 0.15s ease, background 0.15s ease; }
+  .gift-card:hover{ border-color: #3E7069; }
+  .gift-card.selected{ border-color: var(--gold); background: var(--gold-dim); }
+  .gift-thumb{ flex-shrink:0; width:52px; height:52px; border-radius: 10px; background: var(--gold-dim); border: 1px solid var(--hairline); display:flex; align-items:center; justify-content:center; font-family: var(--serif); font-style:italic; font-size:20px; color: var(--gold); }
+  .gift-info .gift-title{ font-weight:700; font-size: 15px; margin-bottom:2px; }
+  .gift-info .gift-desc{ font-size: 13px; color: var(--ink-muted); line-height:1.4; }
+
+  footer.legal{ margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--hairline); font-size: 11.5px; color: #5C8B84; line-height:1.6; }
+  footer.legal .brand{ margin-top:10px; font-family: var(--mono); letter-spacing:0.05em; }
+
+  @media (max-width: 380px){
+    h1.hero{ font-size: 30px; }
+    h2.qtitle{ font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="brandbar">
+    <div class="name"><span class="dot"></span>COACH OAKI</div>
+    <div class="tag">KURZES<br>FEEDBACK</div>
+  </div>
+
+  <div class="progress-wrap" id="progressWrap" style="display:none;">
+    <div class="progress-meta">
+      <span id="progressLabel">Frage 1 von 5</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+
+  <!-- SCREEN 0: Intro -->
+  <section class="screen active" id="screen-intro">
+    <div class="eyebrow">DANKE FÜR DEINE ZEIT</div>
+    <h1 class="hero">Kurz <em>ehrlich</em> sein?</h1>
+    <p class="lede">Du hast Nein gesagt, und das ist völlig ok. Ein paar kurze Fragen würden mir trotzdem sehr helfen, besser zu verstehen, was für dich zählt. Dauert etwa 60 Sekunden. Am Ende warten 3 Geschenke, aus denen du selbst wählen kannst.</p>
+    <button class="btn" onclick="startQuiz()">Los geht's →</button>
+  </section>
+
+  <!-- SCREEN 1: Questions (rendered dynamically) -->
+  <section class="screen" id="screen-question">
+    <div class="qnum" id="qnum"></div>
+    <h2 class="qtitle" id="qtitle"></h2>
+    <p class="qsubtitle" id="qsubtitle" style="display:none;"></p>
+
+    <div class="options" id="qoptions"></div>
+    <div class="freetext-wrap" id="qFreetextWrap">
+      <textarea id="qFreetextInline" placeholder=""></textarea>
+    </div>
+
+    <div class="freetext-wrap" id="qFreetextOnlyWrap">
+      <textarea id="qFreetextOnly" placeholder=""></textarea>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-ghost" id="backBtn" onclick="prevQuestion()">← zurück</button>
+      <button class="btn" id="nextBtn" onclick="nextQuestion()">Weiter →</button>
+    </div>
+  </section>
+
+  <!-- SCREEN 2: Conditional interstitial (only if Q3 = Ja-Option) -->
+  <section class="screen" id="screen-interstitial">
+    <div class="eyebrow">SCHÖN, DAS ZU HÖREN</div>
+    <h1 class="hero">Bevor es zu den <em>Geschenken</em> geht.</h1>
+    <p class="lede">Falls du magst, kannst du dir hier noch kurz was ansehen, oder direkt weitermachen.</p>
+    <a class="btn-outline" id="interstitialProductLink" href="#" target="_blank" rel="noopener">Mehr zu den Produkten</a>
+    <a class="btn-outline" id="interstitialBusinessLink" href="#" target="_blank" rel="noopener">Mehr übers Geschäft</a>
+    <button class="btn" onclick="goTo('final')">Weiter zu den Geschenken →</button>
+  </section>
+
+  <!-- SCREEN 3: Final / Gifts + Email -->
+  <section class="screen" id="screen-final">
+    <div class="eyebrow">ALS DANKESCHÖN</div>
+    <h1 class="hero">3 <em>Geschenke</em> warten auf dich.</h1>
+    <p class="lede">Wähle eins aus, das dir gefällt.</p>
+
+    <div class="gifts" id="giftList">
+      <!-- Platzhalter: Titel, Beschreibung und Kürzel unten im Script unter "gifts" anpassen -->
+    </div>
+
+    <div class="field" id="emailField">
+      <label for="femail">E-Mail</label>
+      <input type="email" id="femail" placeholder="dein@beispiel.de">
+      <div class="error-msg" id="emailError">Bitte gib eine gültige E-Mail-Adresse ein.</div>
+    </div>
+
+    <button class="btn" id="submitBtn" onclick="submitQuiz()">Absenden</button>
+    <p class="fineprint">Mit dem Absenden erhältst du dein gewähltes Geschenk und gelegentlich Impulse per E-Mail. Abmeldung jederzeit möglich.</p>
+  </section>
+
+  <!-- SCREEN 4: Thank you -->
+  <section class="screen" id="screen-thanks">
+    <div class="eyebrow">GESCHAFFT</div>
+    <h1 class="hero">Danke dir <em>von Herzen</em>.</h1>
+    <p class="lede">Dein Geschenk ist unterwegs zu deiner E-Mail-Adresse. Schau notfalls kurz im Spam-Ordner nach.</p>
+  </section>
+
+  <footer class="legal">
+    Deine Antworten werden vertraulich behandelt und nur genutzt, um dir passende Inhalte zu schicken.
+    <div class="brand">© 2026 Coach Oaki · The Human Health Guide</div>
+  </footer>
+
+</div>
+
+<script>
+  // ============================================================
+  // Fragen. type: 'single' (Auswahl) oder 'freetext' (nur Textfeld).
+  // Bei 'single'-Optionen kann "freetext:true" gesetzt werden, dann
+  // erscheint bei Auswahl dieser Option ein zusätzliches Textfeld
+  // (z. B. für "Sonstiges").
+  // ============================================================
+  const questions = [
+    {
+      id: 'q1',
+      type: 'single',
+      title: 'Was beschreibt deine Antwort am besten?',
+      options: [
+        { value: 'nicht_spannend', label: 'Es ist aktuell einfach nicht spannend für mich, mehr über das Business zu erfahren' },
+        { value: 'kein_interesse', label: 'Mich interessiert das grundsätzlich überhaupt nicht' },
+        { value: 'skeptisch', label: 'Ich bin einfach eher skeptisch' },
+        { value: 'sonstiges', label: 'Sonstiges', freetext: true, freetextPlaceholder: 'Magst du kurz sagen, was genau? (optional)' },
+      ],
+    },
+    {
+      id: 'q2',
+      type: 'freetext',
+      title: 'Magst du uns verraten, warum dich das Geschäft nicht anspricht?',
+      placeholder: 'Deine Antwort (optional) …',
+      optional: true,
+    },
+    {
+      id: 'q3',
+      type: 'single',
+      title: 'Wärst du offen, kostenlose/r Produkttester/in zu werden?',
+      subtitle: 'Einzige Bedingung: ehrliches Feedback in Textform (kein Video, keine Fotos nötig).',
+      options: [
+        { value: 'nein', label: 'Nein' },
+        { value: 'ja_gesichtspflege', label: 'Ja – Gesichtspflege', category: 'Gesichtspflege' },
+        { value: 'ja_sportgesundheit', label: 'Ja – Sportgesundheit', category: 'Sportgesundheit' },
+        { value: 'ja_alltagspflege', label: 'Ja – Alltagspflege', category: 'Alltagspflege' },
+      ],
+    },
+    // Vorschlag zur strategischen Auswertung — bei Bedarf einfach das
+    // ganze Objekt hier aus dem Array entfernen.
+    {
+      id: 'q4',
+      type: 'single',
+      title: 'Was müsste sich ändern, damit es für dich interessant werden könnte?',
+      options: [
+        { value: 'mehr_zeit', label: 'Mehr Zeit' },
+        { value: 'mehr_infos', label: 'Mehr Informationen/Klarheit' },
+        { value: 'anderes_modell', label: 'Ein anderes Geschäftsmodell' },
+        { value: 'nicht_der_typ', label: 'Nichts, ich bin einfach nicht der Typ dafür' },
+        { value: 'sonstiges', label: 'Sonstiges', freetext: true, freetextPlaceholder: 'Was genau? (optional)' },
+      ],
+    },
+    // Vorschlag zur strategischen Auswertung — bei Bedarf einfach das
+    // ganze Objekt hier aus dem Array entfernen.
+    {
+      id: 'q5',
+      type: 'single',
+      title: 'Könntest du dir vorstellen, das Thema in ein paar Monaten nochmal anzuschauen?',
+      options: [
+        { value: 'ja', label: 'Ja, gerne' },
+        { value: 'vielleicht', label: 'Vielleicht' },
+        { value: 'eher_nicht', label: 'Eher nicht' },
+      ],
+    },
+  ];
+
+  // ============================================================
+  // Geschenke. Platzhalter, im Code leicht austauschbar.
+  // "thumb" ist ein kurzes Kürzel/Icon-Ersatz, kein echtes Bild nötig.
+  // ============================================================
+  const gifts = [
+    { id: 'geschenk_1', thumb: '01', title: 'Geschenk 1 – Titel', desc: 'Kurze Platzhalter-Beschreibung, was das Geschenk ist.' },
+    { id: 'geschenk_2', thumb: '02', title: 'Geschenk 2 – Titel', desc: 'Kurze Platzhalter-Beschreibung, was das Geschenk ist.' },
+    { id: 'geschenk_3', thumb: '03', title: 'Geschenk 3 – Titel', desc: 'Kurze Platzhalter-Beschreibung, was das Geschenk ist.' },
+  ];
+
+  // Platzhalter-Links für den bedingten Zwischenschritt (Schritt 7).
+  // Pro Produkttester-Kategorie kann ein eigener Link hinterlegt werden;
+  // "default" greift, falls für eine Kategorie kein eigener Link gesetzt ist.
+  const productLinks = {
+    default: '#',
+    Gesichtspflege: '#',
+    Sportgesundheit: '#',
+    Alltagspflege: '#',
+  };
+  const businessLink = '#';
+
+  const state = {
+    current: 0,
+    answers: {}, // { [questionId]: { value, label, freetext } }
+    gift: null,
+  };
+
+  function startQuiz(){
+    state.current = 0;
+    document.getElementById('progressWrap').style.display = 'block';
+    goTo('question');
+    renderQuestion();
+  }
+
+  function renderQuestion(){
+    const q = questions[state.current];
+    const qnumEl = document.getElementById('qnum');
+    const qtitleEl = document.getElementById('qtitle');
+    const qsubtitleEl = document.getElementById('qsubtitle');
+    const optionsEl = document.getElementById('qoptions');
+    const freetextWrap = document.getElementById('qFreetextWrap');
+    const freetextInline = document.getElementById('qFreetextInline');
+    const freetextOnlyWrap = document.getElementById('qFreetextOnlyWrap');
+    const freetextOnly = document.getElementById('qFreetextOnly');
+    const backBtn = document.getElementById('backBtn');
+    const nextBtn = document.getElementById('nextBtn');
+
+    qnumEl.textContent = 'Frage ' + (state.current + 1);
+    qtitleEl.textContent = q.title;
+
+    if(q.subtitle){
+      qsubtitleEl.textContent = q.subtitle;
+      qsubtitleEl.style.display = 'block';
+    } else {
+      qsubtitleEl.style.display = 'none';
+    }
+
+    optionsEl.innerHTML = '';
+    freetextWrap.classList.remove('visible');
+    freetextInline.value = '';
+    freetextOnlyWrap.classList.remove('visible');
+    freetextOnly.value = '';
+
+    const existing = state.answers[q.id];
+
+    if(q.type === 'single'){
+      q.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'option';
+        btn.textContent = opt.label;
+        if(existing && existing.value === opt.value) btn.classList.add('selected');
+        btn.onclick = () => selectOption(q, opt, btn);
+        optionsEl.appendChild(btn);
+      });
+      // Freitext-Feld anzeigen, falls eine Freitext-Option bereits gewählt war
+      const selectedOpt = q.options.find(o => existing && existing.value === o.value);
+      if(selectedOpt && selectedOpt.freetext){
+        freetextInline.placeholder = selectedOpt.freetextPlaceholder || '';
+        freetextInline.value = existing.freetext || '';
+        freetextWrap.classList.add('visible');
+      }
+    } else if(q.type === 'freetext'){
+      freetextOnly.placeholder = q.placeholder || '';
+      freetextOnly.value = existing ? (existing.value || '') : '';
+      freetextOnlyWrap.classList.add('visible');
+    }
+
+    backBtn.style.visibility = state.current === 0 ? 'hidden' : 'visible';
+    nextBtn.textContent = state.current === questions.length - 1 ? 'Weiter →' : 'Weiter →';
+
+    updateProgress();
+  }
+
+  function selectOption(q, opt, btnEl){
+    document.querySelectorAll('#qoptions .option').forEach(b => b.classList.remove('selected'));
+    btnEl.classList.add('selected');
+    state.answers[q.id] = { value: opt.value, label: opt.label, category: opt.category || null };
+
+    const freetextWrap = document.getElementById('qFreetextWrap');
+    const freetextInline = document.getElementById('qFreetextInline');
+    if(opt.freetext){
+      freetextInline.placeholder = opt.freetextPlaceholder || '';
+      freetextWrap.classList.add('visible');
+      freetextInline.focus();
+    } else {
+      freetextWrap.classList.remove('visible');
+      freetextInline.value = '';
+    }
+  }
+
+  function updateProgress(){
+    const total = questions.length;
+    document.getElementById('progressLabel').textContent = 'Frage ' + (state.current + 1) + ' von ' + total;
+    document.getElementById('progressFill').style.width = (((state.current) / total) * 100) + '%';
+  }
+
+  function nextQuestion(){
+    const q = questions[state.current];
+
+    // Freitext-Wert (inline bei "Sonstiges" oder eigenständige Freitext-Frage) übernehmen
+    if(q.type === 'single'){
+      const existing = state.answers[q.id];
+      const selectedOpt = existing ? q.options.find(o => o.value === existing.value) : null;
+      if(selectedOpt && selectedOpt.freetext){
+        state.answers[q.id].freetext = document.getElementById('qFreetextInline').value.trim();
+      }
+      if(!existing){
+        // Pflicht: eine Option muss gewählt sein
+        document.getElementById('qoptions').scrollIntoView({ behavior:'smooth', block:'center' });
+        return;
+      }
+    } else if(q.type === 'freetext'){
+      const val = document.getElementById('qFreetextOnly').value.trim();
+      if(!q.optional && !val) return;
+      state.answers[q.id] = { value: val, label: val };
+    }
+
+    if(state.current < questions.length - 1){
+      state.current++;
+      renderQuestion();
+    } else {
+      finishQuestions();
+    }
+  }
+
+  function prevQuestion(){
+    if(state.current > 0){
+      state.current--;
+      renderQuestion();
+    }
+  }
+
+  function finishQuestions(){
+    document.getElementById('progressFill').style.width = '100%';
+
+    const q3 = state.answers['q3'];
+    const isProductTester = q3 && q3.value && q3.value.indexOf('ja') === 0;
+
+    if(isProductTester){
+      const category = q3.category || '';
+      const productBtn = document.getElementById('interstitialProductLink');
+      productBtn.textContent = category ? ('Mehr zu den Produkten ' + category) : 'Mehr zu den Produkten';
+      productBtn.href = productLinks[category] || productLinks.default;
+      document.getElementById('interstitialBusinessLink').href = businessLink;
+      goTo('interstitial');
+    } else {
+      goTo('final');
+    }
+  }
+
+  function renderGifts(){
+    const wrap = document.getElementById('giftList');
+    wrap.innerHTML = '';
+    gifts.forEach(g => {
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'gift-card';
+      if(state.gift === g.id) card.classList.add('selected');
+      card.innerHTML = `<span class="gift-thumb">${g.thumb}</span><span class="gift-info"><span class="gift-title">${g.title}</span><br><span class="gift-desc">${g.desc}</span></span>`;
+      card.onclick = () => {
+        state.gift = g.id;
+        document.querySelectorAll('.gift-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+      };
+      wrap.appendChild(card);
+    });
+  }
+  renderGifts();
+
+  function isValidEmail(v){
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  }
+
+  async function submitQuiz(){
+    const emailInput = document.getElementById('femail');
+    const emailField = document.getElementById('emailField');
+    const email = emailInput.value.trim();
+
+    if(!isValidEmail(email)){
+      emailField.classList.add('invalid');
+      emailInput.focus();
+      return;
+    }
+    emailField.classList.remove('invalid');
+
+    const giftChosen = gifts.find(g => g.id === state.gift);
+
+    const q1 = state.answers['q1'];
+    const q3 = state.answers['q3'];
+    const q4 = state.answers['q4'];
+
+    const payload = {
+      email: email,
+      grund_nein: q1 ? (q1.freetext ? (q1.label + ': ' + q1.freetext) : q1.label) : '',
+      geschaeft_grund: state.answers['q2'] ? state.answers['q2'].value : '',
+      produkttester: q3 && q3.value && q3.value.indexOf('ja') === 0 ? 'ja' : 'nein',
+      produkttester_kategorie: q3 && q3.category ? q3.category : '',
+      aenderung_bedingung: q4 ? (q4.freetext ? (q4.label + ': ' + q4.freetext) : q4.label) : '',
+      interesse_wiedervorlage: state.answers['q5'] ? state.answers['q5'].label : '',
+      geschenk_wahl: giftChosen ? giftChosen.title : '',
+    };
+
+    const btn = document.getElementById('submitBtn');
+    const originalLabel = btn.textContent;
+    btn.textContent = 'Wird gesendet …';
+    btn.disabled = true;
+
+    try {
+      const res = await fetch('/.netlify/functions/subscribe-nein', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if(!res.ok){
+        console.error('MailerLite-Sync fehlgeschlagen:', await res.text());
+      }
+    } catch(err){
+      console.error('Subscribe-Request fehlgeschlagen:', err);
+    } finally {
+      btn.textContent = originalLabel;
+      btn.disabled = false;
+    }
+
+    goTo('thanks');
+  }
+
+  function goTo(screen){
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + screen).classList.add('active');
+    if(screen !== 'question'){
+      document.getElementById('progressWrap').style.display = 'none';
+    } else {
+      document.getElementById('progressWrap').style.display = 'block';
+    }
+    if(screen === 'final'){
+      renderGifts();
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+
+</body>
+</html>
