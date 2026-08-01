@@ -37,6 +37,28 @@
   h1.hero em{ font-style: italic; font-weight:500; color: var(--gold); }
   .lede{ color: var(--ink-muted); font-size: 15px; line-height:1.55; margin-bottom: 18px; }
 
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    width:100%;
+    padding: 15px 22px;
+    background: var(--gold);
+    color: #0D2E2B;
+    border:none;
+    border-radius: var(--radius);
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 15px;
+    text-decoration:none;
+    cursor:pointer;
+    transition: transform 0.15s ease, background 0.15s ease;
+    margin-bottom: 22px;
+  }
+  .btn:hover{ transform: translateY(-1px); background:#E8F259; }
+  .btn:active{ transform: translateY(0); }
+
   /* quick facts */
   .facts{ display:flex; gap:10px; margin-bottom: 26px; }
   .fact{ flex:1; background: var(--bg-raised); border:1px solid var(--hairline); border-radius: 10px; padding: 12px 8px; text-align:center; }
@@ -93,6 +115,15 @@
   .btn-video svg{ flex-shrink:0; }
 
   footer.legal{ margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--hairline); font-size: 10.5px; color: #5C8B84; line-height:1.5; text-align:center; }
+
+  @media print{
+    html, body{ min-height: 0; height: auto; }
+    body{ padding: 16px 16px 18px; }
+    .fact, .testimonial, .point{ break-inside: avoid; }
+    section{ break-inside: avoid; }
+    .final-cta{ break-inside: avoid; }
+    .btn{ display:none; }
+  }
 </style>
 </head>
 <body>
@@ -106,6 +137,11 @@
   <div class="eyebrow">DIE KURZFASSUNG</div>
   <h1 class="hero">In 13 Tagen <em>spürbar</em> verändert.</h1>
   <p class="lede">Klarer Plan, echte Betreuung, kein Rätselraten. Alles, was du wissen musst – in 20 Sekunden.</p>
+
+  <a class="btn" href="/c9-30tage-quick-landingpage.pdf" download>
+    <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 3V13M10 13L6 9M10 13L14 9M4 16H16" stroke="#0D2E2B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Als PDF herunterladen
+  </a>
 
   <div class="facts">
     <div class="fact"><div class="n">13</div><div class="l">Tage</div></div>
