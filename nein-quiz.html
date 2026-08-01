@@ -162,6 +162,14 @@
     </div>
   </section>
 
+  <!-- SCREEN 1b: Antwort auf den bei Frage 2 gewählten Einwand -->
+  <section class="screen" id="screen-objection">
+    <div class="eyebrow">GUT ZU WISSEN</div>
+    <h1 class="hero">Dazu <em>kurz</em> von mir.</h1>
+    <p class="lede" id="objectionText"></p>
+    <button class="btn" onclick="continueAfterObjection()">Weiter →</button>
+  </section>
+
   <!-- SCREEN 2: Conditional interstitial (only if Q3 = Ja-Option) -->
   <section class="screen" id="screen-interstitial">
     <div class="eyebrow">SCHÖN, DAS ZU HÖREN</div>
@@ -300,6 +308,19 @@
   };
   const businessLink = '#';
 
+  // ============================================================
+  // Kurze, persönliche Antworten auf den bei Frage 2 gewählten
+  // Einwand. "default" greift bei "Sonstiges" oder falls mal eine
+  // Option ohne passenden Eintrag hinzukommt.
+  // ============================================================
+  const objectionResponses = {
+    keine_zeit: 'Verstehe ich total. Das lässt sich auch mit 2 bis 3 Stunden die Woche nebenbei machen, falls dich das mal interessiert.',
+    kein_verkaufstyp: 'Geht vielen am Anfang so. Es geht weniger ums Verkaufen, mehr ums Weiterempfehlen von Dingen, die man selbst nutzt.',
+    schlechte_erfahrung: 'Das kann ich gut nachvollziehen, da gibt’s leider einige schwarze Schafe. Frag mich gern, was hier anders läuft.',
+    zufrieden: 'Freut mich zu hören. Falls sich das mal ändert oder du einfach neugierig wirst, bin ich da.',
+    default: 'Danke, dass du das mit mir teilst. Ich lese mir jede Antwort durch und melde mich gern persönlich, falls du magst.',
+  };
+
   const state = {
     current: 0,
     answers: {}, // { [questionId]: { value, label, freetext } }
@@ -417,12 +438,28 @@
       state.answers[q.id] = { value: val, label: val };
     }
 
+    // Nach Frage 2 (dem Einwand) erst kurz persönlich darauf eingehen,
+    // bevor es mit Frage 3 weitergeht.
+    if(q.id === 'q2'){
+      const answer = state.answers['q2'];
+      const response = objectionResponses[answer.value] || objectionResponses.default;
+      document.getElementById('objectionText').textContent = response;
+      state.current++;
+      goTo('objection');
+      return;
+    }
+
     if(state.current < questions.length - 1){
       state.current++;
       renderQuestion();
     } else {
       finishQuestions();
     }
+  }
+
+  function continueAfterObjection(){
+    renderQuestion();
+    goTo('question');
   }
 
   function prevQuestion(){
