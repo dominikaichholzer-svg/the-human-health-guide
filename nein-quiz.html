@@ -227,10 +227,16 @@
     },
     {
       id: 'q2',
-      type: 'freetext',
+      type: 'single',
       title: 'Magst du uns verraten, warum dich das Geschäft nicht anspricht?',
-      placeholder: 'Deine Antwort (optional) …',
-      optional: true,
+      options: [
+        { value: 'keine_zeit', label: 'Ich habe aktuell keine Zeit dafür' },
+        { value: 'kein_verkaufstyp', label: 'Ich verkaufe nicht gerne, bin kein Verkaufstyp' },
+        { value: 'schlechte_erfahrung', label: 'Ich hatte schon einmal schlechte Erfahrungen mit Network Marketing' },
+        { value: 'finanziell', label: 'Es passt finanziell gerade nicht' },
+        { value: 'zufrieden', label: 'Ich bin mit meiner aktuellen Situation zufrieden' },
+        { value: 'sonstiges', label: 'Sonstiges', freetext: true, freetextPlaceholder: 'Magst du kurz sagen, was genau? (optional)' },
+      ],
     },
     {
       id: 'q3',
@@ -486,13 +492,14 @@
     const giftChosen = gifts.find(g => g.id === state.gift);
 
     const q1 = state.answers['q1'];
+    const q2 = state.answers['q2'];
     const q3 = state.answers['q3'];
     const q4 = state.answers['q4'];
 
     const payload = {
       email: email,
       grund_nein: q1 ? (q1.freetext ? (q1.label + ': ' + q1.freetext) : q1.label) : '',
-      geschaeft_grund: state.answers['q2'] ? state.answers['q2'].value : '',
+      geschaeft_grund: q2 ? (q2.freetext ? (q2.label + ': ' + q2.freetext) : q2.label) : '',
       produkttester: q3 && q3.value && q3.value.indexOf('ja') === 0 ? 'ja' : 'nein',
       produkttester_kategorie: q3 && q3.category ? q3.category : '',
       aenderung_bedingung: q4 ? (q4.freetext ? (q4.label + ': ' + q4.freetext) : q4.label) : '',
