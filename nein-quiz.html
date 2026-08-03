@@ -224,6 +224,18 @@
   // ============================================================
   const questions = [
     {
+      id: 'q3',
+      type: 'single',
+      title: 'Wärst du offen, kostenlose/r Produkttester/in zu werden?',
+      subtitle: 'Einzige Bedingung: ehrliches Feedback in Textform (kein Video, keine Fotos nötig).',
+      options: [
+        { value: 'nein', label: 'Nein' },
+        { value: 'ja_gesichtspflege', label: 'Ja – Gesichtspflege', category: 'Gesichtspflege' },
+        { value: 'ja_sportgesundheit', label: 'Ja – Sportgesundheit', category: 'Sportgesundheit' },
+        { value: 'ja_alltagspflege', label: 'Ja – Alltagspflege', category: 'Alltagspflege' },
+      ],
+    },
+    {
       id: 'q1',
       type: 'single',
       title: 'Was beschreibt deine Antwort am besten?',
@@ -244,18 +256,6 @@
         { value: 'schlechte_erfahrung', label: 'Ich hatte schon einmal schlechte Erfahrungen mit Network Marketing' },
         { value: 'zufrieden', label: 'Ich bin mit meiner aktuellen Situation zufrieden' },
         { value: 'sonstiges', label: 'Sonstiges', freetext: true, freetextPlaceholder: 'Magst du kurz sagen, was genau? (optional)' },
-      ],
-    },
-    {
-      id: 'q3',
-      type: 'single',
-      title: 'Wärst du offen, kostenlose/r Produkttester/in zu werden?',
-      subtitle: 'Einzige Bedingung: ehrliches Feedback in Textform (kein Video, keine Fotos nötig).',
-      options: [
-        { value: 'nein', label: 'Nein' },
-        { value: 'ja_gesichtspflege', label: 'Ja – Gesichtspflege', category: 'Gesichtspflege' },
-        { value: 'ja_sportgesundheit', label: 'Ja – Sportgesundheit', category: 'Sportgesundheit' },
-        { value: 'ja_alltagspflege', label: 'Ja – Alltagspflege', category: 'Alltagspflege' },
       ],
     },
     // Vorschlag zur strategischen Auswertung — bei Bedarf einfach das
@@ -303,9 +303,9 @@
   // "default" greift, falls für eine Kategorie kein eigener Link gesetzt ist.
   const productLinks = {
     default: '#',
-    Gesichtspflege: '#',
-    Sportgesundheit: '#',
-    Alltagspflege: '#',
+    Gesichtspflege: 'produkte-gesichtspflege.html',
+    Sportgesundheit: 'produkte-sport.html',
+    Alltagspflege: 'produkte-pflege.html',
   };
   const businessLink = '#';
 
