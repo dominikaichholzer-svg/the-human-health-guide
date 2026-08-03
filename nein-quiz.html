@@ -99,7 +99,7 @@
   .gift-card.selected{ border-color: var(--gold); background: var(--gold-dim); }
 
   /* Bildfläche pro Geschenk. Einfach "img" beim jeweiligen Geschenk unten
-     im Script setzen (z. B. "img: '/geschenk-1.jpg'"), dann erscheint hier
+     im Script setzen (z. B. "img: 'geschenk-1.jpg'"), dann erscheint hier
      automatisch das Bild statt des Platzhalters. */
   .gift-thumb{ flex-shrink:0; width:84px; height:84px; border-radius: 10px; overflow:hidden; background: var(--gold-dim); border: 1px solid var(--hairline); display:flex; align-items:center; justify-content:center; }
   .gift-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
@@ -293,9 +293,9 @@
   // "thumb" ist nur die Nummer, die im Platzhalter angezeigt wird.
   // ============================================================
   const gifts = [
-    { id: 'geschenk_1', thumb: '01', img: '/geschenk-1-lippenpflege.jpg', title: 'Unsere Lippenpflege', desc: 'Kurze Platzhalter-Beschreibung, was das Geschenk ist.' },
-    { id: 'geschenk_2', thumb: '02', img: '/geschenk-2-gesichtsbehandlung.jpg', title: 'Gutschein für eine Gesichtsbehandlung', desc: 'Kurze Platzhalter-Beschreibung, was das Geschenk ist.' },
-    { id: 'geschenk_3', thumb: '03', img: '/geschenk-3-mysterybox.jpg', title: 'Mystery Box', desc: 'Kurze Platzhalter-Beschreibung, was das Geschenk ist.' },
+    { id: 'geschenk_1', thumb: '01', img: 'geschenk-1-lippenpflege.jpg', title: 'Unsere Lippenpflege', desc: 'Kurze Platzhalter-Beschreibung, was das Geschenk ist.' },
+    { id: 'geschenk_2', thumb: '02', img: 'geschenk-2-gesichtsbehandlung.jpg', title: 'Gutschein für eine Gesichtsbehandlung', desc: 'Kurze Platzhalter-Beschreibung, was das Geschenk ist.' },
+    { id: 'geschenk_3', thumb: '03', img: 'geschenk-3-mysterybox.jpg', title: 'Mystery Box', desc: 'Kurze Platzhalter-Beschreibung, was das Geschenk ist.' },
   ];
 
   // Platzhalter-Links für den bedingten Zwischenschritt (Schritt 7).
