@@ -37,23 +37,29 @@
   p{ font-size: 14.5px; line-height:1.65; color: var(--ink); }
   .lede{ color: var(--ink-muted); margin-bottom: 22px; }
 
-  .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%; padding: 15px 22px; background: var(--gold); color: #0D2E2B; border:none; border-radius: var(--radius); font-family: var(--sans); font-weight: 700; font-size: 15px; text-decoration:none; cursor:pointer; transition: transform 0.15s ease, background 0.15s ease; margin-top: 22px; }
+  .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%; padding: 16px 22px; background: var(--gold); color: #0D2E2B; border:none; border-radius: var(--radius); font-family: var(--sans); font-weight: 700; font-size: 15px; text-decoration:none; cursor:pointer; transition: transform 0.15s ease, background 0.15s ease; margin-top: 22px; }
   .btn:hover{ transform: translateY(-1px); background:#E8F259; }
   .btn:active{ transform: translateY(0); }
 
-  section{ margin-bottom: 26px; }
-  h2.section-title{ font-family: var(--serif); font-weight: 400; font-size: 20px; margin: 0 0 12px; }
+  section{ margin-bottom: 28px; }
+  h2.section-title{ font-family: var(--serif); font-weight: 400; font-size: 21px; margin: 0 0 14px; }
 
-  .steps{ display:flex; flex-direction:column; gap: 8px; }
-  .step{ display:flex; gap:12px; align-items:flex-start; background: var(--bg-raised); border:1px solid var(--hairline); border-radius: 10px; padding: 12px 14px; }
-  .step .n{ font-family: var(--serif); font-style:italic; font-size: 16px; color: var(--gold); flex-shrink:0; }
-  .step p{ margin:0; font-size: 13.5px; }
+  .overview{ display:flex; flex-direction:column; gap: 8px; }
+  .overview .step{ display:flex; gap:12px; align-items:flex-start; background: var(--bg-raised); border:1px solid var(--hairline); border-radius: 10px; padding: 12px 14px; }
+  .overview .step .n{ font-family: var(--serif); font-style:italic; font-size: 16px; color: var(--gold); flex-shrink:0; }
+  .overview .step p{ margin:0; font-size: 13.5px; }
 
-  .rec-card{ background: var(--gold-dim); border: 1px solid var(--gold); border-radius: var(--radius); padding: 18px 18px 16px; }
-  .rec-card h3{ font-family: var(--serif); font-weight:600; font-size: 17px; color: var(--gold); margin: 0 0 8px; }
-  .rec-card p{ margin:0; font-size: 13.5px; color: var(--ink); }
+  .product-card{ background: var(--bg-raised); border:1px solid var(--hairline); border-radius: var(--radius); padding: 18px; margin-bottom: 14px; }
+  .product-card .kicker{ font-family: var(--mono); font-size: 10.5px; letter-spacing:0.08em; text-transform:uppercase; color: var(--gold); margin-bottom: 6px; }
+  .product-card h3{ font-family: var(--serif); font-weight: 500; font-size: 18px; margin: 0 0 12px; line-height:1.3; }
+  .photo-slot{ border: 1px dashed var(--hairline); border-radius: 10px; padding: 22px 14px; text-align:center; font-family: var(--mono); font-size: 10.5px; letter-spacing:0.05em; text-transform:uppercase; color: var(--ink-muted); margin-bottom: 12px; }
+  .product-card .anwendung{ font-size: 13px; color: var(--ink-muted); margin: 0 0 12px; }
+  .product-card .anwendung b{ color: var(--ink); }
+  .fact-list{ display:flex; flex-direction:column; gap: 7px; }
+  .fact-row{ display:flex; gap:8px; align-items:flex-start; font-size: 13.5px; }
+  .fact-row .mark{ flex-shrink:0; width:18px; height:18px; border-radius:50%; background: var(--gold-dim); color: var(--gold); display:flex; align-items:center; justify-content:center; font-size:10px; margin-top:1px; }
 
-  .note-box{ background: var(--bg-raised); border-left: 3px solid var(--gold); border-radius: 8px; padding: 12px 14px; margin-top: 22px; }
+  .note-box{ background: var(--bg-raised); border-left: 3px solid var(--gold); border-radius: 8px; padding: 12px 14px; margin-top: 4px; }
   .note-box p{ margin:0; font-size: 12.5px; color: var(--ink-muted); line-height:1.55; }
 
   footer.legal{ margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--hairline); font-size: 10.5px; color: #5C8B84; line-height:1.5; text-align:center; }
@@ -67,28 +73,67 @@
     <div class="tag">PRODUKTWELT<br>GESICHTSPFLEGE</div>
   </div>
 
-  <div class="eyebrow">BEVOR DU LOSLEGST</div>
-  <h1 class="hero">Kurz reingelesen:<br><em>Gesichtspflege</em>.</h1>
-  <p class="lede">Schön, dass du Produkttesterin werden möchtest. Hier ein kurzer Überblick, worum es bei unserer Gesichtspflege geht, bevor es losgeht.</p>
+  <div class="eyebrow">SMART SKIN CARE</div>
+  <h1 class="hero">3 Steps zu<br>deinem <em>Glow-Up</em>.</h1>
+  <p class="lede">Schön, dass du Produkttesterin werden möchtest. Hier die kleine Routine, die einen großen Unterschied macht.</p>
 
   <section>
-    <div class="steps">
-      <div class="step"><span class="n">01</span><p>Basis ist stabilisiertes Aloe-Vera-Gel, das der Haut Feuchtigkeit spendet.</p></div>
-      <div class="step"><span class="n">02</span><p>Gedacht für den täglichen Gebrauch, nicht nur für besondere Anlässe.</p></div>
-      <div class="step"><span class="n">03</span><p>Viele kombinieren mehrere Produkte zu einer kleinen Pflege-Routine.</p></div>
+    <div class="overview">
+      <div class="step"><span class="n">01</span><p>Reinigen, für frische, strahlende Haut</p></div>
+      <div class="step"><span class="n">02</span><p>Tonisieren, für Balance und Feuchtigkeit</p></div>
+      <div class="step"><span class="n">03</span><p>Pflegen, für deinen täglichen Glow</p></div>
     </div>
   </section>
 
   <section>
-    <div class="rec-card">
-      <h3>Diese Produkte gehören dazu</h3>
-      <p style="color:#DCEB2E;">[Platzhalter: hier deine konkreten Gesichtspflege-Produkte mit kurzer Beschreibung und Link eintragen]</p>
+    <h2 class="section-title">Die Routine im Detail</h2>
+
+    <div class="product-card">
+      <div class="kicker">Schritt 1</div>
+      <h3>Sanft reinigen mit dem Aloe Gel Cleanser</h3>
+      <div class="photo-slot">[Platzhalter: Produktfoto Aloe Gel Cleanser einfügen]</div>
+      <p class="anwendung"><b>Anwendung:</b> In den befeuchteten Händen aufschäumen und das Gesicht sanft reinigen.</p>
+      <div class="fact-list">
+        <div class="fact-row"><span class="mark">✓</span>Enthält 96 % natürliche Inhaltsstoffe</div>
+        <div class="fact-row"><span class="mark">✓</span>Entfernt Unreinheiten, ohne die Haut auszutrocknen</div>
+        <div class="fact-row"><span class="mark">✓</span>Frei von Duftstoffen und Sulfaten</div>
+        <div class="fact-row"><span class="mark">✓</span>Passt in jede Kosmetiktasche</div>
+      </div>
+    </div>
+
+    <div class="product-card">
+      <div class="kicker">Schritt 2</div>
+      <h3>Tonisieren und ausgleichen mit der Balancing Aloe Essence</h3>
+      <div class="photo-slot">[Platzhalter: Produktfoto Balancing Aloe Essence einfügen]</div>
+      <p class="anwendung"><b>Anwendung:</b> Eine kleine Menge in die Handfläche geben, sanft ins Gesicht einklopfen und kurz einwirken lassen.</p>
+      <div class="fact-list">
+        <div class="fact-row"><span class="mark">✓</span>Feuchtigkeitsspendend wie ein Nebel</div>
+        <div class="fact-row"><span class="mark">✓</span>Enthält Gurken- und Grüntee-Extrakte</div>
+        <div class="fact-row"><span class="mark">✓</span>Gleicht den Hautton aus und verleiht Glanz</div>
+        <div class="fact-row"><span class="mark">✓</span>Leicht und frisch, ideal unter Make-up</div>
+      </div>
+    </div>
+
+    <div class="product-card">
+      <div class="kicker">Schritt 3</div>
+      <h3>Feuchtigkeit spenden mit dem Soothing Gel Moisturizer</h3>
+      <div class="photo-slot">[Platzhalter: Produktfoto Soothing Gel Moisturizer einfügen]</div>
+      <p class="anwendung"><b>Anwendung:</b> Eine kleine, ergiebige Menge gleichmäßig im Gesicht verteilen, der perfekte Abschluss deiner Routine.</p>
+      <div class="fact-list">
+        <div class="fact-row"><span class="mark">✓</span>Enthält über 94 % natürliche Inhaltsstoffe</div>
+        <div class="fact-row"><span class="mark">✓</span>Beruhigt, regeneriert und stärkt die Hautbarriere</div>
+        <div class="fact-row"><span class="mark">✓</span>Mit Aloe Vera, Baobab, Granatapfel und Vitamin B3</div>
+        <div class="fact-row"><span class="mark">✓</span>Für Vegetarier und Veganer geeignet</div>
+        <div class="fact-row"><span class="mark">✓</span>Frei von Duftstoffen, nicht komedogen</div>
+      </div>
     </div>
   </section>
+
+  <p class="lede" style="margin-bottom:0;">Gerne berate ich dich auch persönlich, meld dich einfach.</p>
 
   <a class="btn" href="#" id="communityLink" target="_blank" rel="noopener">Zur WhatsApp Community →</a>
 
-  <div class="note-box">
+  <div class="note-box" style="margin-top:22px;">
     <p>Dieser Beitrag dient der allgemeinen Information und ersetzt keine individuelle Beratung. Bei Unverträglichkeiten oder Fragen zur Anwendung sprich mit uns oder deinem Arzt oder deiner Ärztin.</p>
   </div>
 
