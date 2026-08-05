@@ -197,6 +197,19 @@
       <div class="error-msg" id="emailError">Bitte gib eine gültige E-Mail-Adresse ein.</div>
     </div>
 
+    <div id="shippingFields" style="display:none;">
+      <div class="field" id="nameField">
+        <label for="fname">Vollständiger Name</label>
+        <input type="text" id="fname" placeholder="Vorname Nachname">
+        <div class="error-msg" id="nameError">Bitte gib deinen vollständigen Namen ein.</div>
+      </div>
+      <div class="field" id="addressField">
+        <label for="faddress">Lieferadresse</label>
+        <textarea id="faddress" rows="3" placeholder="Straße, Hausnummer, PLZ, Ort"></textarea>
+        <div class="error-msg" id="addressError">Bitte gib deine vollständige Adresse ein.</div>
+      </div>
+    </div>
+
     <button class="btn" id="submitBtn" onclick="submitQuiz()">Absenden</button>
     <p class="fineprint">Mit dem Absenden erhältst du dein gewähltes Geschenk und gelegentlich Impulse per E-Mail. Abmeldung jederzeit möglich.</p>
   </section>
@@ -205,7 +218,7 @@
   <section class="screen" id="screen-thanks">
     <div class="eyebrow">GESCHAFFT</div>
     <h1 class="hero">Danke dir <em>von Herzen</em>.</h1>
-    <p class="lede">Dein Geschenk ist unterwegs zu deiner E-Mail-Adresse. Schau notfalls kurz im Spam-Ordner nach.</p>
+    <p class="lede">Du bekommst dein Geschenk innerhalb von 5 Werktagen per E-Mail zugeschickt. Schau notfalls kurz im Spam-Ordner nach.</p>
   </section>
 
   <footer class="legal">
@@ -293,9 +306,9 @@
   // "thumb" ist nur die Nummer, die im Platzhalter angezeigt wird.
   // ============================================================
   const gifts = [
-    { id: 'geschenk_1', thumb: '01', img: 'geschenk-1-lippenpflege.jpg', title: 'Unsere Lippenpflege', desc: 'Kurze Platzhalter-Beschreibung, was das Geschenk ist.' },
-    { id: 'geschenk_2', thumb: '02', img: 'geschenk-2-gesichtsbehandlung.jpg', title: 'Gutschein für eine Gesichtsbehandlung', desc: 'Kurze Platzhalter-Beschreibung, was das Geschenk ist.' },
-    { id: 'geschenk_3', thumb: '03', img: 'geschenk-3-mysterybox.jpg', title: 'Mystery Box', desc: 'Kurze Platzhalter-Beschreibung, was das Geschenk ist.' },
+    { id: 'geschenk_1', thumb: '01', img: 'geschenk-1-lippenpflege.jpg', title: 'Unsere Lippenpflege', desc: 'Kurze Platzhalter-Beschreibung, was das Geschenk ist.', shipped: true },
+    { id: 'geschenk_2', thumb: '02', img: 'geschenk-2-gesichtsbehandlung.jpg', title: 'Gutschein für eine Gesichtsbehandlung', desc: 'Kurze Platzhalter-Beschreibung, was das Geschenk ist.', shipped: false },
+    { id: 'geschenk_3', thumb: '03', img: 'geschenk-3-mysterybox.jpg', title: 'Mystery Box', desc: 'Kurze Platzhalter-Beschreibung, was das Geschenk ist.', shipped: true },
   ];
 
   // Platzhalter-Links für den bedingten Zwischenschritt (Schritt 7).
@@ -510,6 +523,7 @@
         state.gift = g.id;
         document.querySelectorAll('.gift-card').forEach(c => c.classList.remove('selected'));
         card.classList.add('selected');
+        document.getElementById('shippingFields').style.display = g.shipped ? 'block' : 'none';
       };
       wrap.appendChild(card);
     });
@@ -534,6 +548,35 @@
 
     const giftChosen = gifts.find(g => g.id === state.gift);
 
+    let fullName = '';
+    let address = '';
+    if(giftChosen && giftChosen.shipped){
+      const nameInput = document.getElementById('fname');
+      const nameField = document.getElementById('nameField');
+      const addressInput = document.getElementById('faddress');
+      const addressField = document.getElementById('addressField');
+      fullName = nameInput.value.trim();
+      address = addressInput.value.trim();
+
+      let hasError = false;
+      if(!fullName){
+        nameField.classList.add('invalid');
+        hasError = true;
+      } else {
+        nameField.classList.remove('invalid');
+      }
+      if(!address){
+        addressField.classList.add('invalid');
+        hasError = true;
+      } else {
+        addressField.classList.remove('invalid');
+      }
+      if(hasError){
+        (fullName ? addressInput : nameInput).focus();
+        return;
+      }
+    }
+
     const q1 = state.answers['q1'];
     const q2 = state.answers['q2'];
     const q3 = state.answers['q3'];
@@ -548,6 +591,8 @@
       aenderung_bedingung: q4 ? (q4.freetext ? (q4.label + ': ' + q4.freetext) : q4.label) : '',
       interesse_wiedervorlage: state.answers['q5'] ? state.answers['q5'].label : '',
       geschenk_wahl: giftChosen ? giftChosen.title : '',
+      name: fullName,
+      adresse: address,
     };
 
     const btn = document.getElementById('submitBtn');

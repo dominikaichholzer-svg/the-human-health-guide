@@ -37,23 +37,28 @@
   p{ font-size: 14.5px; line-height:1.65; color: var(--ink); }
   .lede{ color: var(--ink-muted); margin-bottom: 22px; }
 
-  .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%; padding: 15px 22px; background: var(--gold); color: #0D2E2B; border:none; border-radius: var(--radius); font-family: var(--sans); font-weight: 700; font-size: 15px; text-decoration:none; cursor:pointer; transition: transform 0.15s ease, background 0.15s ease; margin-top: 22px; }
+  .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%; padding: 16px 22px; background: var(--gold); color: #0D2E2B; border:none; border-radius: var(--radius); font-family: var(--sans); font-weight: 700; font-size: 15px; text-decoration:none; cursor:pointer; transition: transform 0.15s ease, background 0.15s ease; margin-top: 22px; }
   .btn:hover{ transform: translateY(-1px); background:#E8F259; }
   .btn:active{ transform: translateY(0); }
 
-  section{ margin-bottom: 26px; }
-  h2.section-title{ font-family: var(--serif); font-weight: 400; font-size: 20px; margin: 0 0 12px; }
+  section{ margin-bottom: 28px; }
+  h2.section-title{ font-family: var(--serif); font-weight: 400; font-size: 21px; margin: 0 0 14px; }
 
-  .steps{ display:flex; flex-direction:column; gap: 8px; }
-  .step{ display:flex; gap:12px; align-items:flex-start; background: var(--bg-raised); border:1px solid var(--hairline); border-radius: 10px; padding: 12px 14px; }
-  .step .n{ font-family: var(--serif); font-style:italic; font-size: 16px; color: var(--gold); flex-shrink:0; }
-  .step p{ margin:0; font-size: 13.5px; }
+  .fact-box{ background: var(--bg-raised); border:1px solid var(--hairline); border-radius: var(--radius); padding: 16px 18px; }
+  .fact-box .fact-list{ margin-top:0; }
 
-  .rec-card{ background: var(--gold-dim); border: 1px solid var(--gold); border-radius: var(--radius); padding: 18px 18px 16px; }
-  .rec-card h3{ font-family: var(--serif); font-weight:600; font-size: 17px; color: var(--gold); margin: 0 0 8px; }
-  .rec-card p{ margin:0; font-size: 13.5px; color: var(--ink); }
+  .product-card{ background: var(--bg-raised); border:1px solid var(--hairline); border-radius: var(--radius); padding: 18px; margin-bottom: 14px; }
+  .product-card .kicker{ font-family: var(--mono); font-size: 10.5px; letter-spacing:0.08em; text-transform:uppercase; color: var(--gold); margin-bottom: 6px; }
+  .product-card h3{ font-family: var(--serif); font-weight: 500; font-size: 18px; margin: 0 0 12px; line-height:1.3; }
+  .photo-slot{ border: 1px dashed var(--hairline); border-radius: 10px; padding: 22px 14px; text-align:center; font-family: var(--mono); font-size: 10.5px; letter-spacing:0.05em; text-transform:uppercase; color: var(--ink-muted); margin-bottom: 12px; }
+  .product-photo{ width:100%; border-radius: 10px; margin-bottom: 12px; display:block; }
+  .fact-list{ display:flex; flex-direction:column; gap: 7px; }
+  .fact-row{ display:flex; gap:8px; align-items:flex-start; font-size: 13.5px; }
+  .fact-row .mark{ flex-shrink:0; width:18px; height:18px; border-radius:50%; background: var(--gold-dim); color: var(--gold); display:flex; align-items:center; justify-content:center; font-size:10px; margin-top:1px; }
+  .fact-row.tip{ margin-top:4px; font-style:italic; color: var(--ink-muted); }
+  .fact-row.tip b{ font-style:normal; color: var(--gold); }
 
-  .note-box{ background: var(--bg-raised); border-left: 3px solid var(--gold); border-radius: 8px; padding: 12px 14px; margin-top: 22px; }
+  .note-box{ background: var(--bg-raised); border-left: 3px solid var(--gold); border-radius: 8px; padding: 12px 14px; margin-top: 4px; }
   .note-box p{ margin:0; font-size: 12.5px; color: var(--ink-muted); line-height:1.55; }
 
   footer.legal{ margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--hairline); font-size: 10.5px; color: #5C8B84; line-height:1.5; text-align:center; }
@@ -67,28 +72,159 @@
     <div class="tag">PRODUKTWELT<br>ALLTAGSPFLEGE</div>
   </div>
 
-  <div class="eyebrow">BEVOR DU LOSLEGST</div>
+  <div class="eyebrow">FOREVER LIVING PRODUCTS</div>
   <h1 class="hero">Kurz reingelesen:<br><em>Alltagspflege</em>.</h1>
-  <p class="lede">Schön, dass du Produkttesterin werden möchtest. Hier ein kurzer Überblick, worum es bei unserer Alltagspflege geht, bevor es losgeht.</p>
+  <p class="lede">Schön, dass du Produkttesterin werden möchtest. Hier ein kurzer Überblick über unsere Alltagspflege-Produkte, alle auf Basis von reinem Aloe-Vera-Gel.</p>
 
   <section>
-    <div class="steps">
-      <div class="step"><span class="n">01</span><p>Aloe-Vera-basierte Produkte für die Pflege-Routine im Alltag.</p></div>
-      <div class="step"><span class="n">02</span><p>Von Körperpflege bis Nahrungsergänzung, je nachdem was du gerade brauchst.</p></div>
-      <div class="step"><span class="n">03</span><p>Bewusst einfach gehalten, damit du nicht den Überblick verlierst.</p></div>
+    <div class="fact-box">
+      <div class="fact-list">
+        <div class="fact-row"><span class="mark">✓</span>Handverlesene, frisch geerntete Blätter</div>
+        <div class="fact-row"><span class="mark">✓</span>Schonend verarbeitet</div>
+        <div class="fact-row"><span class="mark">✓</span>Patentierte Stabilisierungsmethode</div>
+        <div class="fact-row"><span class="mark">✓</span>1000 Tage an der Sonne</div>
+        <div class="fact-row"><span class="mark">✓</span>Frei von Zusatzstoffen</div>
+      </div>
     </div>
   </section>
 
   <section>
-    <div class="rec-card">
-      <h3>Diese Produkte gehören dazu</h3>
-      <p style="color:#DCEB2E;">[Platzhalter: hier deine konkreten Alltagspflege-Produkte mit kurzer Beschreibung und Link eintragen]</p>
+    <h2 class="section-title">Diese Produkte gehören dazu</h2>
+
+    <div class="product-card">
+      <div class="kicker">Die kleinste Apotheke der Welt</div>
+      <h3>Aloe Lips</h3>
+      <img class="product-photo" src="img/pflege/aloe-lips.jpg" alt="Forever Aloe Lips">
+      <div class="fact-list">
+        <div class="fact-row"><span class="mark">✓</span>28 % reines Aloe-Vera-Gel</div>
+        <div class="fact-row"><span class="mark">✓</span>Bei rissigen und trockenen Lippen</div>
+        <div class="fact-row"><span class="mark">✓</span>Bei Sonne, Wind, Kälte und Trockenheit</div>
+        <div class="fact-row"><span class="mark">✓</span>Erste Hilfe bei Insektenstichen</div>
+        <div class="fact-row"><span class="mark">✓</span>Für die trockene Augenpartie</div>
+        <div class="fact-row"><span class="mark">✓</span>Für kleine Kratzwunden und Verletzungen</div>
+        <div class="fact-row"><span class="mark">✓</span>Pflege der Nagelhaut</div>
+        <div class="fact-row"><span class="mark">✓</span>Auch ideal für deinen tierischen Liebling</div>
+        <div class="fact-row"><span class="mark">✓</span>Enthält hochwertiges Jojobaöl</div>
+        <div class="fact-row"><span class="mark">✓</span>Zur Pflege des Windelbereichs bei Kindern</div>
+        <div class="fact-row tip"><b>Extra Tipp:</b> Als kleine Apotheke immer in der Handtasche dabei haben.</div>
+      </div>
+    </div>
+
+    <div class="product-card">
+      <div class="kicker">Haut & Körper</div>
+      <h3>Aloe Gelly</h3>
+      <img class="product-photo" src="img/pflege/aloe-gelly.jpg" alt="Forever Aloe Vera Gelly">
+      <div class="fact-list">
+        <div class="fact-row"><span class="mark">✓</span>85 % reines Aloe Vera</div>
+        <div class="fact-row"><span class="mark">✓</span>Beruhigt die Haut und spendet Feuchtigkeit</div>
+        <div class="fact-row"><span class="mark">✓</span>Wohltuend, kühlend und erfrischend</div>
+        <div class="fact-row"><span class="mark">✓</span>Bei leichten Hautverletzungen</div>
+        <div class="fact-row"><span class="mark">✓</span>Bei Neurodermitis, in Kombination mit Aloe Propolis Creme</div>
+        <div class="fact-row"><span class="mark">✓</span>Bei leichten Verbrennungen</div>
+        <div class="fact-row"><span class="mark">✓</span>Nach dem Sonnenbad, bei Sonnenbrand, in Kombination mit Aloe First</div>
+        <div class="fact-row"><span class="mark">✓</span>Als Maske für Gesicht und Dekolleté</div>
+        <div class="fact-row"><span class="mark">✓</span>Ideal als Basis für weitere Forever Pflegeprodukte</div>
+      </div>
+    </div>
+
+    <div class="product-card">
+      <div class="kicker">Gesicht & Hände</div>
+      <h3>Aloe Propolis Creme</h3>
+      <img class="product-photo" src="img/pflege/aloe-propolis.jpg" alt="Forever Aloe Propolis Creme">
+      <div class="fact-list">
+        <div class="fact-row"><span class="mark">✓</span>74 % reines Aloe-Vera-Gel</div>
+        <div class="fact-row"><span class="mark">✓</span>Propolis wirkt wie ein natürliches Antibiotikum</div>
+        <div class="fact-row"><span class="mark">✓</span>Enthält rückfettende Öle, Aloe Vera, Propolis, Vitamin A, C und E und Kamille</div>
+        <div class="fact-row"><span class="mark">✓</span>Als Gesichtscreme, gern gemischt mit Aloe Vera Gelly</div>
+        <div class="fact-row"><span class="mark">✓</span>Bei trockener und strapazierter Haut</div>
+        <div class="fact-row"><span class="mark">✓</span>Unterstützende Pflege bei Neurodermitis und Akne, mildert Hautreizungen und beugt Unreinheiten vor</div>
+        <div class="fact-row"><span class="mark">✓</span>Als Handcreme und Pfotenpflege</div>
+        <div class="fact-row"><span class="mark">✓</span>Im Winter als Kälteschutz</div>
+      </div>
+    </div>
+
+    <div class="product-card">
+      <div class="kicker">Reinigung</div>
+      <h3>Aloe Liquid Soap</h3>
+      <img class="product-photo" src="img/pflege/aloe-liquid-soap.jpg" alt="Forever Aloe Liquid Soap">
+      <div class="fact-list">
+        <div class="fact-row"><span class="mark">✓</span>40 % reines Aloe-Vera-Gel</div>
+        <div class="fact-row"><span class="mark">✓</span>Allround Produkt für den ganzen Körper, zum Abschminken, Gesichtsreinigen, Duschen, Händewaschen und Rasieren</div>
+        <div class="fact-row"><span class="mark">✓</span>Sanfter Reinigungsschaum durch natürliche Reinigungskomponenten</div>
+        <div class="fact-row"><span class="mark">✓</span>Mit Argan- und Jojobaöl für Feuchtigkeit</div>
+        <div class="fact-row"><span class="mark">✓</span>Milde Pflege für sensible Haut</div>
+        <div class="fact-row"><span class="mark">✓</span>Perfekte Pflege für die ganze Familie</div>
+        <div class="fact-row"><span class="mark">✓</span>Frischer Zitrusduft mit Aromen aus Zimtgewürz, Zedernblatt und Rosen</div>
+        <div class="fact-row"><span class="mark">✓</span>Auch für deinen tierischen Liebling, für glänzendes Fell</div>
+      </div>
+    </div>
+
+    <div class="product-card">
+      <div class="kicker">Körperpflege</div>
+      <h3>Aloe Bodylotion</h3>
+      <img class="product-photo" src="img/pflege/aloe-bodylotion.jpg" alt="Forever Aloe Body Lotion">
+      <div class="fact-list">
+        <div class="fact-row"><span class="mark">✓</span>38 % reines Aloe-Vera-Gel</div>
+        <div class="fact-row"><span class="mark">✓</span>Perfekte tägliche Pflege</div>
+        <div class="fact-row"><span class="mark">✓</span>Fördert die Feuchtigkeitsversorgung der Haut</div>
+        <div class="fact-row"><span class="mark">✓</span>Unterstützt die natürliche Schutzbarriere der Haut</div>
+        <div class="fact-row"><span class="mark">✓</span>Mit Argan-, Jojoba- und Macadamianussöl für elastische, geschmeidige Haut</div>
+        <div class="fact-row"><span class="mark">✓</span>Leichte Formel, zieht schnell ein</div>
+        <div class="fact-row"><span class="mark">✓</span>Floraler Duft</div>
+      </div>
+    </div>
+
+    <div class="product-card">
+      <div class="kicker">Haarpflege</div>
+      <h3>Aloe-Jojoba Shampoo</h3>
+      <img class="product-photo" src="img/pflege/aloe-jojoba-shampoo-conditioner.jpg" alt="Forever Aloe-Jojoba Shampoo und Conditioner">
+      <div class="fact-list">
+        <div class="fact-row"><span class="mark">✓</span>Für alle Haartypen geeignet</div>
+        <div class="fact-row"><span class="mark">✓</span>Sulfatfrei</div>
+        <div class="fact-row"><span class="mark">✓</span>Tiefenreinigend und gleichzeitig sanft zur Kopfhaut</div>
+        <div class="fact-row"><span class="mark">✓</span>Für glänzendes, seidenweiches Haar</div>
+        <div class="fact-row"><span class="mark">✓</span>Unterstützt das Gleichgewicht der Kopfhaut-Feuchtigkeit</div>
+        <div class="fact-row"><span class="mark">✓</span>Erfrischende Aromen tropischer Früchte</div>
+        <div class="fact-row"><span class="mark">✓</span>Mit Arganöl, Vitamin B5 und Hagebuttenöl</div>
+      </div>
+    </div>
+
+    <div class="product-card">
+      <div class="kicker">Haarpflege</div>
+      <h3>Aloe-Jojoba Conditioner</h3>
+      <img class="product-photo" src="img/pflege/aloe-jojoba-shampoo-conditioner.jpg" alt="Forever Aloe-Jojoba Shampoo und Conditioner">
+      <div class="fact-list">
+        <div class="fact-row"><span class="mark">✓</span>40 % reines Aloe-Vera-Gel</div>
+        <div class="fact-row"><span class="mark">✓</span>Für alle Haartypen geeignet</div>
+        <div class="fact-row"><span class="mark">✓</span>Versorgt Haare und Kopfhaut mit viel Feuchtigkeit</div>
+        <div class="fact-row"><span class="mark">✓</span>Geschmeidiges, kämmbares Haar</div>
+        <div class="fact-row"><span class="mark">✓</span>Erfrischend tropischer Duft</div>
+        <div class="fact-row"><span class="mark">✓</span>Mit Jojobaöl, Arganöl und Hagebuttenöl</div>
+      </div>
+    </div>
+
+    <div class="product-card">
+      <div class="kicker">Allrounder</div>
+      <h3>Aloe First</h3>
+      <img class="product-photo" src="img/pflege/aloe-first.jpg" alt="Forever Aloe First">
+      <div class="fact-list">
+        <div class="fact-row"><span class="mark">✓</span>81 % reines Aloe-Vera-Gel</div>
+        <div class="fact-row"><span class="mark">✓</span>Mit Bienenpropolis und Kräutern</div>
+        <div class="fact-row"><span class="mark">✓</span>Für Haut- und Kopfhautpflege sowie strapaziertes Haar, zur täglichen Pflege von Kopf bis Fuß</div>
+        <div class="fact-row"><span class="mark">✓</span>Als Mundspülung</div>
+        <div class="fact-row"><span class="mark">✓</span>Unterstützend bei Neurodermitis und gereizter Haut, zum Beispiel nach der Rasur</div>
+        <div class="fact-row"><span class="mark">✓</span>Für sonnengestresste Haut, bei Sonnenbrand kombiniert mit Aloe Vera Gelly</div>
+        <div class="fact-row"><span class="mark">✓</span>Mit ätherischen Ölen kombiniert als Raumspray</div>
+        <div class="fact-row tip"><b>Extra Tipp:</b> Als Erste-Hilfe-Spray immer in der Handtasche dabei haben.</div>
+      </div>
     </div>
   </section>
+
+  <p class="lede" style="margin-bottom:0;">Gerne berate ich dich auch persönlich, meld dich einfach.</p>
 
   <a class="btn" href="#" id="communityLink" target="_blank" rel="noopener">Zur WhatsApp Community →</a>
 
-  <div class="note-box">
+  <div class="note-box" style="margin-top:22px;">
     <p>Dieser Beitrag dient der allgemeinen Information und ersetzt keine individuelle Beratung. Bei Unverträglichkeiten oder Fragen zur Anwendung sprich mit uns oder deinem Arzt oder deiner Ärztin.</p>
   </div>
 
