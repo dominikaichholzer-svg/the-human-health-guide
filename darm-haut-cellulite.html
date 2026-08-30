@@ -89,7 +89,8 @@
   footer.legal{ margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--hairline); font-size: 10.5px; color: #5C8B84; line-height:1.5; text-align:center; }
 
   @media print{
-    body{ padding: 22px 16px 30px; }
+    @page{ size: A4; margin: 16mm; }
+    body{ padding: 0; }
     .flow-wrap, .step, .rec-card, .note-box, .cycle-wrap{ break-inside: avoid; }
     h2.section-title{ break-after: avoid; }
     section{ break-inside: avoid; }
@@ -115,20 +116,25 @@
   </a>
 
   <section>
-    <p>Dein Darm beherbergt Billionen von Bakterien und rund <b>70 bis 80 % deiner Immunzellen</b>. Ist dieses Mikrobiom im Ungleichgewicht, zum Beispiel durch viel Zucker, wenig Ballaststoffe oder Stress, wird die Darmwand durchlässiger. Über diese "undichten" Stellen gelangen Entzündungsstoffe in deinen Blutkreislauf.</p>
-    <p>Dein Körper reagiert mit einer leichten, dauerhaften Entzündung, und die zeigt sich zuerst dort, wo Haut und Bindegewebe am empfindlichsten sind: <b>Unreinheiten</b> im Gesicht und ein geschwächtes, wassereinlagerndes Bindegewebe, das <b>Cellulite</b> sichtbarer macht.</p>
+    <div class="rec-card">
+      <h3>Alle drei Hebel auf einmal</h3>
+      <p>Ernährung, Bewegung und Flüssigkeit einzeln anzugehen kostet Zeit. Die <b>9-Tage-Kur C9</b> bringt alle drei in einem klar strukturierten Ablauf zusammen und liefert genau in diesem Bereich einen spürbaren Kickstart, statt dass du dir alles selbst zusammensuchen musst.</p>
+    </div>
+  </section>
+
+  <section>
+    <p>Wenn Ernährung und Bewegung länger zu kurz kommen, wie in den ersten beiden Mythen beschrieben, verändert sich langsam dein Mikrobiom.</p>
+    <p>Dein Darm beherbergt Billionen Bakterien und rund <b>70 bis 80 % deiner Immunzellen</b>. Gerät das Mikrobiom aus der Balance, reagiert dein Körper mit einer leichten, stillen Entzündung, die sich zuerst auf Haut und Bindegewebe zeigt: <b>Unreinheiten</b> im Gesicht, mehr sichtbare <b>Cellulite</b>.</p>
   </section>
 
   <section>
     <div class="flow-wrap">
       <div class="flow-col">
-        <div class="flow-block"><span class="num">01</span><span class="txt">Mikrobiom im Ungleichgewicht (Dysbiose)</span></div>
+        <div class="flow-block"><span class="num">01</span><span class="txt">Ernährung & Bewegung kommen über längere Zeit zu kurz</span></div>
         <div class="flow-arrow">↓</div>
-        <div class="flow-block"><span class="num">02</span><span class="txt">Durchlässigere Darmwand ("Leaky Gut")</span></div>
+        <div class="flow-block"><span class="num">02</span><span class="txt">Mikrobiom verändert sich langsam</span></div>
         <div class="flow-arrow">↓</div>
-        <div class="flow-block"><span class="num">03</span><span class="txt">Entzündungsstoffe im Blutkreislauf</span></div>
-        <div class="flow-arrow">↓</div>
-        <div class="flow-block"><span class="num">04</span><span class="txt">Sichtbar auf Haut &amp; Bindegewebe</span></div>
+        <div class="flow-block"><span class="num">03</span><span class="txt">Sichtbar auf Haut &amp; Bindegewebe</span></div>
       </div>
       <p class="flow-caption">Der Zusammenhang zwischen Darm und Haut: was innen beginnt, zeigt sich außen.</p>
     </div>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coach Oaki · Mach mit &amp; gewinne (Mini)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #FFFFFF;
+    --bg-raised: #FFFFFF;
+    --ink: #16332F;
+    --ink-muted: #6E8480;
+    --hairline: #D8D3BF;
+    --accent: #A9862B;
+    --radius: 12px;
+    --serif: 'Fraunces', serif;
+    --sans: 'Inter', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; background: var(--bg); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+  body{ display:flex; justify-content:center; padding: 18px 16px; }
+  .page{ width:100%; max-width: 480px; }
+
+  .slip{ padding: 14px 4px; }
+  .slip + .slip{ border-top: 1px dashed var(--hairline); position:relative; }
+  .cut-label{ text-align:center; font-family: var(--mono); font-size: 8.5px; letter-spacing:0.1em; color: var(--ink-muted); margin: -8px 0 6px; }
+
+  .brandbar{ display:flex; justify-content:space-between; align-items:flex-start; padding-bottom: 7px; border-bottom: 1px solid var(--hairline); margin-bottom: 8px; }
+  .brandbar .name{ font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; }
+  .brandbar .tag{ font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-muted); text-align:right; }
+  .dot{ display:inline-block; width:5px; height:5px; border-radius:50%; background: var(--accent); margin-right:6px; }
+
+  h1.hero{ font-family: var(--serif); font-weight: 400; font-size: 17px; line-height: 1.15; margin: 0 0 7px; }
+  h1.hero em{ font-style: italic; font-weight:500; color: var(--accent); }
+  .lede{ font-size: 11.5px; line-height:1.45; color: var(--ink-muted); margin: 0 0 10px; }
+
+  .prizes{ display:flex; flex-direction:column; gap: 3px; margin: 0 0 10px; }
+  .prize-row{ display:flex; align-items:center; gap: 8px; }
+  .prize-rank{ flex-shrink:0; width:18px; height:18px; border-radius:50%; background: var(--bg-raised); border:1px solid var(--accent); color: var(--accent); font-family: var(--mono); font-size: 9.5px; display:flex; align-items:center; justify-content:center; }
+  .prize-text{ font-size: 12px; color: var(--ink); }
+  .prize-text b{ color: var(--accent); }
+
+  .q-text{ font-family: var(--serif); font-size: 13.5px; line-height:1.25; margin: 0 0 6px; }
+  .opts{ display:flex; gap: 6px; margin-bottom: 9px; }
+  .opt{ flex:1; display:flex; align-items:center; gap:6px; background: var(--bg-raised); border:1px solid var(--hairline); border-radius: 8px; padding: 8px 8px; }
+  .box{ flex-shrink:0; width:13px; height:13px; border:1.5px solid var(--accent); border-radius:3px; }
+  .opt span:last-child{ font-size: 12px; }
+
+  .contact{ padding-top: 6px; }
+  .field{ margin-bottom: 6px; }
+  .field-tag{ font-size: 10px; color: var(--ink-muted); margin-bottom: 2px; }
+  .field-line{ border-bottom: 1.5px solid var(--ink); height: 15px; }
+
+  @media print{
+    @page{ size: A4; margin: 12mm; }
+    body{ padding: 0; }
+    .slip{ break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="slip">
+    <div class="brandbar">
+      <div class="name"><span class="dot"></span>COACH OAKI</div>
+      <div class="tag">MACH MIT<br>&amp; GEWINNE</div>
+    </div>
+    <h1 class="hero">Gewinnspiel <em>Frage</em></h1>
+    <div class="prizes">
+      <div class="prize-row"><span class="prize-rank">1</span><span class="prize-text"><b>30 Tage kostenloses Coaching</b></span></div>
+      <div class="prize-row"><span class="prize-rank">2</span><span class="prize-text">10% auf deinen nächsten Einkauf</span></div>
+      <div class="prize-row"><span class="prize-rank">3</span><span class="prize-text">Ein GoFitness Goodie</span></div>
+    </div>
+
+    <p class="q-text">Wie heißt die haus-eigene Marke hier im Store?</p>
+    <div class="opts">
+      <div class="opt"><span class="box"></span><span>a) GoFit</span></div>
+      <div class="opt"><span class="box"></span><span>b) GoFitness</span></div>
+      <div class="opt"><span class="box"></span><span>c) GoForFit</span></div>
+    </div>
+
+    <div class="contact">
+      <div class="field">
+        <div class="field-tag">Name</div>
+        <div class="field-line"></div>
+      </div>
+      <div class="field">
+        <div class="field-tag">Handynummer oder Instagram-Name</div>
+        <div class="field-line"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slip">
+    <div class="cut-label">✂ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</div>
+    <div class="brandbar">
+      <div class="name"><span class="dot"></span>COACH OAKI</div>
+      <div class="tag">MACH MIT<br>&amp; GEWINNE</div>
+    </div>
+    <h1 class="hero">Gewinnspiel <em>Frage</em></h1>
+    <div class="prizes">
+      <div class="prize-row"><span class="prize-rank">1</span><span class="prize-text"><b>30 Tage kostenloses Coaching</b></span></div>
+      <div class="prize-row"><span class="prize-rank">2</span><span class="prize-text">10% auf deinen nächsten Einkauf</span></div>
+      <div class="prize-row"><span class="prize-rank">3</span><span class="prize-text">Ein GoFitness Goodie</span></div>
+    </div>
+
+    <p class="q-text">Wie heißt die haus-eigene Marke hier im Store?</p>
+    <div class="opts">
+      <div class="opt"><span class="box"></span><span>a) GoFit</span></div>
+      <div class="opt"><span class="box"></span><span>b) GoFitness</span></div>
+      <div class="opt"><span class="box"></span><span>c) GoForFit</span></div>
+    </div>
+
+    <div class="contact">
+      <div class="field">
+        <div class="field-tag">Name</div>
+        <div class="field-line"></div>
+      </div>
+      <div class="field">
+        <div class="field-tag">Handynummer oder Instagram-Name</div>
+        <div class="field-line"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slip">
+    <div class="cut-label">✂ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</div>
+    <div class="brandbar">
+      <div class="name"><span class="dot"></span>COACH OAKI</div>
+      <div class="tag">MACH MIT<br>&amp; GEWINNE</div>
+    </div>
+    <h1 class="hero">Gewinnspiel <em>Frage</em></h1>
+    <div class="prizes">
+      <div class="prize-row"><span class="prize-rank">1</span><span class="prize-text"><b>30 Tage kostenloses Coaching</b></span></div>
+      <div class="prize-row"><span class="prize-rank">2</span><span class="prize-text">10% auf deinen nächsten Einkauf</span></div>
+      <div class="prize-row"><span class="prize-rank">3</span><span class="prize-text">Ein GoFitness Goodie</span></div>
+    </div>
+
+    <p class="q-text">Wie heißt die haus-eigene Marke hier im Store?</p>
+    <div class="opts">
+      <div class="opt"><span class="box"></span><span>a) GoFit</span></div>
+      <div class="opt"><span class="box"></span><span>b) GoFitness</span></div>
+      <div class="opt"><span class="box"></span><span>c) GoForFit</span></div>
+    </div>
+
+    <div class="contact">
+      <div class="field">
+        <div class="field-tag">Name</div>
+        <div class="field-line"></div>
+      </div>
+      <div class="field">
+        <div class="field-tag">Handynummer oder Instagram-Name</div>
+        <div class="field-line"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

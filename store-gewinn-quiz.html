@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coach Oaki · Mach mit &amp; gewinne</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #FFFFFF;
+    --bg-raised: #FFFFFF;
+    --ink: #16332F;
+    --ink-muted: #6E8480;
+    --hairline: #D8D3BF;
+    --gold: #0D2E2B;
+    --gold-dim: rgba(13,46,43,0.06);
+    --accent: #A9862B;
+    --radius: 14px;
+    --serif: 'Fraunces', serif;
+    --sans: 'Inter', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; background: var(--bg); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+  body{ min-height:100vh; display:flex; justify-content:center; padding: 22px 16px 26px; }
+  .app{ width:100%; max-width: 500px; }
+
+  .brandbar{ display:flex; justify-content:space-between; align-items:flex-start; padding-bottom: 12px; border-bottom: 1px solid var(--hairline); margin-bottom: 14px; }
+  .brandbar .name{ font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; }
+  .brandbar .tag{ font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-muted); text-align:right; }
+  .dot{ display:inline-block; width:6px; height:6px; border-radius:50%; background: var(--accent); margin-right:8px; }
+
+  .eyebrow{ font-family: var(--mono); font-size: 11px; letter-spacing:0.14em; text-transform:uppercase; color: var(--accent); margin-bottom: 10px; }
+  h1.hero{ font-family: var(--serif); font-weight: 400; font-size: 23px; line-height: 1.15; margin: 0 0 8px; }
+  h1.hero em{ font-style: italic; font-weight:500; color: var(--accent); }
+  .lede{ font-size: 13px; line-height:1.5; color: var(--ink-muted); margin: 0 0 16px; }
+
+  .prizes{ display:flex; gap:8px; margin-bottom: 14px; }
+  .prize{ flex:1; background: var(--gold-dim); border:1px solid var(--accent); border-radius: 10px; padding: 10px 8px; text-align:center; }
+  .prize .n{ font-family: var(--serif); font-style:italic; color: var(--accent); font-size: 13px; margin-bottom:2px; }
+  .prize .l{ font-size: 10.5px; line-height:1.3; color: var(--ink); }
+
+  .q{ margin-bottom: 12px; }
+  .q-num{ font-family: var(--mono); font-size: 10.5px; color: var(--accent); letter-spacing:0.08em; margin-bottom: 4px; }
+  .q-text{ font-family: var(--serif); font-size: 15.5px; line-height:1.3; margin: 0 0 8px; }
+  .opts{ display:flex; flex-direction:column; gap: 6px; }
+  .opt{ display:flex; align-items:center; gap:10px; background: var(--bg-raised); border:1px solid var(--hairline); border-radius: 8px; padding: 7px 12px; }
+  .box{ flex-shrink:0; width:16px; height:16px; border:1.5px solid var(--accent); border-radius:4px; }
+  .opt span:last-child{ font-size: 13.5px; }
+
+  .contact{ margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--hairline); }
+  .contact-label{ font-family: var(--mono); font-size: 10.5px; letter-spacing:0.08em; text-transform:uppercase; color: var(--accent); margin-bottom: 8px; }
+  .field{ margin-bottom: 9px; }
+  .field-tag{ font-size: 11px; color: var(--ink-muted); margin-bottom: 4px; }
+  .field-line{ border-bottom: 1.5px solid var(--ink); height: 22px; }
+
+  .note-box{ background: var(--bg-raised); border-left: 3px solid var(--accent); border-radius: 8px; padding: 8px 14px; margin-top: 10px; }
+  .note-box p{ margin:0; font-size: 11.5px; color: var(--ink-muted); line-height:1.5; }
+
+  footer.legal{ margin-top: 8px; padding-top: 7px; border-top: 1px solid var(--hairline); font-size: 9.5px; color: var(--ink-muted); line-height:1.4; text-align:center; }
+
+  @media print{
+    @page{ size: A4; margin: 13mm; }
+    body{ padding: 0; }
+    .q, .prizes, .contact{ break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="brandbar">
+    <div class="name"><span class="dot"></span>COACH OAKI</div>
+    <div class="tag">MACH MIT<br>&amp; GEWINNE</div>
+  </div>
+
+  <div class="eyebrow">3 FRAGEN, 30 SEKUNDEN</div>
+  <h1 class="hero">Kreuz an, trag dich ein, <em>gewinne</em>.</h1>
+  <p class="lede">Beantworte kurz 3 Fragen und lass uns wissen, wie wir dich erreichen können. Unter allen Teilnehmern verlosen wir:</p>
+
+  <div class="prizes">
+    <div class="prize"><div class="n">1</div><div class="l">10% auf deinen nächsten Einkauf</div></div>
+    <div class="prize"><div class="n">2</div><div class="l">30 Tage kostenloses Coaching</div></div>
+    <div class="prize"><div class="n">3</div><div class="l">Ein Go-Fitness-Goodie</div></div>
+  </div>
+
+  <div class="q">
+    <div class="q-num">FRAGE 1</div>
+    <p class="q-text">Wie oft fühlst du dich nach dem Essen träge oder aufgebläht?</p>
+    <div class="opts">
+      <div class="opt"><span class="box"></span><span>Nie</span></div>
+      <div class="opt"><span class="box"></span><span>Manchmal</span></div>
+      <div class="opt"><span class="box"></span><span>Oft</span></div>
+    </div>
+  </div>
+
+  <div class="q">
+    <div class="q-num">FRAGE 2</div>
+    <p class="q-text">Wie zufrieden bist du gerade mit deinem Energielevel?</p>
+    <div class="opts">
+      <div class="opt"><span class="box"></span><span>Sehr zufrieden</span></div>
+      <div class="opt"><span class="box"></span><span>Geht so</span></div>
+      <div class="opt"><span class="box"></span><span>Unzufrieden</span></div>
+    </div>
+  </div>
+
+  <div class="q">
+    <div class="q-num">FRAGE 3</div>
+    <p class="q-text">Was ist dein größtes Ziel gerade?</p>
+    <div class="opts">
+      <div class="opt"><span class="box"></span><span>Abnehmen</span></div>
+      <div class="opt"><span class="box"></span><span>Mehr Energie</span></div>
+      <div class="opt"><span class="box"></span><span>Verdauung verbessern</span></div>
+      <div class="opt"><span class="box"></span><span>Fitter werden</span></div>
+    </div>
+  </div>
+
+  <div class="contact">
+    <div class="contact-label">Deine Kontaktdaten</div>
+    <div class="field">
+      <div class="field-tag">Name</div>
+      <div class="field-line"></div>
+    </div>
+    <div class="field">
+      <div class="field-tag">Handynummer oder Instagram-Name</div>
+      <div class="field-line"></div>
+    </div>
+  </div>
+
+  <div class="note-box">
+    <p>Deine Daten werden nur genutzt, um dich zur Verlosung zu kontaktieren und dir bei Interesse mehr Infos zu senden. Kein Spam, versprochen.</p>
+  </div>
+
+  <footer class="legal">© 2026 Coach Oaki · The Human Health Guide</footer>
+
+</div>
+</body>
+</html>
