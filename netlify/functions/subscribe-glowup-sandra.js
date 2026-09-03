@@ -18,7 +18,10 @@
 //
 // Wie subscribe-glowup.js, nur dass die Benachrichtigungs-Mail an
 // Sandra geht statt an Dominik (über die Umgebungsvariable
-// NOTIFY_EMAIL_SANDRA, Fallback Sandra.riedesser@gmx.at falls die Variable mal fehlt).
+// NOTIFY_EMAIL_SANDRA. Bis eine eigene Domain bei Resend verifiziert
+// ist, darf die Sandbox-Absenderadresse (onboarding@resend.dev) nur an
+// Dominiks eigene Resend-Account-Mail senden, daher geht die Mail vorerst
+// an ihn, mit "(über Sandra)" klar im Betreff markiert.
 // Macht zwei Dinge, unabhängig voneinander:
 //   1. Legt/aktualisiert den Kontakt in MailerLite (MAILERLITE_API_KEY,
 //      optional MAILERLITE_GLOWUP_SANDRA_GROUP_ID).
@@ -90,10 +93,11 @@ exports.handler = async function (event) {
 
   // 2. Benachrichtigungs-Mail an Sandra über Resend
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
-  const NOTIFY_EMAIL = process.env.NOTIFY_EMAIL_SANDRA || 'Sandra.riedesser@gmx.at';
+  const NOTIFY_EMAIL = process.env.NOTIFY_EMAIL_SANDRA || 'dominikaichholzer@gmail.com';
 
   if (RESEND_API_KEY) {
     const rows = [
+      ['Quiz-Version', 'Sandra'],
       ['Name', name || '–'],
       ['Kontakt (Handy/Instagram)', kontakt || '–'],
       ['E-Mail', email],
@@ -116,7 +120,7 @@ exports.handler = async function (event) {
         body: JSON.stringify({
           from: 'Glow-up Quiz <onboarding@resend.dev>',
           to: [NOTIFY_EMAIL],
-          subject: `Neue Glow-up Quiz Anmeldung${name ? ': ' + name : ''}`,
+          subject: `Neue Glow-up Quiz Anmeldung (über Sandra)${name ? ': ' + name : ''}`,
           html: `<table>${htmlRows}</table>`,
         }),
       });
