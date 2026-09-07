@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coach Oaki · Team SOP Glowup Event</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0D2E2B;
+    --bg-raised: #133D39;
+    --bg-sunken: #0A2320;
+    --ink: #F4F3EC;
+    --ink-muted: #93B0AA;
+    --hairline: #2A5450;
+    --gold: #DCEB2E;
+    --gold-dim: rgba(220,235,46,0.14);
+    --red: #E2604F;
+    --red-dim: rgba(226,96,79,0.12);
+    --radius: 14px;
+    --serif: 'Fraunces', serif;
+    --sans: 'Inter', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+  }
+  *{ box-sizing: border-box; }
+  html{ scroll-behavior: smooth; }
+  html,body{ margin:0; padding:0; background: var(--bg); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+  body{ padding: 36px 16px 60px; }
+  .page{ max-width: 720px; margin: 0 auto; }
+
+  /* HEADER */
+  .header{ text-align:center; padding-bottom: 22px; border-bottom: 1px solid var(--hairline); margin-bottom: 22px; }
+  .eyebrow{ font-family: var(--mono); font-size: 11px; letter-spacing:0.16em; text-transform:uppercase; color: var(--gold); margin-bottom: 12px; }
+  .header h1{ font-family: var(--serif); font-weight: 400; font-size: 32px; line-height: 1.15; margin: 0 0 10px; }
+  .header h1 em{ font-style: italic; font-weight:500; color: var(--gold); }
+  .header p{ font-size: 13.5px; color: var(--ink-muted); line-height:1.5; max-width: 440px; margin: 0 auto; }
+
+  /* OVERVIEW NAV */
+  .overview{ display:flex; gap: 8px; margin-bottom: 34px; }
+  .overview a{
+    flex:1; text-decoration:none; display:block;
+    background: var(--bg-raised); border:1px solid var(--hairline); border-radius: 10px;
+    padding: 10px 12px; transition: border-color .15s ease;
+  }
+  .overview a:hover{ border-color: var(--gold); }
+  .overview .ov-phase{ font-family: var(--mono); font-size: 9px; letter-spacing:0.1em; text-transform:uppercase; color: var(--gold); margin-bottom: 3px; }
+  .overview .ov-title{ font-size: 12px; color: var(--ink); font-weight: 500; line-height:1.3; }
+  .overview .ov-steps{ font-size: 10.5px; color: var(--ink-muted); margin-top: 3px; }
+
+  /* PHASE */
+  .phase{ margin-bottom: 30px; scroll-margin-top: 20px; }
+  .phase-header{ display:flex; align-items:baseline; gap: 10px; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--hairline); }
+  .phase-num{ font-family: var(--mono); font-size: 10.5px; letter-spacing:0.1em; text-transform:uppercase; color: var(--gold); }
+  .phase-header h2{ font-family: var(--serif); font-weight: 400; font-size: 21px; margin: 0; }
+
+  /* STEP */
+  .step{ display:flex; gap: 14px; padding: 18px 0; border-bottom: 1px dashed var(--hairline); }
+  .step:last-child{ border-bottom: none; padding-bottom: 0; }
+  .step-num{
+    flex-shrink:0; width: 34px; height: 34px; border-radius: 50%;
+    background: var(--gold-dim); border: 1.5px solid var(--gold); color: var(--gold);
+    font-family: var(--serif); font-style: italic; font-weight: 600; font-size: 15px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .step-body{ flex:1; min-width:0; }
+  .step-title{ font-family: var(--serif); font-weight: 600; font-size: 16.5px; line-height:1.3; margin: 0 0 3px; }
+  .step-subtitle{ font-family: var(--mono); font-size: 10px; letter-spacing:0.04em; color: var(--ink-muted); margin-bottom: 12px; }
+
+  /* BOXES — one consistent visual language, differentiated by icon + label only */
+  .box{ border-radius: 10px; padding: 13px 15px; margin-bottom: 10px; font-size: 13.5px; line-height:1.6; }
+  .box:last-child{ margin-bottom: 0; }
+  .box-label{ display:flex; align-items:center; gap:6px; font-family: var(--mono); font-size: 9.5px; letter-spacing:0.1em; text-transform:uppercase; margin-bottom: 9px; color: var(--gold); }
+  .box p{ margin:0; white-space: pre-line; color: var(--ink); }
+
+  .action-box{ background: var(--gold-dim); border-left: 3px solid var(--gold); border-radius: 0 10px 10px 0; }
+  .action-box p{ margin:0; }
+  .action-box strong{ color: var(--gold); }
+
+  .script-box{ background: var(--bg-raised); border: 1px solid var(--hairline); }
+
+  .wait-box{ display:flex; align-items:center; gap: 8px; background: var(--bg-sunken); border: 1px dashed var(--hairline); font-size: 12.5px; color: var(--ink-muted); }
+  .wait-box::before{ content: '⏳'; font-size: 13px; }
+
+  .trello-box{ display:flex; align-items:flex-start; gap: 8px; background: var(--bg-raised); border: 1px solid var(--hairline); font-size: 13px; color: var(--ink); }
+  .trello-box::before{ content: '📋'; font-size: 14px; flex-shrink:0; }
+  .trello-box strong{ color: var(--gold); }
+
+  .info-box{ display:flex; align-items:flex-start; gap: 8px; background: var(--gold-dim); border: 1px solid var(--gold); font-size: 13px; color: var(--ink); }
+  .info-box::before{ content: '💡'; font-size: 14px; flex-shrink:0; }
+  .info-box strong{ color: var(--gold); }
+
+  .link-placeholder{ display:inline-block; background: var(--bg-sunken); border: 1px dashed var(--hairline); border-radius: 4px; padding: 2px 10px; font-size: 12px; color: var(--ink-muted); font-style: italic; }
+
+  /* BRANCH */
+  .branch{ border: 1px solid var(--hairline); border-radius: 10px; overflow:hidden; margin-top: 4px; }
+  .branch-title{ background: var(--bg-sunken); color: var(--ink-muted); font-family: var(--mono); font-size: 10px; letter-spacing:0.1em; text-transform:uppercase; padding: 10px 14px; border-bottom: 1px solid var(--hairline); }
+  .branch-body{ padding: 14px; background: var(--bg-raised); }
+  .branch-option{ padding: 14px 0; border-bottom: 1px dashed var(--hairline); }
+  .branch-option:first-child{ padding-top: 0; }
+  .branch-option:last-child{ border-bottom: none; padding-bottom: 0; }
+  .branch-tag{ display:inline-block; font-family: var(--mono); font-size: 9.5px; letter-spacing:0.08em; text-transform:uppercase; padding: 4px 11px; border-radius: 20px; margin-bottom: 10px; }
+  .tag-yes{ background: var(--gold-dim); color: var(--gold); border: 1px solid var(--gold); }
+  .tag-maybe{ background: var(--bg-sunken); color: var(--ink-muted); border: 1px solid var(--hairline); }
+  .tag-no{ background: var(--red-dim); color: var(--red); border: 1px solid rgba(226,96,79,0.4); }
+  .branch-option .script-box{ background: var(--bg-sunken); margin-bottom: 0; }
+
+  /* FOOTER */
+  .footer{ margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--hairline); text-align:center; }
+  .footer p{ font-size: 10.5px; color: #5C8B84; line-height:1.5; }
+
+  @media (max-width: 600px){
+    .header h1{ font-size: 26px; }
+    .overview{ flex-direction:column; }
+  }
+
+  @media print{
+    @page{ size: A4; margin: 16mm; }
+    body{ padding: 0; }
+    .step{ break-inside: avoid; }
+    .branch-option{ break-inside: avoid; }
+    .overview a:hover{ border-color: var(--hairline); }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="eyebrow">Team Anleitung · Schritt für Schritt</div>
+    <h1>Produkttester finden <em>&amp; Glowup Event</em></h1>
+    <p>Lies jeden Step ab, du kannst alles direkt so umsetzen.</p>
+  </div>
+
+  <div class="overview">
+    <a href="#phase-1">
+      <div class="ov-phase">Phase 1</div>
+      <div class="ov-title">Produkttester finden</div>
+      <div class="ov-steps">Step 1–3</div>
+    </a>
+    <a href="#phase-2">
+      <div class="ov-phase">Phase 2</div>
+      <div class="ov-title">Versand &amp; Begleitung</div>
+      <div class="ov-steps">Step 4–6</div>
+    </a>
+    <a href="#phase-3">
+      <div class="ov-phase">Phase 3</div>
+      <div class="ov-title">Feedback &amp; Einladung</div>
+      <div class="ov-steps">Step 7–8</div>
+    </a>
+  </div>
+
+  <!-- PHASE 1 -->
+  <div class="phase" id="phase-1">
+    <div class="phase-header">
+      <span class="phase-num">Phase 1</span>
+      <h2>Produkttester finden</h2>
+    </div>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <div class="step-title">10 Personen aussuchen &amp; Sprachnachricht senden</div>
+        <div class="step-subtitle">AKTION · DIREKTE ANSPRACHE ALS SPRACHNACHRICHT</div>
+
+        <div class="box action-box">
+          <p>Such dir <strong>10 Personen</strong> aus deinen Kontakten raus und schick ihnen folgende Nachricht als <strong>Sprachnachricht</strong>. Das funktioniert sowohl bei <strong>bestehenden Kunden</strong> als auch bei <strong>Personen, die dir schon Feedback zum Lips gegeben haben</strong>:</p>
+        </div>
+
+        <div class="box script-box">
+          <div class="box-label">🎙️ Sprachnachricht — wörtlich sprechen</div>
+          <p>Hey [Name],
+
+danke für dein Feedback zum Lips, es freut mich total, dass er dir gefällt 🙂 Darf ich dich kurz um einen kleinen Gefallen bitten?
+
+Ich suche gerade Produkttester für unsere neue natürliche Gesichtspflege.
+
+Die Produkte sind:
+Für alle Hauttypen geeignet
+Mit natürlichen Inhaltsstoffen
+In 3 Steps schnell anwendbar
+Kostenlos zum Testen
+
+Da persönliche Empfehlungen einfach am schönsten sind, wollte ich dich fragen, ob du mir dabei helfen könntest und die Infos an ein paar Menschen weiterschickst, denen du etwas Gutes tun möchtest?!
+
+Als kleines Dankeschön habe ich mir auch etwas für dich überlegt:
+5 Weiterempfehlungen → bekommst du ein Geschenk von mir zugeschickt
+10 Weiterempfehlungen → bekommst du den nächsten Einkauf um –38%
+15 Weiterempfehlungen → bekommst du die Gesichtspflege von mir geschenkt
+
+Ich denke, das kostet dich nur 2 Minuten, du würdest 5–15 Menschen eine Freude machen und mir wirklich einen großen Dienst erweisen, wie klingt das für dich? 🙂
+
+Dann schicke ich dir den Text, den du einfach nur kopieren und weiterleiten kannst?</p>
+        </div>
+
+        <div class="box info-box">
+          <p><strong>Wichtig:</strong> Im Text steht, dass sich Interessierte direkt über den Link bei dir melden können (dort deinen Namen eintragen), du musst nichts weiter tun als den Text weiterzuleiten!</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <div class="step-title">Weiterleitungstext schicken</div>
+        <div class="step-subtitle">NUR WENN PERSON JA SAGT · TEXT ZUM KOPIEREN SENDEN</div>
+
+        <div class="box action-box">
+          <p>Sobald jemand <strong>Ja sagt</strong>, schick ihm direkt diesen Text, er kann ihn <strong>einfach kopieren &amp; weiterleiten</strong>. Interessenten melden sich dann direkt bei dir über den Link, trag dort deinen Namen ein:</p>
+        </div>
+
+        <div class="box script-box">
+          <div class="box-label">✉️ Text zum Weiterleiten — einfach kopieren</div>
+          <p>Hey [Name],
+
+ein Bekannter von mir sucht aktuell Testpersonen, die kostenlos seine neue Gesichtspflege probieren und dann ein Feedback dazu geben.
+
+Dachte da an dich, vielleicht hättest du eine Freude, diese mal auszuprobieren für 3–4 Tage 🙂
+
+Die Pflege ist:
+Für alle Hauttypen
+Mit natürlichen Inhaltsstoffen
+Sanft & pflegend
+3 einfache Schritte
+
+Du kannst dir hier auf der Seite mehr Infos dazu holen und dich auch gleich direkt bei <span class="link-placeholder">[ Dein Name ]</span> melden, falls du eine Testperson sein möchtest oder Fragen hast, ich freue mich von dir zu hören!
+
+Link: <span class="link-placeholder">[ Boardsseite einfügen, die du von uns bekommst ]</span></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <div class="step-title">Wiederholen bis 30 Tester erreicht</div>
+        <div class="step-subtitle">LAUFEND · ZIEL: 30 TESTPERSONEN</div>
+
+        <div class="box action-box">
+          <p>Sende die <strong>Sprachnachricht aus Step 1</strong> immer wieder an neue Kontakte, solange bis du <strong>30 Testpersonen</strong> zusammen hast.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 2 -->
+  <div class="phase" id="phase-2">
+    <div class="phase-header">
+      <span class="phase-num">Phase 2</span>
+      <h2>Versand &amp; Begleitung</h2>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <div class="step-title">Pakete versenden &amp; in Trello notieren</div>
+        <div class="step-subtitle">INNERHALB VON 2 TAGEN NACH ANFRAGE VERSENDEN</div>
+
+        <div class="box wait-box">Sofort handeln, Versand innerhalb von 2 Tagen nach Anfrage!</div>
+        <div class="box trello-box">Jede Testperson in Trello eintragen mit: <strong>Name · Ankunftsdatum des Produkts</strong></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <div class="step-title">Erhalt bestätigen lassen</div>
+        <div class="step-subtitle">1 TAG NACH VERSAND SCHREIBEN</div>
+
+        <div class="box wait-box">1 Tag nach Versand warten, dann diese Nachricht schicken:</div>
+        <div class="box script-box">
+          <div class="box-label">✉️ Kurznachricht senden</div>
+          <p>Hey [Name],
+
+gib mir gerne Bescheid, sobald du das Tester-Päckchen erhalten hast 🙂</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-body">
+        <div class="step-title">Check-in: Alles klar zum Testen?</div>
+        <div class="step-subtitle">1 TAG NACH BESTÄTIGUNG DES ERHALTS</div>
+
+        <div class="box wait-box">1 Tag nach Erhalt-Bestätigung warten, dann kurz nachfragen:</div>
+        <div class="box script-box">
+          <div class="box-label">✉️ Kurznachricht senden</div>
+          <p>Hey [Name],
+
+alles klar zum Testen oder hast du noch Fragen? 😊</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 3 -->
+  <div class="phase" id="phase-3">
+    <div class="phase-header">
+      <span class="phase-num">Phase 3</span>
+      <h2>Feedback &amp; Einladung</h2>
+    </div>
+
+    <div class="step">
+      <div class="step-num">7</div>
+      <div class="step-body">
+        <div class="step-title">Feedback einholen</div>
+        <div class="step-subtitle">GENAU 4 TAGE NACH STEP 6 · ALS SPRACHNACHRICHT</div>
+
+        <div class="box wait-box">4 Tage nach dem Check-in abwarten, dann diese Sprachnachricht:</div>
+        <div class="box script-box">
+          <div class="box-label">🎙️ Sprachnachricht — wörtlich sprechen</div>
+          <p>Hey [Name],
+
+jetzt sind nun 4 Tage verstrichen und ich hoffe, du konntest die Logic Serie ausgewogen testen 🙂
+
+Ich hätte jetzt gerne ein Feedback von dir, was hat dir denn am besten gefallen?</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">8</div>
+      <div class="step-body">
+        <div class="step-title">Nach dem Feedback: 3 mögliche Wege</div>
+        <div class="step-subtitle">SCHAU WELCHE REAKTION KOMMT → PASSENDEN WEG WÄHLEN</div>
+
+        <div class="branch">
+          <div class="branch-title">Welche Reaktion kommt? → Passenden Weg wählen</div>
+          <div class="branch-body">
+
+            <div class="branch-option">
+              <span class="branch-tag tag-yes">✓ Positives Feedback / Kaufinteresse</span>
+              <div class="box script-box">
+                <div class="box-label">🎙️ Sprachnachricht — wörtlich sprechen</div>
+                <p>Hey [Name],
+
+ich freu mich wirklich, dass dir die Logic Serie so gut gefallen hat, besonders [was sie gesagt haben, z.B. die Textur / das Gefühl auf der Haut / die Ergebnisse] 😊
+
+Genau deswegen möchte ich dir heute eine einmalige Aktion anbieten, als kleines Dankeschön dafür, dass du dir die Zeit zum Testen genommen hast.
+
+Du bekommst das komplette Paket zum Kennenlernpreis, das bedeutet satte –30% für dich. Das heißt, du zahlst dann statt dem regulären Preis nur noch ca. 59 Euro für das gesamte Set.
+
+Ich würde mich wirklich freuen, wenn ich dir diese Freude machen darf 🙂
+
+Hast du noch Fragen, oder soll ich dir das direkt zusammenstellen?</p>
+              </div>
+            </div>
+
+            <div class="branch-option">
+              <span class="branch-tag tag-maybe">→ Kein Interesse am Kauf</span>
+              <div class="box script-box">
+                <div class="box-label">🎙️ Sprachnachricht — wörtlich sprechen</div>
+                <p>Hey [Name],
+
+kein Problem, ich danke dir von Herzen, dass du dir die Zeit genommen und mir dein Feedback gegeben hast, das bedeutet mir wirklich viel! 🙏
+
+Ich hab mir überlegt, wie ich mich bei dir bedanken kann, und ich würde dich super gerne zu unserem Glowup Event einladen, komplett kostenlos, ganz ohne Verpflichtung.
+
+Stell dir das so vor: Du kommst an einem entspannten Abend vorbei, eine Expertin führt euch durch eine professionelle, angeleitete Gesichtsbehandlung, du gönnst dir einfach eine kleine Auszeit für dich 🌿
+
+Dazu gibt's ein Gläschen Sekt und etwas Leckeres zum Knabbern, du gehst danach mit gepflegter Haut, einem guten Gefühl und vielleicht sogar neuen Bekanntschaften nach Hause ✨
+
+Das ist mein Dankeschön an dich, wäre das was für dich?</p>
+              </div>
+            </div>
+
+            <div class="branch-option">
+              <span class="branch-tag tag-no">→ Kein Interesse am Event</span>
+              <div class="box script-box">
+                <div class="box-label">🎙️ Sprachnachricht — wörtlich sprechen</div>
+                <p>Hey [Name],
+
+alles gut, ich schätze wirklich, dass du dir die Zeit für das Testen genommen hast, das war eine riesige Hilfe für mich! 🙏
+
+Ich hätte noch eine ganz kleine Bitte an dich, würdest du mir den kleinen Gefallen tun und diesen Flyer für mich teilen?
+
+Für mich als Jungunternehmer wäre das eine riesige Hilfe, weil vielleicht kennst du jemanden, der Lust hat, mit uns zusammenzuarbeiten und an unseren Remote-Projekten mitzuwirken.
+
+Und falls du selber mal neugierig bist wie das aussieht, ich kann dir gerne unverbindlich ein paar Infos zukommen lassen 😊
+
+<span class="link-placeholder">[ Work with me Flyer hier einfügen ]</span></p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>Team Anleitung · Dominik · Glowup Event System · Bei Fragen direkt bei Dominik melden</p>
+  </div>
+
+</div>
+</body>
+</html>
