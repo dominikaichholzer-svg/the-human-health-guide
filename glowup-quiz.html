@@ -140,7 +140,10 @@
     <h1 class="hero" id="infoTitle">Dazu <em>kurz</em> mehr.</h1>
     <p class="lede" id="infoText"></p>
     <img id="infoImage" class="info-image" alt="Vorher Nachher" style="display:none;">
-    <button class="btn" onclick="continueAfterInfo()">Weiter →</button>
+    <div class="nav-row">
+      <button class="btn btn-ghost" onclick="backFromInfo()">← zurück</button>
+      <button class="btn" onclick="continueAfterInfo()">Weiter →</button>
+    </div>
   </section>
 
   <!-- SCREEN 2: Final / Contact -->
@@ -266,30 +269,23 @@
     {
       id: 'q5',
       type: 'single',
-      title: 'Zum Schluss: nach dem Sommer noch ein Thema?',
-      subtitle: 'Nach dem Sommer wieder ein paar Kilos purzeln lassen und das Gewebe straffen. C9 hilft dir dabei in 9 Tagen.',
+      title: 'Möchtest du dich nach dem Sommer wieder leichter, fitter und wohler fühlen, nebenbei 1-2 lästige Kilos purzeln lassen und das Hautbild verbessern?',
+      subtitle: 'In 9 Tagen, mit klarem Plan und persönlicher Begleitung.',
       options: [
         {
           value: 'kilos', label: 'Ja, 1-2 Kilos könnten weg',
           moreInfo: {
             title: 'In <em>9 Tagen</em> ein Stück leichter.',
-            text: 'Perfekt, genau da setzt C9 an. In nur 9 Tagen bringst du deinen Körper wieder in Balance, mit einem klaren Tag-für-Tag-Plan, den passenden Nährstoffen und richtig guten Rezepten. Kein Hungern, kein Kalorienzählen. Die meisten fühlen sich schon nach wenigen Tagen leichter, und die ein, zwei Sommer-Kilos sind am Ende meist Geschichte.',
-            image: 'img/geschenke/vn-c9-gewicht.jpg'
+            text: 'Perfekt, genau darum geht es beim 9-Tage-Programm. In nur 9 Tagen bringst du deinen Körper wieder in Balance, mit einem klaren Tag-für-Tag-Plan, den passenden Nährstoffen und richtig guten Rezepten. Kein Hungern, kein Kalorienzählen. Die meisten fühlen sich schon nach wenigen Tagen leichter, und die ein, zwei Sommer-Kilos sind am Ende meist Geschichte.',
+            image: 'img/geschenke/vn-leichter.jpg'
           }
         },
         {
           value: 'gewebe', label: 'Bindegewebe könnte besser sein',
           moreInfo: {
             title: 'Straffes Gewebe von <em>innen</em>.',
-            text: 'Straffes Bindegewebe entsteht von innen, keine Creme schafft das allein. C9 versorgt deinen Körper 9 Tage lang gezielt mit dem, was das Gewebe braucht: die richtige Ernährung, wichtige Nährstoffe und viel Wasser. Zusammen mit etwas Bewegung fühlt sich die Haut danach bei vielen spürbar straffer an.',
-            image: 'img/geschenke/vn-c9-haut.jpg'
-          }
-        },
-        {
-          value: 'infos', label: 'Mehr Infos dazu',
-          moreInfo: {
-            title: 'Mehr zu <em>C9</em>.',
-            text: 'C9 ist dein 9-Tage-Neustart nach dem Sommer. Du bekommst alles an die Hand: einen Tag-für-Tag-Plan, die passende Nahrungsergänzung, leckere Rezepte und persönliche Begleitung von mir. Das Ergebnis: ein paar Kilos leichter, das Gewebe straffer und mehr Energie. In nur 9 Tagen und ganz ohne dein Leben umzukrempeln.'
+            text: 'Straffes Bindegewebe entsteht von innen, keine Creme schafft das allein. Das 9-Tage-Programm versorgt deinen Körper gezielt mit dem, was das Gewebe braucht: die richtige Ernährung, wichtige Nährstoffe und viel Wasser. Zusammen mit etwas Bewegung fühlt sich die Haut danach bei vielen spürbar straffer an.',
+            image: 'img/geschenke/vn-gewebe.jpg'
           }
         },
         { value: 'nein', label: 'Nichts davon' },
@@ -303,7 +299,7 @@
     q2: 'das Bio Face Lifting',
     q3: 'das Glow-up Event',
     q4: 'die Gastgeberin-Rolle beim Glow-up Event',
-    q5: 'mehr über C9 zu erfahren',
+    q5: 'einen Neustart nach dem Sommer',
   };
 
   const state = {
@@ -412,6 +408,12 @@
     advanceQuestion();
   }
 
+  function backFromInfo(){
+    state.pendingInfoShown = false;
+    renderQuestion();
+    goTo('question');
+  }
+
   function advanceQuestion(){
     if(state.current < questions.length - 1){
       state.current++;
@@ -489,7 +491,7 @@
       bio_face_lifting: state.answers['q2'] ? state.answers['q2'].label : '',
       glowup_event: state.answers['q3'] ? state.answers['q3'].label : '',
       gastgeber: state.answers['q4'] ? state.answers['q4'].label : '',
-      c9: state.answers['q5'] ? state.answers['q5'].label : '',
+      neustart: state.answers['q5'] ? state.answers['q5'].label : '',
     };
 
     const btn = document.getElementById('submitBtn');
