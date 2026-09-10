@@ -44,6 +44,7 @@ exports.handler = async function (event) {
     bio_face_lifting,
     glowup_event,
     gastgeber,
+    c9,
   } = payload;
 
   if (!email || !email.includes('@')) {
@@ -67,6 +68,7 @@ exports.handler = async function (event) {
           bio_face_lifting: bio_face_lifting || '',
           glowup_event: glowup_event || '',
           gastgeber: gastgeber || '',
+          c9: c9 || '',
         },
         groups: ML_GROUP_ID ? [ML_GROUP_ID] : [],
         status: 'active',
@@ -100,6 +102,7 @@ exports.handler = async function (event) {
       ['Bio Face Lifting', bio_face_lifting || '–'],
       ['Glow-up Event', glowup_event || '–'],
       ['Gastgeber:in werden', gastgeber || '–'],
+      ['C9 nach dem Sommer', c9 || '–'],
     ];
     const htmlRows = rows
       .map(([label, value]) => `<tr><td style="padding:6px 12px 6px 0;color:#666;white-space:nowrap;">${label}</td><td style="padding:6px 0;"><b>${value}</b></td></tr>`)

@@ -47,6 +47,7 @@
   h1.hero{ font-family: var(--serif); font-weight: 400; font-size: 34px; line-height: 1.14; margin: 0 0 18px; }
   h1.hero em{ font-style: italic; font-weight:500; color: var(--gold); }
   .lede{ color: var(--ink-muted); font-size: 15.5px; line-height:1.6; margin-bottom: 30px; }
+  .info-image{ width:100%; border-radius: 12px; border:1px solid var(--hairline); margin: 0 0 22px; display:block; }
 
   .btn{ display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding: 18px 22px; background: var(--gold); color: #F7FBFA; border:none; border-radius: var(--radius); font-family: var(--sans); font-weight: 700; font-size: 16px; cursor:pointer; text-decoration:none; transition: transform 0.15s ease, background 0.15s ease; }
   .btn:hover{ transform: translateY(-1px); background:#1F625B; }
@@ -105,7 +106,7 @@
 
   <div class="progress-wrap" id="progressWrap" style="display:none;">
     <div class="progress-meta">
-      <span id="progressLabel">Frage 1 von 4</span>
+      <span id="progressLabel">Frage 1 von 5</span>
     </div>
     <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
   </div>
@@ -114,7 +115,7 @@
   <section class="screen active" id="screen-intro">
     <div class="eyebrow">BIST DU DABEI?</div>
     <h1 class="hero">Kurz <em>neugierig</em> werden?</h1>
-    <p class="lede">4 kurze Fragen, etwa 30 Sekunden. Ich finde damit heraus, was für dich gerade am meisten Sinn macht, von kostenlosem Testen bis hin zum eigenen Glow-up Event.</p>
+    <p class="lede">5 kurze Fragen, etwa 30 Sekunden. Ich finde damit heraus, was für dich gerade am meisten Sinn macht, von kostenlosem Testen bis hin zum eigenen Glow-up Event.</p>
     <button class="btn" onclick="startQuiz()">Los geht's →</button>
   </section>
 
@@ -138,6 +139,7 @@
     <div class="eyebrow">GUT ZU WISSEN</div>
     <h1 class="hero" id="infoTitle">Dazu <em>kurz</em> mehr.</h1>
     <p class="lede" id="infoText"></p>
+    <img id="infoImage" class="info-image" alt="Vorher Nachher" style="display:none;">
     <button class="btn" onclick="continueAfterInfo()">Weiter →</button>
   </section>
 
@@ -261,6 +263,38 @@
         { value: 'nein', label: 'Eher nicht' },
       ],
     },
+    {
+      id: 'q5',
+      type: 'single',
+      title: 'Zum Schluss: nach dem Sommer noch ein Thema?',
+      subtitle: 'Nach dem Sommer wieder ein paar Kilos purzeln lassen und das Gewebe straffen. C9 hilft dir dabei in 9 Tagen.',
+      options: [
+        {
+          value: 'kilos', label: 'Ja, 1-2 Kilos könnten weg',
+          moreInfo: {
+            title: 'In <em>9 Tagen</em> ein Stück leichter.',
+            text: 'Perfekt, genau da setzt C9 an. In nur 9 Tagen bringst du deinen Körper wieder in Balance, mit einem klaren Tag-für-Tag-Plan, den passenden Nährstoffen und richtig guten Rezepten. Kein Hungern, kein Kalorienzählen. Die meisten fühlen sich schon nach wenigen Tagen leichter, und die ein, zwei Sommer-Kilos sind am Ende meist Geschichte.',
+            image: 'img/geschenke/vn-c9-gewicht.jpg'
+          }
+        },
+        {
+          value: 'gewebe', label: 'Bindegewebe könnte besser sein',
+          moreInfo: {
+            title: 'Straffes Gewebe von <em>innen</em>.',
+            text: 'Straffes Bindegewebe entsteht von innen, keine Creme schafft das allein. C9 versorgt deinen Körper 9 Tage lang gezielt mit dem, was das Gewebe braucht: die richtige Ernährung, wichtige Nährstoffe und viel Wasser. Zusammen mit etwas Bewegung fühlt sich die Haut danach bei vielen spürbar straffer an.',
+            image: 'img/geschenke/vn-c9-haut.jpg'
+          }
+        },
+        {
+          value: 'infos', label: 'Mehr Infos dazu',
+          moreInfo: {
+            title: 'Mehr zu <em>C9</em>.',
+            text: 'C9 ist dein 9-Tage-Neustart nach dem Sommer. Du bekommst alles an die Hand: einen Tag-für-Tag-Plan, die passende Nahrungsergänzung, leckere Rezepte und persönliche Begleitung von mir. Das Ergebnis: ein paar Kilos leichter, das Gewebe straffer und mehr Energie. In nur 9 Tagen und ganz ohne dein Leben umzukrempeln.'
+          }
+        },
+        { value: 'nein', label: 'Nichts davon' },
+      ],
+    },
   ];
 
   // Kurzbezeichnung je Frage, für die persönliche Zusammenfassung am Ende
@@ -269,6 +303,7 @@
     q2: 'das Bio Face Lifting',
     q3: 'das Glow-up Event',
     q4: 'die Gastgeberin-Rolle beim Glow-up Event',
+    q5: 'mehr über C9 zu erfahren',
   };
 
   const state = {
@@ -354,6 +389,14 @@
       if(selectedOpt && selectedOpt.moreInfo){
         document.getElementById('infoTitle').innerHTML = selectedOpt.moreInfo.title;
         document.getElementById('infoText').innerHTML = selectedOpt.moreInfo.text;
+        var infoImg = document.getElementById('infoImage');
+        if(selectedOpt.moreInfo.image){
+          infoImg.src = selectedOpt.moreInfo.image;
+          infoImg.style.display = 'block';
+        } else {
+          infoImg.removeAttribute('src');
+          infoImg.style.display = 'none';
+        }
         state.pendingInfoShown = true;
         goTo('info');
         return;
@@ -398,7 +441,7 @@
     const interests = [];
     Object.keys(interestLabels).forEach(qid => {
       const a = state.answers[qid];
-      if(a && (a.value === 'ja' || a.value === 'vielleicht')){
+      if(a && a.value !== 'nein'){
         interests.push(interestLabels[qid]);
       }
     });
@@ -446,6 +489,7 @@
       bio_face_lifting: state.answers['q2'] ? state.answers['q2'].label : '',
       glowup_event: state.answers['q3'] ? state.answers['q3'].label : '',
       gastgeber: state.answers['q4'] ? state.answers['q4'].label : '',
+      c9: state.answers['q5'] ? state.answers['q5'].label : '',
     };
 
     const btn = document.getElementById('submitBtn');
