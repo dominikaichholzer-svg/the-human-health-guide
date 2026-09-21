@@ -106,7 +106,7 @@
 
   <div class="progress-wrap" id="progressWrap" style="display:none;">
     <div class="progress-meta">
-      <span id="progressLabel">Frage 1 von 4</span>
+      <span id="progressLabel">Frage 1 von 5</span>
     </div>
     <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
   </div>
@@ -115,7 +115,7 @@
   <section class="screen active" id="screen-intro">
     <div class="eyebrow">BIST DU DABEI?</div>
     <h1 class="hero">Kurz <em>neugierig</em> werden?</h1>
-    <p class="lede">4 kurze Fragen, etwa 30 Sekunden. Ich finde damit heraus, was für dich gerade am meisten Sinn macht, von kostenlosem Testen bis hin zum eigenen Glow-up Event.</p>
+    <p class="lede">5 kurze Fragen, etwa 30 Sekunden. Ich finde damit heraus, was für dich gerade am meisten Sinn macht, von kostenlosem Testen bis hin zum eigenen Glow-up Event.</p>
     <button class="btn" onclick="startQuiz()">Los geht's →</button>
   </section>
 
@@ -252,7 +252,7 @@
     {
       id: 'q5',
       type: 'single',
-      title: 'Zum Schluss: nach dem Sommer noch ein Thema?',
+      title: 'Noch ein Thema für dich:',
       subtitle: 'Möchtest du dich nach dem Sommer wieder leichter, fitter und wohler fühlen, nebenbei 1-2 lästige Kilos purzeln lassen und das Hautbild verbessern?',
       options: [
         {
@@ -281,6 +281,23 @@
         { value: 'nein', label: 'Nichts davon' },
       ],
     },
+    {
+      id: 'q6',
+      type: 'single',
+      title: 'Zum Schluss: hast du Lust, dieses Weihnachten unser Santa\'s Helper zu sein?',
+      subtitle: 'Ein kleiner Ferialjob von Oktober bis Dezember im Weihnachtsgeschäft, ganz ohne Kosten oder Vorkenntnisse, mit dem du dir nebenbei 300-600 Euro dazuverdienen kannst.',
+      options: [
+        { value: 'ja', label: 'Ja, das interessiert mich' },
+        {
+          value: 'vielleicht', label: 'Vielleicht, erzähl mir mehr',
+          moreInfo: {
+            title: 'Mehr zum <em>Santa\'s Helper</em> Job.',
+            text: 'Als Santa\'s Helper hilfst du uns von Oktober bis Dezember im Weihnachtsgeschäft, ganz ohne Vorkenntnisse und ohne eigene Kosten. Du bekommst alles an die Hand, was du brauchst, und kannst dir je nach Einsatz zwischen 300 und 600 Euro dazuverdienen. Ein perfekter kleiner Nebenjob für die Vorweihnachtszeit.'
+          }
+        },
+        { value: 'nein', label: 'Eher nicht' },
+      ],
+    },
   ];
 
   // Kurzbezeichnung je Frage, für die persönliche Zusammenfassung am Ende
@@ -289,6 +306,7 @@
     q3: 'das Glow-up Event',
     q4: 'die Gastgeberin-Rolle beim Glow-up Event',
     q5: 'einen Neustart nach dem Sommer',
+    q6: 'den Santa\'s Helper Job',
   };
 
   const state = {
@@ -480,6 +498,7 @@
       glowup_event: state.answers['q3'] ? state.answers['q3'].label : '',
       gastgeber: state.answers['q4'] ? state.answers['q4'].label : '',
       neustart: state.answers['q5'] ? state.answers['q5'].label : '',
+      santas_helper: state.answers['q6'] ? state.answers['q6'].label : '',
     };
 
     const btn = document.getElementById('submitBtn');

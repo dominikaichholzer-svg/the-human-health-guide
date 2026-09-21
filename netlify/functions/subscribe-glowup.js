@@ -45,6 +45,7 @@ exports.handler = async function (event) {
     glowup_event,
     gastgeber,
     neustart,
+    santas_helper,
   } = payload;
 
   if (!email || !email.includes('@')) {
@@ -69,6 +70,7 @@ exports.handler = async function (event) {
           glowup_event: glowup_event || '',
           gastgeber: gastgeber || '',
           neustart: neustart || '',
+          santas_helper: santas_helper || '',
         },
         groups: ML_GROUP_ID ? [ML_GROUP_ID] : [],
         status: 'active',
@@ -103,6 +105,7 @@ exports.handler = async function (event) {
       ['Glow-up Event', glowup_event || '–'],
       ['Gastgeber:in werden', gastgeber || '–'],
       ['Neustart nach dem Sommer', neustart || '–'],
+      ['Santa\'s Helper Job', santas_helper || '–'],
     ];
     const htmlRows = rows
       .map(([label, value]) => `<tr><td style="padding:6px 12px 6px 0;color:#666;white-space:nowrap;">${label}</td><td style="padding:6px 0;"><b>${value}</b></td></tr>`)
