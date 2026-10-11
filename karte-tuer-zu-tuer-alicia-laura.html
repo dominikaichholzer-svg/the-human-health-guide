@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coach Oaki · Tür-zu-Tür-Karten</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0D2E2B;
+    --bg-raised: #133D39;
+    --ink: #F4F3EC;
+    --ink-muted: #93B0AA;
+    --hairline: #2A5450;
+    --gold: #DCEB2E;
+    --gold-dim: rgba(220,235,46,0.16);
+    --radius: 14px;
+    --serif: 'Fraunces', serif;
+    --sans: 'Inter', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; background: #06201D; color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+  body{ min-height:100vh; padding: 28px 16px 48px; display:flex; flex-direction:column; align-items:center; }
+
+  .screen-note{ max-width: 480px; text-align:center; color: var(--ink-muted); font-size: 13px; line-height:1.6; margin-bottom: 26px; }
+  .screen-note b{ color: var(--gold); }
+
+  .sheet{ width: 100%; max-width: 920px; display:flex; flex-wrap:wrap; justify-content:center; gap: 22px; }
+
+  .card{
+    width: 105mm; min-height: 148mm;
+    background: var(--bg-raised);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+    padding: 16mm 10mm 10mm;
+    display:flex; flex-direction:column;
+  }
+
+  .card .name{ font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); margin-bottom: 4px; }
+  .card .role{ font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 14px; }
+  .dot{ display:inline-block; width:6px; height:6px; border-radius:50%; background: var(--gold); margin-right:7px; }
+
+  .opener{ font-family: var(--serif); font-size: 14.5px; line-height: 1.5; margin: 0 0 14px; }
+  .opener em{ font-style: italic; color: var(--gold); }
+
+  .ask-box{ background: var(--gold-dim); border: 1px solid var(--gold); border-radius: 10px; padding: 10px 12px; margin-bottom: 14px; }
+  .ask-box .label{ font-family: var(--mono); font-size: 9px; letter-spacing:0.08em; text-transform:uppercase; color: var(--gold); margin-bottom: 5px; }
+  .ask-box p{ margin:0; font-size: 12px; line-height: 1.5; }
+
+  .section-label{ font-family: var(--mono); font-size: 9.5px; letter-spacing:0.08em; text-transform:uppercase; color: var(--ink-muted); margin: 10px 0 6px; }
+  .objs{ display:flex; flex-direction:column; gap:6px; }
+  .obj{ font-size: 11.5px; line-height:1.4; }
+  .obj .q{ color: var(--ink-muted); }
+  .obj .a{ color: var(--ink); }
+
+  .card-footer{ margin-top:auto; padding-top: 10px; border-top: 1px dashed var(--hairline); font-size: 10px; color: var(--ink-muted); text-align:center; }
+
+  @media print{
+    html,body{ background: #fff; }
+    .screen-note{ display:none; }
+    body{ padding:0; }
+    .sheet{ gap: 0; justify-content:flex-start; }
+    @page{ size: A4; margin: 10mm; }
+    .card{
+      background: var(--bg-raised);
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+      border: 1px dashed #999;
+      break-inside: avoid;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <p class="screen-note">Zwei Tür-zu-Tür-Karten im Postkartenformat (105×148mm), eine für Alicia, eine für Laura. Am besten auf etwas festerem Papier ausdrucken und entlang der gestrichelten Linie ausschneiden. Ausführlicher Hintergrund dazu steht in <b>skript-tuer-zu-tuer-alicia-laura.md</b>.</p>
+
+  <div class="sheet">
+
+    <!-- KARTE: ALICIA -->
+    <div class="card">
+      <div class="name"><span class="dot"></span>ALICIA</div>
+      <div class="role">Tür-zu-Tür · Testbox-Opener</div>
+
+      <div class="ask-box" style="margin-bottom:14px;">
+        <div class="label">Zuerst, vor jedem Satz</div>
+        <p>Echt hinschauen: Garten, Hund, Deko, was fällt grad wirklich auf? Nur falls es ehrlich stimmt, kurz erwähnen, dann Pause, dann erst vorstellen.</p>
+      </div>
+
+      <p class="opener">"Oh, was für ein schöner Garten! Hey, ich bin Alicia, grad frisch hier eingezogen, und ich klopf einfach mal bei ein paar Nachbarn, um die Gegend kennenzulernen. Nebenbei mach ich auch was Selbstständiges mit Aloe-Vera-Produkten, wärst du grundsätzlich offen, mal die weltbesten Aloe-Vera-Produkte kostenlos zu testen? Als Gegenleistung bräuchte ich nur ein kurzes ehrliches Feedback, das würde mir sehr helfen, und ich bin mir sicher, deine Haut würde es dir danken :)"</p>
+
+      <div class="section-label">Einwände, erst anerkennen, dann locker bleiben</div>
+      <div class="objs">
+        <div class="obj"><span class="q">Kein Interesse</span> <span class="a">"Kein Ding, hab auch nicht erwartet dass gleich jeder dabei ist! Schönen Tag noch."</span></div>
+        <div class="obj"><span class="q">Keine Zeit grad</span> <span class="a">"Alles gut, musst ja nicht grad jetzt testen! Soll ich die Kiste für später dalassen?"</span></div>
+        <div class="obj"><span class="q">Network-Marketing?</span> <span class="a">"Haha, ja genau, Direktvertrieb, kein Geheimnis. Heut geht's aber wirklich nur ums Testen."</span></div>
+        <div class="obj"><span class="q">Hab schon Pflege</span> <span class="a">"Macht nix, geht auch gar nicht ums Wechseln, eher ob's dir gefällt oder nicht."</span></div>
+      </div>
+
+      <div class="ask-box" style="margin-top:14px;">
+        <div class="label">Kontakt sichern, bevor du weiterziehst</div>
+        <p>"Ich lass dir das einfach da und meld mich in ein paar Tagen, einfach weil mich interessiert wie's dir gefallen hat. Hast du eine Nummer oder Insta für dich?"</p>
+      </div>
+
+      <div class="card-footer">Nachfassen nach 3-5 Tagen · Coach Oaki Team</div>
+    </div>
+
+    <!-- KARTE: LAURA -->
+    <div class="card">
+      <div class="name"><span class="dot"></span>LAURA</div>
+      <div class="role">Tür-zu-Tür · Testbox-Opener</div>
+
+      <div class="ask-box" style="margin-bottom:14px;">
+        <div class="label">Zuerst, vor jedem Satz</div>
+        <p>Echt hinschauen: Garten, Hund, Deko, was fällt grad wirklich auf? Nur falls es ehrlich stimmt, kurz erwähnen, dann Pause, dann erst vorstellen.</p>
+      </div>
+
+      <p class="opener">"Hey! Ich bin Laura, grad zu Besuch bei meiner Freundin Alicia, die hier frisch eingezogen ist, wir ziehen heut zusammen rum und lernen ein paar Nachbarn kennen. Wir sind beide selbstständig mit Aloe-Vera-Produkten, wärst du grundsätzlich offen, mal die weltbesten Aloe-Vera-Produkte kostenlos zu testen? Als Gegenleistung bräuchten wir nur ein kurzes ehrliches Feedback, das würde uns sehr helfen, und wir sind uns sicher, deine Haut würde es dir danken :)"</p>
+
+      <div class="section-label">Einwände, erst anerkennen, dann locker bleiben</div>
+      <div class="objs">
+        <div class="obj"><span class="q">Kein Interesse</span> <span class="a">"Kein Ding, hab auch nicht erwartet dass gleich jeder dabei ist! Schönen Tag noch."</span></div>
+        <div class="obj"><span class="q">Keine Zeit grad</span> <span class="a">"Alles gut, musst ja nicht grad jetzt testen! Soll ich die Kiste für später dalassen?"</span></div>
+        <div class="obj"><span class="q">Network-Marketing?</span> <span class="a">"Haha, ja genau, Direktvertrieb, kein Geheimnis. Heut geht's aber wirklich nur ums Testen."</span></div>
+        <div class="obj"><span class="q">Hab schon Pflege</span> <span class="a">"Macht nix, geht auch gar nicht ums Wechseln, eher ob's dir gefällt oder nicht."</span></div>
+      </div>
+
+      <div class="ask-box" style="margin-top:14px;">
+        <div class="label">Kontakt sichern, bevor du weiterziehst</div>
+        <p>"Ich lass dir das einfach da und meld mich in ein paar Tagen, einfach weil mich interessiert wie's dir gefallen hat. Hast du eine Nummer oder Insta für dich?"</p>
+      </div>
+
+      <div class="card-footer">Nachfassen nach 3-5 Tagen · Coach Oaki Team</div>
+    </div>
+
+  </div>
+
+</body>
+</html>
