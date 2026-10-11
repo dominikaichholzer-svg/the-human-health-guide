@@ -1,0 +1,8 @@
+{
+  "name": "mein-quiz",
+  "private": true,
+  "description": "Netlify Functions für den Quiz-Funnel und das Leader-Dashboard. Push-Benachrichtigungen (web-push) sind die einzige echte Abhängigkeit, alles andere im Projekt bleibt ohne npm-Pakete.",
+  "dependencies": {
+    "web-push": "^3.6.7"
+  }
+}

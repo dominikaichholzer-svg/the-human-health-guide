@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coach Oaki · Team-Übersicht</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #BFE3DE;
+    --bg-raised: #FFFFFF;
+    --bg-raised-hover: #EAF7F4;
+    --ink: #123330;
+    --ink-muted: #4C7C76;
+    --hairline: #9CCFC8;
+    --gold: #17504A;
+    --gold-dim: rgba(23,80,74,0.08);
+    --error: #C4453A;
+    --radius: 14px;
+    --serif: 'Fraunces', serif;
+    --sans: 'Inter', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; background: var(--bg); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+  body{ min-height:100vh; display:flex; justify-content:center; padding: 32px 16px 64px; }
+  .app{ width:100%; max-width: 760px; }
+
+  .brandbar{ display:flex; justify-content:space-between; align-items:flex-start; padding-bottom: 22px; border-bottom: 1px solid var(--hairline); margin-bottom: 28px; }
+  .brandbar .name{ font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; }
+  .brandbar .tag{ font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-muted); text-align:right; }
+  .dot{ display:inline-block; width:6px; height:6px; border-radius:50%; background: var(--gold); margin-right:8px; }
+
+  .eyebrow{ font-family: var(--mono); font-size: 11px; letter-spacing:0.14em; text-transform:uppercase; color: var(--gold); margin-bottom: 10px; }
+  h1.hero{ font-family: var(--serif); font-weight: 400; font-size: 30px; line-height: 1.16; margin: 0 0 18px; }
+  h1.hero em{ font-style: italic; font-weight:500; color: var(--gold); }
+
+  .leader-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
+  @media (max-width: 620px){ .leader-grid{ grid-template-columns: 1fr; } }
+
+  .leader-card{ background: var(--bg-raised); border: 1px solid var(--hairline); border-radius: var(--radius); padding: 16px 18px; }
+  .leader-card .lname{ font-family: var(--serif); font-size: 19px; margin: 0 0 2px; }
+  .leader-card .lrank{ font-family: var(--mono); font-size: 10.5px; letter-spacing:0.06em; text-transform:uppercase; color: var(--gold); margin-bottom: 10px; }
+  .progress-track{ position:relative; height: 8px; border-radius: 6px; background: var(--hairline); overflow:hidden; margin-bottom: 6px; }
+  .progress-fill{ position:absolute; top:0; left:0; height:100%; border-radius:6px; background: var(--gold); width:0%; }
+  .lmeta{ font-size: 12px; color: var(--ink-muted); line-height:1.5; }
+  .flag{ display:inline-block; margin-top:8px; font-size: 11px; font-weight:700; padding: 3px 9px; border-radius: 20px; background: #FCE3E0; color: var(--error); }
+  .flag.ok{ background: var(--gold-dim); color: var(--gold); }
+
+  .insight-box{ margin-top: 12px; padding: 10px 12px; background: var(--gold-dim); border-radius: 10px; font-size: 12px; line-height: 1.5; color: var(--ink); }
+
+  .heatmap{ display:flex; flex-wrap:wrap; gap:3px; margin-top:10px; max-width: 168px; }
+  .heatmap .hday{ width:18px; height:18px; border-radius:3px; background: var(--hairline); }
+  .heatmap .hday[data-level="1"]{ background: #BFE3DE; }
+  .heatmap .hday[data-level="2"]{ background: #6FB8AD; }
+  .heatmap .hday[data-level="3"]{ background: var(--gold); }
+  .heatmap-label{ font-family: var(--mono); font-size: 9.5px; letter-spacing:0.06em; text-transform:uppercase; color: var(--ink-muted); margin: 10px 0 2px; }
+  .insight-box .ilabel{ font-family: var(--mono); font-size: 9.5px; letter-spacing:0.06em; text-transform:uppercase; color: var(--gold); display:block; margin-bottom: 4px; }
+
+  section.card{ background: var(--bg-raised); border: 1px solid var(--hairline); border-radius: var(--radius); padding: 20px 20px 18px; margin-bottom: 18px; }
+  h2.card-title{ font-family: var(--serif); font-weight: 400; font-size: 19px; margin: 0 0 6px; }
+  .card-sub{ font-size: 12.5px; color: var(--ink-muted); margin: 0 0 14px; }
+
+  textarea{ width:100%; min-height: 140px; background: #fff; border: 1.5px solid var(--hairline); border-radius: 10px; padding: 13px 14px; color: var(--ink); font-family: var(--sans); font-size: 14.5px; resize: vertical; }
+  textarea:focus{ outline:none; border-color: var(--gold); }
+
+  .btn{ display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding: 15px 20px; background: var(--gold); color: #F7FBFA; border:none; border-radius: var(--radius); font-family: var(--sans); font-weight: 700; font-size: 15px; cursor:pointer; margin-top: 12px; }
+  .btn:hover{ background:#1F625B; }
+  .btn:disabled{ opacity:0.6; cursor:default; }
+
+  .state-msg{ text-align:center; padding: 60px 20px; color: var(--ink-muted); font-size: 14.5px; }
+  [hidden]{ display:none !important; }
+
+  footer.legal{ margin-top: 10px; padding-top: 18px; border-top: 1px solid var(--hairline); font-size: 11.5px; color: #4C7C76; line-height:1.6; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="brandbar">
+    <div class="name"><span class="dot"></span>COACH OAKI</div>
+    <div class="tag">TEAM<br>ÜBERSICHT</div>
+  </div>
+
+  <div id="loadingState" class="state-msg">Lädt …</div>
+  <div id="errorState" class="state-msg" hidden>Kein Zugriff. Prüfe den Link/Key.</div>
+
+  <div id="mainContent" hidden>
+    <div class="eyebrow">STAND HEUTE</div>
+    <h1 class="hero">Dein <em>Team</em> auf einen Blick.</h1>
+
+    <div class="leader-grid" id="leaderGrid"></div>
+
+    <section class="card">
+      <h2 class="card-title">Strategie für nächsten Monat</h2>
+      <p class="card-sub" id="nextMonthLabel"></p>
+      <textarea id="nextMonthContent" placeholder="Was ist der Fokus für alle im nächsten Monat?"></textarea>
+      <button class="btn" id="saveNextBtn">Speichern</button>
+      <p class="card-sub" id="saveNextStatus" style="text-align:center; margin-top:8px;"></p>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Strategie diesen Monat</h2>
+      <p class="card-sub" id="currentMonthLabel"></p>
+      <textarea id="currentMonthContent" placeholder="(falls noch nicht gesetzt, hier nachtragen)"></textarea>
+      <button class="btn" id="saveCurrentBtn">Speichern</button>
+      <p class="card-sub" id="saveCurrentStatus" style="text-align:center; margin-top:8px;"></p>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Push-Benachrichtigung senden</h2>
+      <p class="card-sub">Geht nur an Leaderinnen, die Benachrichtigungen bei sich aktiviert haben.</p>
+      <div class="field" style="margin-bottom:10px;">
+        <label for="pushLeaderSelect" style="display:block; font-family: var(--mono); font-size: 10.5px; letter-spacing:0.06em; text-transform:uppercase; color: var(--ink-muted); margin-bottom: 7px;">An wen</label>
+        <select id="pushLeaderSelect" style="width:100%; padding: 12px 13px; border: 1.5px solid var(--hairline); border-radius: 10px; font-family: var(--sans); font-size: 14.5px;">
+          <option value="all">Alle</option>
+        </select>
+      </div>
+      <input id="pushTitle" placeholder="Titel" style="width:100%; margin-bottom:10px; padding: 12px 13px; border: 1.5px solid var(--hairline); border-radius: 10px; font-family: var(--sans); font-size: 14.5px;">
+      <textarea id="pushBody" placeholder="Nachricht" style="min-height:80px;"></textarea>
+      <button class="btn" id="sendPushBtn">Senden</button>
+      <p class="card-sub" id="pushSendStatus" style="text-align:center; margin-top:8px;"></p>
+    </section>
+
+    <footer class="legal">© 2026 Coach Oaki · The Human Health Guide</footer>
+  </div>
+
+</div>
+
+<script>
+  const RANK_LABELS = {
+    supervisor: 'Supervisor',
+    assistant_manager: 'Assistant Manager',
+    manager: 'Manager',
+    eagle_manager: 'Eagle Manager',
+  };
+
+  const adminKey = new URLSearchParams(location.search).get('key');
+  let overviewData = null;
+
+  function monthLabel(dateStr){
+    const [y, m] = dateStr.split('-').map(Number);
+    const names = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+    return `${names[m-1]} ${y}`;
+  }
+
+  function heatmapHtml(visitsByDay){
+    const days = [];
+    const today = new Date();
+    for(let i = 55; i >= 0; i--){
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const key = d.toISOString().slice(0, 10);
+      const count = (visitsByDay && visitsByDay[key]) || 0;
+      const level = count === 0 ? 0 : count === 1 ? 1 : count <= 3 ? 2 : 3;
+      days.push(`<div class="hday" data-level="${level}" title="${key}: ${count}×"></div>`);
+    }
+    return `<p class="heatmap-label">Aktivität (letzte 8 Wochen)</p><div class="heatmap">${days.join('')}</div>`;
+  }
+
+  function leaderCardHtml(l){
+    const p = l.progress;
+    let barPct = 0, barLabel = '';
+    if(p.status === 'qualified'){
+      barPct = 100; barLabel = '🦅 Eagle erreicht';
+    } else if(p.status === 'waiting_for_window'){
+      barPct = 0; barLabel = `Eagle-Jahr startet in ${p.daysUntilEagleStart} Tagen`;
+    } else {
+      barPct = p.progressPct;
+      barLabel = `${p.ccSoFar} / ${p.ccTarget} CC`;
+    }
+    const missing = !l.recentWeeks || l.recentWeeks.length === 0 || !l.lastSubmitted;
+    const flagHtml = missing
+      ? '<span class="flag">Noch kein Eintrag</span>'
+      : '<span class="flag ok">Aktiv</span>';
+    const insightHtml = l.latestInsight
+      ? `<div class="insight-box"><span class="ilabel">AI-Insight</span>${l.latestInsight.insight}</div>`
+      : '';
+    return `
+      <div class="leader-card">
+        <p class="lname">${l.name}</p>
+        <p class="lrank">${RANK_LABELS[l.currentRank] || l.currentRank}</p>
+        <div class="progress-track"><div class="progress-fill" style="width:${barPct}%"></div></div>
+        <p class="lmeta">${barLabel}</p>
+        <p class="lmeta">Letzter Eintrag: ${l.lastSubmitted || '–'}</p>
+        ${flagHtml}
+        ${insightHtml}
+        <p class="heatmap-label">5 Produkte</p>
+        <input type="text" class="products-input" data-leader="${l.id}" value="${(l.specializedProducts || '').replace(/"/g, '&quot;')}" placeholder="z.B. Aloe Gel, Logic Serie, ..." style="width:100%; margin-bottom:6px; padding: 8px 10px; border: 1.5px solid var(--hairline); border-radius: 8px; font-family: var(--sans); font-size: 12.5px;">
+        <button class="btn save-products-btn" data-leader="${l.id}" type="button" style="padding:8px 14px; font-size:12px; width:auto;">Speichern</button>
+        ${heatmapHtml(l.visitsByDay)}
+      </div>
+    `;
+  }
+
+  async function loadOverview(){
+    if(!adminKey){
+      document.getElementById('loadingState').hidden = true;
+      document.getElementById('errorState').hidden = false;
+      return;
+    }
+    try {
+      const res = await fetch(`/.netlify/functions/admin-get-overview?key=${encodeURIComponent(adminKey)}`);
+      if(!res.ok){
+        document.getElementById('loadingState').hidden = true;
+        document.getElementById('errorState').hidden = false;
+        return;
+      }
+      overviewData = await res.json();
+
+      document.getElementById('leaderGrid').innerHTML = overviewData.leaders.map(leaderCardHtml).join('');
+
+      const select = document.getElementById('pushLeaderSelect');
+      const currentSelection = select.value;
+      select.innerHTML = '<option value="all">Alle</option>' +
+        overviewData.leaders.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
+      select.value = currentSelection || 'all';
+
+      document.getElementById('nextMonthLabel').textContent = monthLabel(overviewData.strategy.nextMonth.target_month);
+      document.getElementById('nextMonthContent').value = overviewData.strategy.nextMonth.content || '';
+      document.getElementById('currentMonthLabel').textContent = monthLabel(overviewData.strategy.currentMonth.target_month);
+      document.getElementById('currentMonthContent').value = overviewData.strategy.currentMonth.content || '';
+
+      document.getElementById('loadingState').hidden = true;
+      document.getElementById('mainContent').hidden = false;
+    } catch(err){
+      document.getElementById('loadingState').hidden = true;
+      document.getElementById('errorState').hidden = false;
+    }
+  }
+
+  async function saveStrategy(targetMonth, content, btn, status){
+    btn.disabled = true;
+    const original = btn.textContent;
+    btn.textContent = 'Wird gespeichert …';
+    try {
+      const res = await fetch('/.netlify/functions/admin-submit-strategy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: adminKey, target_month: targetMonth, content }),
+      });
+      status.textContent = res.ok ? 'Gespeichert ✓' : 'Fehler beim Speichern.';
+      if(res.ok) await loadOverview();
+    } catch(err){
+      status.textContent = 'Fehler beim Speichern.';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = original;
+    }
+  }
+
+  document.getElementById('saveNextBtn').addEventListener('click', () => {
+    saveStrategy(
+      overviewData.strategy.nextMonth.target_month,
+      document.getElementById('nextMonthContent').value,
+      document.getElementById('saveNextBtn'),
+      document.getElementById('saveNextStatus')
+    );
+  });
+
+  document.getElementById('saveCurrentBtn').addEventListener('click', () => {
+    saveStrategy(
+      overviewData.strategy.currentMonth.target_month,
+      document.getElementById('currentMonthContent').value,
+      document.getElementById('saveCurrentBtn'),
+      document.getElementById('saveCurrentStatus')
+    );
+  });
+
+  document.getElementById('sendPushBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('sendPushBtn');
+    const status = document.getElementById('pushSendStatus');
+    const leaderId = document.getElementById('pushLeaderSelect').value;
+    const title = document.getElementById('pushTitle').value.trim();
+    const body = document.getElementById('pushBody').value.trim();
+    if(!title || !body){
+      status.textContent = 'Titel und Nachricht ausfüllen.';
+      return;
+    }
+    btn.disabled = true;
+    const original = btn.textContent;
+    btn.textContent = 'Wird gesendet …';
+    try {
+      const res = await fetch('/.netlify/functions/admin-send-push', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: adminKey, leader_id: leaderId, title, body }),
+      });
+      const data = await res.json();
+      status.textContent = res.ok ? `Gesendet an ${data.sent} von ${data.total} Geräten ✓` : 'Fehler beim Senden.';
+      if(res.ok){
+        document.getElementById('pushTitle').value = '';
+        document.getElementById('pushBody').value = '';
+      }
+    } catch(err){
+      status.textContent = 'Fehler beim Senden.';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = original;
+    }
+  });
+
+  document.getElementById('leaderGrid').addEventListener('click', async function(e){
+    const btn = e.target.closest('.save-products-btn');
+    if(!btn) return;
+    const leaderId = btn.dataset.leader;
+    const input = document.querySelector(`.products-input[data-leader="${leaderId}"]`);
+    btn.disabled = true;
+    const original = btn.textContent;
+    btn.textContent = '…';
+    try {
+      await fetch('/.netlify/functions/admin-save-products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: adminKey, leader_id: leaderId, specialized_products: input.value }),
+      });
+      btn.textContent = 'Gespeichert ✓';
+      setTimeout(() => { btn.textContent = original; }, 1500);
+    } catch(err){
+      btn.textContent = 'Fehler';
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  loadOverview();
+</script>
+
+</body>
+</html>

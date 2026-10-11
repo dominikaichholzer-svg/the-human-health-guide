@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coach Oaki · Leader-Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #BFE3DE;
+    --bg-raised: #FFFFFF;
+    --bg-raised-hover: #EAF7F4;
+    --ink: #123330;
+    --ink-muted: #4C7C76;
+    --hairline: #9CCFC8;
+    --gold: #17504A;
+    --gold-dim: rgba(23,80,74,0.08);
+    --error: #C4453A;
+    --radius: 14px;
+    --serif: 'Fraunces', serif;
+    --sans: 'Inter', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; background: var(--bg); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+  body{ min-height:100vh; display:flex; justify-content:center; padding: 32px 16px 64px; }
+  .app{ width:100%; max-width: 520px; }
+
+  .brandbar{ display:flex; justify-content:space-between; align-items:flex-start; padding-bottom: 22px; border-bottom: 1px solid var(--hairline); margin-bottom: 28px; }
+  .brandbar .name{ font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; }
+  .brandbar .tag{ font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-muted); text-align:right; }
+  .dot{ display:inline-block; width:6px; height:6px; border-radius:50%; background: var(--gold); margin-right:8px; }
+
+  .eyebrow{ font-family: var(--mono); font-size: 11px; letter-spacing:0.14em; text-transform:uppercase; color: var(--gold); margin-bottom: 10px; }
+  h1.hero{ font-family: var(--serif); font-weight: 400; font-size: 30px; line-height: 1.16; margin: 0 0 8px; }
+  h1.hero em{ font-style: italic; font-weight:500; color: var(--gold); }
+  .lede{ color: var(--ink-muted); font-size: 14.5px; line-height:1.6; margin-bottom: 8px; }
+
+  section.card{ background: var(--bg-raised); border: 1px solid var(--hairline); border-radius: var(--radius); padding: 20px 20px 18px; margin-bottom: 18px; }
+  h2.card-title{ font-family: var(--serif); font-weight: 400; font-size: 19px; margin: 0 0 14px; }
+
+  .progress-wrap{ margin-bottom: 4px; }
+  .progress-meta{ display:flex; justify-content:space-between; font-family: var(--mono); font-size: 11px; color: var(--ink-muted); letter-spacing:0.04em; margin-bottom:8px; }
+  .progress-track{ position:relative; height: 10px; border-radius: 6px; background: var(--hairline); overflow:hidden; }
+  .progress-fill{ position:absolute; top:0; left:0; height:100%; border-radius:6px; background: var(--gold); width:0%; transition: width 0.5s cubic-bezier(.4,0,.2,1); }
+  .progress-sub{ font-size: 12.5px; color: var(--ink-muted); margin-top: 8px; }
+
+  .note-box{ background: var(--gold-dim); border: 1px solid var(--gold); border-radius: 10px; padding: 14px 16px; font-size: 13.5px; line-height: 1.55; }
+  .note-box.waiting{ background: #FCF3DD; border-color: #D9A441; }
+
+  .btn{ display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding: 16px 20px; background: var(--gold); color: #F7FBFA; border:none; border-radius: var(--radius); font-family: var(--sans); font-weight: 700; font-size: 15px; cursor:pointer; transition: transform 0.15s ease, background 0.15s ease; }
+  .btn:hover{ transform: translateY(-1px); background:#1F625B; }
+  .btn:disabled{ opacity:0.6; cursor:default; transform:none; }
+
+  .field{ margin-bottom:14px; }
+  .field label{ display:block; font-family: var(--mono); font-size: 10.5px; letter-spacing:0.06em; text-transform:uppercase; color: var(--ink-muted); margin-bottom: 7px; }
+  .field input, .field textarea{ width:100%; background: #fff; border: 1.5px solid var(--hairline); border-radius: 10px; padding: 12px 13px; color: var(--ink); font-family: var(--sans); font-size: 14.5px; }
+  .field textarea{ resize: vertical; min-height: 60px; font-family: var(--sans); }
+  .field input:focus, .field textarea:focus{ outline:none; border-color: var(--gold); }
+  .field-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .weeks-list{ display:flex; flex-direction:column; gap:8px; }
+  .week-row{ display:flex; justify-content:space-between; align-items:center; padding: 10px 12px; border: 1px solid var(--hairline); border-radius: 10px; font-size: 13px; }
+  .week-row .wdate{ font-family: var(--mono); color: var(--ink-muted); font-size: 11.5px; }
+  .week-row .wcc{ font-weight:700; color: var(--gold); }
+
+  .state-msg{ text-align:center; padding: 60px 20px; color: var(--ink-muted); font-size: 14.5px; }
+
+  footer.legal{ margin-top: 10px; padding-top: 18px; border-top: 1px solid var(--hairline); font-size: 11.5px; color: #4C7C76; line-height:1.6; }
+
+  [hidden]{ display:none !important; }
+
+  .vision-card{ position:relative; border-radius: var(--radius); overflow:hidden; margin-bottom: 18px; min-height: 160px; display:flex; align-items:flex-end; background: var(--bg-raised); border: 1px solid var(--hairline); }
+  .vision-card img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  .vision-card .quote-overlay{ position:relative; z-index:1; width:100%; padding: 16px 18px; background: linear-gradient(to top, rgba(18,51,48,0.82), rgba(18,51,48,0.1)); }
+  .vision-card.no-image .quote-overlay{ background:none; position:static; }
+  .vision-card .quote-text{ color:#fff; font-family: var(--serif); font-style:italic; font-size: 15.5px; line-height:1.5; margin:0; }
+  .vision-card.no-image .quote-text{ color: var(--ink); }
+  .vision-setup{ padding: 16px 18px; }
+  .vision-setup input{ width:100%; margin-bottom:8px; padding: 10px 12px; border: 1.5px solid var(--hairline); border-radius: 10px; font-family: var(--sans); font-size: 13.5px; }
+  .vision-setup .btn{ padding: 10px 16px; font-size: 13px; }
+
+  .eagle-stage{ display:flex; align-items:center; gap: 14px; margin-bottom: 14px; }
+  .eagle-stage svg{ flex-shrink:0; }
+  .eagle-stage-label{ font-size: 12.5px; color: var(--ink-muted); line-height:1.5; }
+  .eagle-stage-label b{ color: var(--gold); display:block; font-family: var(--serif); font-size: 15px; font-weight:400; margin-bottom:2px; }
+
+  .badges-row{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px; }
+  .badge{ display:flex; align-items:center; gap:6px; background: var(--bg-raised); border:1px solid var(--hairline); border-radius:20px; padding:6px 12px; font-size:12.5px; }
+
+  .warn-card{ background:#FCF3DD; border:1px solid #D9A441; }
+  .danger-note{ background:#FCE3E0; border-color:var(--error); }
+
+  .tp-item{ border:1px solid var(--hairline); border-radius:10px; padding:12px 14px; margin-bottom:10px; }
+  .tp-item .tpname{ font-family: var(--serif); font-size:15px; margin:0 0 8px; }
+  .tp-steps{ display:grid; grid-template-columns: 1fr 1fr; gap:5px; }
+  .tp-step{ display:flex; align-items:flex-start; gap:6px; font-size:11.5px; line-height:1.4; cursor:pointer; }
+  .tp-step input{ margin-top:2px; }
+  .add-tp-row{ display:flex; gap:8px; }
+  .add-tp-row input{ flex:1; padding: 10px 12px; border: 1.5px solid var(--hairline); border-radius: 10px; font-family: var(--sans); font-size: 13.5px; }
+  .add-tp-row button{ width:auto; padding: 10px 16px; font-size:13px; }
+
+  .radio-group{ display:flex; flex-direction:column; gap:6px; margin-bottom:14px; }
+  .radio-option{ display:flex; align-items:center; gap:8px; font-size:13.5px; cursor:pointer; }
+
+  @media (max-width: 380px){
+    h1.hero{ font-size: 25px; }
+    .field-grid{ grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="brandbar">
+    <div class="name"><span class="dot"></span><span id="brandName">LEADER-DASHBOARD</span></div>
+    <div class="tag">COACH OAKI<br>TEAM</div>
+  </div>
+
+  <div id="loadingState" class="state-msg">Lädt …</div>
+  <div id="errorState" class="state-msg" hidden>Dieser Link ist nicht gültig. Bitte wende dich an Dominik für deinen persönlichen Link.</div>
+
+  <div id="mainContent" hidden>
+
+    <div class="eyebrow">DEIN FORTSCHRITT</div>
+    <h1 class="hero" id="greeting">Hey!</h1>
+    <p class="lede" id="rankLabel"></p>
+
+    <div class="badges-row" id="badgesRow"></div>
+
+    <section class="card warn-card" id="durststreckeCard" hidden>
+      <h2 class="card-title">Längere Zeit nichts eingetragen? Das hilft.</h2>
+      <p class="progress-sub" style="font-size:13.5px;">Kein Drama, das passiert jeder mal. Nicht alles auf einmal nachholen wollen, lieber klein neu starten:</p>
+      <ul style="font-size:13.5px; color:var(--ink-muted); line-height:1.7; margin:8px 0 0; padding-left:18px;">
+        <li>Heute nur 1 ehrliches Kompliment an eine Person, mehr nicht</li>
+        <li>Ruf jemanden an, der dir schon mal Ja gesagt hat</li>
+        <li>Schau dir dein letztes gutes Erlebnis nochmal an, und starte von da aus neu</li>
+      </ul>
+    </section>
+
+    <div class="vision-card" id="visionCard"></div>
+
+    <section class="card" id="progressCard">
+      <h2 class="card-title">Rang-Fortschritt</h2>
+      <div class="eagle-stage" id="eagleStage"></div>
+      <div id="progressContent"></div>
+    </section>
+
+    <section class="card" id="cycleCard">
+      <h2 class="card-title" id="cycleTitle"></h2>
+      <p class="progress-sub" id="cycleText" style="font-size:13.5px;"></p>
+    </section>
+
+    <section class="card" id="strategyCard">
+      <h2 class="card-title">Strategie diesen Monat</h2>
+      <div id="strategyContent"></div>
+    </section>
+
+    <section class="card" id="intakeCard" hidden>
+      <h2 class="card-title">Kurz zu dir</h2>
+      <p class="progress-sub" style="margin-bottom:14px;">Einmalig, hilft Dominik dich besser zu unterstützen. Keine falschen Antworten.</p>
+      <form id="intakeForm">
+        <p class="progress-sub" style="font-weight:700; color:var(--ink);">Wie viel Zeit kannst du aktuell realistisch pro Woche einplanen?</p>
+        <div class="radio-group">
+          <label class="radio-option"><input type="radio" name="time_capacity" value="unter2"> Unter 2 Stunden</label>
+          <label class="radio-option"><input type="radio" name="time_capacity" value="2bis5"> 2-5 Stunden</label>
+          <label class="radio-option"><input type="radio" name="time_capacity" value="5bis10"> 5-10 Stunden</label>
+          <label class="radio-option"><input type="radio" name="time_capacity" value="ueber10"> Über 10 Stunden</label>
+        </div>
+        <p class="progress-sub" style="font-weight:700; color:var(--ink);">Wenn du an größere Ziele in deinem Leben zurückdenkst: wie oft bist du drangeblieben, auch wenn's schwierig wurde?</p>
+        <div class="radio-group">
+          <label class="radio-option"><input type="radio" name="past_follow_through" value="selten"> Eher selten</label>
+          <label class="radio-option"><input type="radio" name="past_follow_through" value="teils"> Teils teils</label>
+          <label class="radio-option"><input type="radio" name="past_follow_through" value="meistens"> Meistens</label>
+          <label class="radio-option"><input type="radio" name="past_follow_through" value="fast_immer"> Fast immer</label>
+        </div>
+        <div class="field">
+          <label for="support_needed">Was würde dir am meisten helfen, dranzubleiben?</label>
+          <textarea id="support_needed" name="support_needed"></textarea>
+        </div>
+        <button type="submit" class="btn" id="intakeSubmitBtn">Absenden</button>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Diese Woche eintragen</h2>
+      <form id="weekForm">
+        <div class="field-grid">
+          <div class="field">
+            <label for="cc_stand">CC-Stand (dieser Monat)</label>
+            <input type="number" step="0.1" id="cc_stand" name="cc_stand">
+          </div>
+          <div class="field">
+            <label for="kontakte_gesamt">Kontakte gesamt</label>
+            <input type="number" step="1" id="kontakte_gesamt" name="kontakte_gesamt">
+          </div>
+          <div class="field">
+            <label for="geschaeftspraesentationen_versendet">Geschäftspräs. versendet</label>
+            <input type="number" step="1" id="geschaeftspraesentationen_versendet" name="geschaeftspraesentationen_versendet">
+          </div>
+          <div class="field">
+            <label for="produkte_verschenkt">Produkte verschenkt</label>
+            <input type="number" step="1" id="produkte_verschenkt" name="produkte_verschenkt">
+          </div>
+          <div class="field">
+            <label for="offline_events_eingeladen">Zu Events eingeladen</label>
+            <input type="number" step="1" id="offline_events_eingeladen" name="offline_events_eingeladen">
+          </div>
+          <div class="field">
+            <label for="naechstes_event_mitgebracht">Fürs nächste Event mitgebracht</label>
+            <input type="number" step="1" id="naechstes_event_mitgebracht" name="naechstes_event_mitgebracht">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="reflexion_1">Was hat diese Woche am meisten Energie gekostet?</label>
+          <textarea id="reflexion_1" name="reflexion_1"></textarea>
+        </div>
+        <div class="field">
+          <label for="reflexion_2">Was hat diese Woche richtig gut funktioniert?</label>
+          <textarea id="reflexion_2" name="reflexion_2"></textarea>
+        </div>
+        <div class="field">
+          <label for="reflexion_3">Wo würdest du dir von Dominik am meisten Unterstützung wünschen?</label>
+          <textarea id="reflexion_3" name="reflexion_3"></textarea>
+        </div>
+
+        <button type="submit" class="btn" id="submitBtn">Speichern</button>
+        <p class="progress-sub" id="saveStatus" style="text-align:center; margin-top:10px;"></p>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Letzte Wochen</h2>
+      <div class="weeks-list" id="weeksList"></div>
+    </section>
+
+    <section class="card" id="productsCard" hidden>
+      <h2 class="card-title">Deine Produkte</h2>
+      <p class="progress-sub" id="productsContent"></p>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Neue Team-Partnerinnen</h2>
+      <div class="add-tp-row" style="margin-bottom:14px;">
+        <input type="text" id="newTpName" placeholder="Name der neuen TP">
+        <button class="btn" id="addTpBtn" type="button">Hinzufügen</button>
+      </div>
+      <div id="tpList"></div>
+    </section>
+
+    <section class="card" id="pushCard">
+      <h2 class="card-title">Erinnerungen</h2>
+      <p class="progress-sub" style="margin-bottom:12px;" id="pushStatusText">Aktiviere Benachrichtigungen, damit du nichts verpasst.</p>
+      <button class="btn" id="pushBtn" type="button">Benachrichtigungen aktivieren</button>
+    </section>
+
+    <footer class="legal">© 2026 Coach Oaki · The Human Health Guide</footer>
+  </div>
+
+</div>
+
+<script>
+  const RANK_LABELS = {
+    supervisor: 'Supervisor',
+    assistant_manager: 'Assistant Manager',
+    manager: 'Manager',
+    eagle_manager: 'Eagle Manager',
+  };
+
+  const token = new URLSearchParams(location.search).get('id');
+  let dashboardData = null;
+
+  function fmtDate(iso){
+    const d = new Date(iso + 'T00:00:00');
+    return d.toLocaleDateString('de-DE', { day:'2-digit', month:'2-digit', year:'numeric' });
+  }
+
+  // ============ Zitat des Tages ============
+  const QUOTES = [
+    'Disziplin schlägt Motivation, an den Tagen an denen Motivation fehlt.',
+    'Kleine Schritte, aber jeden Tag, bringen dich weiter als große Sprünge, die du nie machst.',
+    'Niemand sieht die Wochen dazwischen, alle sehen nur das Ergebnis am Ende.',
+    'Dein Tempo entscheidet, nicht das Tempo der anderen.',
+    'Ein Nein heute ist kein Nein für immer.',
+    'Wachstum fühlt sich selten bequem an, genau deshalb ist es Wachstum.',
+    'Du baust gerade etwas auf, das dir später niemand mehr wegnehmen kann.',
+    'Konsequenz ist die Superkraft, die am meisten unterschätzt wird.',
+    'Die Person, die du in einem Jahr sein willst, fängt heute mit einer Entscheidung an.',
+    'Jeder Kontakt, jedes Gespräch, zählt mehr als du im Moment denkst.',
+    'Du musst nicht perfekt sein, du musst nur dranbleiben.',
+    'Zweifel sind normal, aufgeben ist eine Entscheidung.',
+  ];
+  function quoteOfTheDay(){
+    const start = new Date(new Date().getFullYear(), 0, 0);
+    const diff = new Date() - start;
+    const dayOfYear = Math.floor(diff / 86400000);
+    return QUOTES[dayOfYear % QUOTES.length];
+  }
+
+  // ============ Eagle-Wachstumsgrafik ============
+  const EAGLE_STAGES = {
+    supervisor: {
+      label: 'Noch im Ei',
+      svg: '<svg width="64" height="64" viewBox="0 0 100 100"><ellipse cx="50" cy="56" rx="26" ry="34" fill="var(--gold-dim)" stroke="var(--gold)" stroke-width="3"/></svg>',
+    },
+    assistant_manager: {
+      label: 'Gerade geschlüpft',
+      svg: '<svg width="64" height="64" viewBox="0 0 100 100"><ellipse cx="50" cy="68" rx="20" ry="18" fill="var(--gold)"/><circle cx="50" cy="42" r="13" fill="var(--gold)"/><path d="M50 42 L64 38 L51 47 Z" fill="#D9A441"/><path d="M33 62 Q24 58 28 72 Q38 70 33 62 Z" fill="var(--gold)"/></svg>',
+    },
+    manager: {
+      label: 'Im Steigflug',
+      svg: '<svg width="64" height="64" viewBox="0 0 100 100"><ellipse cx="52" cy="55" rx="14" ry="22" fill="var(--gold)" transform="rotate(-20 52 55)"/><circle cx="46" cy="34" r="10" fill="var(--gold)"/><path d="M46 34 L58 30 L47 39 Z" fill="#D9A441"/><path d="M40 50 Q10 35 15 60 Q35 65 40 55 Z" fill="var(--gold)"/><path d="M60 58 Q85 55 78 78 Q58 72 60 62 Z" fill="var(--gold)"/></svg>',
+    },
+    eagle_manager: {
+      label: 'Voll entfaltet',
+      svg: '<svg width="64" height="64" viewBox="0 0 100 100"><ellipse cx="50" cy="52" rx="13" ry="24" fill="var(--gold)"/><circle cx="50" cy="26" r="10" fill="var(--gold)"/><path d="M50 26 L63 22 L51 32 Z" fill="#D9A441"/><path d="M40 44 Q0 30 5 55 Q35 68 42 54 Z" fill="var(--gold)"/><path d="M60 44 Q100 30 95 55 Q65 68 58 54 Z" fill="var(--gold)"/></svg>',
+    },
+  };
+  function renderEagleStage(rank){
+    const stage = EAGLE_STAGES[rank] || EAGLE_STAGES.supervisor;
+    document.getElementById('eagleStage').innerHTML = `
+      ${stage.svg}
+      <div class="eagle-stage-label"><b>${stage.label}</b>Dein Weg vom Ei zum Eagle, Schritt für Schritt.</div>
+    `;
+  }
+
+  // ============ Vision-Board ============
+  function renderVision(visionImageUrl){
+    const el = document.getElementById('visionCard');
+    const quote = quoteOfTheDay();
+    if(visionImageUrl){
+      el.className = 'vision-card';
+      el.innerHTML = `
+        <img src="${visionImageUrl}" alt="Deine Vision" onerror="this.style.display='none'">
+        <div class="quote-overlay"><p class="quote-text">„${quote}"</p></div>
+      `;
+    } else {
+      el.className = 'vision-card no-image';
+      el.innerHTML = `
+        <div class="vision-setup" style="width:100%;">
+          <p class="quote-text" style="margin-bottom:12px;">„${quote}"</p>
+          <input type="url" id="visionUrlInput" placeholder="Link zu deinem Vision-Bild (z.B. von Pinterest)">
+          <button class="btn" id="saveVisionBtn" type="button">Speichern</button>
+        </div>
+      `;
+      document.getElementById('saveVisionBtn').addEventListener('click', saveVision);
+    }
+  }
+
+  async function saveVision(){
+    const input = document.getElementById('visionUrlInput');
+    const url = input.value.trim();
+    if(!url) return;
+    const btn = document.getElementById('saveVisionBtn');
+    btn.disabled = true;
+    try {
+      const res = await fetch('/.netlify/functions/leader-save-vision', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, vision_image_url: url }),
+      });
+      if(res.ok) renderVision(url);
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function renderProgress(progress){
+    const el = document.getElementById('progressContent');
+    if(progress.status === 'qualified'){
+      el.innerHTML = '<div class="note-box">🦅 Eagle Manager bereits erreicht. Stark!</div>';
+      return;
+    }
+    if(progress.status === 'waiting_for_window'){
+      el.innerHTML = `
+        <p class="lede" style="margin:0 0 4px;">Manager erreicht, das Eagle-Jahr startet am 1. Mai 2027.</p>
+        <p class="progress-sub">Noch ${progress.daysUntilEagleStart} Tage bis zum Start der Eagle-Qualifikation.</p>
+      `;
+      return;
+    }
+    const nextLabel = RANK_LABELS[progress.nextRank] || progress.nextRank;
+    const deadlineLine = progress.nextRank === 'eagle_manager'
+      ? `Noch ${progress.daysUntilWindowEnd} Tage bis Ende des Eagle-Jahres (30.04.2028)`
+      : `Noch ${progress.daysUntilManagerDeadline} Tage bis zur Manager-Deadline (30.04.2027)`;
+    el.innerHTML = `
+      <div class="progress-wrap">
+        <div class="progress-meta"><span>${RANK_LABELS[dashboardData.currentRank]} → ${nextLabel}</span><span>${progress.ccSoFar} / ${progress.ccTarget} CC</span></div>
+        <div class="progress-track"><div class="progress-fill" style="width:${progress.progressPct}%"></div></div>
+      </div>
+      <p class="progress-sub">${deadlineLine}</p>
+      ${progress.nextRank === 'eagle_manager' ? '<p class="progress-sub">Neue CC, neue Supervisor-Linien und LBQ-Status bespricht Dominik aktuell noch manuell mit dir.</p>' : ''}
+    `;
+  }
+
+  function renderStrategy(strategy){
+    const el = document.getElementById('strategyContent');
+    if(strategy.ready){
+      el.innerHTML = `<div class="note-box">${strategy.content.replace(/\n/g, '<br>')}</div>`;
+    } else {
+      el.innerHTML = `<div class="note-box waiting">Wartet auf Planung von Dominik für diesen Monat. Schau bald wieder vorbei.</div>`;
+    }
+  }
+
+  // ============ 3-Monats-Zyklus ============
+  const CYCLE_ANCHOR_YEAR = 2026;
+  const CYCLE_ANCHOR_MONTH = 10; // Oktober 2026 = Zyklus-Monat 1
+  const CYCLE_CONTENT = {
+    1: { title: 'Diesen Monat: Verschenken', text: 'Fokus auf kostenlose Produkte verschenken und Testboxen verteilen. Jetzt zählt vor allem die Masse an ehrlichen Kontakten, nicht der Verkauf. Kompliment zuerst, dann erst die Box.' },
+    2: { title: 'Diesen Monat: Nachfassen & Verkaufen', text: 'Bei allen nachfassen, die letzten Monat eine Testbox bekommen haben. Ehrlich fragen, wie es gefallen hat, und den dauerhaften 30%-Rabatt als FPC oder FBO anbieten, sobald jemand begeistert ist.' },
+    3: { title: 'Diesen Monat: Einladen', text: 'Die begeistertsten Kundinnen zu einem Open House oder einer Business-Präsentation einladen. Wer schon Interesse gezeigt hat, bekommt jetzt die Chance, sich als Vorzugskunde oder Geschäftspartnerin zu registrieren.' },
+  };
+  function currentCycleMonth(){
+    const now = new Date();
+    const monthsSince = (now.getFullYear() - CYCLE_ANCHOR_YEAR) * 12 + (now.getMonth() + 1 - CYCLE_ANCHOR_MONTH);
+    return ((monthsSince % 3) + 3) % 3 + 1;
+  }
+  function renderCycle(){
+    const c = CYCLE_CONTENT[currentCycleMonth()];
+    document.getElementById('cycleTitle').textContent = c.title;
+    document.getElementById('cycleText').textContent = c.text;
+  }
+
+  // ============ Badges ============
+  function hasStreak(weeks, n){
+    if(!weeks || weeks.length < n) return false;
+    const sorted = [...weeks].sort((a,b) => b.week_start.localeCompare(a.week_start));
+    for(let i = 0; i < n - 1; i++){
+      const cur = new Date(sorted[i].week_start + 'T00:00:00Z');
+      const prev = new Date(sorted[i+1].week_start + 'T00:00:00Z');
+      if((cur - prev) !== 7 * 86400000) return false;
+    }
+    return true;
+  }
+  function renderBadges(data){
+    const badges = [];
+    if(data.recentWeeks && data.recentWeeks.length >= 1) badges.push('✅ Erste Woche eingetragen');
+    if(hasStreak(data.recentWeeks, 4)) badges.push('🔥 4 Wochen am Stück');
+    if(hasStreak(data.recentWeeks, 8)) badges.push('🔥🔥 8 Wochen am Stück');
+    const rankBadge = { supervisor:'🥚 Supervisor', assistant_manager:'🐣 Assistant Manager', manager:'🦅 Manager', eagle_manager:'🦅 Eagle Manager' }[data.currentRank];
+    if(rankBadge) badges.push(rankBadge);
+    document.getElementById('badgesRow').innerHTML = badges.map(b => `<span class="badge">${b}</span>`).join('');
+  }
+
+  // ============ Durststrecke-Erkennung ============
+  function mondayOfClient(dateStr){
+    const d = new Date(dateStr + 'T00:00:00Z');
+    const day = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() - (day - 1));
+    return d.toISOString().slice(0, 10);
+  }
+  function renderDurststrecke(data){
+    const todayMonday = data.currentWeekMonday;
+    const prevMonday = (() => {
+      const d = new Date(todayMonday + 'T00:00:00Z');
+      d.setUTCDate(d.getUTCDate() - 7);
+      return d.toISOString().slice(0, 10);
+    })();
+    const weekKeys = (data.recentWeeks || []).map(w => w.week_start);
+    const missingBoth = !weekKeys.includes(todayMonday) && !weekKeys.includes(prevMonday);
+    document.getElementById('durststreckeCard').hidden = !missingBoth;
+  }
+
+  // ============ Intake-Umfrage (einmalig) ============
+  function renderIntake(intakeDone){
+    document.getElementById('intakeCard').hidden = !!intakeDone;
+  }
+  document.getElementById('intakeForm').addEventListener('submit', async function(e){
+    e.preventDefault();
+    const btn = document.getElementById('intakeSubmitBtn');
+    btn.disabled = true;
+    const time_capacity = (document.querySelector('input[name="time_capacity"]:checked') || {}).value || null;
+    const past_follow_through = (document.querySelector('input[name="past_follow_through"]:checked') || {}).value || null;
+    const support_needed = document.getElementById('support_needed').value;
+    try {
+      const res = await fetch('/.netlify/functions/leader-submit-intake', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, time_capacity, past_follow_through, support_needed }),
+      });
+      if(res.ok) document.getElementById('intakeCard').hidden = true;
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  // ============ Produkte ============
+  function renderProducts(specializedProducts){
+    const card = document.getElementById('productsCard');
+    if(specializedProducts){
+      card.hidden = false;
+      document.getElementById('productsContent').textContent = specializedProducts;
+    } else {
+      card.hidden = true;
+    }
+  }
+
+  // ============ Neue Team-Partnerinnen ============
+  const TP_STEP_LABELS = [
+    'More Success App + Boards-Zugang gesendet',
+    'Foto für Willkommens-Flyer',
+    'Ausbildung 1 terminiert',
+    'Notizen eingefordert',
+    'Coaching-Call + erste 10 indirekte Kontakte',
+    'Ausbildung 2 + Coaching-Call terminiert',
+    'Nachbesprochen, Kundenkonzept gewählt',
+  ];
+  function renderTps(tps){
+    const el = document.getElementById('tpList');
+    if(!tps || tps.length === 0){
+      el.innerHTML = '<p class="progress-sub">Noch keine neuen Team-Partnerinnen erfasst.</p>';
+      return;
+    }
+    el.innerHTML = tps.map(tp => {
+      const steps = TP_STEP_LABELS.map((label, i) => {
+        const key = 'step_' + (i + 1);
+        const checked = tp[key] ? 'checked' : '';
+        return `<label class="tp-step"><input type="checkbox" ${checked} data-tp="${tp.id}" data-step="${key}">${label}</label>`;
+      }).join('');
+      const doneCount = TP_STEP_LABELS.filter((_, i) => tp['step_' + (i+1)]).length;
+      return `<div class="tp-item"><p class="tpname">${tp.tp_name} <span style="font-family:var(--mono); font-size:10px; color:var(--ink-muted);">${doneCount}/7</span></p><div class="tp-steps">${steps}</div></div>`;
+    }).join('');
+
+    el.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+      cb.addEventListener('change', async function(){
+        this.disabled = true;
+        try {
+          await fetch('/.netlify/functions/leader-save-new-tp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token, tp_id: this.dataset.tp, step: this.dataset.step, value: this.checked }),
+          });
+          await loadDashboard();
+        } finally {
+          this.disabled = false;
+        }
+      });
+    });
+  }
+
+  document.getElementById('addTpBtn').addEventListener('click', async function(){
+    const input = document.getElementById('newTpName');
+    const name = input.value.trim();
+    if(!name) return;
+    const btn = document.getElementById('addTpBtn');
+    btn.disabled = true;
+    try {
+      const res = await fetch('/.netlify/functions/leader-save-new-tp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, tp_name: name }),
+      });
+      if(res.ok){
+        input.value = '';
+        await loadDashboard();
+      }
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  function renderWeeks(weeks){
+    const el = document.getElementById('weeksList');
+    if(!weeks || weeks.length === 0){
+      el.innerHTML = '<p class="progress-sub">Noch keine Einträge.</p>';
+      return;
+    }
+    el.innerHTML = weeks.slice(0, 8).map(w => `
+      <div class="week-row">
+        <span class="wdate">${fmtDate(w.week_start)}</span>
+        <span class="wcc">${w.cc_stand != null ? w.cc_stand + ' CC' : '–'}</span>
+      </div>
+    `).join('');
+  }
+
+  function prefillForm(weeks, currentWeekMonday){
+    const current = (weeks || []).find(w => w.week_start === currentWeekMonday);
+    if(!current) return;
+    ['cc_stand','kontakte_gesamt','geschaeftspraesentationen_versendet','produkte_verschenkt','offline_events_eingeladen','naechstes_event_mitgebracht','reflexion_1','reflexion_2','reflexion_3'].forEach(key => {
+      const input = document.getElementById(key);
+      if(input && current[key] != null) input.value = current[key];
+    });
+  }
+
+  async function loadDashboard(){
+    if(!token){
+      document.getElementById('loadingState').hidden = true;
+      document.getElementById('errorState').hidden = false;
+      return;
+    }
+    try {
+      const res = await fetch(`/.netlify/functions/leader-get-dashboard?token=${encodeURIComponent(token)}`);
+      if(!res.ok){
+        document.getElementById('loadingState').hidden = true;
+        document.getElementById('errorState').hidden = false;
+        return;
+      }
+      dashboardData = await res.json();
+
+      document.getElementById('brandName').textContent = dashboardData.name.toUpperCase();
+      document.getElementById('greeting').innerHTML = `Hey <em>${dashboardData.name}</em>!`;
+      document.getElementById('rankLabel').textContent = `Aktueller Rang: ${RANK_LABELS[dashboardData.currentRank] || dashboardData.currentRank}`;
+
+      renderBadges(dashboardData);
+      renderDurststrecke(dashboardData);
+      renderVision(dashboardData.visionImageUrl);
+      renderEagleStage(dashboardData.currentRank);
+      renderProgress(dashboardData.progress);
+      renderCycle();
+      renderStrategy(dashboardData.strategy);
+      renderIntake(dashboardData.intakeDone);
+      renderWeeks(dashboardData.recentWeeks);
+      renderProducts(dashboardData.specializedProducts);
+      renderTps(dashboardData.newTps);
+      prefillForm(dashboardData.recentWeeks, dashboardData.currentWeekMonday);
+
+      document.getElementById('loadingState').hidden = true;
+      document.getElementById('mainContent').hidden = false;
+    } catch(err){
+      document.getElementById('loadingState').hidden = true;
+      document.getElementById('errorState').hidden = false;
+    }
+  }
+
+  document.getElementById('weekForm').addEventListener('submit', async function(e){
+    e.preventDefault();
+    const btn = document.getElementById('submitBtn');
+    const status = document.getElementById('saveStatus');
+    btn.disabled = true;
+    btn.textContent = 'Wird gespeichert …';
+
+    const payload = {
+      token,
+      week_start: dashboardData.currentWeekMonday,
+      cc_stand: document.getElementById('cc_stand').value,
+      kontakte_gesamt: document.getElementById('kontakte_gesamt').value,
+      geschaeftspraesentationen_versendet: document.getElementById('geschaeftspraesentationen_versendet').value,
+      produkte_verschenkt: document.getElementById('produkte_verschenkt').value,
+      offline_events_eingeladen: document.getElementById('offline_events_eingeladen').value,
+      naechstes_event_mitgebracht: document.getElementById('naechstes_event_mitgebracht').value,
+      reflexion_1: document.getElementById('reflexion_1').value,
+      reflexion_2: document.getElementById('reflexion_2').value,
+      reflexion_3: document.getElementById('reflexion_3').value,
+    };
+
+    try {
+      const res = await fetch('/.netlify/functions/leader-submit-week', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if(res.ok){
+        status.textContent = 'Gespeichert ✓';
+        await loadDashboard();
+      } else {
+        status.textContent = 'Fehler beim Speichern, bitte nochmal versuchen.';
+      }
+    } catch(err){
+      status.textContent = 'Fehler beim Speichern, bitte nochmal versuchen.';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Speichern';
+    }
+  });
+
+  // ============ Push-Benachrichtigungen ============
+  const VAPID_PUBLIC_KEY = 'BJdoAE8VuCAke1rAHszp49u0sbMseHCCXo0HRY13Hs5xufKMoM_K2OgwM_xJHpNgy9ZnyEC_QqxYdQrMeQbCG5M';
+
+  function urlBase64ToUint8Array(base64String){
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const raw = atob(base64);
+    const output = new Uint8Array(raw.length);
+    for(let i = 0; i < raw.length; i++) output[i] = raw.charCodeAt(i);
+    return output;
+  }
+
+  async function updatePushUi(){
+    const btn = document.getElementById('pushBtn');
+    const text = document.getElementById('pushStatusText');
+    if(!('serviceWorker' in navigator) || !('PushManager' in window)){
+      text.textContent = 'Dein Browser unterstützt leider keine Benachrichtigungen.';
+      btn.hidden = true;
+      return;
+    }
+    if(Notification.permission === 'denied'){
+      text.textContent = 'Benachrichtigungen sind für diese Seite blockiert. In den Browser-Einstellungen wieder erlauben.';
+      btn.hidden = true;
+      return;
+    }
+    const reg = await navigator.serviceWorker.ready;
+    const existing = await reg.pushManager.getSubscription();
+    if(existing){
+      text.textContent = 'Benachrichtigungen sind aktiv ✓';
+      btn.hidden = true;
+    } else {
+      text.textContent = 'Aktiviere Benachrichtigungen, damit du nichts verpasst.';
+      btn.hidden = false;
+    }
+  }
+
+  async function enablePush(){
+    const btn = document.getElementById('pushBtn');
+    const text = document.getElementById('pushStatusText');
+    btn.disabled = true;
+    try {
+      const reg = await navigator.serviceWorker.register('/sw.js');
+      await navigator.serviceWorker.ready;
+      const permission = await Notification.requestPermission();
+      if(permission !== 'granted'){
+        text.textContent = 'Keine Erlaubnis erhalten, du kannst es später nochmal versuchen.';
+        btn.disabled = false;
+        return;
+      }
+      const subscription = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+      });
+      await fetch('/.netlify/functions/leader-save-push-subscription', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, subscription: subscription.toJSON() }),
+      });
+      await updatePushUi();
+    } catch(err){
+      text.textContent = 'Konnte Benachrichtigungen nicht aktivieren.';
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  document.getElementById('pushBtn').addEventListener('click', enablePush);
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('/sw.js').then(updatePushUi).catch(updatePushUi);
+  } else {
+    updatePushUi();
+  }
+
+  loadDashboard();
+</script>
+
+</body>
+</html>
