@@ -109,6 +109,13 @@
     h1.hero{ font-size: 25px; }
     .field-grid{ grid-template-columns: 1fr; }
   }
+
+  .tab-nav{ display:flex; gap:6px; overflow-x:auto; margin-bottom:20px; padding-bottom:4px; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+  .tab-nav::-webkit-scrollbar{ display:none; }
+  .tab-btn{ flex-shrink:0; padding:9px 16px; border-radius:20px; border:1.5px solid var(--hairline); background:var(--bg-raised); color:var(--ink-muted); font-family:var(--sans); font-weight:600; font-size:13px; cursor:pointer; white-space:nowrap; transition: background .15s ease, color .15s ease, border-color .15s ease; }
+  .tab-btn:hover{ border-color:var(--gold); }
+  .tab-btn.active{ background:var(--gold); border-color:var(--gold); color:#F7FBFA; }
+  .tab-panel[hidden]{ display:none !important; }
 </style>
 </head>
 <body>
@@ -127,6 +134,16 @@
     <div class="eyebrow">DEIN FORTSCHRITT</div>
     <h1 class="hero" id="greeting">Hey!</h1>
     <p class="lede" id="rankLabel"></p>
+
+    <div class="tab-nav" id="tabNav">
+      <button class="tab-btn active" type="button" data-tab="overview">Überblick</button>
+      <button class="tab-btn" type="button" data-tab="entry">Eintragen</button>
+      <button class="tab-btn" type="button" data-tab="history">Verlauf</button>
+      <button class="tab-btn" type="button" data-tab="team">Team</button>
+      <button class="tab-btn" type="button" data-tab="more">Mehr</button>
+    </div>
+
+    <div class="tab-panel" data-tab="overview">
 
     <div class="badges-row" id="badgesRow"></div>
 
@@ -184,6 +201,10 @@
       </form>
     </section>
 
+    </div>
+
+    <div class="tab-panel" data-tab="entry" hidden>
+
     <section class="card">
       <h2 class="card-title">Diese Woche eintragen</h2>
       <form id="weekForm">
@@ -232,15 +253,18 @@
       </form>
     </section>
 
+    </div>
+
+    <div class="tab-panel" data-tab="history" hidden>
+
     <section class="card">
       <h2 class="card-title">Letzte Wochen</h2>
       <div class="weeks-list" id="weeksList"></div>
     </section>
 
-    <section class="card" id="productsCard" hidden>
-      <h2 class="card-title">Deine Produkte</h2>
-      <p class="progress-sub" id="productsContent"></p>
-    </section>
+    </div>
+
+    <div class="tab-panel" data-tab="team" hidden>
 
     <section class="card">
       <h2 class="card-title">Neue Team-Partnerinnen</h2>
@@ -251,11 +275,22 @@
       <div id="tpList"></div>
     </section>
 
+    </div>
+
+    <div class="tab-panel" data-tab="more" hidden>
+
+    <section class="card" id="productsCard" hidden>
+      <h2 class="card-title">Deine Produkte</h2>
+      <p class="progress-sub" id="productsContent"></p>
+    </section>
+
     <section class="card" id="pushCard">
       <h2 class="card-title">Erinnerungen</h2>
       <p class="progress-sub" style="margin-bottom:12px;" id="pushStatusText">Aktiviere Benachrichtigungen, damit du nichts verpasst.</p>
       <button class="btn" id="pushBtn" type="button">Benachrichtigungen aktivieren</button>
     </section>
+
+    </div>
 
     <footer class="legal">© 2026 Coach Oaki · The Human Health Guide</footer>
   </div>
@@ -277,6 +312,14 @@
     const d = new Date(iso + 'T00:00:00');
     return d.toLocaleDateString('de-DE', { day:'2-digit', month:'2-digit', year:'numeric' });
   }
+
+  // ============ Reiter ============
+  function switchTab(name){
+    document.querySelectorAll('.tab-panel').forEach(p => { p.hidden = (p.dataset.tab !== name); });
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
 
   // ============ Zitat des Tages ============
   const QUOTES = [
