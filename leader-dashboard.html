@@ -97,9 +97,9 @@
   .hud-corner.br{ bottom:0; right:0; border-left:none; border-top:none; border-bottom-right-radius:6px; }
   .hud-label{ font-family: var(--mono); font-size: 10px; letter-spacing:0.16em; text-transform:uppercase; color: var(--gold); text-align:center; margin-bottom:10px; opacity:0.85; }
 
-  .vision-card{ position:relative; border-radius: calc(var(--radius) - 4px); overflow:hidden; min-height: 230px; display:flex; align-items:flex-end; background: var(--bg-raised); border: 1px solid rgba(212,175,106,0.3); box-shadow: 0 0 0 1px rgba(212,175,106,0.12), 0 20px 48px rgba(0,0,0,0.5); animation: hudPulse 4.5s ease-in-out infinite; }
+  .vision-card{ position:relative; border-radius: calc(var(--radius) - 4px); overflow:hidden; aspect-ratio: 3 / 4; max-height: 70vh; display:flex; align-items:flex-end; background: var(--bg-raised); border: 1px solid rgba(212,175,106,0.3); box-shadow: 0 0 0 1px rgba(212,175,106,0.12), 0 20px 48px rgba(0,0,0,0.5); animation: hudPulse 4.5s ease-in-out infinite; }
   @keyframes hudPulse{ 0%,100%{ box-shadow: 0 0 0 1px rgba(212,175,106,0.14), 0 20px 48px rgba(0,0,0,0.5), 0 0 18px rgba(212,175,106,0.12);} 50%{ box-shadow: 0 0 0 1px rgba(212,175,106,0.32), 0 20px 48px rgba(0,0,0,0.5), 0 0 34px rgba(212,175,106,0.24);} }
-  .vision-card img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position: center 15%; filter: saturate(1.05) contrast(1.03); }
+  .vision-card img{ position:absolute; inset:0; width:100%; height:100%; object-fit:contain; object-position: center center; background: #0D0A07; filter: saturate(1.05) contrast(1.03); }
   .vision-card .quote-overlay{ position:relative; z-index:1; width:100%; padding: 20px 22px; background: linear-gradient(to top, rgba(10,8,6,0.9), rgba(10,8,6,0.05) 70%); }
   .vision-card.no-image{ background: linear-gradient(150deg, #241C14, #171209); align-items:center; }
   .vision-card.no-image .quote-overlay{ background:none; position:static; }
@@ -132,6 +132,17 @@
 
   .radio-group{ display:flex; flex-direction:column; gap:6px; margin-bottom:14px; }
   .radio-option{ display:flex; align-items:center; gap:8px; font-size:13.5px; cursor:pointer; color: var(--ink-muted); }
+
+  .chat-window{ display:flex; flex-direction:column; gap:12px; max-height: 50vh; overflow-y:auto; padding-right:4px; margin-bottom:16px; }
+  .chat-msg{ max-width: 85%; padding: 11px 14px; border-radius: 14px; font-size: 13.5px; line-height:1.55; }
+  .chat-msg.user{ align-self:flex-end; background: linear-gradient(180deg, var(--gold-light), var(--gold)); color: var(--on-gold); border-bottom-right-radius:4px; }
+  .chat-msg.assistant{ align-self:flex-start; background: rgba(255,255,255,0.04); border:1px solid var(--hairline); color: var(--ink); border-bottom-left-radius:4px; }
+  .chat-msg.assistant .chat-label{ display:block; font-family: var(--mono); font-size:9.5px; letter-spacing:0.1em; text-transform:uppercase; color: var(--gold); margin-bottom:5px; }
+  .chat-msg.thinking{ color: var(--ink-muted); font-style:italic; }
+  .chat-input-row{ display:flex; gap:8px; }
+  .chat-input-row textarea{ flex:1; min-height:46px; max-height:120px; resize:vertical; background: rgba(255,255,255,0.04); border: 1.5px solid var(--hairline); border-radius: 12px; padding: 12px 13px; color: var(--ink); font-family: var(--sans); font-size: 14px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.25); }
+  .chat-input-row textarea:focus{ outline:none; border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-dim); }
+  .chat-input-row button{ width:auto; padding: 0 20px; border-radius: 12px; align-self:stretch; }
 
   @media (max-width: 380px){
     h1.hero{ font-size: 27px; }
@@ -183,6 +194,7 @@
       <select id="tabSelect" class="tab-select">
         <option value="overview">📊 Überblick</option>
         <option value="entry">✍️ Eintragen &amp; Reflektieren</option>
+        <option value="chat">💬 Chat mit ARIA</option>
         <option value="history">📅 Verlauf</option>
         <option value="team">🤝 Team</option>
         <option value="more">⚙️ Mehr</option>
@@ -269,6 +281,20 @@
         <button type="submit" class="btn" id="submitBtn">Speichern</button>
         <p class="progress-sub" id="saveStatus" style="text-align:center; margin-top:10px;"></p>
       </form>
+    </section>
+
+    </div>
+
+    <div class="tab-panel" data-tab="chat" hidden>
+
+    <section class="card">
+      <h2 class="card-title">Chat mit ARIA</h2>
+      <p class="progress-sub" style="margin-bottom:14px;">Frag sie nach Ideen für Ansprache, Planung oder Einwände. Dieses Gespräch wird nicht gespeichert, es ist nur für diese Sitzung da.</p>
+      <div class="chat-window" id="chatWindow"></div>
+      <div class="chat-input-row">
+        <textarea id="chatInput" placeholder="z.B. Wie spreche ich jemanden an, der schon abgesagt hat?"></textarea>
+        <button class="btn" id="chatSendBtn" type="button">Senden</button>
+      </div>
     </section>
 
     </div>
@@ -674,6 +700,64 @@
       }
     } finally {
       btn.disabled = false;
+    }
+  });
+
+  // ============ Chat mit ARIA ============
+  let chatHistory = [];
+  function appendChatMessage(role, text){
+    const win = document.getElementById('chatWindow');
+    const div = document.createElement('div');
+    div.className = 'chat-msg ' + role;
+    if(role === 'assistant'){
+      div.innerHTML = '<span class="chat-label">ARIA</span>' + text.replace(/\n/g, '<br>');
+    } else {
+      div.textContent = text;
+    }
+    win.appendChild(div);
+    win.scrollTop = win.scrollHeight;
+    return div;
+  }
+
+  async function sendChatMessage(){
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if(!text) return;
+    const btn = document.getElementById('chatSendBtn');
+    btn.disabled = true;
+    input.value = '';
+    appendChatMessage('user', text);
+    const thinkingEl = appendChatMessage('assistant', '…');
+    thinkingEl.classList.add('thinking');
+    try {
+      const res = await fetch('/.netlify/functions/leader-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, message: text, history: chatHistory }),
+      });
+      const data = await res.json();
+      thinkingEl.classList.remove('thinking');
+      if(res.ok){
+        thinkingEl.innerHTML = '<span class="chat-label">ARIA</span>' + data.reply.replace(/\n/g, '<br>');
+        chatHistory.push({ role: 'user', content: text });
+        chatHistory.push({ role: 'assistant', content: data.reply });
+        chatHistory = chatHistory.slice(-10);
+      } else {
+        thinkingEl.innerHTML = '<span class="chat-label">ARIA</span>Entschuldige, da ist gerade etwas schiefgelaufen. Versuch es nochmal.';
+      }
+    } catch(err){
+      thinkingEl.classList.remove('thinking');
+      thinkingEl.innerHTML = '<span class="chat-label">ARIA</span>Entschuldige, da ist gerade etwas schiefgelaufen. Versuch es nochmal.';
+    } finally {
+      btn.disabled = false;
+      document.getElementById('chatWindow').scrollTop = document.getElementById('chatWindow').scrollHeight;
+    }
+  }
+  document.getElementById('chatSendBtn').addEventListener('click', sendChatMessage);
+  document.getElementById('chatInput').addEventListener('keydown', function(e){
+    if(e.key === 'Enter' && !e.shiftKey){
+      e.preventDefault();
+      sendChatMessage();
     }
   });
 
