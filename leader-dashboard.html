@@ -99,7 +99,7 @@
 
   .vision-card{ position:relative; border-radius: calc(var(--radius) - 4px); overflow:hidden; min-height: 230px; display:flex; align-items:flex-end; background: var(--bg-raised); border: 1px solid rgba(212,175,106,0.3); box-shadow: 0 0 0 1px rgba(212,175,106,0.12), 0 20px 48px rgba(0,0,0,0.5); animation: hudPulse 4.5s ease-in-out infinite; }
   @keyframes hudPulse{ 0%,100%{ box-shadow: 0 0 0 1px rgba(212,175,106,0.14), 0 20px 48px rgba(0,0,0,0.5), 0 0 18px rgba(212,175,106,0.12);} 50%{ box-shadow: 0 0 0 1px rgba(212,175,106,0.32), 0 20px 48px rgba(0,0,0,0.5), 0 0 34px rgba(212,175,106,0.24);} }
-  .vision-card img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter: saturate(1.05) contrast(1.03); }
+  .vision-card img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position: center 15%; filter: saturate(1.05) contrast(1.03); }
   .vision-card .quote-overlay{ position:relative; z-index:1; width:100%; padding: 20px 22px; background: linear-gradient(to top, rgba(10,8,6,0.9), rgba(10,8,6,0.05) 70%); }
   .vision-card.no-image{ background: linear-gradient(150deg, #241C14, #171209); align-items:center; }
   .vision-card.no-image .quote-overlay{ background:none; position:static; }
@@ -138,11 +138,16 @@
     .field-grid{ grid-template-columns: 1fr; }
   }
 
-  .tab-nav{ position:relative; z-index:1; display:flex; gap:3px; overflow-x:auto; margin-bottom:22px; padding:5px; background: rgba(255,255,255,0.04); border-radius: 24px; box-shadow: var(--shadow-sm), inset 0 0 0 1px var(--hairline); -webkit-overflow-scrolling:touch; scrollbar-width:none; }
-  .tab-nav::-webkit-scrollbar{ display:none; }
-  .tab-btn{ flex-shrink:0; padding:9px 16px; border-radius:20px; border:none; background:transparent; color:var(--ink-muted); font-family:var(--sans); font-weight:600; font-size:13px; cursor:pointer; white-space:nowrap; transition: background .18s ease, color .18s ease, box-shadow .18s ease; }
-  .tab-btn:hover{ color: var(--ink); }
-  .tab-btn.active{ background: linear-gradient(180deg, var(--gold-light), var(--gold)); color:var(--on-gold); box-shadow: 0 3px 10px rgba(212,175,106,0.4); }
+  .tab-nav{ position:relative; z-index:1; margin-bottom:22px; }
+  .tab-select{
+    width:100%; appearance:none; -webkit-appearance:none; -moz-appearance:none;
+    background: rgba(255,255,255,0.04) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' stroke='%23D4AF6A' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 18px center;
+    border: 1.5px solid var(--hairline); border-radius: 14px; padding: 15px 44px 15px 18px;
+    color: var(--ink); font-family: var(--sans); font-weight:600; font-size:14.5px; cursor:pointer;
+    box-shadow: var(--shadow-sm);
+  }
+  .tab-select:focus{ outline:none; border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-dim); }
+  .tab-select option{ background: var(--bg-raised); color: var(--ink); }
   .tab-panel[hidden]{ display:none !important; }
 </style>
 </head>
@@ -174,12 +179,14 @@
       <div class="vision-card" id="visionCard"></div>
     </div>
 
-    <div class="tab-nav" id="tabNav">
-      <button class="tab-btn active" type="button" data-tab="overview">Überblick</button>
-      <button class="tab-btn" type="button" data-tab="entry">Eintragen</button>
-      <button class="tab-btn" type="button" data-tab="history">Verlauf</button>
-      <button class="tab-btn" type="button" data-tab="team">Team</button>
-      <button class="tab-btn" type="button" data-tab="more">Mehr</button>
+    <div class="tab-nav">
+      <select id="tabSelect" class="tab-select">
+        <option value="overview">📊 Überblick</option>
+        <option value="entry">✍️ Eintragen &amp; Reflektieren</option>
+        <option value="history">📅 Verlauf</option>
+        <option value="team">🤝 Team</option>
+        <option value="more">⚙️ Mehr</option>
+      </select>
     </div>
 
     <div class="tab-panel" data-tab="overview">
@@ -210,32 +217,6 @@
     <section class="card" id="strategyCard">
       <h2 class="card-title">Strategie diesen Monat</h2>
       <div id="strategyContent"></div>
-    </section>
-
-    <section class="card" id="intakeCard" hidden>
-      <h2 class="card-title">Kurz zu dir</h2>
-      <p class="progress-sub" style="margin-bottom:14px;">Einmalig, hilft Dominik dich besser zu unterstützen. Keine falschen Antworten.</p>
-      <form id="intakeForm">
-        <p class="progress-sub" style="font-weight:700; color:var(--ink);">Wie viel Zeit kannst du aktuell realistisch pro Woche einplanen?</p>
-        <div class="radio-group">
-          <label class="radio-option"><input type="radio" name="time_capacity" value="unter2"> Unter 2 Stunden</label>
-          <label class="radio-option"><input type="radio" name="time_capacity" value="2bis5"> 2-5 Stunden</label>
-          <label class="radio-option"><input type="radio" name="time_capacity" value="5bis10"> 5-10 Stunden</label>
-          <label class="radio-option"><input type="radio" name="time_capacity" value="ueber10"> Über 10 Stunden</label>
-        </div>
-        <p class="progress-sub" style="font-weight:700; color:var(--ink);">Wenn du an größere Ziele in deinem Leben zurückdenkst: wie oft bist du drangeblieben, auch wenn's schwierig wurde?</p>
-        <div class="radio-group">
-          <label class="radio-option"><input type="radio" name="past_follow_through" value="selten"> Eher selten</label>
-          <label class="radio-option"><input type="radio" name="past_follow_through" value="teils"> Teils teils</label>
-          <label class="radio-option"><input type="radio" name="past_follow_through" value="meistens"> Meistens</label>
-          <label class="radio-option"><input type="radio" name="past_follow_through" value="fast_immer"> Fast immer</label>
-        </div>
-        <div class="field">
-          <label for="support_needed">Was würde dir am meisten helfen, dranzubleiben?</label>
-          <textarea id="support_needed" name="support_needed"></textarea>
-        </div>
-        <button type="submit" class="btn" id="intakeSubmitBtn">Absenden</button>
-      </form>
     </section>
 
     </div>
@@ -316,6 +297,32 @@
 
     <div class="tab-panel" data-tab="more" hidden>
 
+    <section class="card" id="intakeCard" hidden>
+      <h2 class="card-title">Kurz zu dir</h2>
+      <p class="progress-sub" style="margin-bottom:14px;">Einmalig, hilft Dominik dich besser zu unterstützen. Keine falschen Antworten.</p>
+      <form id="intakeForm">
+        <p class="progress-sub" style="font-weight:700; color:var(--ink);">Wie viel Zeit kannst du aktuell realistisch pro Woche einplanen?</p>
+        <div class="radio-group">
+          <label class="radio-option"><input type="radio" name="time_capacity" value="unter2"> Unter 2 Stunden</label>
+          <label class="radio-option"><input type="radio" name="time_capacity" value="2bis5"> 2-5 Stunden</label>
+          <label class="radio-option"><input type="radio" name="time_capacity" value="5bis10"> 5-10 Stunden</label>
+          <label class="radio-option"><input type="radio" name="time_capacity" value="ueber10"> Über 10 Stunden</label>
+        </div>
+        <p class="progress-sub" style="font-weight:700; color:var(--ink);">Wenn du an größere Ziele in deinem Leben zurückdenkst: wie oft bist du drangeblieben, auch wenn's schwierig wurde?</p>
+        <div class="radio-group">
+          <label class="radio-option"><input type="radio" name="past_follow_through" value="selten"> Eher selten</label>
+          <label class="radio-option"><input type="radio" name="past_follow_through" value="teils"> Teils teils</label>
+          <label class="radio-option"><input type="radio" name="past_follow_through" value="meistens"> Meistens</label>
+          <label class="radio-option"><input type="radio" name="past_follow_through" value="fast_immer"> Fast immer</label>
+        </div>
+        <div class="field">
+          <label for="support_needed">Was würde dir am meisten helfen, dranzubleiben?</label>
+          <textarea id="support_needed" name="support_needed"></textarea>
+        </div>
+        <button type="submit" class="btn" id="intakeSubmitBtn">Absenden</button>
+      </form>
+    </section>
+
     <section class="card" id="productsCard" hidden>
       <h2 class="card-title">Deine Produkte</h2>
       <p class="progress-sub" id="productsContent"></p>
@@ -379,13 +386,13 @@
     })();
   }
 
-  // ============ Reiter ============
+  // ============ Bereich wechseln (Dropdown) ============
   function switchTab(name){
     document.querySelectorAll('.tab-panel').forEach(p => { p.hidden = (p.dataset.tab !== name); });
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+    document.getElementById('tabSelect').value = name;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
-  document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
+  document.getElementById('tabSelect').addEventListener('change', function(){ switchTab(this.value); });
 
   // ============ Zitat des Tages ============
   const QUOTES = [
