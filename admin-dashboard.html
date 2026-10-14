@@ -9,19 +9,20 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg: #BFE3DE;
-    --bg-raised: #FFFFFF;
-    --bg-raised-hover: #EAF7F4;
-    --ink: #123330;
-    --ink-muted: #4C7C76;
-    --hairline: #9CCFC8;
-    --gold: #17504A;
-    --gold-light: #1F625B;
-    --gold-dim: rgba(23,80,74,0.08);
-    --error: #C4453A;
+    --bg: #15110D;
+    --bg-raised: #221B14;
+    --bg-raised-hover: #2A2218;
+    --ink: #F3EADA;
+    --ink-muted: #9C8E78;
+    --hairline: rgba(212,175,106,0.16);
+    --gold: #D4AF6A;
+    --gold-light: #E8CB8F;
+    --gold-dim: rgba(212,175,106,0.12);
+    --on-gold: #1A1510;
+    --error: #E2685A;
     --radius: 16px;
-    --shadow-sm: 0 1px 2px rgba(18,51,48,0.07), 0 1px 1px rgba(18,51,48,0.04);
-    --shadow-md: 0 6px 20px rgba(18,51,48,0.09), 0 1px 3px rgba(18,51,48,0.06);
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.03);
+    --shadow-md: 0 10px 28px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.04);
     --serif: 'Fraunces', serif;
     --sans: 'Inter', sans-serif;
     --mono: 'IBM Plex Mono', monospace;
@@ -31,17 +32,17 @@
   body{
     min-height:100vh; display:flex; justify-content:center; padding: 32px 16px 64px;
     background:
-      radial-gradient(ellipse 1100px 650px at 15% -10%, #DCF3EF 0%, rgba(220,243,239,0) 60%),
-      radial-gradient(ellipse 800px 550px at 100% 0%, #CDEDE7 0%, rgba(205,237,231,0) 55%),
-      linear-gradient(180deg, var(--bg) 0%, #A9D6CE 100%);
+      radial-gradient(ellipse 1100px 650px at 15% -10%, rgba(212,175,106,0.11) 0%, rgba(212,175,106,0) 60%),
+      radial-gradient(ellipse 800px 550px at 100% 0%, rgba(212,175,106,0.07) 0%, rgba(212,175,106,0) 55%),
+      var(--bg);
     background-attachment: fixed;
   }
   .app{ width:100%; max-width: 760px; }
 
-  .brandbar{ display:flex; justify-content:space-between; align-items:flex-start; padding-bottom: 20px; border-bottom: 1px solid rgba(23,80,74,0.14); margin-bottom: 28px; }
-  .brandbar .name{ font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; }
+  .brandbar{ display:flex; justify-content:space-between; align-items:flex-start; padding-bottom: 20px; border-bottom: 1px solid var(--hairline); margin-bottom: 28px; }
+  .brandbar .name{ font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink); }
   .brandbar .tag{ font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-muted); text-align:right; }
-  .dot{ display:inline-block; width:6px; height:6px; border-radius:50%; background: var(--gold); margin-right:8px; box-shadow: 0 0 0 3px rgba(23,80,74,0.12); }
+  .dot{ display:inline-block; width:6px; height:6px; border-radius:50%; background: var(--gold); margin-right:8px; box-shadow: 0 0 0 3px var(--gold-dim), 0 0 8px rgba(212,175,106,0.6); }
 
   .eyebrow{ font-family: var(--mono); font-size: 11px; letter-spacing:0.14em; text-transform:uppercase; color: var(--gold); margin-bottom: 10px; }
   h1.hero{ font-family: var(--serif); font-weight: 400; font-size: 30px; line-height: 1.16; margin: 0 0 18px; }
@@ -50,41 +51,41 @@
   .leader-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
   @media (max-width: 620px){ .leader-grid{ grid-template-columns: 1fr; } }
 
-  .leader-card{ background: var(--bg-raised); border: 1px solid rgba(156,207,200,0.45); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow-md); }
-  .leader-card .lname{ font-family: var(--serif); font-size: 19px; margin: 0 0 2px; }
+  .leader-card{ background: var(--bg-raised); border: 1px solid var(--hairline); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow-md); }
+  .leader-card .lname{ font-family: var(--serif); font-size: 19px; margin: 0 0 2px; color: var(--ink); }
   .leader-card .lrank{ font-family: var(--mono); font-size: 10.5px; letter-spacing:0.06em; text-transform:uppercase; color: var(--gold); margin-bottom: 10px; }
-  .progress-track{ position:relative; height: 9px; border-radius: 6px; background: var(--hairline); overflow:hidden; margin-bottom: 6px; box-shadow: inset 0 1px 3px rgba(18,51,48,0.14); }
+  .progress-track{ position:relative; height: 9px; border-radius: 6px; background: rgba(255,255,255,0.06); overflow:hidden; margin-bottom: 6px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.4); }
   .progress-fill{ position:absolute; top:0; left:0; height:100%; border-radius:6px; background: linear-gradient(90deg, var(--gold), var(--gold-light)); width:0%; }
   .lmeta{ font-size: 12px; color: var(--ink-muted); line-height:1.5; }
-  .flag{ display:inline-block; margin-top:8px; font-size: 11px; font-weight:700; padding: 3px 9px; border-radius: 20px; background: #FCE3E0; color: var(--error); }
+  .flag{ display:inline-block; margin-top:8px; font-size: 11px; font-weight:700; padding: 3px 9px; border-radius: 20px; background: rgba(226,104,90,0.15); color: var(--error); }
   .flag.ok{ background: var(--gold-dim); color: var(--gold); }
 
   .insight-box{ margin-top: 12px; padding: 10px 12px; background: var(--gold-dim); border-left: 3px solid var(--gold); border-radius: 8px; font-size: 12px; line-height: 1.5; color: var(--ink); }
 
   .heatmap{ display:flex; flex-wrap:wrap; gap:3px; margin-top:10px; max-width: 168px; }
-  .heatmap .hday{ width:18px; height:18px; border-radius:3px; background: var(--hairline); }
-  .heatmap .hday[data-level="1"]{ background: #BFE3DE; }
-  .heatmap .hday[data-level="2"]{ background: #6FB8AD; }
+  .heatmap .hday{ width:18px; height:18px; border-radius:3px; background: rgba(255,255,255,0.06); }
+  .heatmap .hday[data-level="1"]{ background: rgba(212,175,106,0.25); }
+  .heatmap .hday[data-level="2"]{ background: rgba(212,175,106,0.55); }
   .heatmap .hday[data-level="3"]{ background: var(--gold); }
   .heatmap-label{ font-family: var(--mono); font-size: 9.5px; letter-spacing:0.06em; text-transform:uppercase; color: var(--ink-muted); margin: 10px 0 2px; }
   .insight-box .ilabel{ font-family: var(--mono); font-size: 9.5px; letter-spacing:0.06em; text-transform:uppercase; color: var(--gold); display:block; margin-bottom: 4px; }
 
-  section.card{ background: var(--bg-raised); border: 1px solid rgba(156,207,200,0.45); border-radius: var(--radius); padding: 22px 22px 20px; margin-bottom: 18px; box-shadow: var(--shadow-md); }
-  h2.card-title{ font-family: var(--serif); font-weight: 400; font-size: 19px; margin: 0 0 6px; display:flex; align-items:center; gap:9px; }
-  h2.card-title::before{ content:''; display:inline-block; width:7px; height:7px; border-radius:50%; background: var(--gold); flex-shrink:0; }
+  section.card{ background: var(--bg-raised); border: 1px solid var(--hairline); border-radius: var(--radius); padding: 22px 22px 20px; margin-bottom: 18px; box-shadow: var(--shadow-md); }
+  h2.card-title{ font-family: var(--serif); font-weight: 400; font-size: 19px; margin: 0 0 6px; display:flex; align-items:center; gap:9px; color: var(--ink); }
+  h2.card-title::before{ content:''; display:inline-block; width:7px; height:7px; border-radius:50%; background: var(--gold); flex-shrink:0; box-shadow: 0 0 6px rgba(212,175,106,0.7); }
   .card-sub{ font-size: 12.5px; color: var(--ink-muted); margin: 0 0 14px; }
 
-  textarea{ width:100%; min-height: 140px; background: #fff; border: 1.5px solid var(--hairline); border-radius: 10px; padding: 13px 14px; color: var(--ink); font-family: var(--sans); font-size: 14.5px; resize: vertical; box-shadow: inset 0 1px 2px rgba(18,51,48,0.05); }
+  textarea{ width:100%; min-height: 140px; background: rgba(255,255,255,0.04); border: 1.5px solid var(--hairline); border-radius: 10px; padding: 13px 14px; color: var(--ink); font-family: var(--sans); font-size: 14.5px; resize: vertical; box-shadow: inset 0 1px 3px rgba(0,0,0,0.25); }
   textarea:focus{ outline:none; border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-dim); }
 
-  .btn{ display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding: 15px 20px; background: linear-gradient(180deg, var(--gold-light), var(--gold)); color: #F7FBFA; border:none; border-radius: calc(var(--radius) - 2px); font-family: var(--sans); font-weight: 700; font-size: 15px; cursor:pointer; margin-top: 12px; box-shadow: 0 3px 10px rgba(23,80,74,0.28); transition: transform 0.15s ease, box-shadow 0.15s ease; }
-  .btn:hover{ transform: translateY(-1px); box-shadow: 0 6px 16px rgba(23,80,74,0.34); }
-  .btn:disabled{ opacity:0.6; cursor:default; transform:none; box-shadow:none; }
+  .btn{ display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding: 15px 20px; background: linear-gradient(180deg, var(--gold-light), var(--gold)); color: var(--on-gold); border:none; border-radius: calc(var(--radius) - 2px); font-family: var(--sans); font-weight: 700; font-size: 15px; cursor:pointer; margin-top: 12px; box-shadow: 0 4px 16px rgba(212,175,106,0.28); transition: transform 0.15s ease, box-shadow 0.15s ease; }
+  .btn:hover{ transform: translateY(-1px); box-shadow: 0 7px 22px rgba(212,175,106,0.36); }
+  .btn:disabled{ opacity:0.5; cursor:default; transform:none; box-shadow:none; }
 
   .state-msg{ text-align:center; padding: 60px 20px; color: var(--ink-muted); font-size: 14.5px; }
   [hidden]{ display:none !important; }
 
-  footer.legal{ margin-top: 10px; padding-top: 18px; border-top: 1px solid var(--hairline); font-size: 11.5px; color: #4C7C76; line-height:1.6; }
+  footer.legal{ margin-top: 10px; padding-top: 18px; border-top: 1px solid var(--hairline); font-size: 11.5px; color: var(--ink-muted); line-height:1.6; }
 </style>
 </head>
 <body>
@@ -125,11 +126,11 @@
       <p class="card-sub">Geht nur an Leaderinnen, die Benachrichtigungen bei sich aktiviert haben.</p>
       <div class="field" style="margin-bottom:10px;">
         <label for="pushLeaderSelect" style="display:block; font-family: var(--mono); font-size: 10.5px; letter-spacing:0.06em; text-transform:uppercase; color: var(--ink-muted); margin-bottom: 7px;">An wen</label>
-        <select id="pushLeaderSelect" style="width:100%; padding: 12px 13px; border: 1.5px solid var(--hairline); border-radius: 10px; font-family: var(--sans); font-size: 14.5px;">
+        <select id="pushLeaderSelect" style="width:100%; padding: 12px 13px; border: 1.5px solid var(--hairline); border-radius: 10px; font-family: var(--sans); font-size: 14.5px; background: rgba(255,255,255,0.04); color: var(--ink);">
           <option value="all">Alle</option>
         </select>
       </div>
-      <input id="pushTitle" placeholder="Titel" style="width:100%; margin-bottom:10px; padding: 12px 13px; border: 1.5px solid var(--hairline); border-radius: 10px; font-family: var(--sans); font-size: 14.5px;">
+      <input id="pushTitle" placeholder="Titel" style="width:100%; margin-bottom:10px; padding: 12px 13px; border: 1.5px solid var(--hairline); border-radius: 10px; font-family: var(--sans); font-size: 14.5px; background: rgba(255,255,255,0.04); color: var(--ink);">
       <textarea id="pushBody" placeholder="Nachricht" style="min-height:80px;"></textarea>
       <button class="btn" id="sendPushBtn">Senden</button>
       <p class="card-sub" id="pushSendStatus" style="text-align:center; margin-top:8px;"></p>
@@ -199,7 +200,7 @@
         ${flagHtml}
         ${insightHtml}
         <p class="heatmap-label">5 Produkte</p>
-        <input type="text" class="products-input" data-leader="${l.id}" value="${(l.specializedProducts || '').replace(/"/g, '&quot;')}" placeholder="z.B. Aloe Gel, Logic Serie, ..." style="width:100%; margin-bottom:6px; padding: 8px 10px; border: 1.5px solid var(--hairline); border-radius: 8px; font-family: var(--sans); font-size: 12.5px;">
+        <input type="text" class="products-input" data-leader="${l.id}" value="${(l.specializedProducts || '').replace(/"/g, '&quot;')}" placeholder="z.B. Aloe Gel, Logic Serie, ..." style="width:100%; margin-bottom:6px; padding: 8px 10px; border: 1.5px solid var(--hairline); border-radius: 8px; font-family: var(--sans); font-size: 12.5px; background: rgba(255,255,255,0.04); color: var(--ink);">
         <button class="btn save-products-btn" data-leader="${l.id}" type="button" style="padding:8px 14px; font-size:12px; width:auto;">Speichern</button>
         ${heatmapHtml(l.visitsByDay)}
       </div>
