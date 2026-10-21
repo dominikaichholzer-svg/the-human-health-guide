@@ -16,7 +16,8 @@ const BRIEFING_PROMPT = `[Automatisch, jeden Morgen] Erstelle mein Morgen-Briefi
 - Wer gerade gut läuft und ein Lob verdient
 - Neue Leads, und welche davon heute nachgefasst werden sollten
 - Eine konkrete Sache, die ich heute tun sollte
-Wenn es nichts Auffälliges gibt, sag das ehrlich in zwei Sätzen.`;
+- Zum Schluss ein kurzer Impuls des Tages für mich persönlich aus einem Buch deiner Bibliothek (frag dafür ein Buch mit buch_fragen). Nimm jeden Tag ein anderes Buch als in den letzten Briefings und verbinde den Gedanken mit dem, was du über meine Ziele und meine aktuelle Situation weißt. 2-3 Sätze, mit Buchtitel.
+Wenn es im Team nichts Auffälliges gibt, sag das ehrlich in zwei Sätzen, der Impuls kommt trotzdem.`;
 
 // PDF herunterladen, Text auslesen, zusammenfassen, in der Bibliothek
 // speichern. Antwort landet auch im Gesprächsverlauf, damit JARVIS im
