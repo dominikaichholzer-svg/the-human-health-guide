@@ -248,7 +248,12 @@ async function saveMessage(role, content, extra = {}) {
 // ---------- Agent-Schleife ----------
 
 async function runAgent(history) {
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  // Schlüssel ohne festen Workspace brauchen die Workspace-ID im Header
+  const workspaceId = process.env.ANTHROPIC_WORKSPACE_ID;
+  const client = new Anthropic({
+    apiKey: process.env.ANTHROPIC_API_KEY,
+    defaultHeaders: workspaceId ? { 'anthropic-workspace-id': workspaceId } : undefined,
+  });
   const today = viennaTodayStr();
   const system = [
     { type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } },

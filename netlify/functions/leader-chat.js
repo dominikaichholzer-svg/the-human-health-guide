@@ -68,6 +68,7 @@ exports.handler = async function (event) {
         'Content-Type': 'application/json',
         'x-api-key': process.env.ANTHROPIC_API_KEY,
         'anthropic-version': '2023-06-01',
+        ...(process.env.ANTHROPIC_WORKSPACE_ID && { 'anthropic-workspace-id': process.env.ANTHROPIC_WORKSPACE_ID }),
       },
       body: JSON.stringify({
         model: 'claude-sonnet-5',

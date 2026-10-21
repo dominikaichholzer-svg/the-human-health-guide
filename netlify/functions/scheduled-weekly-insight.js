@@ -42,6 +42,7 @@ async function callClaude(prompt) {
       'Content-Type': 'application/json',
       'x-api-key': process.env.ANTHROPIC_API_KEY,
       'anthropic-version': '2023-06-01',
+      ...(process.env.ANTHROPIC_WORKSPACE_ID && { 'anthropic-workspace-id': process.env.ANTHROPIC_WORKSPACE_ID }),
     },
     body: JSON.stringify({
       model: 'claude-haiku-4-5-20251001',
