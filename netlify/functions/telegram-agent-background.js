@@ -3,12 +3,15 @@
 // Background-Funktion (Netlify lässt sie bis zu 15 Minuten laufen). Wird
 // intern aufgerufen von:
 //   - telegram-webhook.js        Body { mode: 'chat', chatId }
+//                                     { mode: 'voice', fileId, updateId }
+//                                     { mode: 'book', fileId, fileName, caption }
 //   - scheduled-agent-briefing.js Body { mode: 'briefing' }
 // Lädt den Gesprächsverlauf, lässt JARVIS arbeiten und schickt die Antwort
 // per Telegram an Dominik.
 
 const { runAgent, loadHistory, saveMessage, makeClient } = require('./_lib/agent');
 const books = require('./_lib/books');
+const { transcribe } = require('./_lib/speech');
 const { sendMessage, sendTyping, downloadFile, agentSecret } = require('./_lib/telegram');
 
 const BRIEFING_PROMPT = `[Automatisch, jeden Morgen] Erstelle mein Morgen-Briefing. Schau dir mit deinen Tools das Team und die neuen Leads der letzten 24 Stunden an. Dann schreib mir kurz:
@@ -59,6 +62,16 @@ exports.handler = async function (event) {
     }
     if (mode === 'briefing') {
       await saveMessage('user', BRIEFING_PROMPT, { kind: 'briefing' });
+    }
+    if (mode === 'voice') {
+      const text = await transcribe(await downloadFile(payload.fileId));
+      if (!text) {
+        await sendMessage(chatId, 'Ich habe in der Sprachnachricht leider nichts verstanden. Magst du es nochmal versuchen?');
+        return { statusCode: 200, body: 'ok' };
+      }
+      // Telegram kann denselben Webhook doppelt schicken, dann nur einmal antworten
+      const saved = await saveMessage('user', `[Sprachnachricht] ${text}`, { telegram_update_id: payload.updateId });
+      if (!saved) return { statusCode: 200, body: 'ok' };
     }
     const history = await loadHistory();
     const reply = await runAgent(history);

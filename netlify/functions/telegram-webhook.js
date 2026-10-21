@@ -51,6 +51,23 @@ exports.handler = async function (event) {
       await sendMessage(chatId, 'Neues Gespräch gestartet. Was ich mir gemerkt habe, weiß ich natürlich noch.');
       return { statusCode: 200, body: 'ok' };
     }
+    // Sprachnachricht: Umwandeln in Text dauert, darum direkt an die
+    // Background-Funktion. Die speichert die Nachricht erst mit dem Text
+    // (und der update_id gegen doppelte Bearbeitung).
+    const voice = msg.voice || msg.audio;
+    if (voice) {
+      if (voice.file_size > 20 * 1024 * 1024) {
+        await sendMessage(chatId, 'Die Sprachnachricht ist zu lang für mich (über 20 MB). Teil sie bitte in kürzere auf.');
+      } else {
+        await fetch(`${process.env.URL}/.netlify/functions/telegram-agent-background`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-agent-secret': agentSecret() },
+          body: JSON.stringify({ mode: 'voice', fileId: voice.file_id, updateId: update.update_id }),
+        });
+      }
+      return { statusCode: 200, body: 'ok' };
+    }
+
     const doc = msg.document;
     if (doc) {
       const isPdf = doc.mime_type === 'application/pdf' || /\.pdf$/i.test(doc.file_name || '');
@@ -73,7 +90,7 @@ exports.handler = async function (event) {
       return { statusCode: 200, body: 'ok' };
     }
     if (!text) {
-      await sendMessage(chatId, 'Ich kann im Moment nur Text und PDF-Bücher lesen. Sprachnachrichten und Bilder kommen später.');
+      await sendMessage(chatId, 'Ich verstehe im Moment Text, Sprachnachrichten und PDF-Bücher. Bilder kommen später.');
       return { statusCode: 200, body: 'ok' };
     }
 
