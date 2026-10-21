@@ -13,6 +13,7 @@ const AnthropicModule = require('@anthropic-ai/sdk');
 const Anthropic = AnthropicModule.default || AnthropicModule;
 const { pgrest } = require('./supabase');
 const { computeProgress, viennaTodayStr } = require('./ranks');
+const books = require('./books');
 
 const MODEL = 'claude-opus-5-5';
 const MAX_TOOL_ROUNDS = 8;
@@ -30,6 +31,7 @@ Was du über das Business weißt:
 Wie du arbeitest:
 - Wenn eine Frage Team-Zahlen oder Leads betrifft, schau mit deinen Tools nach, statt zu raten. Erfinde nie Zahlen.
 - Wenn Dominik dir etwas Dauerhaftes über sich, das Team oder das Business erzählt, speichere es mit "merken", ohne zu fragen. Wenn etwas Gemerktes nicht mehr stimmt, lösche es mit "vergessen".
+- Dominik kann dir Bücher als PDF schicken. Welche du hast, steht unten in deiner Bibliothek. Wenn eine Frage von einem dieser Bücher profitieren würde (Führung, Coaching, Verkauf, Gesundheit, je nach Buch), frag das Buch mit "buch_fragen" und verbinde die Antwort mit dem, was du über das Team weißt. Nenne dann kurz, aus welchem Buch der Tipp kommt.
 - Du kannst aktuell nichts verschicken, keine Termine eintragen und niemanden anschreiben. Wenn Dominik so etwas will, schreib ihm den fertigen Text, den er selbst rausschicken kann, und sag kurz, dass diese Funktion noch kommt.
 - Antworte auf Deutsch, per Du, kurz und konkret wie in einem Chat. Kein Markdown (keine Sternchen, keine Rauten, keine Tabellen), weil Telegram das als reinen Text zeigt. Aufzählungen nur mit einfachen Bindestrichen oder Zahlen. Keine Motivationsfloskeln.`;
 
@@ -86,6 +88,32 @@ const TOOLS = [
       type: 'object',
       properties: { id: { type: 'integer' } },
       required: ['id'],
+      additionalProperties: false,
+    },
+    strict: true,
+  },
+  {
+    name: 'buch_fragen',
+    description:
+      'Stellt eine Frage an ein Buch aus deiner Bibliothek. Ein Lese-Assistent liest das ganze Buch und antwortet mit den passenden Aussagen und Seitenzahlen. Stell eine konkrete Frage, z. B. "Wie motiviert man jemanden, der nach 3 Monaten die Lust verliert?".',
+    input_schema: {
+      type: 'object',
+      properties: {
+        buch_id: { type: 'integer', description: 'ID aus der Bibliothek (eckige Klammern)' },
+        frage: { type: 'string' },
+      },
+      required: ['buch_id', 'frage'],
+      additionalProperties: false,
+    },
+    strict: true,
+  },
+  {
+    name: 'buch_loeschen',
+    description: 'Entfernt ein Buch aus deiner Bibliothek. Nur wenn Dominik das ausdrücklich will.',
+    input_schema: {
+      type: 'object',
+      properties: { buch_id: { type: 'integer' } },
+      required: ['buch_id'],
       additionalProperties: false,
     },
     strict: true,
@@ -194,12 +222,25 @@ async function vergessen({ id }) {
   return { geloescht: true, id };
 }
 
+async function buchFragen({ buch_id, frage }) {
+  const book = await books.getBook(buch_id);
+  if (!book) return { fehler: `Kein Buch mit ID ${buch_id} in der Bibliothek.` };
+  return { buch: book.title, antwort: await books.askBook(makeClient(), book, frage) };
+}
+
+async function buchLoeschen({ buch_id }) {
+  await books.deleteBook(buch_id);
+  return { geloescht: true, buch_id };
+}
+
 const TOOL_HANDLERS = {
   team_uebersicht: teamUebersicht,
   leader_verlauf: leaderVerlauf,
   neue_leads: neueLeads,
   merken,
   vergessen,
+  buch_fragen: buchFragen,
+  buch_loeschen: buchLoeschen,
 };
 
 async function runTool(block) {
@@ -219,6 +260,18 @@ async function loadMemoryText() {
   const facts = await pgrest('agent_memory', { query: 'order=id.asc&select=id,fact' });
   if (!facts.length) return 'Dein Gedächtnis ist noch leer.';
   return 'Was du dir über Dominik und das Business gemerkt hast:\n' + facts.map((f) => `[${f.id}] ${f.fact}`).join('\n');
+}
+
+async function loadLibraryText() {
+  let list;
+  try {
+    list = await books.listBooks();
+  } catch (err) {
+    // Tabelle agent_books noch nicht angelegt, der Chat soll trotzdem laufen
+    return 'Deine Bibliothek ist gerade nicht erreichbar.';
+  }
+  if (!list.length) return 'Deine Bibliothek ist noch leer.';
+  return 'Deine Bibliothek:\n' + list.map((b) => `[${b.id}] ${b.title} (${b.pages} Seiten): ${b.summary}`).join('\n');
 }
 
 // Letzte Nachrichten seit dem letzten /neu, als Messages-API-Verlauf
@@ -247,17 +300,21 @@ async function saveMessage(role, content, extra = {}) {
 
 // ---------- Agent-Schleife ----------
 
-async function runAgent(history) {
+function makeClient() {
   // Schlüssel ohne festen Workspace brauchen die Workspace-ID im Header
   const workspaceId = process.env.ANTHROPIC_WORKSPACE_ID;
-  const client = new Anthropic({
+  return new Anthropic({
     apiKey: process.env.ANTHROPIC_API_KEY,
     defaultHeaders: workspaceId ? { 'anthropic-workspace-id': workspaceId } : undefined,
   });
+}
+
+async function runAgent(history) {
+  const client = makeClient();
   const today = viennaTodayStr();
   const system = [
     { type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } },
-    { type: 'text', text: `Heute ist der ${today}.\n\n${await loadMemoryText()}` },
+    { type: 'text', text: `Heute ist der ${today}.\n\n${await loadMemoryText()}\n\n${await loadLibraryText()}` },
   ];
   const messages = history.map((m) => ({ role: m.role, content: m.content }));
 
@@ -299,4 +356,4 @@ async function runAgent(history) {
   return 'Ich habe zu viele Schritte gebraucht und abgebrochen. Frag mich bitte etwas genauer.';
 }
 
-module.exports = { runAgent, loadHistory, saveMessage };
+module.exports = { runAgent, loadHistory, saveMessage, makeClient };

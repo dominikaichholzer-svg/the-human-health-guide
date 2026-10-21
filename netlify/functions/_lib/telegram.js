@@ -33,6 +33,14 @@ async function sendMessage(chatId, text) {
   for (const chunk of chunks) await tg('sendMessage', { chat_id: chatId, text: chunk });
 }
 
+// Telegram lässt Bots nur Dateien bis 20 MB herunterladen
+async function downloadFile(fileId) {
+  const file = await tg('getFile', { file_id: fileId });
+  const res = await fetch(`https://api.telegram.org/file/bot${process.env.TELEGRAM_BOT_TOKEN}/${file.file_path}`);
+  if (!res.ok) throw new Error(`Download von Telegram fehlgeschlagen: ${res.status}`);
+  return Buffer.from(await res.arrayBuffer());
+}
+
 async function sendTyping(chatId) {
   try {
     await tg('sendChatAction', { chat_id: chatId, action: 'typing' });
@@ -54,4 +62,4 @@ function isAllowedChat(chatId) {
   return String(chatId) === String(process.env.TELEGRAM_CHAT_ID || '');
 }
 
-module.exports = { tg, sendMessage, sendTyping, agentSecret, isAllowedChat };
+module.exports = { tg, sendMessage, sendTyping, downloadFile, agentSecret, isAllowedChat };

@@ -19,3 +19,16 @@ create table if not exists agent_memory (
 -- Nur der Server (service_role) darf lesen und schreiben
 alter table agent_messages enable row level security;
 alter table agent_memory enable row level security;
+
+-- Bibliothek: Bücher, die Dominik JARVIS als PDF schickt (seit Okt 2026)
+create table if not exists agent_books (
+  id bigserial primary key,
+  created_at timestamptz not null default now(),
+  title text not null,
+  filename text,
+  pages int,
+  content text not null,
+  summary text
+);
+
+alter table agent_books enable row level security;

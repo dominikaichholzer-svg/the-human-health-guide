@@ -51,8 +51,29 @@ exports.handler = async function (event) {
       await sendMessage(chatId, 'Neues Gespräch gestartet. Was ich mir gemerkt habe, weiß ich natürlich noch.');
       return { statusCode: 200, body: 'ok' };
     }
+    const doc = msg.document;
+    if (doc) {
+      const isPdf = doc.mime_type === 'application/pdf' || /\.pdf$/i.test(doc.file_name || '');
+      if (!isPdf) {
+        await sendMessage(chatId, 'Ich kann Bücher nur als PDF lesen.');
+      } else if (doc.file_size > 20 * 1024 * 1024) {
+        await sendMessage(chatId, 'Das PDF ist größer als 20 MB, so große Dateien lässt Telegram mich nicht herunterladen. Kannst du es verkleinern (z. B. auf ilovepdf.com "PDF komprimieren") oder in Teile aufteilen?');
+      } else {
+        const marker = `[PDF geschickt: ${doc.file_name || 'Buch.pdf'}]${msg.caption ? ' ' + msg.caption : ''}`;
+        const saved = await saveMessage('user', marker, { telegram_update_id: update.update_id });
+        if (saved) {
+          await sendMessage(chatId, '📚 Danke, ich lese das Buch jetzt. Das kann bei einem dicken Buch ein paar Minuten dauern, ich melde mich.');
+          await fetch(`${process.env.URL}/.netlify/functions/telegram-agent-background`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-agent-secret': agentSecret() },
+            body: JSON.stringify({ mode: 'book', fileId: doc.file_id, fileName: doc.file_name, caption: msg.caption || '' }),
+          });
+        }
+      }
+      return { statusCode: 200, body: 'ok' };
+    }
     if (!text) {
-      await sendMessage(chatId, 'Ich kann im Moment nur Text lesen. Sprachnachrichten und Bilder kommen später.');
+      await sendMessage(chatId, 'Ich kann im Moment nur Text und PDF-Bücher lesen. Sprachnachrichten und Bilder kommen später.');
       return { statusCode: 200, body: 'ok' };
     }
 

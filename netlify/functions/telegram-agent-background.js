@@ -7,8 +7,9 @@
 // Lädt den Gesprächsverlauf, lässt JARVIS arbeiten und schickt die Antwort
 // per Telegram an Dominik.
 
-const { runAgent, loadHistory, saveMessage } = require('./_lib/agent');
-const { sendMessage, sendTyping, agentSecret } = require('./_lib/telegram');
+const { runAgent, loadHistory, saveMessage, makeClient } = require('./_lib/agent');
+const books = require('./_lib/books');
+const { sendMessage, sendTyping, downloadFile, agentSecret } = require('./_lib/telegram');
 
 const BRIEFING_PROMPT = `[Automatisch, jeden Morgen] Erstelle mein Morgen-Briefing. Schau dir mit deinen Tools das Team und die neuen Leads der letzten 24 Stunden an. Dann schreib mir kurz:
 - Wer aus dem Team heute meine Aufmerksamkeit braucht und warum (z. B. kein Eintrag seit über einer Woche, Zahlen eingebrochen, hat um Unterstützung gebeten)
@@ -17,16 +18,44 @@ const BRIEFING_PROMPT = `[Automatisch, jeden Morgen] Erstelle mein Morgen-Briefi
 - Eine konkrete Sache, die ich heute tun sollte
 Wenn es nichts Auffälliges gibt, sag das ehrlich in zwei Sätzen.`;
 
+// PDF herunterladen, Text auslesen, zusammenfassen, in der Bibliothek
+// speichern. Antwort landet auch im Gesprächsverlauf, damit JARVIS im
+// nächsten Satz weiß, welches Buch gerade dazugekommen ist.
+async function readBook({ fileId, fileName, caption }) {
+  const buffer = await downloadFile(fileId);
+  const { pages, content, realChars } = await books.extractPdfText(buffer);
+  if (realChars < pages * 200) {
+    return 'Ich konnte in diesem PDF kaum Text finden. Wahrscheinlich ist es eingescannt (nur Bilder der Seiten). Solche PDFs kann ich noch nicht lesen. Hast du eine Version mit echtem Text, z. B. aus einem E-Book?';
+  }
+  if (content.length > books.MAX_CHARS) {
+    return `Das Buch ist mit ${pages} Seiten zu lang für mich am Stück. Kannst du es in zwei Hälften aufteilen (z. B. auf ilovepdf.com "PDF teilen") und mir beide Teile schicken?`;
+  }
+  const fallbackTitle = caption || (fileName || 'Buch').replace(/\.pdf$/i, '');
+  const summaryRaw = await books.summarizeBook(makeClient(), { title: fallbackTitle, content });
+  const titleMatch = summaryRaw.match(/^Titel:\s*(.+)$/m);
+  const title = caption || (titleMatch ? titleMatch[1].trim() : fallbackTitle);
+  const summary = summaryRaw.replace(/^Titel:.*$/m, '').trim();
+  const book = await books.saveBook({ title, filename: fileName, pages, content, summary });
+  return `📚 Gelesen und in meiner Bibliothek gespeichert: "${book.title}" (${pages} Seiten).\n\n${summary}\n\nFrag mich einfach, z. B. "Was sagt das Buch dazu, wie ich Laura motivieren kann?"`;
+}
+
 exports.handler = async function (event) {
   if (event.headers['x-agent-secret'] !== agentSecret()) {
     return { statusCode: 403, body: 'Kein Zugriff' };
   }
-  const { mode } = JSON.parse(event.body || '{}');
+  const payload = JSON.parse(event.body || '{}');
+  const { mode } = payload;
   const chatId = process.env.TELEGRAM_CHAT_ID;
   if (!chatId) return { statusCode: 500, body: 'TELEGRAM_CHAT_ID fehlt' };
 
   try {
     await sendTyping(chatId);
+    if (mode === 'book') {
+      const reply = await readBook(payload);
+      await saveMessage('assistant', reply);
+      await sendMessage(chatId, reply);
+      return { statusCode: 200, body: 'ok' };
+    }
     if (mode === 'briefing') {
       await saveMessage('user', BRIEFING_PROMPT, { kind: 'briefing' });
     }
