@@ -31,7 +31,7 @@ Was du über das Business weißt:
 Wie du arbeitest:
 - Wenn eine Frage Team-Zahlen oder Leads betrifft, schau mit deinen Tools nach, statt zu raten. Erfinde nie Zahlen.
 - Wenn Dominik dir etwas Dauerhaftes über sich, das Team oder das Business erzählt, speichere es mit "merken", ohne zu fragen. Wenn etwas Gemerktes nicht mehr stimmt, lösche es mit "vergessen".
-- Dominik kann dir Bücher als PDF schicken. Welche du hast, steht unten in deiner Bibliothek. Wenn eine Frage von einem dieser Bücher profitieren würde (Führung, Coaching, Verkauf, Gesundheit, je nach Buch), frag das Buch mit "buch_fragen" und verbinde die Antwort mit dem, was du über das Team weißt. Nenne dann kurz, aus welchem Buch der Tipp kommt.
+- Dominik kann dir Bücher als PDF schicken. Welche du hast, steht unten in deiner Bibliothek. Wenn eine Frage von einem dieser Bücher profitieren würde (Führung, Coaching, Verkauf, Gesundheit, je nach Buch), frag das Buch mit "buch_fragen" und verbinde die Antwort mit dem, was du über das Team weißt. Nenne dann kurz, aus welchem Buch der Tipp kommt. Wenn Dominik möchte, dass du dich in ein Buch einliest, das nicht in deiner Bibliothek ist, nutze "buch_recherchieren": das legt eine Buch-Notiz aus einer Web-Recherche an. Sag ihm dabei ehrlich, dass eine Notiz aus Zusammenfassungen weniger tief ist als das echte Buch als PDF.
 - Du kannst aktuell nichts verschicken, keine Termine eintragen und niemanden anschreiben. Wenn Dominik so etwas will, schreib ihm den fertigen Text, den er selbst rausschicken kann, und sag kurz, dass diese Funktion noch kommt.
 - Antworte auf Deutsch, per Du, kurz und konkret wie in einem Chat. Kein Markdown (keine Sternchen, keine Rauten, keine Tabellen), weil Telegram das als reinen Text zeigt. Aufzählungen nur mit einfachen Bindestrichen oder Zahlen. Keine Motivationsfloskeln.`;
 
@@ -103,6 +103,18 @@ const TOOLS = [
         frage: { type: 'string' },
       },
       required: ['buch_id', 'frage'],
+      additionalProperties: false,
+    },
+    strict: true,
+  },
+  {
+    name: 'buch_recherchieren',
+    description:
+      'Liest sich per Web-Recherche in ein Buch ein, das nicht in der Bibliothek ist, und speichert die Kernideen als Buch-Notiz in der Bibliothek. Dauert 1-2 Minuten. Nur wenn Dominik danach fragt.',
+    input_schema: {
+      type: 'object',
+      properties: { titel: { type: 'string', description: 'Buchtitel, wenn bekannt mit Autor' } },
+      required: ['titel'],
       additionalProperties: false,
     },
     strict: true,
@@ -228,6 +240,19 @@ async function buchFragen({ buch_id, frage }) {
   return { buch: book.title, antwort: await books.askBook(makeClient(), book, frage) };
 }
 
+async function buchRecherchieren({ titel }) {
+  const result = await books.researchBook(makeClient(), titel);
+  if (!result.gefunden) return { fehler: `Buch nicht gefunden: ${result.grund}` };
+  const book = await books.saveBook({
+    title: result.title,
+    filename: books.WEB_NOTE,
+    pages: null,
+    content: result.content,
+    summary: result.summary,
+  });
+  return { gespeichert: true, buch_id: book.id, titel: result.title, kurz: result.summary };
+}
+
 async function buchLoeschen({ buch_id }) {
   await books.deleteBook(buch_id);
   return { geloescht: true, buch_id };
@@ -240,6 +265,7 @@ const TOOL_HANDLERS = {
   merken,
   vergessen,
   buch_fragen: buchFragen,
+  buch_recherchieren: buchRecherchieren,
   buch_loeschen: buchLoeschen,
 };
 
@@ -271,7 +297,7 @@ async function loadLibraryText() {
     return 'Deine Bibliothek ist gerade nicht erreichbar.';
   }
   if (!list.length) return 'Deine Bibliothek ist noch leer.';
-  return 'Deine Bibliothek:\n' + list.map((b) => `[${b.id}] ${b.title} (${b.pages} Seiten): ${b.summary}`).join('\n');
+  return 'Deine Bibliothek:\n' + list.map((b) => `[${b.id}] ${b.title} (${b.filename === books.WEB_NOTE ? 'Buch-Notiz aus Web-Recherche' : `${b.pages} Seiten`}): ${b.summary}`).join('\n');
 }
 
 // Letzte Nachrichten seit dem letzten /neu, als Messages-API-Verlauf
