@@ -1,8 +1,9 @@
 {
   "name": "mein-quiz",
   "private": true,
-  "description": "Netlify Functions für den Quiz-Funnel und das Leader-Dashboard. Push-Benachrichtigungen (web-push) sind die einzige echte Abhängigkeit, alles andere im Projekt bleibt ohne npm-Pakete.",
+  "description": "Netlify Functions für den Quiz-Funnel, das Leader-Dashboard und den Telegram-Agenten JARVIS. Echte Abhängigkeiten: web-push (Push-Benachrichtigungen) und @anthropic-ai/sdk (JARVIS), alles andere im Projekt bleibt ohne npm-Pakete.",
   "dependencies": {
-    "web-push": "^3.6.7"
+    "web-push": "^3.6.7",
+    "@anthropic-ai/sdk": "^1.0.0"
   }
 }

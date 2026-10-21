@@ -10,3 +10,7 @@
 
 [functions."scheduled-missing-week-push"]
   schedule = "0 15 * * *"
+
+# JARVIS Morgen-Briefing per Telegram, 05:30 UTC = 06:30 Wien (Winterzeit) / 07:30 (Sommerzeit)
+[functions."scheduled-agent-briefing"]
+  schedule = "30 5 * * *"
