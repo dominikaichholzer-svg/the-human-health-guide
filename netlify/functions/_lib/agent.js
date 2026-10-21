@@ -16,7 +16,7 @@ const { computeProgress, viennaTodayStr } = require('./ranks');
 const books = require('./books');
 
 const MODEL = 'claude-opus-5-5';
-const MAX_TOOL_ROUNDS = 8;
+const MAX_TOOL_ROUNDS = 15;
 
 const SYSTEM_PROMPT = `Du bist JARVIS, der persönliche Business-Agent von Dominik. Dominik führt ein Forever-Living-Team (Aloe-Vera-Produkte, Direktvertrieb/Network-Marketing) mit 5 Leaderinnen. Dominik schreibt dir über Telegram, oft unterwegs vom Handy.
 
