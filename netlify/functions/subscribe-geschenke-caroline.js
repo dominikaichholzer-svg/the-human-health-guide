@@ -91,7 +91,7 @@ exports.handler = async function (event) {
 
   if (RESEND_API_KEY) {
     const rows = [
-      ['Teampartner:in', 'Caroline'],
+      ['Aus deinem Team', 'Caroline'],
       ['Name', name || '–'],
       ['Kontakt (Handy/Instagram)', kontakt || '–'],
       ['E-Mail', email],
@@ -116,7 +116,7 @@ exports.handler = async function (event) {
           from: 'Geschenke-Umfrage <onboarding@resend.dev>',
           to: [NOTIFY_EMAIL],
           subject: `🎁 Kunde von Caroline: Neue Geschenke-Umfrage Anmeldung${name ? ' von ' + name : ''}`,
-          html: `<p style="font-size:18px;margin:0 0 14px;"><b>Neuer Kunde von deiner Teampartnerin Caroline</b></p><table>${htmlRows}</table>`,
+          html: `<p style="font-size:18px;margin:0 0 14px;"><b>Neuer Kunde über Caroline aus deinem Team</b></p><table>${htmlRows}</table>`,
         }),
       });
       results.notify = { ok: notifyRes.ok, status: notifyRes.status };
