@@ -74,7 +74,7 @@ exports.handler = async function (event) {
       if (!saved) return { statusCode: 200, body: 'ok' };
     }
     const history = await loadHistory();
-    const reply = await runAgent(history);
+    const reply = await runAgent(history, { deep: mode === 'briefing' });
     await saveMessage('assistant', reply);
     await sendMessage(chatId, reply);
   } catch (err) {

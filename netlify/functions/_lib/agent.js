@@ -15,7 +15,12 @@ const { pgrest } = require('./supabase');
 const { computeProgress, viennaTodayStr } = require('./ranks');
 const books = require('./books');
 
-const MODEL = 'claude-opus-5-5';
+// Zwei Modelle, um Kosten zu sparen: Haiku für normale Chat-Fragen, Sonnet
+// für das Morgen-Briefing, tieferes Coaching, Analysen und alles, was eine
+// Websuche braucht. Welches Modell eine Nachricht bekommt, entscheidet
+// chooseModel() mit einem sehr kurzen Haiku-Aufruf.
+const FAST_MODEL = 'claude-haiku-5-5';
+const DEEP_MODEL = 'claude-sonnet-5-5';
 const MAX_TOOL_ROUNDS = 15;
 
 const SYSTEM_PROMPT = `Du bist JARVIS, der persönliche Business-Agent von Dominik. Dominik führt ein Forever-Living-Team (Aloe-Vera-Produkte, Direktvertrieb/Network-Marketing) mit 5 Leaderinnen. Dominik schreibt dir über Telegram, oft unterwegs vom Handy.
@@ -309,7 +314,7 @@ async function loadLibraryText() {
 }
 
 // Letzte Nachrichten seit dem letzten /neu, als Messages-API-Verlauf
-async function loadHistory(limit = 30) {
+async function loadHistory(limit = 20) {
   const rows = await pgrest('agent_messages', {
     query: `order=id.desc&limit=${limit}&select=role,content,kind`,
   });
@@ -343,7 +348,46 @@ function makeClient() {
   });
 }
 
-async function runAgent(history) {
+const ROUTER_SCHEMA = {
+  type: 'object',
+  properties: { modell: { type: 'string', enum: ['einfach', 'tief'] } },
+  required: ['modell'],
+  additionalProperties: false,
+};
+
+// Bei Fehlern lieber das stärkere Modell nehmen als falsch sparen
+async function chooseModel(client, text) {
+  try {
+    const response = await client.messages.create({
+      model: FAST_MODEL,
+      max_tokens: 1000,
+      output_config: { effort: 'low', format: { type: 'json_schema', schema: ROUTER_SCHEMA } },
+      messages: [
+        {
+          role: 'user',
+          content: `Ordne diese Nachricht an einen Business-Assistenten ein.
+"einfach": kurze Fragen, Zahlen oder Leads nachschauen, etwas merken, kurze Texte, Smalltalk, Danke, Bestätigungen.
+"tief": persönliches Coaching (Zweifel, Motivation, Konflikte), Strategie und Planung, Analysen über mehrere Leaderinnen, längere Texte, Fragen an Bücher, alles was aktuelle Infos aus dem Internet braucht, Bücher recherchieren.
+
+Nachricht: ${text.slice(0, 2000)}`,
+        },
+      ],
+    });
+    const json = response.content.find((b) => b.type === 'text');
+    return JSON.parse(json.text).modell === 'einfach' ? FAST_MODEL : DEEP_MODEL;
+  } catch (err) {
+    console.error('chooseModel', err.message);
+    return DEEP_MODEL;
+  }
+}
+
+// Haiku kennt die Websuche mit Filterung nicht, darum bekommt nur Sonnet sie
+function toolsFor(model) {
+  return model === DEEP_MODEL ? TOOLS : TOOLS.filter((t) => t.name !== 'web_search');
+}
+
+// options.deep erzwingt Sonnet (z. B. fürs Morgen-Briefing)
+async function runAgent(history, options = {}) {
   const client = makeClient();
   const today = viennaTodayStr();
   const system = [
@@ -351,18 +395,40 @@ async function runAgent(history) {
     { type: 'text', text: `Heute ist der ${today}.\n\n${await loadMemoryText()}\n\n${await loadLibraryText()}` },
   ];
   const messages = history.map((m) => ({ role: m.role, content: m.content }));
+  const lastUser = [...history].reverse().find((m) => m.role === 'user');
+  let model = options.deep || !lastUser ? DEEP_MODEL : await chooseModel(client, lastUser.content);
+  // Server-Fallback bei Ablehnung gibt es nur für Sonnet, nicht für Haiku
+  const paramsFor = (m) =>
+    m === DEEP_MODEL ? { betas: ['server-side-fallback-2026-07-01'], fallbacks: 'default' } : {};
 
   for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
-    const response = await client.beta.messages.create({
-      model: MODEL,
-      max_tokens: 16000,
-      betas: ['server-side-fallback-2026-07-01'],
-      fallbacks: 'default',
-      output_config: { effort: 'medium' },
-      system,
-      tools: TOOLS,
-      messages,
-    });
+    let response;
+    try {
+      response = await client.beta.messages.create({
+        model,
+        max_tokens: 16000,
+        ...paramsFor(model),
+        output_config: { effort: 'medium' },
+        // Automatisches Caching bis zur letzten Nachricht: die nächste Frage
+        // im selben Gespräch liest Systemprompt und Verlauf dann fast zum
+        // Zehntel des Preises
+        cache_control: { type: 'ephemeral' },
+        system,
+        tools: toolsFor(model),
+        messages,
+      });
+    } catch (err) {
+      // Lehnt Haiku die Anfrage gleich zu Beginn ab, einfach mit Sonnet
+      // weitermachen statt Dominik einen Fehler zu zeigen. Guthaben- oder
+      // Schlüsselfehler gelten für beide Modelle, die werden durchgereicht.
+      if (model === FAST_MODEL && round === 0 && err.status === 400 && !/credit balance/i.test(err.message)) {
+        console.error('Haiku abgelehnt, wechsle zu Sonnet:', err.message);
+        model = DEEP_MODEL;
+        round--;
+        continue;
+      }
+      throw err;
+    }
 
     if (response.stop_reason === 'refusal') {
       return 'Dazu kann ich leider nichts sagen.';
