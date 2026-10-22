@@ -48,6 +48,17 @@
   h1.hero em{ font-style: italic; font-weight:500; color: var(--gold); }
   .lede{ color: var(--ink-muted); font-size: 15.5px; line-height:1.6; margin-bottom: 30px; }
   .lede.tight{ margin-bottom: 14px; }
+  .set-card{ background: var(--bg-raised); border:1px solid var(--hairline); border-radius: var(--radius); overflow:hidden; margin: 0 0 26px; }
+  .set-card img{ width:100%; display:block; }
+  .set-body{ padding: 18px 18px 20px; }
+  .set-name{ font-family: var(--serif); font-size: 24px; margin: 0 0 4px; }
+  .set-price{ font-family: var(--mono); font-size: 13px; letter-spacing:0.06em; color: var(--gold); margin-bottom: 12px; }
+  .set-items{ margin:0; padding-left: 18px; color: var(--ink); font-size: 14.5px; line-height:1.6; }
+  .other-sets{ margin: 0 0 26px; }
+  .other-sets summary{ cursor:pointer; font-weight:600; color: var(--gold); font-size: 14.5px; padding: 4px 0; }
+  .other-grid{ display:grid; grid-template-columns: 1fr; gap: 12px; margin-top: 14px; }
+  .other-grid .set-card{ margin:0; }
+  .other-grid .set-name{ font-size: 19px; }
   .info-image{ width:100%; border-radius: 12px; border:1px solid var(--hairline); margin: 0 0 22px; display:block; }
 
   .btn{ display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding: 18px 22px; background: var(--gold); color: #F7FBFA; border:none; border-radius: var(--radius); font-family: var(--sans); font-weight: 700; font-size: 16px; cursor:pointer; text-decoration:none; transition: transform 0.15s ease, background 0.15s ease; }
@@ -107,7 +118,7 @@
 
   <div class="progress-wrap" id="progressWrap" style="display:none;">
     <div class="progress-meta">
-      <span id="progressLabel">Frage 1 von 4</span>
+      <span id="progressLabel">Frage 1 von 5</span>
     </div>
     <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
   </div>
@@ -117,7 +128,7 @@
     <div class="eyebrow">KURZ GEFRAGT</div>
     <h1 class="hero">Schön, dass du <em>mitmachst</em>!</h1>
     <p class="lede tight">Ich habe 4 verschiedene Sets für dich zusammengestellt. Vielleicht ist ja genau das Richtige für dich selbst oder deine Liebsten dabei. Ob für Mama, Papa, deinen Partner/deine Partnerin, Freunde oder einfach für dich selbst. 🎁❤️</p>
-    <p class="lede tight">Beantworte einfach die 4 kurzen Fragen und finde heraus, welches Set am besten passt. Anschließend melde ich mich persönlich bei dir. 😊</p>
+    <p class="lede tight">Beantworte einfach die 5 kurzen Fragen und finde heraus, welches Set am besten passt. Anschließend melde ich mich persönlich bei dir. 😊</p>
     <p class="lede tight">🎁 Als kleines Dankeschön wartet auf jeden, der etwas bestellt, noch eine kleine Überraschung von mir!</p>
     <p class="lede">Viel Spaß beim Durchklicken! ✨🌿</p>
     <button class="btn" onclick="startQuiz()">Los geht's →</button>
@@ -152,9 +163,14 @@
 
   <!-- SCREEN 2: Final / Contact -->
   <section class="screen" id="screen-final">
-    <div class="eyebrow">DEINE ANTWORTEN SIND DA</div>
-    <h1 class="hero">Danke dir <em>fürs Mitmachen</em>.</h1>
-    <p class="lede" id="summaryLede">Trag dich kurz ein, dann meld ich mich mit 1-2 passenden Geschenk-Ideen bei dir.</p>
+    <div class="eyebrow">DEIN PASSENDES SET</div>
+    <h1 class="hero" id="resultTitle">Danke dir <em>fürs Mitmachen</em>.</h1>
+    <div class="set-card" id="resultCard"></div>
+    <details class="other-sets">
+      <summary>Die anderen 3 Sets ansehen</summary>
+      <div class="other-grid" id="otherSets"></div>
+    </details>
+    <p class="lede" id="summaryLede">Trag dich kurz ein, dann melde ich mich persönlich bei dir.</p>
 
     <div class="field" id="nameField">
       <label for="fname">Name</label>
@@ -175,14 +191,14 @@
     </div>
 
     <button class="btn" id="submitBtn" onclick="submitQuiz()">Absenden</button>
-    <p class="fineprint">Mit dem Absenden meld ich mich meistens innerhalb weniger Stunden persönlich bei dir mit 1-2 Ideen, die zu dir passen. Deine Daten werden vertraulich behandelt.</p>
+    <p class="fineprint">Mit dem Absenden melde ich mich meistens innerhalb weniger Stunden persönlich bei dir. Deine Daten werden vertraulich behandelt.</p>
   </section>
 
   <!-- SCREEN 3: Thank you -->
   <section class="screen" id="screen-thanks">
     <div class="eyebrow">GESCHAFFT</div>
     <h1 class="hero">Danke dir, <em>bin gleich da</em>.</h1>
-    <p class="lede">Ich hab deine Antworten und meld mich meistens innerhalb weniger Stunden persönlich bei dir mit 1-2 Ideen, die zu dir passen.</p>
+    <p class="lede">Ich hab deine Antworten und melde mich meistens innerhalb weniger Stunden persönlich bei dir. 🎁 Und denk dran: Bei einer Bestellung wartet noch eine kleine Überraschung von mir auf dich!</p>
   </section>
 
   <footer class="legal">
@@ -243,7 +259,61 @@
         { value: 'preis', label: 'Dass es nicht viel kostet' },
       ],
     },
+    {
+      id: 'q5',
+      type: 'single',
+      title: 'Welcher Bereich passt am besten zu der Person, die du beschenken willst?',
+      subtitle: 'Oder zu dir selbst, wenn du dich beschenken willst.',
+      options: [
+        { value: 'men_care', label: 'Pflege für Männer' },
+        { value: 'bathroom_trio', label: 'Tägliche Pflege im Bad' },
+        { value: 'hair_care', label: 'Schöne, gepflegte Haare' },
+        { value: 'face_holiday', label: 'Gesichtspflege und Verwöhnen' },
+      ],
+    },
   ];
+
+  // ============================================================
+  // Die 4 Sets. Welches jemand am Ende sieht, entscheidet Frage 5.
+  // ============================================================
+  const SETS = {
+    men_care: {
+      name: 'Men Care',
+      price: '49,90 €',
+      image: 'img/geschenke/frank-set-1-men-care.webp',
+      items: ['Aloe Liquid Soap', 'Aloe Ever-Shield Deo', "Gentleman's Pride"],
+    },
+    bathroom_trio: {
+      name: 'Bathroom Trio',
+      price: '64,90 €',
+      image: 'img/geschenke/frank-set-2-bathroom-trio.webp',
+      items: ['Aloe Body Wash', 'Forever Bright Zahngel', 'Aloe Body Lotion'],
+    },
+    hair_care: {
+      name: 'Hair Care',
+      price: '89,90 €',
+      image: 'img/geschenke/frank-set-3-hair-care.webp',
+      items: ['Aloe-Jojoba Shampoo', 'Aloe-Jojoba Conditioner', 'Nourishing Hair Oil'],
+    },
+    face_holiday: {
+      name: 'Face Holiday',
+      price: '109,90 €',
+      image: 'img/geschenke/frank-set-4-face-holiday.webp',
+      items: ['Aloe Propolis Creme', 'Protecting Day Lotion LSF 20', '3 Aloe Bio-Cellulose Masken'],
+    },
+  };
+
+  function chosenSetKey(){
+    const a = state.answers['q5'];
+    return a && SETS[a.value] ? a.value : 'bathroom_trio';
+  }
+
+  function setCardHtml(set){
+    return '<img src="' + set.image + '" alt="Set ' + set.name + '">' +
+      '<div class="set-body"><div class="set-name">' + set.name + '</div>' +
+      '<div class="set-price">' + set.price + '</div>' +
+      '<ul class="set-items">' + set.items.map(i => '<li>' + i + '</li>').join('') + '</ul></div>';
+  }
 
   const state = {
     current: 0,
@@ -377,8 +447,16 @@
   }
 
   function buildSummary(){
-    const lede = document.getElementById('summaryLede');
-    lede.textContent = 'Danke dir fürs Mitmachen! Ich schau mir deine Antworten gleich an und meld mich mit 1-2 passenden Geschenk-Ideen bei dir.';
+    const key = chosenSetKey();
+    const set = SETS[key];
+    document.getElementById('resultTitle').innerHTML = 'Dein Set: <em>' + set.name + '</em>';
+    document.getElementById('resultCard').innerHTML = setCardHtml(set);
+    document.getElementById('otherSets').innerHTML = Object.keys(SETS)
+      .filter(k => k !== key)
+      .map(k => '<div class="set-card">' + setCardHtml(SETS[k]) + '</div>')
+      .join('');
+    document.getElementById('summaryLede').textContent =
+      'Trag dich kurz ein, dann melde ich mich persönlich bei dir und wir schauen gemeinsam, ob das ' + set.name + ' Set passt oder ob ein anderes besser ist.';
   }
 
   function isValidEmail(v){
@@ -414,6 +492,8 @@
       budget: state.answers['q2'] ? state.answers['q2'].label : '',
       selbst_beschenkt: state.answers['q3'] ? state.answers['q3'].label : '',
       wichtigkeit: state.answers['q4'] ? state.answers['q4'].label : '',
+      bereich: state.answers['q5'] ? state.answers['q5'].label : '',
+      empfohlenes_set: SETS[chosenSetKey()].name + ' (' + SETS[chosenSetKey()].price + ')',
     };
 
     const btn = document.getElementById('submitBtn');

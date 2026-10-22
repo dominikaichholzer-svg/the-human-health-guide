@@ -42,6 +42,8 @@ exports.handler = async function (event) {
     budget,
     selbst_beschenkt,
     wichtigkeit,
+    bereich,
+    empfohlenes_set,
   } = payload;
 
   if (!email || !email.includes('@')) {
@@ -98,6 +100,8 @@ exports.handler = async function (event) {
       ['Budget pro Geschenk', budget || '–'],
       ['Selbst zuletzt beschenkt', selbst_beschenkt || '–'],
       ['Wichtig beim Geschenk', wichtigkeit || '–'],
+      ['Bereich', bereich || '–'],
+      ['Empfohlenes Set', empfohlenes_set || '–'],
     ];
     const htmlRows = rows
       .map(([label, value]) => `<tr><td style="padding:6px 12px 6px 0;color:#666;white-space:nowrap;">${label}</td><td style="padding:6px 0;"><b>${value}</b></td></tr>`)
