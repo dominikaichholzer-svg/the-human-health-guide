@@ -1,10 +1,11 @@
 {
   "name": "mein-quiz",
   "private": true,
-  "description": "Netlify Functions für den Quiz-Funnel, das Leader-Dashboard und den Telegram-Agenten JARVIS. Echte Abhängigkeiten: web-push (Push-Benachrichtigungen) und @anthropic-ai/sdk und unpdf (JARVIS), alles andere im Projekt bleibt ohne npm-Pakete.",
+  "description": "Netlify Functions für den Quiz-Funnel, das Leader-Dashboard und den Telegram-Agenten JARVIS. Echte Abhängigkeiten: web-push (Push-Benachrichtigungen) und @anthropic-ai/sdk, unpdf und pdf-lib (JARVIS), alles andere im Projekt bleibt ohne npm-Pakete.",
   "dependencies": {
     "web-push": "^3.6.7",
     "@anthropic-ai/sdk": "^1.0.0",
-    "unpdf": "^1.9.1"
+    "unpdf": "^1.9.1",
+    "pdf-lib": "^1.17.1"
   }
 }

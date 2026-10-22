@@ -41,6 +41,20 @@ async function downloadFile(fileId) {
   return Buffer.from(await res.arrayBuffer());
 }
 
+async function sendDocument(chatId, buffer, filename, caption) {
+  const form = new FormData();
+  form.append('chat_id', String(chatId));
+  form.append('document', new Blob([buffer], { type: 'application/pdf' }), filename);
+  if (caption) form.append('caption', caption.slice(0, 1000));
+  const res = await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendDocument`, {
+    method: 'POST',
+    body: form,
+  });
+  const data = await res.json();
+  if (!data.ok) throw new Error(`Telegram sendDocument: ${data.description}`);
+  return data.result;
+}
+
 async function sendTyping(chatId) {
   try {
     await tg('sendChatAction', { chat_id: chatId, action: 'typing' });
@@ -62,4 +76,4 @@ function isAllowedChat(chatId) {
   return String(chatId) === String(process.env.TELEGRAM_CHAT_ID || '');
 }
 
-module.exports = { tg, sendMessage, sendTyping, downloadFile, agentSecret, isAllowedChat };
+module.exports = { tg, sendMessage, sendDocument, sendTyping, downloadFile, agentSecret, isAllowedChat };
