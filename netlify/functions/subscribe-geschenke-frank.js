@@ -11,9 +11,10 @@
 //     "kontakt": "...",       // Handynummer oder Instagram-Name
 //     "email": "...",
 //     "fuer_wen": "...",         // Antwort Frage 1
-//     "budget": "...",           // Antwort Frage 2
-//     "selbst_beschenkt": "...", // Antwort Frage 3
-//     "wichtigkeit": "..."       // Antwort Frage 4
+//     "bereich": "...",          // Antwort Frage 2, entscheidet das Set
+//     "budget": "...",           // Antwort Frage 3
+//     "anzahl": "...",           // Antwort Frage 4
+//     "empfohlenes_set": "..."   // z. B. "Men Care (49,90 €)"
 //   }
 //
 // Macht zwei Dinge, unabhängig voneinander:
@@ -40,9 +41,8 @@ exports.handler = async function (event) {
     email,
     fuer_wen,
     budget,
-    selbst_beschenkt,
-    wichtigkeit,
     bereich,
+    anzahl,
     empfohlenes_set,
   } = payload;
 
@@ -65,8 +65,6 @@ exports.handler = async function (event) {
           kontakt: kontakt || '',
           fuer_wen: fuer_wen || '',
           budget: budget || '',
-          selbst_beschenkt: selbst_beschenkt || '',
-          wichtigkeit: wichtigkeit || '',
         },
         groups: ML_GROUP_ID ? [ML_GROUP_ID] : [],
         status: 'active',
@@ -97,10 +95,9 @@ exports.handler = async function (event) {
       ['Kontakt (Handy/Instagram)', kontakt || '–'],
       ['E-Mail', email],
       ['Für wen gesucht', fuer_wen || '–'],
-      ['Budget pro Geschenk', budget || '–'],
-      ['Selbst zuletzt beschenkt', selbst_beschenkt || '–'],
-      ['Wichtig beim Geschenk', wichtigkeit || '–'],
       ['Bereich', bereich || '–'],
+      ['Budget', budget || '–'],
+      ['Anzahl Geschenke', anzahl || '–'],
       ['Empfohlenes Set', empfohlenes_set || '–'],
     ];
     const htmlRows = rows

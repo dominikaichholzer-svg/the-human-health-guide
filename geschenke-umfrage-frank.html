@@ -54,6 +54,7 @@
   .set-name{ font-family: var(--serif); font-size: 24px; margin: 0 0 4px; }
   .set-price{ font-family: var(--mono); font-size: 13px; letter-spacing:0.06em; color: var(--gold); margin-bottom: 12px; }
   .set-items{ margin:0; padding-left: 18px; color: var(--ink); font-size: 14.5px; line-height:1.6; }
+  .budget-hint{ background: var(--gold-dim); border-radius: 12px; padding: 12px 14px; font-size: 14.5px; line-height: 1.5; color: var(--ink); margin: -10px 0 22px; }
   .other-sets{ margin: 0 0 26px; }
   .other-sets summary{ cursor:pointer; font-weight:600; color: var(--gold); font-size: 14.5px; padding: 4px 0; }
   .other-grid{ display:grid; grid-template-columns: 1fr; gap: 12px; margin-top: 14px; }
@@ -118,7 +119,7 @@
 
   <div class="progress-wrap" id="progressWrap" style="display:none;">
     <div class="progress-meta">
-      <span id="progressLabel">Frage 1 von 5</span>
+      <span id="progressLabel">Frage 1 von 4</span>
     </div>
     <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
   </div>
@@ -128,7 +129,7 @@
     <div class="eyebrow">KURZ GEFRAGT</div>
     <h1 class="hero">Schön, dass du <em>mitmachst</em>!</h1>
     <p class="lede tight">Ich habe 4 verschiedene Sets für dich zusammengestellt. Vielleicht ist ja genau das Richtige für dich selbst oder deine Liebsten dabei. Ob für Mama, Papa, deinen Partner/deine Partnerin, Freunde oder einfach für dich selbst. 🎁❤️</p>
-    <p class="lede tight">Beantworte einfach die 5 kurzen Fragen und finde heraus, welches Set am besten passt. Anschließend melde ich mich persönlich bei dir. 😊</p>
+    <p class="lede tight">Beantworte einfach die 4 kurzen Fragen und finde heraus, welches Set am besten passt. Anschließend melde ich mich persönlich bei dir. 😊</p>
     <p class="lede tight">🎁 Als kleines Dankeschön wartet auf jeden, der etwas bestellt, noch eine kleine Überraschung von mir!</p>
     <p class="lede">Viel Spaß beim Durchklicken! ✨🌿</p>
     <button class="btn" onclick="startQuiz()">Los geht's →</button>
@@ -166,6 +167,7 @@
     <div class="eyebrow">DEIN PASSENDES SET</div>
     <h1 class="hero" id="resultTitle">Danke dir <em>fürs Mitmachen</em>.</h1>
     <div class="set-card" id="resultCard"></div>
+    <p class="budget-hint" id="budgetHint" style="display:none;"></p>
     <details class="other-sets">
       <summary>Die anderen 3 Sets ansehen</summary>
       <div class="other-grid" id="otherSets"></div>
@@ -215,52 +217,20 @@
   // ============================================================
   const questions = [
     {
-      id: 'q1',
+      id: 'fuer_wen',
       type: 'single',
       title: 'Für wen suchst du dieses Jahr vor allem Weihnachtsgeschenke?',
       options: [
         { value: 'partner', label: 'Für meine:n Partner:in' },
         { value: 'familie', label: 'Für die Familie' },
-        { value: 'freundinnen', label: 'Für beste Freundin(nen)' },
+        { value: 'freunde', label: 'Für Freunde' },
         { value: 'kollegen', label: 'Für Kolleg:innen' },
+        { value: 'selbst', label: 'Für mich selbst' },
         { value: 'mehrere', label: 'Für mehrere davon' },
       ],
     },
     {
-      id: 'q2',
-      type: 'single',
-      title: 'Wie viel gibst du im Schnitt pro Geschenk aus?',
-      options: [
-        { value: 'unter20', label: 'Unter 20€' },
-        { value: '20bis50', label: '20-50€' },
-        { value: '50bis100', label: '50-100€' },
-        { value: 'ueber100', label: 'Über 100€' },
-      ],
-    },
-    {
-      id: 'q3',
-      type: 'single',
-      title: 'Wann hast du dich das letzte Mal selbst beschenkt?',
-      options: [
-        { value: 'kuerzlich', label: 'Erst vor Kurzem' },
-        { value: 'laenger_her', label: 'Ist schon länger her' },
-        { value: 'keine_ahnung', label: 'Kann ich gar nicht mehr sagen' },
-        { value: 'nie', label: 'Mache ich eigentlich nie' },
-      ],
-    },
-    {
-      id: 'q4',
-      type: 'single',
-      title: 'Was ist dir beim perfekten Geschenk am wichtigsten?',
-      options: [
-        { value: 'ueberraschung', label: 'Dass es wirklich überrascht' },
-        { value: 'gut_tun', label: 'Dass es dem/der Beschenkten gut tut' },
-        { value: 'stressfrei', label: 'Dass es stressfrei zu besorgen ist' },
-        { value: 'preis', label: 'Dass es nicht viel kostet' },
-      ],
-    },
-    {
-      id: 'q5',
+      id: 'bereich',
       type: 'single',
       title: 'Welcher Bereich passt am besten zu der Person, die du beschenken willst?',
       subtitle: 'Oder zu dir selbst, wenn du dich beschenken willst.',
@@ -271,41 +241,78 @@
         { value: 'face_holiday', label: 'Gesichtspflege und Verwöhnen' },
       ],
     },
+    {
+      id: 'budget',
+      type: 'single',
+      title: 'Wie viel möchtest du ungefähr ausgeben?',
+      options: [
+        { value: 'bis50', label: 'Bis 50 €', max: 50 },
+        { value: '50bis90', label: '50 bis 90 €', max: 90 },
+        { value: 'ueber90', label: 'Über 90 €', max: Infinity },
+        { value: 'egal', label: 'Kommt aufs Geschenk an', max: Infinity },
+      ],
+    },
+    {
+      id: 'anzahl',
+      type: 'single',
+      title: 'Wie viele Geschenke suchst du noch?',
+      options: [
+        { value: '1', label: '1' },
+        { value: '2bis3', label: '2 bis 3' },
+        { value: '4plus', label: '4 oder mehr' },
+      ],
+    },
   ];
 
   // ============================================================
-  // Die 4 Sets. Welches jemand am Ende sieht, entscheidet Frage 5.
+  // Die 4 Sets. Welches jemand am Ende sieht, entscheidet die Frage
+  // nach dem Bereich. Liegt es über dem Budget, kommt ein Hinweis auf
+  // das teuerste Set, das noch ins Budget passt.
   // ============================================================
   const SETS = {
     men_care: {
       name: 'Men Care',
       price: '49,90 €',
+      priceValue: 49.9,
       image: 'img/geschenke/frank-set-1-men-care.webp',
       items: ['Aloe Liquid Soap', 'Aloe Ever-Shield Deo', "Gentleman's Pride"],
     },
     bathroom_trio: {
       name: 'Bathroom Trio',
       price: '64,90 €',
+      priceValue: 64.9,
       image: 'img/geschenke/frank-set-2-bathroom-trio.webp',
       items: ['Aloe Body Wash', 'Forever Bright Zahngel', 'Aloe Body Lotion'],
     },
     hair_care: {
       name: 'Hair Care',
       price: '89,90 €',
+      priceValue: 89.9,
       image: 'img/geschenke/frank-set-3-hair-care.webp',
       items: ['Aloe-Jojoba Shampoo', 'Aloe-Jojoba Conditioner', 'Nourishing Hair Oil'],
     },
     face_holiday: {
       name: 'Face Holiday',
       price: '109,90 €',
+      priceValue: 109.9,
       image: 'img/geschenke/frank-set-4-face-holiday.webp',
       items: ['Aloe Propolis Creme', 'Protecting Day Lotion LSF 20', '3 Aloe Bio-Cellulose Masken'],
     },
   };
 
   function chosenSetKey(){
-    const a = state.answers['q5'];
+    const a = state.answers['bereich'];
     return a && SETS[a.value] ? a.value : 'bathroom_trio';
+  }
+
+  function budgetAlternative(key){
+    const b = state.answers['budget'];
+    const opt = b && questions.find(q => q.id === 'budget').options.find(o => o.value === b.value);
+    if(!opt || SETS[key].priceValue <= opt.max) return null;
+    const fitting = Object.keys(SETS)
+      .filter(k => k !== key && SETS[k].priceValue <= opt.max)
+      .sort((x, y) => SETS[y].priceValue - SETS[x].priceValue);
+    return fitting.length ? fitting[0] : null;
   }
 
   function setCardHtml(set){
@@ -455,8 +462,16 @@
       .filter(k => k !== key)
       .map(k => '<div class="set-card">' + setCardHtml(SETS[k]) + '</div>')
       .join('');
+    const alt = budgetAlternative(key);
+    const hint = document.getElementById('budgetHint');
+    if(alt){
+      hint.innerHTML = 'Etwas günstiger und in deinem Budget: das <b>' + SETS[alt].name + '</b> Set für ' + SETS[alt].price + '. Du findest es unten bei den anderen Sets.';
+      hint.style.display = 'block';
+    } else {
+      hint.style.display = 'none';
+    }
     document.getElementById('summaryLede').textContent =
-      'Trag dich kurz ein, dann melde ich mich persönlich bei dir und wir schauen gemeinsam, ob das ' + set.name + ' Set passt oder ob ein anderes besser ist.';
+      'Trag dich kurz ein, dann melde ich mich persönlich bei dir und wir schauen gemeinsam, welches Set am besten passt.';
   }
 
   function isValidEmail(v){
@@ -488,11 +503,10 @@
       name: name,
       kontakt: contact,
       email: email,
-      fuer_wen: state.answers['q1'] ? state.answers['q1'].label : '',
-      budget: state.answers['q2'] ? state.answers['q2'].label : '',
-      selbst_beschenkt: state.answers['q3'] ? state.answers['q3'].label : '',
-      wichtigkeit: state.answers['q4'] ? state.answers['q4'].label : '',
-      bereich: state.answers['q5'] ? state.answers['q5'].label : '',
+      fuer_wen: state.answers['fuer_wen'] ? state.answers['fuer_wen'].label : '',
+      bereich: state.answers['bereich'] ? state.answers['bereich'].label : '',
+      budget: state.answers['budget'] ? state.answers['budget'].label : '',
+      anzahl: state.answers['anzahl'] ? state.answers['anzahl'].label : '',
       empfohlenes_set: SETS[chosenSetKey()].name + ' (' + SETS[chosenSetKey()].price + ')',
     };
 
