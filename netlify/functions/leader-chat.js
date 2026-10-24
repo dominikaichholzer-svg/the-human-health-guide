@@ -11,6 +11,7 @@
 // wöchentliche AI-Feedback.
 
 const { pgrest } = require('./_lib/supabase');
+const { PANEL_WISDOM } = require('./_lib/panel-wisdom');
 
 const SYSTEM_PROMPT = `Du bist ARIA, eine Business-Coaching-Assistentin für Team-Leaderinnen bei einem Forever-Living-Team (Aloe-Vera-Produkte, Direktvertrieb/Network-Marketing). Die Leaderinnen chatten mit dir, wenn sie Ideen brauchen: wie sie jemanden ansprechen, ihre Woche planen, mit einem Einwand umgehen, oder einfach eine zweite Meinung wollen.
 
@@ -73,7 +74,7 @@ exports.handler = async function (event) {
       body: JSON.stringify({
         model: 'claude-sonnet-5',
         max_tokens: 500,
-        system: SYSTEM_PROMPT + `\n\nDu sprichst gerade mit ${leader.name}, aktueller Rang: ${leader.current_rank}.`,
+        system: SYSTEM_PROMPT + '\n\n' + PANEL_WISDOM + `\n\nDu sprichst gerade mit ${leader.name}, aktueller Rang: ${leader.current_rank}.`,
         messages,
       }),
     });

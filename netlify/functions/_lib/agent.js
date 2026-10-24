@@ -14,6 +14,7 @@ const Anthropic = AnthropicModule.default || AnthropicModule;
 const { pgrest } = require('./supabase');
 const { computeProgress, viennaTodayStr } = require('./ranks');
 const books = require('./books');
+const { PANEL_WISDOM } = require('./panel-wisdom');
 const { buildPdf } = require('./pdf');
 const { sendDocument } = require('./telegram');
 
@@ -424,7 +425,7 @@ async function runAgent(history, options = {}) {
   const client = makeClient();
   const today = viennaTodayStr();
   const system = [
-    { type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } },
+    { type: 'text', text: SYSTEM_PROMPT + '\n\n' + PANEL_WISDOM, cache_control: { type: 'ephemeral' } },
     { type: 'text', text: `Heute ist der ${today}.\n\n${await loadMemoryText()}\n\n${await loadLibraryText()}` },
   ];
   const messages = history.map((m) => ({ role: m.role, content: m.content }));

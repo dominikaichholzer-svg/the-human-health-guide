@@ -6,6 +6,7 @@
 // jemand einträgt, innerhalb eines Tages ein neues Insight für Dominik.
 
 const { pgrest } = require('./_lib/supabase');
+const { PANEL_WISDOM } = require('./_lib/panel-wisdom');
 
 const MONTH_NAMES_DE = [
   'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
@@ -31,6 +32,8 @@ ${rows}
 Was diese Woche am meisten Energie gekostet hat: ${entry.reflexion_1 || 'keine Angabe'}
 Was diese Woche gut funktioniert hat: ${entry.reflexion_2 || 'keine Angabe'}
 Wo sie sich Unterstützung wünscht: ${entry.reflexion_3 || 'keine Angabe'}
+
+${PANEL_WISDOM}
 
 Schreib für Dominik ein kurzes, konkretes Insight auf Deutsch (3-4 Sätze, keine Aufzählung, kein Smalltalk-Einstieg). Sag ihr, was sie aus diesen Antworten über den aktuellen Zustand von ${leader.name} lesen kann, und was sie diese Woche konkret tun oder ansprechen könnte, um sie zu unterstützen. Keine generischen Motivationsfloskeln, nur was wirklich aus diesen Angaben hervorgeht. Wenn die Zahlen oder Antworten nichts Auffälliges zeigen, sag das ehrlich statt etwas zu erfinden.`;
 }

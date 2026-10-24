@@ -212,6 +212,8 @@
         <li>Heute nur 1 ehrliches Kompliment an eine Person, mehr nicht</li>
         <li>Ruf jemanden an, der dir schon mal Ja gesagt hat</li>
         <li>Schau dir dein letztes gutes Erlebnis nochmal an, und starte von da aus neu</li>
+        <li>Schlechter Tag? Augen zu und durch, einfach die To-dos abarbeiten, egal wie du dich fühlst (Sandra Wappel)</li>
+        <li>Keine Antwort bekommen? Das hat nichts mit dir zu tun. Schick eine kurze Sprachnachricht: "Ist meine Nachricht untergegangen?" (Eva Fridrich)</li>
       </ul>
     </section>
 
@@ -224,6 +226,19 @@
     <section class="card" id="cycleCard">
       <h2 class="card-title" id="cycleTitle"></h2>
       <p class="progress-sub" id="cycleText" style="font-size:13.5px;"></p>
+      <p class="progress-sub" id="cycleTip" style="font-size:13.5px; margin-top:10px;"></p>
+    </section>
+
+    <section class="card" id="quotaCard">
+      <h2 class="card-title">Deine Erfolgsquote</h2>
+      <p class="progress-sub" style="font-size:13.5px;">"Wenn wir die Quote kennen, wissen wir, was es braucht, und können entscheiden, ob wir bereit sind, den Preis für den Erfolg zu zahlen." (Rolf Kipp)</p>
+      <div id="quotaContent" style="font-size:14px; line-height:1.7; margin-top:8px;"></div>
+    </section>
+
+    <section class="card" id="nuggetCard">
+      <h2 class="card-title">Golden Nugget des Tages</h2>
+      <p class="progress-sub" id="nuggetText" style="font-size:14px; line-height:1.6;"></p>
+      <p class="progress-sub" id="nuggetAuthor" style="font-size:12px; margin-top:6px;"></p>
     </section>
 
     <section class="card" id="strategyCard">
@@ -559,10 +574,71 @@
     const monthsSince = (now.getFullYear() - CYCLE_ANCHOR_YEAR) * 12 + (now.getMonth() + 1 - CYCLE_ANCHOR_MONTH);
     return ((monthsSince % 3) + 3) % 3 + 1;
   }
+  // Tipps vom Leader-Panel (Okt 2026), passend zum Zyklus-Monat
+  const CYCLE_PANEL_TIPS = {
+    1: 'Tipp vom Panel: Neue Follower persönlich anschreiben, am besten per Sprachnachricht, wenn deine Energie stimmt. Copy-Paste funktioniert in Österreich nicht. Eine gute Frage: "Schaust du nur vorbei oder interessierst du dich für nebenberufliche Projekte?" Und zeig in deinen Storys, wie du die Produkte selbst verwendest.',
+    2: 'Tipp vom Panel: Wer Interesse zeigt, bekommt ein 10-Minuten-Erstgespräch am Telefon oder persönlich, danach eine Geschäftspräsentation offline. Keine Antwort ist nicht persönlich gemeint: kurz per Sprachnachricht nachfragen.',
+    3: 'Tipp vom Panel: Events sind der Ort, an dem Entscheidungen fallen, und ein Event kann ein ganzes Leben verändern. Fahrt als Team gemeinsam hin, das hat mehr Power. Auch wer noch nicht qualifiziert ist, sollte die Energie dort spüren.',
+  };
   function renderCycle(){
-    const c = CYCLE_CONTENT[currentCycleMonth()];
+    const month = currentCycleMonth();
+    const c = CYCLE_CONTENT[month];
     document.getElementById('cycleTitle').textContent = c.title;
     document.getElementById('cycleText').textContent = c.text;
+    document.getElementById('cycleTip').textContent = CYCLE_PANEL_TIPS[month];
+  }
+
+  // ============ Golden Nugget des Tages (Leader-Panel Okt 2026) ============
+  const NUGGETS = [
+    ['Als Vorbild vorausgehen, dich selbst qualifizieren und eine Entscheidung treffen.', 'Sandra Wappel'],
+    ['Wenn jemand neu startet, frag: Was ist dein Ziel, und wie schnell willst du es erreichen? Und begleite sie, bis sie selbstständig sind.', 'Sandra Wappel'],
+    ['Du arbeitest nicht mit jedem. Wer kein 10-Minuten-Gespräch will, ist noch nicht bereit.', 'Sandra Wappel'],
+    ['Geduldig sein, dem Prozess vertrauen und dranbleiben.', 'Eva Fridrich'],
+    ['Nutze die kleinen Incentives schon von Anfang an.', 'Eva Fridrich'],
+    ['Fahr auch als Nicht-Qualifikantin zu den Events. Wenn die das schaffen, schaffe ich das erst recht.', 'Eva Fridrich'],
+    ['Starte den Tag mit 5 bis 10 Minuten Mindset: Yoga, ein Buch oder Meditation.', 'Jasmin'],
+    ['Schau in deinen Kalender, plane deine Forever-Zeit fest ein und schreib jeden Kundenkontakt auf.', 'Jasmin'],
+    ['Sei du selbst und sei präsent. Und stell dir genau vor, wie du die Incentives erreichst.', 'Jasmin'],
+    ['Schreib deine Ziele auf und mach ein Vision Board. "Dann klappt es halt nächstes Jahr" bringt dich nicht weiter.', 'Heike Wildgruber'],
+    ['Ich war ein sehr selbstzweifelnder Mensch. Was man hier für eine Entwicklung machen kann, ist unbeschreiblich.', 'Heike Wildgruber'],
+    ['Die Events sind so wichtig, dort treffen wir Entscheidungen. Ein Event kann dein ganzes Leben verändern.', 'Sarah'],
+    ['Die meisten denken über das Leben nach dem Tod nach und vergessen das Leben vor dem Tod.', 'Rolf Kipp'],
+    ['Mit welcher Absicht würdest du dieses Geschäft angehen, wenn du eine 100-Prozent-Garantie hättest, dass du erfolgreich wirst?', 'Rolf Kipp'],
+    ['Fleißig sein ist der Schlüssel.', 'Rolf Kipp'],
+    ['Kenne deine Erfolgsquote: Wie viele Menschen musst du ansprechen, bis eine neue Kundin oder eine neue Teampartnerin dabei ist?', 'Rolf Kipp'],
+    ['Ob der Vogel in deiner Hand lebt oder stirbt, liegt in deiner Hand.', 'Rolf Kipp'],
+  ];
+  function renderNugget(){
+    const start = new Date(new Date().getFullYear(), 0, 0);
+    const dayOfYear = Math.floor((new Date() - start) / 86400000);
+    const [text, author] = NUGGETS[dayOfYear % NUGGETS.length];
+    document.getElementById('nuggetText').textContent = text;
+    document.getElementById('nuggetAuthor').textContent = author;
+  }
+
+  // ============ Erfolgsquote (nach Rolf Kipp) ============
+  // Aus den eigenen Wochen-Einträgen und der Neue-TP-Checkliste: wie viele
+  // Kontakte und Präsentationen braucht es für eine neue Teampartnerin?
+  function renderQuota(weeks, tps){
+    const sum = (key) => (weeks || []).reduce((acc, w) => acc + (Number(w[key]) || 0), 0);
+    const contacts = sum('kontakte_gesamt');
+    const presentations = sum('geschaeftspraesentationen_versendet');
+    const newTps = (tps || []).length;
+    const el = document.getElementById('quotaContent');
+    const weeksCount = (weeks || []).length;
+    if(!weeksCount || !contacts){
+      el.innerHTML = 'Trag ein paar Wochen deine Kontakte und Präsentationen ein, und leg neue Teampartnerinnen in der Checkliste an. Dann rechnen wir hier deine persönliche Quote aus.';
+      return;
+    }
+    const lines = [`In deinen letzten ${weeksCount} eingetragenen Wochen: <b>${contacts}</b> Kontakte, <b>${presentations}</b> Geschäftspräsentationen, <b>${newTps}</b> neue Teampartnerinnen in deiner Checkliste.`];
+    if(presentations) lines.push(`Etwa jeder <b>${Math.max(1, Math.round(contacts / presentations))}.</b> Kontakt führt bei dir zu einer Präsentation.`);
+    if(newTps){
+      lines.push(`Für <b>1 neue Teampartnerin</b> brauchst du im Moment ungefähr <b>${Math.round(contacts / newTps)} Kontakte</b>${presentations ? ` und <b>${Math.max(1, Math.round(presentations / newTps))} Präsentationen</b>` : ''}.`);
+      lines.push(`Dein Monatsziel ist mindestens 1 neue Teampartnerin. Das heißt pro Woche ungefähr <b>${Math.ceil(contacts / newTps / 4)} Kontakte</b>.`);
+    } else {
+      lines.push('Noch keine neue Teampartnerin in der Checkliste. Sobald die erste drin ist, siehst du hier, wie viele Kontakte du pro neuer Teampartnerin brauchst.');
+    }
+    el.innerHTML = lines.map(l => `<div>${l}</div>`).join('');
   }
 
   // ============ Badges ============
@@ -809,6 +885,8 @@
       renderEagleStage(dashboardData.currentRank);
       renderProgress(dashboardData.progress);
       renderCycle();
+      renderNugget();
+      renderQuota(dashboardData.recentWeeks, dashboardData.newTps);
       renderStrategy(dashboardData.strategy);
       renderIntake(dashboardData.intakeDone);
       renderWeeks(dashboardData.recentWeeks);
