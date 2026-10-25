@@ -23,11 +23,21 @@ function buildPrompt(leader, entry) {
     ['Kontakte gesamt', entry.kontakte_gesamt],
   ].map(([label, val]) => `${label}: ${val != null ? val : 'keine Angabe'}`).join('\n');
 
-  return `Du hilfst einer Network-Marketing-Teamleiterin (Dominik) dabei, eine ihrer 5 Leaderinnen besser zu coachen. Die Leaderin heißt ${leader.name}, aktueller Rang: ${leader.current_rank}. Ziel ist Manager-Rang bis 30.04.2027, danach die Eagle-Manager-Qualifikation bis 30.04.2028.
+  const yesNo = (v) => (v === true ? 'ja' : v === false ? 'nein' : 'keine Angabe');
+  const health = [
+    `Supplemente genommen: ${yesNo(entry.gesundheit_supplemente)} (Details bespricht Dominik persönlich, nicht ins Insight schreiben, welche)`,
+    `Mindestens 2,5 Stunden Sport: ${yesNo(entry.gesundheit_sport)}`,
+    `Gesund ernährt: ${yesNo(entry.gesundheit_ernaehrung)}`,
+  ].join('\n');
+
+  return `Du hilfst Dominik, der ein Network-Marketing-Team führt, dabei, eine der Leaderinnen aus dem Team besser zu coachen. Die Leaderin heißt ${leader.name}, aktueller Rang: ${leader.current_rank}. Ziel ist Manager-Rang bis 30.04.2027, danach die Eagle-Manager-Qualifikation bis 30.04.2028.
 
 Das sind ${leader.name}s Zahlen und Antworten aus ihrem letzten Wochen-Eintrag:
 
 ${rows}
+
+Gesundheit diese Woche (die Leaderinnen sollen selbst gesund leben, das ist Teil ihrer Glaubwürdigkeit):
+${health}
 
 Was diese Woche am meisten Energie gekostet hat: ${entry.reflexion_1 || 'keine Angabe'}
 Was diese Woche gut funktioniert hat: ${entry.reflexion_2 || 'keine Angabe'}
@@ -35,7 +45,7 @@ Wo sie sich Unterstützung wünscht: ${entry.reflexion_3 || 'keine Angabe'}
 
 ${PANEL_WISDOM}
 
-Schreib für Dominik ein kurzes, konkretes Insight auf Deutsch (3-4 Sätze, keine Aufzählung, kein Smalltalk-Einstieg). Sag ihr, was sie aus diesen Antworten über den aktuellen Zustand von ${leader.name} lesen kann, und was sie diese Woche konkret tun oder ansprechen könnte, um sie zu unterstützen. Keine generischen Motivationsfloskeln, nur was wirklich aus diesen Angaben hervorgeht. Wenn die Zahlen oder Antworten nichts Auffälliges zeigen, sag das ehrlich statt etwas zu erfinden.`;
+Schreib für Dominik ein kurzes, konkretes Insight auf Deutsch (3-4 Sätze, keine Aufzählung, kein Smalltalk-Einstieg). Sag Dominik, was aus diesen Antworten über den aktuellen Zustand von ${leader.name} hervorgeht, und was Dominik diese Woche konkret tun oder ansprechen könnte, um ${leader.name} zu unterstützen. Gesundheit nur erwähnen, wenn dort etwas auffällt. Keine generischen Motivationsfloskeln, nur was wirklich aus diesen Angaben hervorgeht. Wenn die Zahlen oder Antworten nichts Auffälliges zeigen, sag das ehrlich statt etwas zu erfinden.`;
 }
 
 async function callClaude(prompt) {

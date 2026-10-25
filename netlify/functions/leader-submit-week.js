@@ -10,7 +10,8 @@
 //   "naechstes_event_mitgebracht": 1,
 //   "offline_events_eingeladen": 4,
 //   "kontakte_gesamt": 20,
-//   "reflexion_1": "...", "reflexion_2": "...", "reflexion_3": "..."
+//   "reflexion_1": "...", "reflexion_2": "...", "reflexion_3": "...",
+//   "gesundheit_supplemente": true, "gesundheit_sport": false, "gesundheit_ernaehrung": true
 // }
 //
 // Löst das Token server-seitig zur leader_id auf (nie eine vom Client
@@ -83,14 +84,29 @@ exports.handler = async function (event) {
       reflexion_1: payload.reflexion_1 || null,
       reflexion_2: payload.reflexion_2 || null,
       reflexion_3: payload.reflexion_3 || null,
+      gesundheit_supplemente: payload.gesundheit_supplemente === true,
+      gesundheit_sport: payload.gesundheit_sport === true,
+      gesundheit_ernaehrung: payload.gesundheit_ernaehrung === true,
     };
 
-    await pgrest('weekly_entries', {
-      method: 'POST',
-      query: 'on_conflict=leader_id,week_start',
-      prefer: 'resolution=merge-duplicates,return=representation',
-      body: [row],
-    });
+    const save = (body) =>
+      pgrest('weekly_entries', {
+        method: 'POST',
+        query: 'on_conflict=leader_id,week_start',
+        prefer: 'resolution=merge-duplicates,return=representation',
+        body: [body],
+      });
+
+    try {
+      await save(row);
+    } catch (err) {
+      // Solange die Gesundheits-Spalten in Supabase noch nicht angelegt sind
+      // (PostgREST-Fehler PGRST204), ohne sie speichern statt den ganzen
+      // Eintrag zu verlieren
+      if (!(err.data && err.data.code === 'PGRST204')) throw err;
+      const { gesundheit_supplemente, gesundheit_sport, gesundheit_ernaehrung, ...rest } = row;
+      await save(rest);
+    }
 
     return { statusCode: 200, body: JSON.stringify({ success: true }) };
   } catch (err) {
