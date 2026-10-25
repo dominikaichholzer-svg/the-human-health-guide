@@ -131,9 +131,9 @@
   <section class="screen active" id="screen-intro">
     <div class="eyebrow">KURZ GEFRAGT</div>
     <h1 class="hero">Schön, dass du <em>mitmachst</em>!</h1>
-    <p class="lede tight">Ich habe 9 verschiedene Sets in 3 Größen für dich zusammengestellt. Vielleicht ist ja genau das Richtige für dich selbst oder deine Liebsten dabei. Ob für Mama, Papa, deinen Partner/deine Partnerin, Freunde oder einfach für dich selbst. 🎁❤️</p>
-    <p class="lede tight">Beantworte einfach die 4 kurzen Fragen und finde heraus, welches Set am besten passt. Anschließend melde ich mich persönlich bei dir. 😊</p>
-    <p class="lede tight">🎁 Als kleines Dankeschön wartet auf jeden, der etwas bestellt, noch eine kleine Überraschung von mir!</p>
+    <p class="lede tight">Wir haben 9 verschiedene Sets in 3 Größen für dich zusammengestellt. Vielleicht ist ja genau das Richtige für dich selbst oder deine Liebsten dabei. Ob für Mama, Papa, deinen Partner/deine Partnerin, Freunde oder einfach für dich selbst. 🎁❤️</p>
+    <p class="lede tight">Beantworte einfach die 4 kurzen Fragen und finde heraus, welches Set am besten passt. Anschließend melden wir uns persönlich bei dir. 😊</p>
+    <p class="lede tight">🎁 Als kleines Dankeschön wartet auf jeden, der etwas bestellt, noch eine kleine Überraschung von uns!</p>
     <p class="lede">Viel Spaß beim Durchklicken! ✨🌿</p>
     <button class="btn" onclick="startQuiz()">Los geht's →</button>
   </section>
@@ -176,7 +176,7 @@
       <summary>Alle 9 Sets im Überblick</summary>
       <img class="overview-img" src="img/geschenke/caroline-uebersicht.webp" alt="Alle 9 Geschenksets von Familie Nagel">
     </details>
-    <p class="lede" id="summaryLede">Trag dich kurz ein, dann melde ich mich persönlich bei dir.</p>
+    <p class="lede" id="summaryLede">Trag dich kurz ein, dann melden wir uns persönlich bei dir.</p>
 
     <div class="field" id="nameField">
       <label for="fname">Name</label>
@@ -197,14 +197,14 @@
     </div>
 
     <button class="btn" id="submitBtn" onclick="submitQuiz()">Absenden</button>
-    <p class="fineprint">Mit dem Absenden melde ich mich meistens innerhalb weniger Stunden persönlich bei dir. Deine Daten werden vertraulich behandelt.</p>
+    <p class="fineprint">Nach dem Absenden melden wir uns meistens innerhalb weniger Stunden persönlich bei dir. Deine Daten werden vertraulich behandelt.</p>
   </section>
 
   <!-- SCREEN 3: Thank you -->
   <section class="screen" id="screen-thanks">
     <div class="eyebrow">GESCHAFFT</div>
-    <h1 class="hero">Danke dir, <em>bin gleich da</em>.</h1>
-    <p class="lede">Ich hab deine Antworten und melde mich meistens innerhalb weniger Stunden persönlich bei dir. 🎁 Und denk dran: Bei einer Bestellung wartet noch eine kleine Überraschung von mir auf dich!</p>
+    <h1 class="hero">Danke dir, <em>wir melden uns</em>.</h1>
+    <p class="lede">Wir haben deine Antworten und melden uns meistens innerhalb weniger Stunden persönlich bei dir. 🎁 Und denk dran: Bei einer Bestellung wartet noch eine kleine Überraschung von uns auf dich!</p>
   </section>
 
   <footer class="legal">
@@ -471,7 +471,7 @@
     document.getElementById('altLabel').textContent = alt.label + ': ' + SETS[alt.key].name + ' für ' + SETS[alt.key].price;
     document.getElementById('altCard').innerHTML = setCardHtml(SETS[alt.key]);
     document.getElementById('summaryLede').textContent =
-      'Trag dich kurz ein, dann melde ich mich persönlich bei dir und wir schauen gemeinsam, welches Set am besten passt.';
+      'Trag dich kurz ein, dann melden wir uns persönlich bei dir und schauen gemeinsam, welches Set am besten passt.';
   }
 
   function isValidEmail(v){
