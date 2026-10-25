@@ -47,6 +47,22 @@
   h1.hero{ font-family: var(--serif); font-weight: 400; font-size: 34px; line-height: 1.14; margin: 0 0 18px; }
   h1.hero em{ font-style: italic; font-weight:500; color: var(--gold); }
   .lede{ color: var(--ink-muted); font-size: 15.5px; line-height:1.6; margin-bottom: 30px; }
+  .lede.tight{ margin-bottom: 14px; }
+  .set-card{ background: var(--bg-raised); border:1px solid var(--hairline); border-radius: var(--radius); overflow:hidden; margin: 0 0 26px; }
+  .set-card img{ width:100%; display:block; aspect-ratio: 3 / 4; object-fit: cover; object-position: 50% 78%; }
+  .overview-img{ width:100%; display:block; border-radius: 12px; border:1px solid var(--hairline); margin-top: 14px; }
+  .alt-label{ font-family: var(--mono); font-size: 11px; letter-spacing:0.14em; text-transform:uppercase; color: var(--gold); margin: 0 0 10px; }
+  .item-desc{ display:block; color: var(--ink-muted); font-size: 13.5px; line-height:1.45; margin: 2px 0 8px; }
+  .set-body{ padding: 18px 18px 20px; }
+  .set-name{ font-family: var(--serif); font-size: 24px; margin: 0 0 4px; }
+  .set-price{ font-family: var(--mono); font-size: 13px; letter-spacing:0.06em; color: var(--gold); margin-bottom: 12px; }
+  .set-items{ margin:0; padding-left: 18px; color: var(--ink); font-size: 14.5px; line-height:1.6; }
+  .budget-hint{ background: var(--gold-dim); border-radius: 12px; padding: 12px 14px; font-size: 14.5px; line-height: 1.5; color: var(--ink); margin: -10px 0 22px; }
+  .other-sets{ margin: 0 0 26px; }
+  .other-sets summary{ cursor:pointer; font-weight:600; color: var(--gold); font-size: 14.5px; padding: 4px 0; }
+  .other-grid{ display:grid; grid-template-columns: 1fr; gap: 12px; margin-top: 14px; }
+  .other-grid .set-card{ margin:0; }
+  .other-grid .set-name{ font-size: 19px; }
   .info-image{ width:100%; border-radius: 12px; border:1px solid var(--hairline); margin: 0 0 22px; display:block; }
 
   .btn{ display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding: 18px 22px; background: var(--gold); color: #F7FBFA; border:none; border-radius: var(--radius); font-family: var(--sans); font-weight: 700; font-size: 16px; cursor:pointer; text-decoration:none; transition: transform 0.15s ease, background 0.15s ease; }
@@ -114,8 +130,11 @@
   <!-- SCREEN 0: Intro -->
   <section class="screen active" id="screen-intro">
     <div class="eyebrow">KURZ GEFRAGT</div>
-    <h1 class="hero">Wie tickst du bei <em>Weihnachtsgeschenken</em>?</h1>
-    <p class="lede">4 kurze Fragen, etwa 20 Sekunden. Ich finde damit raus, was für dich beim Thema Weihnachtsgeschenke gerade am meisten Sinn macht.</p>
+    <h1 class="hero">Schön, dass du <em>mitmachst</em>!</h1>
+    <p class="lede tight">Ich habe 9 verschiedene Sets in 3 Größen für dich zusammengestellt. Vielleicht ist ja genau das Richtige für dich selbst oder deine Liebsten dabei. Ob für Mama, Papa, deinen Partner/deine Partnerin, Freunde oder einfach für dich selbst. 🎁❤️</p>
+    <p class="lede tight">Beantworte einfach die 4 kurzen Fragen und finde heraus, welches Set am besten passt. Anschließend melde ich mich persönlich bei dir. 😊</p>
+    <p class="lede tight">🎁 Als kleines Dankeschön wartet auf jeden, der etwas bestellt, noch eine kleine Überraschung von mir!</p>
+    <p class="lede">Viel Spaß beim Durchklicken! ✨🌿</p>
     <button class="btn" onclick="startQuiz()">Los geht's →</button>
   </section>
 
@@ -148,9 +167,16 @@
 
   <!-- SCREEN 2: Final / Contact -->
   <section class="screen" id="screen-final">
-    <div class="eyebrow">DEINE ANTWORTEN SIND DA</div>
-    <h1 class="hero">Danke dir <em>fürs Mitmachen</em>.</h1>
-    <p class="lede" id="summaryLede">Trag dich kurz ein, dann meld ich mich mit 1-2 passenden Geschenk-Ideen bei dir.</p>
+    <div class="eyebrow">DEIN PASSENDES SET</div>
+    <h1 class="hero" id="resultTitle">Danke dir <em>fürs Mitmachen</em>.</h1>
+    <div class="set-card" id="resultCard"></div>
+    <p class="alt-label" id="altLabel"></p>
+    <div class="set-card" id="altCard"></div>
+    <details class="other-sets">
+      <summary>Alle 9 Sets im Überblick</summary>
+      <img class="overview-img" src="img/geschenke/caroline-uebersicht.webp" alt="Alle 9 Geschenksets von Sarah">
+    </details>
+    <p class="lede" id="summaryLede">Trag dich kurz ein, dann melde ich mich persönlich bei dir.</p>
 
     <div class="field" id="nameField">
       <label for="fname">Name</label>
@@ -171,14 +197,14 @@
     </div>
 
     <button class="btn" id="submitBtn" onclick="submitQuiz()">Absenden</button>
-    <p class="fineprint">Mit dem Absenden meld ich mich meistens innerhalb weniger Stunden persönlich bei dir mit 1-2 Ideen, die zu dir passen. Deine Daten werden vertraulich behandelt.</p>
+    <p class="fineprint">Mit dem Absenden melde ich mich meistens innerhalb weniger Stunden persönlich bei dir. Deine Daten werden vertraulich behandelt.</p>
   </section>
 
   <!-- SCREEN 3: Thank you -->
   <section class="screen" id="screen-thanks">
     <div class="eyebrow">GESCHAFFT</div>
     <h1 class="hero">Danke dir, <em>bin gleich da</em>.</h1>
-    <p class="lede">Ich hab deine Antworten und meld mich meistens innerhalb weniger Stunden persönlich bei dir mit 1-2 Ideen, die zu dir passen.</p>
+    <p class="lede">Ich hab deine Antworten und melde mich meistens innerhalb weniger Stunden persönlich bei dir. 🎁 Und denk dran: Bei einer Bestellung wartet noch eine kleine Überraschung von mir auf dich!</p>
   </section>
 
   <footer class="legal">
@@ -195,51 +221,115 @@
   // ============================================================
   const questions = [
     {
-      id: 'q1',
+      id: 'fuer_wen',
       type: 'single',
       title: 'Für wen suchst du dieses Jahr vor allem Weihnachtsgeschenke?',
       options: [
         { value: 'partner', label: 'Für meine:n Partner:in' },
         { value: 'familie', label: 'Für die Familie' },
-        { value: 'freundinnen', label: 'Für beste Freundin(nen)' },
+        { value: 'freunde', label: 'Für Freunde' },
         { value: 'kollegen', label: 'Für Kolleg:innen' },
+        { value: 'selbst', label: 'Für mich selbst' },
         { value: 'mehrere', label: 'Für mehrere davon' },
       ],
     },
     {
-      id: 'q2',
+      id: 'bereich',
       type: 'single',
-      title: 'Wie viel gibst du im Schnitt pro Geschenk aus?',
+      title: 'Welcher Bereich passt am besten zu der Person, die du beschenken willst?',
+      subtitle: 'Oder zu dir selbst, wenn du dich beschenken willst.',
       options: [
-        { value: 'unter20', label: 'Unter 20€' },
-        { value: '20bis50', label: '20-50€' },
-        { value: '50bis100', label: '50-100€' },
-        { value: 'ueber100', label: 'Über 100€' },
+        { value: 'haar', label: 'Haarpflege' },
+        { value: 'gesicht', label: 'Gesichtspflege' },
+        { value: 'koerper', label: 'Körperpflege' },
       ],
     },
     {
-      id: 'q3',
+      id: 'budget',
       type: 'single',
-      title: 'Wann hast du dich das letzte Mal selbst beschenkt?',
+      title: 'Wie viel möchtest du ungefähr ausgeben?',
       options: [
-        { value: 'kuerzlich', label: 'Erst vor Kurzem' },
-        { value: 'laenger_her', label: 'Ist schon länger her' },
-        { value: 'keine_ahnung', label: 'Kann ich gar nicht mehr sagen' },
-        { value: 'nie', label: 'Mache ich eigentlich nie' },
+        { value: 'bis50', label: 'Bis 50 €', size: 'small' },
+        { value: '50bis70', label: '50 bis 70 €', size: 'medium' },
+        { value: 'ueber70', label: 'Über 70 €', size: 'large' },
+        { value: 'egal', label: 'Kommt aufs Geschenk an', size: 'medium' },
       ],
     },
     {
-      id: 'q4',
+      id: 'anzahl',
       type: 'single',
-      title: 'Was ist dir beim perfekten Geschenk am wichtigsten?',
+      title: 'Wie viele Geschenke suchst du noch?',
       options: [
-        { value: 'ueberraschung', label: 'Dass es wirklich überrascht' },
-        { value: 'gut_tun', label: 'Dass es dem/der Beschenkten gut tut' },
-        { value: 'stressfrei', label: 'Dass es stressfrei zu besorgen ist' },
-        { value: 'preis', label: 'Dass es nicht viel kostet' },
+        { value: '1', label: '1' },
+        { value: '2bis3', label: '2 bis 3' },
+        { value: '4plus', label: '4 oder mehr' },
       ],
     },
   ];
+
+  // ============================================================
+  // Die 9 Sets (gleiche wie bei Caroline): 3 Bereiche in je 3 Größen. Der Bereich kommt aus
+  // Frage 2, die Größe aus dem Budget in Frage 3.
+  // ============================================================
+  const PRODUCTS = {
+    hairoil: ['Nourishing Hair Oil', 'Aloe und sechs silikonfreie Pflanzenöle für Feuchtigkeit, Glanz und weniger Frizz, ohne das Haar zu beschweren.'],
+    lips: ['Forever Aloe Lips', 'Aloe Vera und Jojobaöl gegen rissige, trockene Lippen.'],
+    shampoo: ['Aloe-Jojoba Shampoo', 'Aloe-Vera-Gel und haarkräftigendes Jojobaöl mit fruchtigem Duft.'],
+    conditioner: ['Aloe-Jojoba Conditioner', 'Für geschmeidiges, kämmbares Haar, mit Jojoba-, Argan- und Hagebuttenöl.'],
+    deepcream: ['Deep Moisturizing Cream', 'Feuchtigkeitsspendende Nachtpflege mit Aloe Vera, wertvollen Ölen und Ceramiden.'],
+    skinoil: ['Replenishing Skin Oil', 'Leichtes Fluid für ein strahlend frisches Hautbild, pflegt intensiv.'],
+    exfoliator: ['Smoothing Exfoliator (Peeling)', 'Jojoba-Perlen und Bambuspuder lösen sanft abgestorbene Hautzellen.'],
+    mask: ['Aloe Bio-Cellulose Tuchmaske', 'Eine Gesichtsmaske für alle Hauttypen.'],
+    toothgel: ['Forever Bright Zahngel', 'Schonende Zahncreme mit Aloe Vera und Bienenpropolis.'],
+    soap: ['Aloe Liquid Soap', '40 % Aloe-Vera-Gel mit Arganöl und Jojoba, für den ganzen Körper und die ganze Familie.'],
+    bodywash: ['Aloe Body Wash', 'Aloe Vera, Arganöl und Arnika reinigen sanft und pflegen die Haut.'],
+    bodylotion: ['Aloe Body Lotion', 'Argan-, Jojoba- und Macadamiaöl, zieht schnell ein und duftet floral.'],
+    propolis: ['Aloe Propolis Creme', '74 % Aloe-Vera-Gel mit Bienenpropolis und Kamille für trockene, gereizte Haut.'],
+    aloefirst: ['Aloe First Körperspray', '81 % Aloe-Vera-Gel mit Propolis und Kräutern, der Alleskönner für jeden Haushalt.'],
+  };
+
+  const AREA_NAMES = { haar: 'Haarpflege', gesicht: 'Gesichtspflege', koerper: 'Körperpflege' };
+  const SIZE_ORDER = ['small', 'medium', 'large'];
+
+  const SETS = {
+    haar_small: { price: '39,67 €', items: ['hairoil', 'lips'] },
+    haar_medium: { price: '56,69 €', items: ['shampoo', 'conditioner'] },
+    haar_large: { price: '91,55 €', items: ['shampoo', 'conditioner', 'hairoil'] },
+    gesicht_small: { price: '46,58 €', items: ['deepcream', 'lips'] },
+    gesicht_medium: { price: '65,75 €', items: ['skinoil', 'exfoliator', 'lips'] },
+    gesicht_large: { price: '95,32 €', items: ['skinoil', 'exfoliator', 'lips', 'mask'] },
+    koerper_small: { price: '38,32 €', items: ['toothgel', 'soap', 'lips'] },
+    koerper_medium: { price: '62,17 €', items: ['bodywash', 'bodylotion', 'lips'] },
+    koerper_large: { price: '90,26 €', items: ['soap', 'toothgel', 'propolis', 'lips', 'aloefirst'] },
+  };
+  for (const key in SETS) {
+    const [area, size] = key.split('_');
+    SETS[key].name = AREA_NAMES[area] + ' ' + size;
+    SETS[key].image = 'img/geschenke/caroline-' + area + '-' + size + '.webp';
+  }
+
+  function chosenSetKey(){
+    const area = state.answers['bereich'] ? state.answers['bereich'].value : 'koerper';
+    const b = state.answers['budget'];
+    const opt = b && questions.find(q => q.id === 'budget').options.find(o => o.value === b.value);
+    return area + '_' + (opt ? opt.size : 'medium');
+  }
+
+  // Eine Alternative im selben Bereich: die nächste Größe, bei large die medium
+  function alternativeKey(key){
+    const [area, size] = key.split('_');
+    const i = SIZE_ORDER.indexOf(size);
+    return i < 2
+      ? { key: area + '_' + SIZE_ORDER[i + 1], label: 'Noch mehr verwöhnen' }
+      : { key: area + '_medium', label: 'Etwas günstiger' };
+  }
+
+  function setCardHtml(set){
+    return '<img src="' + set.image + '" alt="Set ' + set.name + '">' +
+      '<div class="set-body"><div class="set-name">' + set.name + '</div>' +
+      '<div class="set-price">' + set.price + '</div>' +
+      '<ul class="set-items">' + set.items.map(i => '<li><b>' + PRODUCTS[i][0] + '</b><span class="item-desc">' + PRODUCTS[i][1] + '</span></li>').join('') + '</ul></div>';
+  }
 
   const state = {
     current: 0,
@@ -373,8 +463,15 @@
   }
 
   function buildSummary(){
-    const lede = document.getElementById('summaryLede');
-    lede.textContent = 'Danke dir fürs Mitmachen! Ich schau mir deine Antworten gleich an und meld mich mit 1-2 passenden Geschenk-Ideen bei dir.';
+    const key = chosenSetKey();
+    const set = SETS[key];
+    document.getElementById('resultTitle').innerHTML = 'Dein Set: <em>' + set.name + '</em>';
+    document.getElementById('resultCard').innerHTML = setCardHtml(set);
+    const alt = alternativeKey(key);
+    document.getElementById('altLabel').textContent = alt.label + ': ' + SETS[alt.key].name + ' für ' + SETS[alt.key].price;
+    document.getElementById('altCard').innerHTML = setCardHtml(SETS[alt.key]);
+    document.getElementById('summaryLede').textContent =
+      'Trag dich kurz ein, dann melde ich mich persönlich bei dir und wir schauen gemeinsam, welches Set am besten passt.';
   }
 
   function isValidEmail(v){
@@ -406,10 +503,11 @@
       name: name,
       kontakt: contact,
       email: email,
-      fuer_wen: state.answers['q1'] ? state.answers['q1'].label : '',
-      budget: state.answers['q2'] ? state.answers['q2'].label : '',
-      selbst_beschenkt: state.answers['q3'] ? state.answers['q3'].label : '',
-      wichtigkeit: state.answers['q4'] ? state.answers['q4'].label : '',
+      fuer_wen: state.answers['fuer_wen'] ? state.answers['fuer_wen'].label : '',
+      bereich: state.answers['bereich'] ? state.answers['bereich'].label : '',
+      budget: state.answers['budget'] ? state.answers['budget'].label : '',
+      anzahl: state.answers['anzahl'] ? state.answers['anzahl'].label : '',
+      empfohlenes_set: SETS[chosenSetKey()].name + ' (' + SETS[chosenSetKey()].price + ')',
     };
 
     const btn = document.getElementById('submitBtn');
