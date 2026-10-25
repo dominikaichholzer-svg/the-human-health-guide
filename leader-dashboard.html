@@ -150,24 +150,74 @@
   }
 
   .tab-nav{ position:relative; z-index:1; margin-bottom:22px; }
-  .tab-select{
-    width:100%; appearance:none; -webkit-appearance:none; -moz-appearance:none;
-    background: rgba(255,255,255,0.04) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' stroke='%23D4AF6A' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 18px center;
-    border: 1.5px solid var(--hairline); border-radius: 14px; padding: 15px 44px 15px 18px;
-    color: var(--ink); font-family: var(--sans); font-weight:600; font-size:14.5px; cursor:pointer;
+  .current-section{
+    width:100%; display:flex; align-items:center; justify-content:space-between; gap:10px;
+    background: rgba(255,255,255,0.04); border: 1.5px solid var(--hairline); border-radius: 14px; padding: 15px 18px;
+    color: var(--ink); font-family: var(--sans); font-weight:600; font-size:14.5px; cursor:pointer; text-align:left;
     box-shadow: var(--shadow-sm);
   }
-  .tab-select:focus{ outline:none; border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-dim); }
-  .tab-select option{ background: var(--bg-raised); color: var(--ink); }
+  .current-section small{ font-family: var(--mono); font-size:10.5px; letter-spacing:0.12em; text-transform:uppercase; color: var(--gold); font-weight:500; }
+  .current-section:focus-visible{ outline:none; border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-dim); }
   .tab-panel[hidden]{ display:none !important; }
+
+  /* Hamburger-Menü */
+  .brand-left{ display:flex; align-items:center; gap:12px; }
+  .menu-btn{ width:40px; height:40px; flex-shrink:0; display:inline-flex; flex-direction:column; justify-content:center; align-items:center; gap:4px; border:1.5px solid var(--hairline); border-radius:12px; background: rgba(255,255,255,0.04); cursor:pointer; padding:0; }
+  .menu-btn[hidden]{ display:none; }
+  .menu-btn span{ display:block; width:18px; height:2px; border-radius:2px; background: var(--gold); }
+  .menu-btn:focus-visible{ outline:none; box-shadow: 0 0 0 3px var(--gold-dim); }
+  .menu-overlay{ position:fixed; inset:0; background: rgba(0,0,0,0.55); opacity:0; pointer-events:none; transition: opacity 0.25s ease; z-index:50; }
+  .menu-overlay.open{ opacity:1; pointer-events:auto; }
+  .menu-drawer{ position:fixed; top:0; left:0; bottom:0; width:min(300px, 82vw); background: var(--bg-raised); border-right:1px solid var(--hairline); box-shadow: var(--shadow-lg); transform: translateX(-105%); transition: transform 0.25s ease; z-index:51; padding: 22px 14px; overflow-y:auto; }
+  .menu-drawer.open{ transform: none; }
+  .menu-head{ display:flex; justify-content:space-between; align-items:center; padding: 0 6px 16px; margin-bottom:10px; border-bottom:1px solid var(--hairline); }
+  .menu-close{ width:36px; height:36px; border:none; border-radius:10px; background: transparent; color: var(--ink-muted); font-size:22px; cursor:pointer; }
+  .menu-item{ display:flex; width:100%; align-items:center; gap:12px; padding:14px 12px; margin-bottom:4px; border:none; border-radius:12px; background: transparent; color: var(--ink); font-family: var(--sans); font-weight:600; font-size:15px; text-align:left; cursor:pointer; }
+  .menu-item:hover{ background: rgba(255,255,255,0.04); }
+  .menu-item.active{ background: var(--gold-dim); color: var(--gold); }
+
+  /* Vision-Popup beim Öffnen */
+  .vision-modal{ position:fixed; inset:0; z-index:60; display:flex; align-items:center; justify-content:center; padding:20px; background: rgba(0,0,0,0.78); opacity:0; pointer-events:none; transition: opacity 0.3s ease; }
+  .vision-modal.open{ opacity:1; pointer-events:auto; }
+  .vision-modal-box{ width:100%; max-width:440px; max-height: calc(100vh - 40px); overflow-y:auto; background: var(--bg-raised); border:1px solid var(--hairline); border-radius: var(--radius); box-shadow: var(--shadow-lg); padding: 22px 20px 20px; text-align:center; }
+  .vision-modal-box h2{ font-family: var(--serif); font-weight:400; font-size:22px; line-height:1.3; margin: 6px 0 16px; }
+  .vision-modal-box img{ width:100%; max-height: 55vh; object-fit: contain; border-radius: 14px; display:block; margin: 0 auto 14px; }
+  .vision-modal-box .quote-text{ font-family: var(--serif); font-style: italic; font-size:15.5px; line-height:1.5; color: var(--ink); margin: 0 0 18px; }
 </style>
 </head>
 <body>
 <div class="app">
 
   <div class="brandbar">
-    <div class="name"><span class="dot"></span><span id="brandName">LEADER-DASHBOARD</span></div>
+    <div class="brand-left">
+      <button type="button" class="menu-btn" id="menuBtn" aria-label="Menü öffnen" aria-expanded="false" aria-controls="menuDrawer" hidden><span></span><span></span><span></span></button>
+      <div class="name"><span class="dot"></span><span id="brandName">LEADER-DASHBOARD</span></div>
+    </div>
     <div class="tag">COACH OAKI<br>TEAM</div>
+  </div>
+
+  <div class="menu-overlay" id="menuOverlay"></div>
+  <nav class="menu-drawer" id="menuDrawer" aria-label="Menü" aria-hidden="true">
+    <div class="menu-head">
+      <div class="eyebrow" style="margin:0;">MENÜ</div>
+      <button type="button" class="menu-close" id="menuClose" aria-label="Menü schließen">×</button>
+    </div>
+    <button type="button" class="menu-item" data-tab="overview">📊 Überblick</button>
+    <button type="button" class="menu-item" data-tab="entry">✍️ Eintragen &amp; Reflektieren</button>
+    <button type="button" class="menu-item" data-tab="chat">💬 Chat mit ARIA</button>
+    <button type="button" class="menu-item" data-tab="history">📅 Verlauf</button>
+    <button type="button" class="menu-item" data-tab="team">🤝 Team</button>
+    <button type="button" class="menu-item" data-tab="more">⚙️ Mehr</button>
+  </nav>
+
+  <div class="vision-modal" id="visionModal" role="dialog" aria-modal="true" aria-labelledby="visionModalTitle">
+    <div class="vision-modal-box">
+      <div class="eyebrow">DEINE ZUKUNFTS-VISION</div>
+      <h2 id="visionModalTitle">Nimm dir 1 Minute und begib dich in die Visualisierung.</h2>
+      <img id="visionModalImg" alt="Deine Vision">
+      <p class="quote-text" id="visionModalQuote"></p>
+      <button type="button" class="btn" id="visionModalClose">Weiter zu meinem Dashboard</button>
+    </div>
   </div>
 
   <div id="loadingState" class="state-msg">Lädt …</div>
@@ -181,6 +231,7 @@
       <p class="lede" id="rankLabel"></p>
     </div>
 
+    <div id="visionSection">
     <div class="hud-label">Deine Zukunfts-Vision</div>
     <div class="hud-frame">
       <span class="hud-corner tl"></span>
@@ -189,16 +240,10 @@
       <span class="hud-corner br"></span>
       <div class="vision-card" id="visionCard"></div>
     </div>
+    </div>
 
     <div class="tab-nav">
-      <select id="tabSelect" class="tab-select">
-        <option value="overview">📊 Überblick</option>
-        <option value="entry">✍️ Eintragen &amp; Reflektieren</option>
-        <option value="chat">💬 Chat mit ARIA</option>
-        <option value="history">📅 Verlauf</option>
-        <option value="team">🤝 Team</option>
-        <option value="more">⚙️ Mehr</option>
-      </select>
+      <button type="button" class="current-section" id="currentSection"><span id="currentSectionLabel">📊 Überblick</span><small>Menü ☰</small></button>
     </div>
 
     <div class="tab-panel" data-tab="overview">
@@ -427,13 +472,47 @@
     })();
   }
 
-  // ============ Bereich wechseln (Dropdown) ============
+  // ============ Bereich wechseln (Hamburger-Menü) ============
+  function openMenu(){
+    document.getElementById('menuDrawer').classList.add('open');
+    document.getElementById('menuOverlay').classList.add('open');
+    document.getElementById('menuDrawer').setAttribute('aria-hidden', 'false');
+    document.getElementById('menuBtn').setAttribute('aria-expanded', 'true');
+  }
+  function closeMenu(){
+    document.getElementById('menuDrawer').classList.remove('open');
+    document.getElementById('menuOverlay').classList.remove('open');
+    document.getElementById('menuDrawer').setAttribute('aria-hidden', 'true');
+    document.getElementById('menuBtn').setAttribute('aria-expanded', 'false');
+  }
   function switchTab(name){
     document.querySelectorAll('.tab-panel').forEach(p => { p.hidden = (p.dataset.tab !== name); });
-    document.getElementById('tabSelect').value = name;
+    document.querySelectorAll('.menu-item').forEach(b => {
+      b.classList.toggle('active', b.dataset.tab === name);
+      if(b.dataset.tab === name) document.getElementById('currentSectionLabel').textContent = b.textContent;
+    });
+    closeMenu();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
-  document.getElementById('tabSelect').addEventListener('change', function(){ switchTab(this.value); });
+  document.getElementById('menuBtn').addEventListener('click', openMenu);
+  document.getElementById('currentSection').addEventListener('click', openMenu);
+  document.getElementById('menuClose').addEventListener('click', closeMenu);
+  document.getElementById('menuOverlay').addEventListener('click', closeMenu);
+  document.addEventListener('keydown', e => { if(e.key === 'Escape'){ closeMenu(); closeVisionModal(); } });
+  document.querySelectorAll('.menu-item').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
+  document.querySelector('.menu-item[data-tab="overview"]').classList.add('active');
+
+  // ============ Vision-Popup bei jedem Besuch ============
+  let visionModalShown = false;
+  function closeVisionModal(){
+    document.getElementById('visionModal').classList.remove('open');
+  }
+  document.getElementById('visionModalClose').addEventListener('click', closeVisionModal);
+  function showVisionModal(url, quote){
+    document.getElementById('visionModalImg').src = url;
+    document.getElementById('visionModalQuote').textContent = '„' + quote + '"';
+    document.getElementById('visionModal').classList.add('open');
+  }
 
   // ============ Zitat des Tages ============
   const QUOTES = [
@@ -485,16 +564,20 @@
   }
 
   // ============ Vision-Board ============
+  // Mit Bild: erscheint bei jedem Besuch als Popup zum Visualisieren und ist
+  // danach weggeklickt. Ohne Bild: Karte oben mit Feld zum Hinterlegen.
   function renderVision(visionImageUrl){
     const el = document.getElementById('visionCard');
     const quote = quoteOfTheDay();
     if(visionImageUrl){
-      el.className = 'vision-card';
-      el.innerHTML = `
-        <img src="${visionImageUrl}" alt="Deine Vision" onerror="this.style.display='none'">
-        <div class="quote-overlay"><p class="quote-text">„${quote}"</p></div>
-      `;
+      document.getElementById('visionSection').hidden = true;
+      // Nur beim ersten Laden, nicht nach jedem Speichern erneut
+      if(!visionModalShown){
+        visionModalShown = true;
+        showVisionModal(visionImageUrl, quote);
+      }
     } else {
+      document.getElementById('visionSection').hidden = false;
       el.className = 'vision-card no-image';
       el.innerHTML = `
         <div class="vision-setup" style="width:100%;">
@@ -896,6 +979,7 @@
 
       document.getElementById('loadingState').hidden = true;
       document.getElementById('mainContent').hidden = false;
+      document.getElementById('menuBtn').hidden = false;
     } catch(err){
       document.getElementById('loadingState').hidden = true;
       document.getElementById('errorState').hidden = false;
