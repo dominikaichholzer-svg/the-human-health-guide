@@ -931,12 +931,20 @@
 
   // ============ Chat mit JARVIS ============
   let chatHistory = [];
+  // JARVIS' Antwort sicher anzeigen: HTML entschärfen, **fett** und
+  // Zeilenumbrüche umsetzen
+  function formatReply(text){
+    return text
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
+      .replace(/\n/g, '<br>');
+  }
   function appendChatMessage(role, text){
     const win = document.getElementById('chatWindow');
     const div = document.createElement('div');
     div.className = 'chat-msg ' + role;
     if(role === 'assistant'){
-      div.innerHTML = '<span class="chat-label">JARVIS</span>' + text.replace(/\n/g, '<br>');
+      div.innerHTML = '<span class="chat-label">JARVIS</span>' + formatReply(text);
     } else {
       div.textContent = text;
     }
@@ -964,7 +972,7 @@
       const data = await res.json();
       thinkingEl.classList.remove('thinking');
       if(res.ok){
-        thinkingEl.innerHTML = '<span class="chat-label">JARVIS</span>' + data.reply.replace(/\n/g, '<br>');
+        thinkingEl.innerHTML = '<span class="chat-label">JARVIS</span>' + formatReply(data.reply);
         chatHistory.push({ role: 'user', content: text });
         chatHistory.push({ role: 'assistant', content: data.reply });
         chatHistory = chatHistory.slice(-10);
