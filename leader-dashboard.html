@@ -280,6 +280,16 @@
       <p class="progress-sub" id="cycleTip" style="font-size:13.5px; margin-top:10px;"></p>
     </section>
 
+    <section class="card" id="xmasCard" hidden>
+      <h2 class="card-title">Deine Weihnachts-Geschenke-Umfrage 🎁</h2>
+      <p class="progress-sub" style="font-size:13.5px;">Das ist dein persönlicher Link mit den 9 Geschenksets. Teil ihn in deiner Story, im Status und mit allen, die noch Geschenke suchen. Jede Anmeldung kommt mit deinem Namen bei Dominik an.</p>
+      <div class="note-box" style="word-break:break-all; margin:10px 0;" id="xmasLink"></div>
+      <button class="btn" type="button" id="xmasCopyBtn">Link kopieren</button>
+      <p class="progress-sub" style="font-size:13px; margin-top:12px;">Vorschlag für deine Nachricht:</p>
+      <div class="note-box" id="xmasMsg" style="font-size:13.5px;"></div>
+      <button class="btn btn-ghost" type="button" id="xmasCopyMsgBtn" style="margin-top:10px; width:100%;">Nachricht kopieren</button>
+    </section>
+
     <section class="card" id="quotaCard">
       <h2 class="card-title">Deine Erfolgsquote</h2>
       <p class="progress-sub" style="font-size:13.5px;">"Wenn wir die Quote kennen, wissen wir, was es braucht, und können entscheiden, ob wir bereit sind, den Preis für den Erfolg zu zahlen." (Rolf Kipp)</p>
@@ -676,12 +686,47 @@
     2: 'Tipp vom Panel: Wer Interesse zeigt, bekommt ein 10-Minuten-Erstgespräch am Telefon oder persönlich, danach eine Geschäftspräsentation offline. Keine Antwort ist nicht persönlich gemeint: kurz per Sprachnachricht nachfragen.',
     3: 'Tipp vom Panel: Events sind der Ort, an dem Entscheidungen fallen, und ein Event kann ein ganzes Leben verändern. Fahrt als Team gemeinsam hin, das hat mehr Power. Auch wer noch nicht qualifiziert ist, sollte die Energie dort spüren.',
   };
+  // Sondermonate überschreiben den normalen Zyklus-Inhalt (Schlüssel YYYY-MM)
+  const SPECIAL_MONTHS = {
+    '2026-11': {
+      title: 'Diesen Monat: Weihnachtsgeschenke verkaufen 🎄',
+      text: 'Im November suchen alle nach Geschenken. Dein Fokus: die Weihnachts-Geschenksets verkaufen. Teil deine persönliche Geschenke-Umfrage mit allen, die du kennst, und frag bei allen nach, die schon Produkte von dir kennen oder eine Testbox hatten. Wer begeistert ist, bekommt danach den dauerhaften 30%-Rabatt angeboten.',
+      tip: 'Tipp vom Panel: Zeig in deinen Storys echt und ungeschminkt, wie du die Produkte selbst benutzt, und frag lieber per Sprachnachricht als mit Copy-Paste. Wer nicht antwortet, bekommt eine kurze Sprachnachricht: "Ist meine Nachricht untergegangen?"',
+      xmas: true,
+    },
+  };
+  function currentMonthKey(){
+    const now = new Date();
+    return now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+  }
   function renderCycle(){
     const month = currentCycleMonth();
-    const c = CYCLE_CONTENT[month];
+    const special = SPECIAL_MONTHS[currentMonthKey()];
+    const c = special || CYCLE_CONTENT[month];
     document.getElementById('cycleTitle').textContent = c.title;
     document.getElementById('cycleText').textContent = c.text;
-    document.getElementById('cycleTip').textContent = CYCLE_PANEL_TIPS[month];
+    document.getElementById('cycleTip').textContent = special ? special.tip : CYCLE_PANEL_TIPS[month];
+  }
+
+  // ============ Weihnachts-Geschenke-Umfrage (nur in Sondermonaten mit xmas) ============
+  const GESCHENKE_PAGES = ['alicia','bianca','chiara','laura','sandra','kathrin','ramona','sarah','rebecca','sandy','caroline','frank','nagel'];
+  function renderXmas(slug){
+    const special = SPECIAL_MONTHS[currentMonthKey()];
+    const card = document.getElementById('xmasCard');
+    if(!special || !special.xmas || !slug || !GESCHENKE_PAGES.includes(slug)){ card.hidden = true; return; }
+    const url = 'https://mein-quiz-health.netlify.app/geschenke-umfrage-' + slug + '.html';
+    const msg = 'Hey 😊 Suchst du noch Weihnachtsgeschenke? Ich hab 9 Pflege-Sets mit Aloe Vera für Haare, Gesicht und Körper zusammengestellt. In 4 kurzen Fragen findest du raus, welches zu wem passt: ' + url;
+    document.getElementById('xmasLink').textContent = url;
+    document.getElementById('xmasMsg').textContent = msg;
+    const copy = (text, btn, label) => {
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = 'Kopiert ✓';
+        setTimeout(() => { btn.textContent = label; }, 1800);
+      });
+    };
+    document.getElementById('xmasCopyBtn').onclick = function(){ copy(url, this, 'Link kopieren'); };
+    document.getElementById('xmasCopyMsgBtn').onclick = function(){ copy(msg, this, 'Nachricht kopieren'); };
+    card.hidden = false;
   }
 
   // ============ Golden Nugget des Tages (Leader-Panel Okt 2026) ============
@@ -987,6 +1032,7 @@
       renderEagleStage(dashboardData.currentRank);
       renderProgress(dashboardData.progress);
       renderCycle();
+      renderXmas(dashboardData.slug);
       renderNugget();
       renderQuota(dashboardData.recentWeeks, dashboardData.newTps);
       renderStrategy(dashboardData.strategy);

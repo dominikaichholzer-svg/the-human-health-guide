@@ -21,7 +21,7 @@ exports.handler = async function (event) {
 
   try {
     const leaders = await pgrest('leaders', {
-      query: `token=eq.${encodeURIComponent(token)}&select=id,name,current_rank,manager_achieved_at,vision_image_url,specialized_products`,
+      query: `token=eq.${encodeURIComponent(token)}&select=id,name,slug,current_rank,manager_achieved_at,vision_image_url,specialized_products`,
     });
 
     if (!leaders || leaders.length === 0) {
@@ -68,6 +68,7 @@ exports.handler = async function (event) {
       statusCode: 200,
       body: JSON.stringify({
         name: leader.name,
+        slug: leader.slug || null,
         currentRank: leader.current_rank,
         visionImageUrl: leader.vision_image_url || null,
         specializedProducts: leader.specialized_products || null,

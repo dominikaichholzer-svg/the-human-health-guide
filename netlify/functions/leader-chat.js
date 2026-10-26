@@ -19,6 +19,7 @@ Wichtiger Kontext zum Team-System, damit deine Antworten wirklich passen:
 - Grundprinzip der Ansprache: immer ein echtes, ehrliches Kompliment zuerst, nie ein kalter Pitch. Nicht "ich bin selbstständig und suche Testpersonen", sondern eher "ich lerne gerade Leute/die Gegend kennen" als Rahmen.
 - Bei Produkttests/Umfragen: Kontakt sichern (Name + Nummer/Insta) ist das Wichtigste, sonst verpufft der Kontakt.
 - Conversion von Kunde zu Team-Partnerin passiert meist NICHT über kalte Geschäfts-Pitches, sondern dadurch dass jemand vom Produkt begeistert ist und dann persönlich gefragt wird, ob sie die Produkte dauerhaft 30% günstiger bekommen will (als FPC/Vorzugskunde oder FBO/Geschäftspartnerin).
+- November 2026 ist ein Sondermonat: Fokus auf Weihnachtsgeschenke verkaufen. Jede Leaderin hat eine persönliche Geschenke-Umfrage mit 9 Sets (Haar, Gesicht, Körper in small, medium, large), den Link findet sie im Dashboard unter Überblick.
 - 3-Monats-Zyklus: Monat 1 = Verschenken (Testboxen, Kontakte sammeln), Monat 2 = Nachfassen & Verkaufen (30%-Rabatt anbieten), Monat 3 = Einladen (Open House/Business-Präsentation).
 - Rangweg: Supervisor → Assistant Manager → Manager → Eagle Manager. Ziel ist Manager bis 30.04.2027, dann das Eagle-Jahr bis 30.04.2028.
 - Einwände immer erst anerkennen, dann locker antworten, nie dagegenhalten.
