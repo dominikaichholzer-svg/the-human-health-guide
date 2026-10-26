@@ -103,6 +103,12 @@
     <div class="eyebrow">STAND HEUTE</div>
     <h1 class="hero">Dein <em>Team</em> auf einen Blick.</h1>
 
+    <section class="card" id="dryAlert" hidden style="border-color: var(--error);">
+      <h2 class="card-title">⚠️ Brauchen deine Aufmerksamkeit</h2>
+      <p class="card-sub" style="margin-bottom:8px;">Diese Leaderinnen haben 2 Wochen hintereinander nichts eingetragen. Ein kurzer, persönlicher Anruf oder eine Sprachnachricht hilft meistens mehr als eine Erinnerung.</p>
+      <div id="dryAlertList"></div>
+    </section>
+
     <div class="leader-grid" id="leaderGrid"></div>
 
     <section class="card">
@@ -172,6 +178,30 @@
     return `<p class="heatmap-label">Aktivität (letzte 8 Wochen)</p><div class="heatmap">${days.join('')}</div>`;
   }
 
+  // Durststrecke: diese und letzte Woche kein Eintrag, erst ab November 2026
+  // (vorher hatten die Leaderinnen ihren Link noch nicht)
+  const DRY_SPELL_START = '2026-11-02';
+  function mondayStr(offsetWeeks){
+    const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Vienna', year:'numeric', month:'2-digit', day:'2-digit' }).format(new Date());
+    const d = new Date(parts + 'T00:00:00Z');
+    d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() || 7) - 1) - 7 * offsetWeeks);
+    return d.toISOString().slice(0, 10);
+  }
+  function inDrySpell(l){
+    const thisMonday = mondayStr(0);
+    const prevMonday = mondayStr(1);
+    if(prevMonday < DRY_SPELL_START) return false;
+    const keys = (l.recentWeeks || []).map(w => w.week_start);
+    return !keys.includes(thisMonday) && !keys.includes(prevMonday);
+  }
+  function renderDryAlert(leaders){
+    const list = leaders.filter(inDrySpell);
+    document.getElementById('dryAlert').hidden = list.length === 0;
+    document.getElementById('dryAlertList').innerHTML = list
+      .map(l => `<p class="lmeta" style="margin:4px 0;"><b>${l.name}</b>, letzter Eintrag: ${l.lastSubmitted || 'noch nie'}</p>`)
+      .join('');
+  }
+
   function leaderCardHtml(l){
     const p = l.progress;
     let barPct = 0, barLabel = '';
@@ -184,9 +214,11 @@
       barLabel = `${p.ccSoFar} / ${p.ccTarget} CC`;
     }
     const missing = !l.recentWeeks || l.recentWeeks.length === 0 || !l.lastSubmitted;
-    const flagHtml = missing
-      ? '<span class="flag">Noch kein Eintrag</span>'
-      : '<span class="flag ok">Aktiv</span>';
+    const flagHtml = inDrySpell(l)
+      ? '<span class="flag">⚠️ 2 Wochen nichts eingetragen</span>'
+      : missing
+        ? '<span class="flag">Noch kein Eintrag</span>'
+        : '<span class="flag ok">Aktiv</span>';
     const insightHtml = l.latestInsight
       ? `<div class="insight-box"><span class="ilabel">AI-Insight</span>${l.latestInsight.insight}</div>`
       : '';
@@ -223,6 +255,7 @@
       overviewData = await res.json();
 
       document.getElementById('leaderGrid').innerHTML = overviewData.leaders.map(leaderCardHtml).join('');
+      renderDryAlert(overviewData.leaders);
 
       const select = document.getElementById('pushLeaderSelect');
       const currentSelection = select.value;

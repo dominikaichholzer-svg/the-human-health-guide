@@ -810,6 +810,9 @@
     d.setUTCDate(d.getUTCDate() - (day - 1));
     return d.toISOString().slice(0, 10);
   }
+  // Erst ab November 2026 aktiv: vorher hatten die Leaderinnen ihren Link
+  // noch nicht und konnten gar nichts eintragen
+  const DRY_SPELL_START = '2026-11-02';
   function renderDurststrecke(data){
     const todayMonday = data.currentWeekMonday;
     const prevMonday = (() => {
@@ -819,7 +822,7 @@
     })();
     const weekKeys = (data.recentWeeks || []).map(w => w.week_start);
     const missingBoth = !weekKeys.includes(todayMonday) && !weekKeys.includes(prevMonday);
-    document.getElementById('durststreckeCard').hidden = !missingBoth;
+    document.getElementById('durststreckeCard').hidden = !(missingBoth && prevMonday >= DRY_SPELL_START);
   }
 
   // ============ Intake-Umfrage (einmalig) ============
