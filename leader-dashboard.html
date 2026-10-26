@@ -210,7 +210,7 @@
     </div>
     <button type="button" class="menu-item" data-tab="overview">📊 Überblick</button>
     <button type="button" class="menu-item" data-tab="entry">✍️ Eintragen &amp; Reflektieren</button>
-    <button type="button" class="menu-item" data-tab="chat">💬 Chat mit ARIA</button>
+    <button type="button" class="menu-item" data-tab="chat">💬 Chat mit JARVIS</button>
     <button type="button" class="menu-item" data-tab="history">📅 Verlauf</button>
     <button type="button" class="menu-item" data-tab="team">🤝 Team</button>
     <button type="button" class="menu-item" data-tab="more">⚙️ Mehr</button>
@@ -371,8 +371,8 @@
     <div class="tab-panel" data-tab="chat" hidden>
 
     <section class="card">
-      <h2 class="card-title">Chat mit ARIA</h2>
-      <p class="progress-sub" style="margin-bottom:14px;">Frag sie nach Ideen für Ansprache, Planung oder Einwände. Dieses Gespräch wird nicht gespeichert, es ist nur für diese Sitzung da.</p>
+      <h2 class="card-title">Chat mit JARVIS</h2>
+      <p class="progress-sub" style="margin-bottom:14px;">Frag JARVIS nach Ideen für Ansprache, Planung oder Einwände. Dieses Gespräch wird nicht gespeichert, es ist nur für diese Sitzung da.</p>
       <div class="chat-window" id="chatWindow"></div>
       <div class="chat-input-row">
         <textarea id="chatInput" placeholder="z.B. Wie spreche ich jemanden an, der schon abgesagt hat?"></textarea>
@@ -929,14 +929,14 @@
     }
   });
 
-  // ============ Chat mit ARIA ============
+  // ============ Chat mit JARVIS ============
   let chatHistory = [];
   function appendChatMessage(role, text){
     const win = document.getElementById('chatWindow');
     const div = document.createElement('div');
     div.className = 'chat-msg ' + role;
     if(role === 'assistant'){
-      div.innerHTML = '<span class="chat-label">ARIA</span>' + text.replace(/\n/g, '<br>');
+      div.innerHTML = '<span class="chat-label">JARVIS</span>' + text.replace(/\n/g, '<br>');
     } else {
       div.textContent = text;
     }
@@ -964,16 +964,16 @@
       const data = await res.json();
       thinkingEl.classList.remove('thinking');
       if(res.ok){
-        thinkingEl.innerHTML = '<span class="chat-label">ARIA</span>' + data.reply.replace(/\n/g, '<br>');
+        thinkingEl.innerHTML = '<span class="chat-label">JARVIS</span>' + data.reply.replace(/\n/g, '<br>');
         chatHistory.push({ role: 'user', content: text });
         chatHistory.push({ role: 'assistant', content: data.reply });
         chatHistory = chatHistory.slice(-10);
       } else {
-        thinkingEl.innerHTML = '<span class="chat-label">ARIA</span>Entschuldige, da ist gerade etwas schiefgelaufen. Versuch es nochmal.';
+        thinkingEl.innerHTML = '<span class="chat-label">JARVIS</span>Entschuldige, da ist gerade etwas schiefgelaufen. Versuch es nochmal.';
       }
     } catch(err){
       thinkingEl.classList.remove('thinking');
-      thinkingEl.innerHTML = '<span class="chat-label">ARIA</span>Entschuldige, da ist gerade etwas schiefgelaufen. Versuch es nochmal.';
+      thinkingEl.innerHTML = '<span class="chat-label">JARVIS</span>Entschuldige, da ist gerade etwas schiefgelaufen. Versuch es nochmal.';
     } finally {
       btn.disabled = false;
       document.getElementById('chatWindow').scrollTop = document.getElementById('chatWindow').scrollHeight;

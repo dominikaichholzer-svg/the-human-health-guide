@@ -6,14 +6,15 @@
 //            Nachrichten, nur fürs Gesprächsgedächtnis in dieser Sitzung,
 //            wird nicht in der Datenbank gespeichert.
 //
-// Chat-Assistentin "ARIA" für die Leaderinnen: Ideen für Ansprache,
+// Chat-Assistent "JARVIS" für die Leaderinnen: Ideen für Ansprache,
 // Planung, Einwandbehandlung. Nutzt denselben ANTHROPIC_API_KEY wie das
 // wöchentliche AI-Feedback.
 
 const { pgrest } = require('./_lib/supabase');
 const { PANEL_WISDOM } = require('./_lib/panel-wisdom');
+const { makeClient } = require('./_lib/agent');
 
-const SYSTEM_PROMPT = `Du bist ARIA, eine Business-Coaching-Assistentin für Team-Leaderinnen bei einem Forever-Living-Team (Aloe-Vera-Produkte, Direktvertrieb/Network-Marketing). Die Leaderinnen chatten mit dir, wenn sie Ideen brauchen: wie sie jemanden ansprechen, ihre Woche planen, mit einem Einwand umgehen, oder einfach eine zweite Meinung wollen.
+const SYSTEM_PROMPT = `Du bist JARVIS, ein Business-Coaching-Assistent für die Team-Leaderinnen bei einem Forever-Living-Team (Aloe-Vera-Produkte, Direktvertrieb/Network-Marketing). Die Leaderinnen chatten mit dir, wenn sie Ideen brauchen: wie sie jemanden ansprechen, ihre Woche planen, mit einem Einwand umgehen, oder einfach eine zweite Meinung wollen.
 
 Wichtiger Kontext zum Team-System, damit deine Antworten wirklich passen:
 - Grundprinzip der Ansprache: immer ein echtes, ehrliches Kompliment zuerst, nie ein kalter Pitch. Nicht "ich bin selbstständig und suche Testpersonen", sondern eher "ich lerne gerade Leute/die Gegend kennen" als Rahmen.
@@ -64,28 +65,27 @@ exports.handler = async function (event) {
       { role: 'user', content: message },
     ];
 
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-        ...(process.env.ANTHROPIC_WORKSPACE_ID && { 'anthropic-workspace-id': process.env.ANTHROPIC_WORKSPACE_ID }),
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-5',
-        max_tokens: 500,
-        system: SYSTEM_PROMPT + '\n\n' + PANEL_WISDOM + `\n\nDu sprichst gerade mit ${leader.name}, aktueller Rang: ${leader.current_rank}.`,
-        messages,
-      }),
+    // Das Modell denkt bei längeren Fragen zuerst nach (eigene Blöcke ohne
+    // Text), darum alle Text-Blöcke zusammensetzen statt nur den ersten
+    // Block zu lesen, und genug max_tokens für Denken plus Antwort lassen.
+    const response = await makeClient().beta.messages.create({
+      model: 'claude-sonnet-5-5',
+      max_tokens: 4000,
+      betas: ['server-side-fallback-2026-07-01'],
+      fallbacks: 'default',
+      output_config: { effort: 'low' },
+      system: SYSTEM_PROMPT + '\n\n' + PANEL_WISDOM + `\n\nDu sprichst gerade mit ${leader.name}, aktueller Rang: ${leader.current_rank}.`,
+      messages,
     });
-
-    if (!res.ok) {
-      const text = await res.text();
-      return { statusCode: 502, body: JSON.stringify({ error: 'Claude-Antwort fehlgeschlagen', detail: text }) };
-    }
-    const data = await res.json();
-    const reply = data.content && data.content[0] ? data.content[0].text : 'Entschuldige, da ist etwas schiefgelaufen.';
+    const text = response.content
+      .filter((b) => b.type === 'text')
+      .map((b) => b.text)
+      .join('')
+      .trim();
+    const reply =
+      response.stop_reason === 'refusal' || !text
+        ? 'Dazu kann ich dir gerade leider nichts sagen. Frag mich gern etwas anderes.'
+        : text;
 
     return { statusCode: 200, body: JSON.stringify({ reply }) };
   } catch (err) {

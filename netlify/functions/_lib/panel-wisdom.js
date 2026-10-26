@@ -1,7 +1,7 @@
 // netlify/functions/_lib/panel-wisdom.js
 //
 // Erfahrungen von Top-Leadern aus einem Forever-Panel (Oktober 2026), die
-// Dominik mitgeschrieben hat. Wird in die Prompts von ARIA (Leader-Chat),
+// Dominik mitgeschrieben hat. Wird in die Prompts von JARVIS im Leader-Chat,
 // den wöchentlichen AI-Insights und JARVIS eingebaut, damit alle drei mit
 // denselben Praxistipps coachen.
 
