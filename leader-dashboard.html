@@ -188,6 +188,11 @@
   .vision-modal-box{ width:100%; max-width:440px; max-height: calc(100vh - 40px); overflow-y:auto; background: var(--bg-raised); border:1px solid var(--hairline); border-radius: var(--radius); box-shadow: var(--shadow-lg); padding: 22px 20px 20px; text-align:center; }
   .vision-modal-box h2{ font-family: var(--serif); font-weight:400; font-size:22px; line-height:1.3; margin: 6px 0 16px; }
   .vision-modal-box img{ width:100%; max-height: 55vh; object-fit: contain; border-radius: 14px; display:block; margin: 0 auto 14px; }
+  .intake-q{ font-weight:700; color: var(--ink); font-size:14px; margin: 16px 0 8px; }
+  .product-group-title{ font-family: var(--mono); font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color: var(--gold); margin: 10px 0 6px; }
+  .product-choice{ display:flex; align-items:center; gap:10px; padding: 9px 11px; margin-bottom:6px; border:1.5px solid var(--hairline); border-radius:10px; font-size:13.5px; cursor:pointer; }
+  .product-choice input{ width:18px; height:18px; accent-color: var(--gold); margin:0; flex-shrink:0; }
+  .product-choice.disabled{ opacity:0.45; cursor:not-allowed; }
   .vision-modal-box .quote-text{ font-family: var(--serif); font-style: italic; font-size:15.5px; line-height:1.5; color: var(--ink); margin: 0 0 18px; }
 </style>
 </head>
@@ -223,6 +228,51 @@
       <img id="visionModalImg" alt="Deine Vision">
       <p class="quote-text" id="visionModalQuote"></p>
       <button type="button" class="btn" id="visionModalClose">Weiter zu meinem Dashboard</button>
+    </div>
+  </div>
+
+  <div class="vision-modal" id="intakeModal" role="dialog" aria-modal="true" aria-labelledby="intakeTitle">
+    <div class="vision-modal-box" style="text-align:left;">
+      <div class="eyebrow">WILLKOMMEN</div>
+      <h2 id="intakeTitle" style="text-align:left;">Schön, dass du da bist! Kurz zu dir.</h2>
+      <p class="progress-sub" style="margin-bottom:16px;">Nur einmal, dauert 2 Minuten. Hilft Dominik, dich gezielt zu unterstützen. Es gibt keine falschen Antworten.</p>
+      <form id="intakeForm">
+        <p class="intake-q">1. Auf welche 5 Produkte willst du dich in den nächsten Monaten fokussieren?</p>
+        <p class="progress-sub" style="font-size:12.5px; margin:-4px 0 10px;">Wähl die, die du selbst liebst oder lieben lernen willst. Du wirst Expertin genau für diese 5. <b id="productCount">0/5 gewählt</b></p>
+        <div id="productChoices"></div>
+        <p class="intake-q">2. Welcher Bereich begeistert dich selbst am meisten?</p>
+        <div class="radio-group">
+          <label class="radio-option"><input type="radio" name="lieblingsbereich" value="Haut und Beauty"> Haut und Beauty</label>
+          <label class="radio-option"><input type="radio" name="lieblingsbereich" value="Darm, Gewicht und C9"> Darm, Gewicht und C9</label>
+          <label class="radio-option"><input type="radio" name="lieblingsbereich" value="Sport und Energie"> Sport und Energie</label>
+          <label class="radio-option"><input type="radio" name="lieblingsbereich" value="Zyklus und Frauengesundheit"> Zyklus und Frauengesundheit</label>
+          <label class="radio-option"><input type="radio" name="lieblingsbereich" value="Haare und Körperpflege"> Haare und Körperpflege</label>
+        </div>
+        <p class="intake-q">3. Wie viel Zeit kannst du aktuell realistisch pro Woche einplanen?</p>
+        <div class="radio-group">
+          <label class="radio-option"><input type="radio" name="time_capacity" value="unter2"> Unter 2 Stunden</label>
+          <label class="radio-option"><input type="radio" name="time_capacity" value="2bis5"> 2 bis 5 Stunden</label>
+          <label class="radio-option"><input type="radio" name="time_capacity" value="5bis10"> 5 bis 10 Stunden</label>
+          <label class="radio-option"><input type="radio" name="time_capacity" value="ueber10"> Über 10 Stunden</label>
+        </div>
+        <p class="intake-q">4. Wenn du an größere Ziele in deinem Leben zurückdenkst: Wie oft bist du drangeblieben, auch wenn es schwierig wurde?</p>
+        <div class="radio-group">
+          <label class="radio-option"><input type="radio" name="past_follow_through" value="selten"> Eher selten</label>
+          <label class="radio-option"><input type="radio" name="past_follow_through" value="teils"> Teils teils</label>
+          <label class="radio-option"><input type="radio" name="past_follow_through" value="meistens"> Meistens</label>
+          <label class="radio-option"><input type="radio" name="past_follow_through" value="fast_immer"> Fast immer</label>
+        </div>
+        <div class="field">
+          <label for="warum">5. Was willst du in den nächsten 6 Monaten erreichen, und warum ist dir das wichtig?</label>
+          <textarea id="warum"></textarea>
+        </div>
+        <div class="field">
+          <label for="support_needed">6. Was würde dir am meisten helfen, dranzubleiben?</label>
+          <textarea id="support_needed"></textarea>
+        </div>
+        <p class="progress-sub" id="intakeError" style="color:var(--error); display:none;"></p>
+        <button type="submit" class="btn" id="intakeSubmitBtn">Absenden und loslegen</button>
+      </form>
     </div>
   </div>
 
@@ -406,35 +456,12 @@
 
     <div class="tab-panel" data-tab="more" hidden>
 
-    <section class="card" id="intakeCard" hidden>
-      <h2 class="card-title">Kurz zu dir</h2>
-      <p class="progress-sub" style="margin-bottom:14px;">Einmalig, hilft Dominik dich besser zu unterstützen. Keine falschen Antworten.</p>
-      <form id="intakeForm">
-        <p class="progress-sub" style="font-weight:700; color:var(--ink);">Wie viel Zeit kannst du aktuell realistisch pro Woche einplanen?</p>
-        <div class="radio-group">
-          <label class="radio-option"><input type="radio" name="time_capacity" value="unter2"> Unter 2 Stunden</label>
-          <label class="radio-option"><input type="radio" name="time_capacity" value="2bis5"> 2-5 Stunden</label>
-          <label class="radio-option"><input type="radio" name="time_capacity" value="5bis10"> 5-10 Stunden</label>
-          <label class="radio-option"><input type="radio" name="time_capacity" value="ueber10"> Über 10 Stunden</label>
-        </div>
-        <p class="progress-sub" style="font-weight:700; color:var(--ink);">Wenn du an größere Ziele in deinem Leben zurückdenkst: wie oft bist du drangeblieben, auch wenn's schwierig wurde?</p>
-        <div class="radio-group">
-          <label class="radio-option"><input type="radio" name="past_follow_through" value="selten"> Eher selten</label>
-          <label class="radio-option"><input type="radio" name="past_follow_through" value="teils"> Teils teils</label>
-          <label class="radio-option"><input type="radio" name="past_follow_through" value="meistens"> Meistens</label>
-          <label class="radio-option"><input type="radio" name="past_follow_through" value="fast_immer"> Fast immer</label>
-        </div>
-        <div class="field">
-          <label for="support_needed">Was würde dir am meisten helfen, dranzubleiben?</label>
-          <textarea id="support_needed" name="support_needed"></textarea>
-        </div>
-        <button type="submit" class="btn" id="intakeSubmitBtn">Absenden</button>
-      </form>
-    </section>
-
     <section class="card" id="productsCard" hidden>
-      <h2 class="card-title">Deine Produkte</h2>
-      <p class="progress-sub" id="productsContent"></p>
+      <h2 class="card-title">Deine 5 Fokus-Produkte</h2>
+      <p class="progress-sub" style="font-size:13.5px;">Werde Expertin für diese Produkte: benutze sie selbst, lies alles darüber und sammle echte Erfahrungen.</p>
+      <div class="note-box" id="productsContent" style="margin:10px 0 14px;"></div>
+      <p class="progress-sub" style="font-size:13px; margin-bottom:6px;">Zum Einlesen:</p>
+      <div id="productsLinks" style="font-size:13.5px; line-height:1.9;"></div>
     </section>
 
     <section class="card" id="pushCard">
@@ -527,6 +554,7 @@
 
   // ============ Vision-Popup bei jedem Besuch ============
   let visionModalShown = false;
+  let pendingVision = null;
   function closeVisionModal(){
     document.getElementById('visionModal').classList.remove('open');
   }
@@ -597,7 +625,9 @@
       // Nur beim ersten Laden, nicht nach jedem Speichern erneut
       if(!visionModalShown){
         visionModalShown = true;
-        showVisionModal(visionImageUrl, quote);
+        // Beim allerersten Öffnen kommt zuerst die Einstiegs-Umfrage
+        if(intakePending) pendingVision = { url: visionImageUrl, quote };
+        else showVisionModal(visionImageUrl, quote);
       }
     } else {
       document.getElementById('visionSection').hidden = false;
@@ -832,31 +862,96 @@
   }
 
   // ============ Intake-Umfrage (einmalig) ============
+  // Einmalige Einstiegs-Umfrage als Popup beim ersten Öffnen
+  const PRODUCT_GROUPS = [
+    ['Darm, Gewicht und Energie', ['C9 (9-Tage-Programm)', 'F15', 'Aloe Vera Gel (Trinkgel)', 'Forever Fiber', 'Forever Active Pro-B', 'Forever Daily', 'Forever Lite Ultra', 'ARGI+']],
+    ['Gesichtspflege', ['Logic Serie (Cleanser, Essence, Moisturizer)', 'Aloe Bio-Cellulose Maske', 'Deep Moisturizing Cream', 'Replenishing Skin Oil', 'Smoothing Exfoliator', 'Protecting Day Lotion']],
+    ['Körper und Alltag', ['Aloe Gelly', 'Aloe Propolis Creme', 'Aloe First', 'Aloe Liquid Soap', 'Aloe Body Wash', 'Aloe Body Lotion', 'Forever Bright Zahngel', 'Aloe Lips', 'Aloe Ever-Shield Deo']],
+    ['Haare', ['Aloe-Jojoba Shampoo', 'Aloe-Jojoba Conditioner', 'Nourishing Hair Oil']],
+  ];
+  const MAX_PRODUCTS = 5;
+  let intakePending = false;
+  function buildProductChoices(){
+    const el = document.getElementById('productChoices');
+    el.innerHTML = PRODUCT_GROUPS.map(([group, items]) =>
+      `<div class="product-group-title">${group}</div>` +
+      items.map(p => `<label class="product-choice"><input type="checkbox" name="fokus" value="${p}"> ${p}</label>`).join('')
+    ).join('');
+    el.addEventListener('change', () => {
+      const checked = el.querySelectorAll('input:checked').length;
+      document.getElementById('productCount').textContent = `${checked}/${MAX_PRODUCTS} gewählt`;
+      el.querySelectorAll('input').forEach(i => {
+        const off = !i.checked && checked >= MAX_PRODUCTS;
+        i.disabled = off;
+        i.parentElement.classList.toggle('disabled', off);
+      });
+    });
+  }
   function renderIntake(intakeDone){
-    document.getElementById('intakeCard').hidden = !!intakeDone;
+    intakePending = !intakeDone;
+    if(intakePending){
+      if(!document.querySelector('#productChoices input')) buildProductChoices();
+      document.getElementById('intakeModal').classList.add('open');
+    }
   }
   document.getElementById('intakeForm').addEventListener('submit', async function(e){
     e.preventDefault();
+    const err = document.getElementById('intakeError');
+    const fokus = [...document.querySelectorAll('#productChoices input:checked')].map(i => i.value);
+    const pick = (name) => (document.querySelector(`input[name="${name}"]:checked`) || {}).value || null;
+    if(fokus.length === 0){
+      err.textContent = 'Wähl bitte mindestens 1, am besten 5 Produkte aus.';
+      err.style.display = 'block';
+      document.getElementById('productChoices').scrollIntoView({ behavior:'smooth', block:'start' });
+      return;
+    }
+    err.style.display = 'none';
     const btn = document.getElementById('intakeSubmitBtn');
     btn.disabled = true;
-    const time_capacity = (document.querySelector('input[name="time_capacity"]:checked') || {}).value || null;
-    const past_follow_through = (document.querySelector('input[name="past_follow_through"]:checked') || {}).value || null;
-    const support_needed = document.getElementById('support_needed').value;
+    btn.textContent = 'Wird gespeichert …';
     try {
       const res = await fetch('/.netlify/functions/leader-submit-intake', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, time_capacity, past_follow_through, support_needed }),
+        body: JSON.stringify({
+          token,
+          fokus_produkte: fokus,
+          lieblingsbereich: pick('lieblingsbereich'),
+          time_capacity: pick('time_capacity'),
+          past_follow_through: pick('past_follow_through'),
+          warum: document.getElementById('warum').value,
+          support_needed: document.getElementById('support_needed').value,
+        }),
       });
-      if(res.ok) document.getElementById('intakeCard').hidden = true;
+      if(res.ok){
+        document.getElementById('intakeModal').classList.remove('open');
+        intakePending = false;
+        renderProducts(fokus.join(', '));
+        if(pendingVision) showVisionModal(pendingVision.url, pendingVision.quote);
+      } else {
+        err.textContent = 'Das hat nicht geklappt. Versuch es bitte nochmal.';
+        err.style.display = 'block';
+      }
     } finally {
       btn.disabled = false;
+      btn.textContent = 'Absenden und loslegen';
     }
   });
 
   // ============ Produkte ============
+  const PRODUCT_INFO_PAGES = [
+    ['Alltagspflege (Gelly, Propolis, Aloe First, Seife, Lotion, Haare)', 'produkte-pflege.html'],
+    ['Gesichtspflege mit der Logic Serie', 'produkte-gesichtspflege.html'],
+    ['Sport und Energie', 'produkte-sport.html'],
+    ['Zyklus und Hormone (Daily, C9, Aloe 4-Pack)', 'zyklus-hormon-produkte.html'],
+    ['C9 in 30 Tagen', 'c9-30tage-quick-landingpage.html'],
+    ['Darm, Haut und Cellulite', 'darm-haut-cellulite.html'],
+  ];
   function renderProducts(specializedProducts){
     const card = document.getElementById('productsCard');
+    document.getElementById('productsLinks').innerHTML = PRODUCT_INFO_PAGES
+      .map(([label, href]) => `<div>📖 <a href="${href}" target="_blank" rel="noopener" style="color:var(--gold);">${label}</a></div>`)
+      .join('');
     if(specializedProducts){
       card.hidden = false;
       document.getElementById('productsContent').textContent = specializedProducts;
@@ -1045,6 +1140,7 @@
 
       renderBadges(dashboardData);
       renderDurststrecke(dashboardData);
+      renderIntake(dashboardData.intakeDone);
       renderVision(dashboardData.visionImageUrl);
       renderEagleStage(dashboardData.currentRank);
       renderProgress(dashboardData.progress);
@@ -1053,7 +1149,6 @@
       renderNugget();
       renderQuota(dashboardData.recentWeeks, dashboardData.newTps);
       renderStrategy(dashboardData.strategy, dashboardData.slug);
-      renderIntake(dashboardData.intakeDone);
       renderWeeks(dashboardData.recentWeeks);
       renderProducts(dashboardData.specializedProducts);
       renderTps(dashboardData.newTps);

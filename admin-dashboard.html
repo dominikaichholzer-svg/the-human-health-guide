@@ -59,6 +59,9 @@
   .lmeta{ font-size: 12px; color: var(--ink-muted); line-height:1.5; }
   .flag{ display:inline-block; margin-top:8px; font-size: 11px; font-weight:700; padding: 3px 9px; border-radius: 20px; background: rgba(226,104,90,0.15); color: var(--error); }
   .flag.ok{ background: var(--gold-dim); color: var(--gold); }
+  .more-box{ margin-top:12px; border-top:1px solid var(--hairline); padding-top:10px; }
+  .more-box summary{ cursor:pointer; font-weight:700; font-size:13px; color: var(--gold); }
+  .week-entry{ margin-top:10px; padding-top:8px; border-top:1px dashed var(--hairline); }
 
   .insight-box{ margin-top: 12px; padding: 10px 12px; background: var(--gold-dim); border-left: 3px solid var(--gold); border-radius: 8px; font-size: 12px; line-height: 1.5; color: var(--ink); }
 
@@ -236,8 +239,40 @@
         <input type="text" class="products-input" data-leader="${l.id}" value="${(l.specializedProducts || '').replace(/"/g, '&quot;')}" placeholder="z.B. Aloe Gel, Logic Serie, ..." style="width:100%; margin-bottom:6px; padding: 8px 10px; border: 1.5px solid var(--hairline); border-radius: 8px; font-family: var(--sans); font-size: 12.5px; background: rgba(255,255,255,0.04); color: var(--ink);">
         <button class="btn save-products-btn" data-leader="${l.id}" type="button" style="padding:8px 14px; font-size:12px; width:auto;">Speichern</button>
         ${heatmapHtml(l.visitsByDay)}
+        ${intakeHtml(l.intake)}
+        ${weeksHtml(l.recentWeeks)}
       </div>
     `;
+  }
+
+  function esc(v){
+    return String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+  }
+  const TIME_LABELS = { unter2:'Unter 2 Std.', '2bis5':'2 bis 5 Std.', '5bis10':'5 bis 10 Std.', ueber10:'Über 10 Std.' };
+  const FOLLOW_LABELS = { selten:'Eher selten', teils:'Teils teils', meistens:'Meistens', fast_immer:'Fast immer' };
+  function intakeHtml(i){
+    if(!i) return '<details class="more-box"><summary>Einstiegs-Umfrage</summary><p class="lmeta">Noch nicht ausgefüllt.</p></details>';
+    const row = (label, val) => val ? `<p class="lmeta"><b>${label}:</b> ${esc(val)}</p>` : '';
+    return `<details class="more-box"><summary>Einstiegs-Umfrage</summary>
+      ${row('Fokus-Produkte', i.fokus_produkte)}
+      ${row('Lieblingsbereich', i.lieblingsbereich)}
+      ${row('Zeit pro Woche', TIME_LABELS[i.time_capacity] || i.time_capacity)}
+      ${row('Drangeblieben', FOLLOW_LABELS[i.past_follow_through] || i.past_follow_through)}
+      ${row('Ziel und Warum', i.warum)}
+      ${row('Was hilft beim Dranbleiben', i.support_needed)}
+    </details>`;
+  }
+  function weeksHtml(weeks){
+    if(!weeks || !weeks.length) return '';
+    const icons = (w) => (w.gesundheit_supplemente ? '💊' : '') + (w.gesundheit_sport ? '🏃' : '') + (w.gesundheit_ernaehrung ? '🥗' : '');
+    return `<details class="more-box"><summary>Wochen und Reflexionen</summary>${weeks.slice(0, 6).map(w => `
+      <div class="week-entry">
+        <p class="lmeta"><b>Woche ab ${esc(w.week_start)}</b> ${icons(w)}</p>
+        <p class="lmeta">CC ${esc(w.cc_stand ?? '–')} · Kontakte ${esc(w.kontakte_gesamt ?? '–')} · Präsentationen ${esc(w.geschaeftspraesentationen_versendet ?? '–')} · Verschenkt ${esc(w.produkte_verschenkt ?? '–')} · Events eingeladen ${esc(w.offline_events_eingeladen ?? '–')}</p>
+        ${w.reflexion_1 ? `<p class="lmeta"><b>Energie gekostet:</b> ${esc(w.reflexion_1)}</p>` : ''}
+        ${w.reflexion_2 ? `<p class="lmeta"><b>Gut funktioniert:</b> ${esc(w.reflexion_2)}</p>` : ''}
+        ${w.reflexion_3 ? `<p class="lmeta"><b>Wünscht sich Unterstützung:</b> ${esc(w.reflexion_3)}</p>` : ''}
+      </div>`).join('')}</details>`;
   }
 
   async function loadOverview(){

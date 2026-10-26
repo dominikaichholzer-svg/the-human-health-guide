@@ -61,6 +61,11 @@ exports.handler = async function (event) {
       });
       const latestInsight = insightRows && insightRows[0] ? insightRows[0] : null;
 
+      const intakeRows = await pgrest('intake_survey', {
+        query: `leader_id=eq.${leader.id}&select=*`,
+      });
+      const intake = intakeRows && intakeRows[0] ? intakeRows[0] : null;
+
       const sinceDate = daysAgo(today, 55);
       const visits = await pgrest('dashboard_visits', {
         query: `leader_id=eq.${leader.id}&visited_at=gte.${sinceDate}&select=visited_at`,
@@ -72,6 +77,7 @@ exports.handler = async function (event) {
         name: leader.name,
         currentRank: leader.current_rank,
         specializedProducts: leader.specialized_products || '',
+        intake,
         progress,
         recentWeeks: weeklyEntries,
         lastSubmitted: weeklyEntries[0] ? weeklyEntries[0].week_start : null,
