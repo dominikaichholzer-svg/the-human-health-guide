@@ -658,10 +658,16 @@
     `;
   }
 
-  function renderStrategy(strategy){
+  // {LINK} in Dominiks Strategie-Text wird durch den persönlichen
+  // Geschenke-Umfrage-Link der Leaderin ersetzt
+  function renderStrategy(strategy, slug){
     const el = document.getElementById('strategyContent');
     if(strategy.ready){
-      el.innerHTML = `<div class="note-box">${strategy.content.replace(/\n/g, '<br>')}</div>`;
+      const link = slug && GESCHENKE_PAGES.includes(slug)
+        ? 'https://mein-quiz-health.netlify.app/geschenke-umfrage-' + slug + '.html'
+        : '(deinen Link bekommst du von Dominik)';
+      const text = strategy.content.split('{LINK}').join(link);
+      el.innerHTML = `<div class="note-box">${text.replace(/\n/g, '<br>')}</div>`;
     } else {
       el.innerHTML = `<div class="note-box waiting">Wartet auf Planung von Dominik für diesen Monat. Schau bald wieder vorbei.</div>`;
     }
@@ -1038,7 +1044,7 @@
       renderXmas(dashboardData.slug);
       renderNugget();
       renderQuota(dashboardData.recentWeeks, dashboardData.newTps);
-      renderStrategy(dashboardData.strategy);
+      renderStrategy(dashboardData.strategy, dashboardData.slug);
       renderIntake(dashboardData.intakeDone);
       renderWeeks(dashboardData.recentWeeks);
       renderProducts(dashboardData.specializedProducts);
