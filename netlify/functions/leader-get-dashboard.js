@@ -57,8 +57,10 @@ exports.handler = async function (event) {
 
     const progress = computeProgress(leader, weeklyEntries);
 
-    const intakeRows = await pgrest('intake_survey', { query: `leader_id=eq.${leader.id}&select=leader_id` });
-    const intakeDone = !!(intakeRows && intakeRows.length > 0);
+    // Erledigt erst, wenn die Fokus-Produkte gewählt sind. Wer nur die alte
+    // Einstiegs-Umfrage (ohne Produkte) ausgefüllt hat, bekommt die neue.
+    const intakeRows = await pgrest('intake_survey', { query: `leader_id=eq.${leader.id}&select=leader_id,fokus_produkte` });
+    const intakeDone = !!(intakeRows && intakeRows[0] && intakeRows[0].fokus_produkte);
 
     const newTps = await pgrest('new_tps', {
       query: `leader_id=eq.${leader.id}&order=created_at.desc&select=id,tp_name,step_1,step_2,step_3,step_4,step_5,step_6,step_7`,
