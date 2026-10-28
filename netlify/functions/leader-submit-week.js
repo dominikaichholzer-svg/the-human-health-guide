@@ -10,6 +10,7 @@
 //   "naechstes_event_mitgebracht": 1,
 //   "offline_events_eingeladen": 4,
 //   "kontakte_gesamt": 20,
+//   "nachgefasst": 6,
 //   "reflexion_1": "...", "reflexion_2": "...", "reflexion_3": "...",
 //   "gesundheit_supplemente": true, "gesundheit_sport": false, "gesundheit_ernaehrung": true
 // }
@@ -81,6 +82,7 @@ exports.handler = async function (event) {
       naechstes_event_mitgebracht: numOrNull(payload.naechstes_event_mitgebracht),
       offline_events_eingeladen: numOrNull(payload.offline_events_eingeladen),
       kontakte_gesamt: numOrNull(payload.kontakte_gesamt),
+      nachgefasst: numOrNull(payload.nachgefasst),
       reflexion_1: payload.reflexion_1 || null,
       reflexion_2: payload.reflexion_2 || null,
       reflexion_3: payload.reflexion_3 || null,
@@ -100,11 +102,11 @@ exports.handler = async function (event) {
     try {
       await save(row);
     } catch (err) {
-      // Solange die Gesundheits-Spalten in Supabase noch nicht angelegt sind
+      // Solange die Gesundheits- bzw. Nachgefasst-Spalten in Supabase noch nicht angelegt sind
       // (PostgREST-Fehler PGRST204), ohne sie speichern statt den ganzen
       // Eintrag zu verlieren
       if (!(err.data && err.data.code === 'PGRST204')) throw err;
-      const { gesundheit_supplemente, gesundheit_sport, gesundheit_ernaehrung, ...rest } = row;
+      const { gesundheit_supplemente, gesundheit_sport, gesundheit_ernaehrung, nachgefasst, ...rest } = row;
       await save(rest);
     }
 

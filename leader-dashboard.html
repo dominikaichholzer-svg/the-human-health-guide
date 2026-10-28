@@ -399,6 +399,10 @@
         </div>
 
         <div class="field">
+          <label for="nachgefasst">Wie viele hast du diese Woche nachgefasst?</label>
+          <input type="number" step="1" min="0" id="nachgefasst" name="nachgefasst">
+        </div>
+        <div class="field">
           <label for="reflexion_1">Was hat diese Woche am meisten Energie gekostet?</label>
           <textarea id="reflexion_1" name="reflexion_1"></textarea>
         </div>
@@ -1112,7 +1116,7 @@
   function prefillForm(weeks, currentWeekMonday){
     const current = (weeks || []).find(w => w.week_start === currentWeekMonday);
     if(!current) return;
-    ['cc_stand','kontakte_gesamt','geschaeftspraesentationen_versendet','produkte_verschenkt','offline_events_eingeladen','naechstes_event_mitgebracht','reflexion_1','reflexion_2','reflexion_3'].forEach(key => {
+    ['cc_stand','kontakte_gesamt','geschaeftspraesentationen_versendet','produkte_verschenkt','offline_events_eingeladen','naechstes_event_mitgebracht','nachgefasst','reflexion_1','reflexion_2','reflexion_3'].forEach(key => {
       const input = document.getElementById(key);
       if(input && current[key] != null) input.value = current[key];
     });
@@ -1179,6 +1183,7 @@
       produkte_verschenkt: document.getElementById('produkte_verschenkt').value,
       offline_events_eingeladen: document.getElementById('offline_events_eingeladen').value,
       naechstes_event_mitgebracht: document.getElementById('naechstes_event_mitgebracht').value,
+      nachgefasst: document.getElementById('nachgefasst').value,
       reflexion_1: document.getElementById('reflexion_1').value,
       reflexion_2: document.getElementById('reflexion_2').value,
       reflexion_3: document.getElementById('reflexion_3').value,

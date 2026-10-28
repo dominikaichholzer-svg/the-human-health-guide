@@ -268,7 +268,7 @@
     return `<details class="more-box"><summary>Wochen und Reflexionen</summary>${weeks.slice(0, 6).map(w => `
       <div class="week-entry">
         <p class="lmeta"><b>Woche ab ${esc(w.week_start)}</b> ${icons(w)}</p>
-        <p class="lmeta">CC ${esc(w.cc_stand ?? '–')} · Kontakte ${esc(w.kontakte_gesamt ?? '–')} · Präsentationen ${esc(w.geschaeftspraesentationen_versendet ?? '–')} · Verschenkt ${esc(w.produkte_verschenkt ?? '–')} · Events eingeladen ${esc(w.offline_events_eingeladen ?? '–')}</p>
+        <p class="lmeta">CC ${esc(w.cc_stand ?? '–')} · Kontakte ${esc(w.kontakte_gesamt ?? '–')} · Präsentationen ${esc(w.geschaeftspraesentationen_versendet ?? '–')} · Verschenkt ${esc(w.produkte_verschenkt ?? '–')} · Events eingeladen ${esc(w.offline_events_eingeladen ?? '–')} · Nachgefasst ${esc(w.nachgefasst ?? '–')}</p>
         ${w.reflexion_1 ? `<p class="lmeta"><b>Energie gekostet:</b> ${esc(w.reflexion_1)}</p>` : ''}
         ${w.reflexion_2 ? `<p class="lmeta"><b>Gut funktioniert:</b> ${esc(w.reflexion_2)}</p>` : ''}
         ${w.reflexion_3 ? `<p class="lmeta"><b>Wünscht sich Unterstützung:</b> ${esc(w.reflexion_3)}</p>` : ''}

@@ -21,6 +21,7 @@ function buildPrompt(leader, entry) {
     ['Fürs nächste Event mitgebracht', entry.naechstes_event_mitgebracht],
     ['Zu Offline-Events eingeladen', entry.offline_events_eingeladen],
     ['Kontakte gesamt', entry.kontakte_gesamt],
+    ['Nachgefasst', entry.nachgefasst],
   ].map(([label, val]) => `${label}: ${val != null ? val : 'keine Angabe'}`).join('\n');
 
   const yesNo = (v) => (v === true ? 'ja' : v === false ? 'nein' : 'keine Angabe');
