@@ -218,15 +218,15 @@
   const questions = [
     {
       id: 'fuer_wen',
-      type: 'single',
+      type: 'multi',
       title: 'Für wen suchst du dieses Jahr vor allem Weihnachtsgeschenke?',
+      subtitle: 'Du kannst mehrere auswählen.',
       options: [
         { value: 'partner', label: 'Für meine:n Partner:in' },
         { value: 'familie', label: 'Für die Familie' },
         { value: 'freunde', label: 'Für Freunde' },
         { value: 'kollegen', label: 'Für Kolleg:innen' },
         { value: 'selbst', label: 'Für mich selbst' },
-        { value: 'mehrere', label: 'Für mehrere davon' },
       ],
     },
     {
@@ -369,7 +369,7 @@
       btn.type = 'button';
       btn.className = 'option';
       btn.textContent = opt.label;
-      if(existing && existing.value === opt.value) btn.classList.add('selected');
+      if(existing && (q.type === 'multi' ? existing.values.includes(opt.value) : existing.value === opt.value)) btn.classList.add('selected');
       btn.onclick = () => selectOption(q, opt, btn);
       optionsEl.appendChild(btn);
     });
@@ -380,6 +380,17 @@
   }
 
   function selectOption(q, opt, btnEl){
+    // Mehrfachauswahl: an- und abwählen, Labels für die Mail zusammenfassen
+    if(q.type === 'multi'){
+      btnEl.classList.toggle('selected');
+      const values = q.options.filter((o, i) => document.querySelectorAll('#qoptions .option')[i].classList.contains('selected'));
+      if(values.length){
+        state.answers[q.id] = { values: values.map(o => o.value), label: values.map(o => o.label).join(', ') };
+      } else {
+        delete state.answers[q.id];
+      }
+      return;
+    }
     document.querySelectorAll('#qoptions .option').forEach(b => b.classList.remove('selected'));
     btnEl.classList.add('selected');
     state.answers[q.id] = { value: opt.value, label: opt.label };
