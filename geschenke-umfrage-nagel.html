@@ -205,6 +205,11 @@
     <div class="eyebrow">GESCHAFFT</div>
     <h1 class="hero">Danke dir, <em>wir melden uns</em>.</h1>
     <p class="lede">Wir haben deine Antworten und melden uns meistens innerhalb weniger Stunden persönlich bei dir. 🎁 Und denk dran: Bei einer Bestellung wartet noch eine kleine Überraschung von uns auf dich!</p>
+    <p class="alt-label">Zur Inspiration</p>
+    <div class="set-card" id="thanksCard"></div>
+    <div class="set-card" id="thanksAltCard"></div>
+    <p class="alt-label">Alle 9 Sets im Überblick</p>
+    <img class="overview-img" src="img/geschenke/caroline-uebersicht.webp" alt="Alle 9 Geschenksets im Überblick">
   </section>
 
   <footer class="legal">
@@ -481,6 +486,8 @@
     const alt = alternativeKey(key);
     document.getElementById('altLabel').textContent = alt.label + ': ' + SETS[alt.key].name + ' für ' + SETS[alt.key].price;
     document.getElementById('altCard').innerHTML = setCardHtml(SETS[alt.key]);
+    document.getElementById('thanksCard').innerHTML = setCardHtml(set);
+    document.getElementById('thanksAltCard').innerHTML = setCardHtml(SETS[alt.key]);
     document.getElementById('summaryLede').textContent =
       'Trag dich kurz ein, dann melden wir uns persönlich bei dir und schauen gemeinsam, welches Set am besten passt.';
   }
