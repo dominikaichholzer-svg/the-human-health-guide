@@ -110,7 +110,7 @@
     h1.hero{ font-size: 28px; }
     h2.qtitle{ font-size: 21px; }
   }
-  .teaser-img{ width:100%; display:block; aspect-ratio: 16 / 9; object-fit: cover; object-position: 50% 45%; border-radius: 12px; border:1px solid var(--hairline); margin-bottom: 22px; }
+  .teaser-img{ width:100%; display:block; border-radius: 12px; border:1px solid var(--hairline); margin-bottom: 22px; }
   .teaser-grid{ display:grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 22px; }
   .teaser-grid img{ width:100%; display:block; aspect-ratio: 3 / 4; object-fit: cover; object-position: 50% 78%; border-radius: 8px; border:1px solid var(--hairline); }
 </style>
@@ -132,13 +132,18 @@
 
   <!-- SCREEN 0: Intro -->
   <section class="screen active" id="screen-intro">
-    <img class="teaser-img" src="img/geschenke/caroline-uebersicht.webp" alt="Ein Teil der Geschenksets">
     <div class="eyebrow">KURZ GEFRAGT</div>
     <h1 class="hero">Schön, dass du <em>dabei bist</em>!</h1>
     <p class="lede tight">Ich habe vor Kurzem mein eigenes kleines Business gestartet und freue mich riesig, dir zu Weihnachten meine 9 Geschenksets in 3 Größen zu zeigen. Ob für Mama, Papa, deinen Partner oder deine Partnerin, Freunde oder einfach für dich selbst. 🎁❤️</p>
     <p class="lede tight">Beantworte einfach 4 kurze Fragen und finde heraus, welches Set am besten passt. Danach melde ich mich persönlich bei dir. 😊</p>
     <p class="lede tight">🎁 Als kleines Dankeschön wartet auf jeden, der etwas bestellt, noch eine Überraschung von mir!</p>
     <p class="lede">Danke, dass du mich am Anfang unterstützt, das bedeutet mir wirklich viel. ✨</p>
+    <p class="alt-label">Gesicht</p>
+    <img class="teaser-img" src="img/geschenke/caroline-reihe-gesicht.webp" alt="Sets für Gesicht">
+    <p class="alt-label">Haare</p>
+    <img class="teaser-img" src="img/geschenke/caroline-reihe-haar.webp" alt="Sets für Haare">
+    <p class="alt-label">Körper</p>
+    <img class="teaser-img" src="img/geschenke/caroline-reihe-koerper.webp" alt="Sets für Körper">
     <button class="btn" onclick="startQuiz()">Los geht's →</button>
   </section>
 
