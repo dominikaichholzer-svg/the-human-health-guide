@@ -107,6 +107,9 @@
     h1.hero{ font-size: 28px; }
     h2.qtitle{ font-size: 21px; }
   }
+  .teaser-img{ width:100%; display:block; aspect-ratio: 16 / 9; object-fit: cover; object-position: 50% 45%; border-radius: 12px; border:1px solid var(--hairline); margin-bottom: 22px; }
+  .teaser-grid{ display:grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 22px; }
+  .teaser-grid img{ width:100%; display:block; aspect-ratio: 3 / 4; object-fit: cover; object-position: 50% 78%; border-radius: 8px; border:1px solid var(--hairline); }
 </style>
 </head>
 <body>
@@ -126,6 +129,7 @@
 
   <!-- SCREEN 0: Intro -->
   <section class="screen active" id="screen-intro">
+    <div class="teaser-grid"><img src="img/geschenke/frank-set-1-men-care.webp" alt=""><img src="img/geschenke/frank-set-2-bathroom-trio.webp" alt=""><img src="img/geschenke/frank-set-3-hair-care.webp" alt=""><img src="img/geschenke/frank-set-4-face-holiday.webp" alt=""></div>
     <div class="eyebrow">KURZ GEFRAGT</div>
     <h1 class="hero">Schön, dass du <em>mitmachst</em>!</h1>
     <p class="lede tight">Ich habe 4 verschiedene Sets für dich zusammengestellt. Vielleicht ist ja genau das Richtige für dich selbst oder deine Liebsten dabei. Ob für Mama, Papa, deinen Partner/deine Partnerin, Freunde oder einfach für dich selbst. 🎁❤️</p>
