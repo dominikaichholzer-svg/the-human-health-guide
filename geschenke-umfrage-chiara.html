@@ -249,9 +249,9 @@
     },
     {
       id: 'bereich',
-      type: 'single',
-      title: 'Welcher Bereich passt am besten zu der Person, die du beschenken willst?',
-      subtitle: 'Oder zu dir selbst, wenn du dich beschenken willst.',
+      type: 'multi',
+      title: 'Welche Bereiche passen zu der Person, die du beschenken willst?',
+      subtitle: 'Oder zu dir selbst. Du kannst mehrere auswählen.',
       options: [
         { value: 'haar', label: 'Haarpflege' },
         { value: 'gesicht', label: 'Gesichtspflege' },
@@ -323,7 +323,9 @@
   }
 
   function chosenSetKey(){
-    const area = state.answers['bereich'] ? state.answers['bereich'].value : 'koerper';
+    const a = state.answers['bereich'];
+    // Mehrfachauswahl: der erste gewählte Bereich bestimmt das empfohlene Set
+    const area = a ? (a.values ? a.values[0] : a.value) : 'koerper';
     const b = state.answers['budget'];
     const opt = b && questions.find(q => q.id === 'budget').options.find(o => o.value === b.value);
     return area + '_' + (opt ? opt.size : 'medium');
@@ -332,6 +334,10 @@
   // Eine Alternative im selben Bereich: die nächste Größe, bei large die medium
   function alternativeKey(key){
     const [area, size] = key.split('_');
+    // Mehrere Bereiche gewählt: als Alternative das Set aus dem zweiten Bereich zeigen
+    const a = state.answers['bereich'];
+    const other = a && a.values && a.values.find(v => v !== area);
+    if(other) return { key: other + '_' + size, label: 'Passt auch' };
     const i = SIZE_ORDER.indexOf(size);
     return i < 2
       ? { key: area + '_' + SIZE_ORDER[i + 1], label: 'Noch mehr verwöhnen' }

@@ -237,9 +237,9 @@
     },
     {
       id: 'bereich',
-      type: 'single',
-      title: 'Welcher Bereich passt am besten zu der Person, die du beschenken willst?',
-      subtitle: 'Oder zu dir selbst, wenn du dich beschenken willst.',
+      type: 'multi',
+      title: 'Welche Bereiche passen zu der Person, die du beschenken willst?',
+      subtitle: 'Oder zu dir selbst. Du kannst mehrere auswählen.',
       options: [
         { value: 'men_care', label: 'Pflege für Männer' },
         { value: 'bathroom_trio', label: 'Tägliche Pflege im Bad' },
@@ -308,7 +308,9 @@
 
   function chosenSetKey(){
     const a = state.answers['bereich'];
-    return a && SETS[a.value] ? a.value : 'bathroom_trio';
+    // Mehrfachauswahl: das erste gewählte Set wird empfohlen
+    const first = a && (a.values ? a.values[0] : a.value);
+    return first && SETS[first] ? first : 'bathroom_trio';
   }
 
   function budgetAlternative(key){
