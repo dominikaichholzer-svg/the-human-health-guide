@@ -108,8 +108,9 @@
     h2.qtitle{ font-size: 21px; }
   }
   .teaser-img{ width:100%; display:block; aspect-ratio: 16 / 9; object-fit: cover; object-position: 50% 45%; border-radius: 12px; border:1px solid var(--hairline); margin-bottom: 22px; }
-  .teaser-grid{ display:grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 22px; }
-  .teaser-grid img{ width:100%; display:block; aspect-ratio: 3 / 4; object-fit: cover; object-position: 50% 78%; border-radius: 8px; border:1px solid var(--hairline); }
+  .teaser-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 26px; }
+  .teaser-grid img{ width:100%; display:block; border-radius: 10px; border:1px solid var(--hairline); }
+  .rubrik{ font-family: var(--serif); font-size: 22px; font-weight: 700; color: var(--ink); margin: 0 0 8px; }
 </style>
 </head>
 <body>
@@ -129,13 +130,16 @@
 
   <!-- SCREEN 0: Intro -->
   <section class="screen active" id="screen-intro">
-    <div class="teaser-grid"><img src="img/geschenke/frank-set-1-men-care.webp" alt=""><img src="img/geschenke/frank-set-2-bathroom-trio.webp" alt=""><img src="img/geschenke/frank-set-3-hair-care.webp" alt=""><img src="img/geschenke/frank-set-4-face-holiday.webp" alt=""></div>
     <div class="eyebrow">KURZ GEFRAGT</div>
     <h1 class="hero">Schön, dass du <em>mitmachst</em>!</h1>
-    <p class="lede tight">Ich habe 4 verschiedene Sets für dich zusammengestellt. Vielleicht ist ja genau das Richtige für dich selbst oder deine Liebsten dabei. Ob für Mama, Papa, deinen Partner/deine Partnerin, Freunde oder einfach für dich selbst. 🎁❤️</p>
-    <p class="lede tight">Beantworte einfach die 4 kurzen Fragen und finde heraus, welches Set am besten passt. Anschließend melde ich mich persönlich bei dir. 😊</p>
-    <p class="lede tight">🎁 Als kleines Dankeschön wartet auf jeden, der etwas bestellt, noch eine kleine Überraschung von mir!</p>
-    <p class="lede">Viel Spaß beim Durchklicken! ✨🌿</p>
+    <p class="lede tight">Ich habe dir 4 Pflege-Sets mit Aloe Vera zusammengestellt, für Männer, das Bad, die Haare und das Gesicht. 🎁</p>
+    <p class="lede">4 kurze Fragen, dann weißt du, welches Set passt. Ich melde mich danach persönlich, und bei einer Bestellung wartet eine kleine Überraschung auf dich! ✨</p>
+    <div class="teaser-grid">
+      <div><h2 class="rubrik">Männer</h2><img src="img/geschenke/frank-set-1-men-care.webp" alt="Set Men Care"></div>
+      <div><h2 class="rubrik">Bad</h2><img src="img/geschenke/frank-set-2-bathroom-trio.webp" alt="Set Bathroom Trio"></div>
+      <div><h2 class="rubrik">Haare</h2><img src="img/geschenke/frank-set-3-hair-care.webp" alt="Set Hair Care"></div>
+      <div><h2 class="rubrik">Gesicht</h2><img src="img/geschenke/frank-set-4-face-holiday.webp" alt="Set Face Holiday"></div>
+    </div>
     <button class="btn" onclick="startQuiz()">Los geht's →</button>
   </section>
 
