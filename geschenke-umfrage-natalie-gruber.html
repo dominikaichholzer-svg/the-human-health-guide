@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Natalie · Geschenke-Umfrage</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #BFE3DE;
+    --bg-raised: #FFFFFF;
+    --bg-raised-hover: #EAF7F4;
+    --ink: #123330;
+    --ink-muted: #4C7C76;
+    --hairline: #9CCFC8;
+    --gold: #17504A;
+    --gold-dim: rgba(23,80,74,0.08);
+    --error: #C4453A;
+    --radius: 14px;
+    --serif: 'Fraunces', serif;
+    --sans: 'Inter', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; background: var(--bg); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+  body{ min-height:100vh; display:flex; justify-content:center; padding: 32px 16px 64px; }
+  .app{ width:100%; max-width: 480px; }
+
+  .brandbar{ display:flex; justify-content:space-between; align-items:flex-start; padding-bottom: 22px; border-bottom: 1px solid var(--hairline); margin-bottom: 28px; }
+  .brandbar .name{ font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; }
+  .brandbar .tag{ font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-muted); text-align:right; }
+  .dot{ display:inline-block; width:6px; height:6px; border-radius:50%; background: var(--gold); margin-right:8px; }
+
+  .progress-wrap{ margin-bottom: 26px; }
+  .progress-meta{ display:flex; justify-content:space-between; font-family: var(--mono); font-size: 11px; color: var(--ink-muted); letter-spacing:0.06em; margin-bottom:10px; }
+  .progress-track{ position:relative; height: 6px; border-radius: 6px; background: var(--hairline); overflow:hidden; }
+  .progress-fill{ position:absolute; top:0; left:0; height:100%; border-radius:6px; background: var(--gold); width:0%; transition: width 0.4s cubic-bezier(.4,0,.2,1); }
+
+  .screen{ display:none; }
+  .screen.active{ display:block; animation: fadeIn 0.35s ease; }
+  @keyframes fadeIn{ from{ opacity:0; transform: translateY(6px); } to{ opacity:1; transform: translateY(0); } }
+  @media (prefers-reduced-motion: reduce){ .screen.active{ animation:none; } .progress-fill{ transition:none; } }
+
+  .eyebrow{ font-family: var(--mono); font-size: 11px; letter-spacing:0.14em; text-transform:uppercase; color: var(--gold); margin-bottom: 14px; }
+  h1.hero{ font-family: var(--serif); font-weight: 400; font-size: 34px; line-height: 1.14; margin: 0 0 18px; }
+  h1.hero em{ font-style: italic; font-weight:500; color: var(--gold); }
+  .lede{ color: var(--ink-muted); font-size: 15.5px; line-height:1.6; margin-bottom: 30px; }
+  .lede.tight{ margin-bottom: 14px; }
+  .set-card{ background: var(--bg-raised); border:1px solid var(--hairline); border-radius: var(--radius); overflow:hidden; margin: 0 0 26px; }
+  .set-card img{ width:100%; display:block; aspect-ratio: 3 / 4; object-fit: cover; object-position: 50% 78%; }
+  .overview-img{ width:100%; display:block; border-radius: 12px; border:1px solid var(--hairline); margin-top: 14px; }
+  .alt-label{ font-family: var(--mono); font-size: 11px; letter-spacing:0.14em; text-transform:uppercase; color: var(--gold); margin: 0 0 10px; }
+  .item-desc{ display:block; color: var(--ink-muted); font-size: 13.5px; line-height:1.45; margin: 2px 0 8px; }
+  .set-body{ padding: 18px 18px 20px; }
+  .set-name{ font-family: var(--serif); font-size: 24px; margin: 0 0 4px; }
+  .set-price{ font-family: var(--mono); font-size: 13px; letter-spacing:0.06em; color: var(--gold); margin-bottom: 12px; }
+  .set-items{ margin:0; padding-left: 18px; color: var(--ink); font-size: 14.5px; line-height:1.6; }
+  .budget-hint{ background: var(--gold-dim); border-radius: 12px; padding: 12px 14px; font-size: 14.5px; line-height: 1.5; color: var(--ink); margin: -10px 0 22px; }
+  .other-sets{ margin: 0 0 26px; }
+  .other-sets summary{ cursor:pointer; font-weight:600; color: var(--gold); font-size: 14.5px; padding: 4px 0; }
+  .other-grid{ display:grid; grid-template-columns: 1fr; gap: 12px; margin-top: 14px; }
+  .other-grid .set-card{ margin:0; }
+  .other-grid .set-name{ font-size: 19px; }
+  .info-image{ width:100%; border-radius: 12px; border:1px solid var(--hairline); margin: 0 0 22px; display:block; }
+
+  .btn{ display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding: 18px 22px; background: var(--gold); color: #F7FBFA; border:none; border-radius: var(--radius); font-family: var(--sans); font-weight: 700; font-size: 16px; cursor:pointer; text-decoration:none; transition: transform 0.15s ease, background 0.15s ease; }
+  .btn:hover{ transform: translateY(-1px); background:#1F625B; }
+  .btn:active{ transform: translateY(0); }
+  .btn:disabled{ opacity:0.6; cursor:default; transform:none; }
+
+  .btn-outline{ display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding: 13px 18px; background: transparent; color: var(--gold); border: 1.5px solid var(--gold); border-radius: var(--radius); font-family: var(--sans); font-weight: 700; font-size: 14px; cursor:pointer; text-decoration:none; transition: background 0.15s ease; }
+  .btn-outline:hover{ background: var(--gold-dim); }
+
+  .btn-ghost{ background: transparent; color: var(--ink-muted); border: 1px solid var(--hairline); font-weight: 600; padding: 12px 18px; width:auto; }
+  .btn-ghost:hover{ background: var(--bg-raised); color: var(--ink); }
+
+  .qnum{ font-family: var(--serif); font-style: italic; font-size: 15px; color: var(--gold); margin-bottom: 6px; }
+  h2.qtitle{ font-family: var(--serif); font-weight:400; font-size: 24px; line-height:1.28; margin: 0 0 10px; }
+  .qsubtitle{ color: var(--ink-muted); font-size: 14px; line-height:1.55; margin: 0 0 22px; }
+  .qtag{ font-family: var(--mono); font-size: 10.5px; letter-spacing:0.08em; text-transform:uppercase; color: var(--gold); margin: 0 0 16px; }
+
+  .options{ display:flex; flex-direction:column; gap: 10px; margin-bottom: 8px; }
+  .option{ text-align:left; background: var(--bg-raised); border: 1.5px solid var(--hairline); color: var(--ink); border-radius: var(--radius); padding: 16px 18px; font-family: var(--sans); font-size: 15px; line-height:1.4; cursor:pointer; transition: border-color 0.15s ease, background 0.15s ease, transform 0.1s ease; }
+  .option:hover{ background: var(--bg-raised-hover); border-color: var(--gold); }
+  .option:active{ transform: scale(0.995); }
+  .option.selected{ border-color: var(--gold); background: var(--gold-dim); }
+
+  .nav-row{ display:flex; justify-content:space-between; align-items:center; margin-top: 20px; gap: 12px; }
+  .nav-row .btn{ flex:1; }
+
+  .field{ margin-bottom:16px; }
+  .field label{ display:block; font-family: var(--mono); font-size: 11px; letter-spacing:0.08em; text-transform:uppercase; color: var(--ink-muted); margin-bottom: 8px; }
+  .field input{ width:100%; background: var(--bg-raised); border: 1.5px solid var(--hairline); border-radius: var(--radius); padding: 15px 16px; color: var(--ink); font-family: var(--sans); font-size: 15px; }
+  .field input::placeholder{ color: #7FA9A2; }
+  .field input:focus{ outline:none; border-color: var(--gold); }
+  .field .error-msg{ display:none; color: var(--error); font-size: 12.5px; margin-top:6px; }
+  .field.invalid input{ border-color: var(--error); }
+  .field.invalid .error-msg{ display:block; }
+
+  .fineprint{ font-size: 12.5px; color: var(--ink-muted); line-height:1.6; margin: 16px 0 0; }
+
+  .placeholder-note{ font-style: italic; color: var(--ink-muted); }
+
+  footer.legal{ margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--hairline); font-size: 11.5px; color: #4C7C76; line-height:1.6; }
+  footer.legal .brand{ margin-top:10px; font-family: var(--mono); letter-spacing:0.05em; }
+
+  @media (max-width: 380px){
+    h1.hero{ font-size: 28px; }
+    h2.qtitle{ font-size: 21px; }
+  }
+  .teaser-img{ width:100%; display:block; border-radius: 12px; border:1px solid var(--hairline); margin-bottom: 22px; }
+  .rubrik{ font-family: var(--serif); font-size: 26px; font-weight: 700; color: var(--ink); margin: 6px 0 10px; }
+  .teaser-grid{ display:grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 22px; }
+  .teaser-grid img{ width:100%; display:block; aspect-ratio: 3 / 4; object-fit: cover; object-position: 50% 78%; border-radius: 8px; border:1px solid var(--hairline); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="brandbar">
+    <div class="name"><span class="dot"></span>NATALIE</div>
+    <div class="tag">GESCHENKE<br>UMFRAGE</div>
+  </div>
+
+  <div class="progress-wrap" id="progressWrap" style="display:none;">
+    <div class="progress-meta">
+      <span id="progressLabel">Frage 1 von 4</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+
+  <!-- SCREEN 0: Intro -->
+  <section class="screen active" id="screen-intro">
+    <div class="eyebrow">KURZ GEFRAGT</div>
+    <h1 class="hero">Geschenke, die wirklich <em>gut tun</em></h1>
+    <p class="lede tight">Ich habe dir 9 Pflege-Sets mit Aloe Vera zusammengestellt, für Gesicht, Haare und Körper, jeweils in 3 Größen. 🎁</p>
+    <p class="lede">4 kurze Fragen, dann weißt du, welches Set passt. Ich melde mich danach persönlich, und bei einer Bestellung wartet eine kleine Überraschung auf dich! ✨</p>
+    <h2 class="rubrik">Gesicht</h2>
+    <img class="teaser-img" src="img/geschenke/caroline-reihe-gesicht.webp" alt="Sets für Gesicht">
+    <h2 class="rubrik">Haare</h2>
+    <img class="teaser-img" src="img/geschenke/caroline-reihe-haar.webp" alt="Sets für Haare">
+    <h2 class="rubrik">Körper</h2>
+    <img class="teaser-img" src="img/geschenke/caroline-reihe-koerper.webp" alt="Sets für Körper">
+    <button class="btn" onclick="startQuiz()">Los geht's →</button>
+  </section>
+
+  <!-- SCREEN 1: Questions (rendered dynamically) -->
+  <section class="screen" id="screen-question">
+    <div class="qnum" id="qnum"></div>
+    <h2 class="qtitle" id="qtitle"></h2>
+    <p class="qtag" id="qtag" style="display:none;"></p>
+    <p class="qsubtitle" id="qsubtitle" style="display:none;"></p>
+
+    <div class="options" id="qoptions"></div>
+
+    <div class="nav-row">
+      <button class="btn btn-ghost" id="backBtn" onclick="prevQuestion()">← zurück</button>
+      <button class="btn" id="nextBtn" onclick="nextQuestion()">Weiter →</button>
+    </div>
+  </section>
+
+  <!-- SCREEN 1b: Mehr-Info-Seite (bleibt innerhalb der Umfrage, kein Seitenwechsel) -->
+  <section class="screen" id="screen-info">
+    <div class="eyebrow">GUT ZU WISSEN</div>
+    <h1 class="hero" id="infoTitle">Dazu <em>kurz</em> mehr.</h1>
+    <p class="lede" id="infoText"></p>
+    <img id="infoImage" class="info-image" alt="Vorher Nachher" style="display:none;">
+    <div class="nav-row">
+      <button class="btn btn-ghost" onclick="backFromInfo()">← zurück</button>
+      <button class="btn" onclick="continueAfterInfo()">Weiter →</button>
+    </div>
+  </section>
+
+  <!-- SCREEN 2: Final / Contact -->
+  <section class="screen" id="screen-final">
+    <div class="eyebrow">DEIN PASSENDES SET</div>
+    <h1 class="hero" id="resultTitle">Danke dir <em>fürs Mitmachen</em>.</h1>
+    <div class="set-card" id="resultCard"></div>
+    <p class="alt-label" id="altLabel"></p>
+    <div class="set-card" id="altCard"></div>
+    <details class="other-sets">
+      <summary>Alle 9 Sets im Überblick</summary>
+      <img class="overview-img" src="img/geschenke/caroline-uebersicht.webp" alt="Alle 9 Geschenksets von Natalie">
+    </details>
+    <p class="lede" id="summaryLede">Trag dich kurz ein, dann melde ich mich persönlich bei dir.</p>
+
+    <div class="field" id="nameField">
+      <label for="fname">Name</label>
+      <input type="text" id="fname" placeholder="Vorname Nachname">
+      <div class="error-msg" id="nameError">Bitte gib deinen Namen ein.</div>
+    </div>
+
+    <div class="field" id="contactField">
+      <label for="fcontact">Handynummer oder Instagram-Name</label>
+      <input type="text" id="fcontact" placeholder="z.B. 0176 12345678 oder @deinname">
+      <div class="error-msg" id="contactError">Bitte gib deine Handynummer oder deinen Instagram-Namen ein.</div>
+    </div>
+
+    <div class="field" id="emailField">
+      <label for="femail">E-Mail</label>
+      <input type="email" id="femail" placeholder="dein@beispiel.de">
+      <div class="error-msg" id="emailError">Bitte gib eine gültige E-Mail-Adresse ein.</div>
+    </div>
+
+    <button class="btn" id="submitBtn" onclick="submitQuiz()">Absenden</button>
+    <p class="fineprint">Mit dem Absenden melde ich mich meistens innerhalb weniger Stunden persönlich bei dir. Deine Daten werden vertraulich behandelt.</p>
+  </section>
+
+  <!-- SCREEN 3: Thank you -->
+  <section class="screen" id="screen-thanks">
+    <div class="eyebrow">GESCHAFFT</div>
+    <h1 class="hero">Danke dir, <em>bin gleich da</em>.</h1>
+    <p class="lede">Ich hab deine Antworten und melde mich meistens innerhalb weniger Stunden persönlich bei dir. 🎁 Und denk dran: Bei einer Bestellung wartet noch eine kleine Überraschung von mir auf dich!</p>
+    <p class="alt-label">Zur Inspiration</p>
+    <div class="set-card" id="thanksCard"></div>
+    <div class="set-card" id="thanksAltCard"></div>
+    <p class="alt-label">Alle 9 Sets im Überblick</p>
+    <img class="overview-img" src="img/geschenke/caroline-uebersicht.webp" alt="Alle 9 Geschenksets im Überblick">
+  </section>
+
+  <footer class="legal">
+    Deine Antworten werden vertraulich behandelt und nur genutzt, um dir passende Geschenk-Ideen zu zeigen.
+    <div class="brand">© 2026 Natalie · The Human Glow Guide</div>
+  </footer>
+
+</div>
+
+<script>
+  // ============================================================
+  // Fragen. type: 'single' (Auswahl). Keine moreInfo-Seiten hier,
+  // das ist eine reine Umfrage ohne Erklärtexte dazwischen.
+  // ============================================================
+  const questions = [
+    {
+      id: 'fuer_wen',
+      type: 'multi',
+      title: 'Für wen suchst du dieses Jahr vor allem Weihnachtsgeschenke?',
+      subtitle: 'Du kannst mehrere auswählen.',
+      options: [
+        { value: 'partner', label: 'Für meine:n Partner:in' },
+        { value: 'familie', label: 'Für die Familie' },
+        { value: 'freunde', label: 'Für Freunde' },
+        { value: 'kollegen', label: 'Für Kolleg:innen' },
+        { value: 'selbst', label: 'Für mich selbst' },
+      ],
+    },
+    {
+      id: 'bereich',
+      type: 'multi',
+      title: 'Welche Bereiche passen zu der Person, die du beschenken willst?',
+      subtitle: 'Oder zu dir selbst. Du kannst mehrere auswählen.',
+      options: [
+        { value: 'haar', label: 'Haarpflege' },
+        { value: 'gesicht', label: 'Gesichtspflege' },
+        { value: 'koerper', label: 'Körperpflege' },
+      ],
+    },
+    {
+      id: 'budget',
+      type: 'single',
+      title: 'Wie viel möchtest du ungefähr ausgeben?',
+      options: [
+        { value: 'bis50', label: 'Bis 50 €', size: 'small' },
+        { value: '50bis70', label: '50 bis 70 €', size: 'medium' },
+        { value: 'ueber70', label: 'Über 70 €', size: 'large' },
+        { value: 'egal', label: 'Kommt aufs Geschenk an', size: 'medium' },
+      ],
+    },
+    {
+      id: 'anzahl',
+      type: 'single',
+      title: 'Wie viele Geschenke suchst du noch?',
+      options: [
+        { value: '1', label: '1' },
+        { value: '2bis3', label: '2 bis 3' },
+        { value: '4plus', label: '4 oder mehr' },
+      ],
+    },
+  ];
+
+  // ============================================================
+  // Die 9 Sets (gleiche wie bei Caroline): 3 Bereiche in je 3 Größen. Der Bereich kommt aus
+  // Frage 2, die Größe aus dem Budget in Frage 3.
+  // ============================================================
+  const PRODUCTS = {
+    hairoil: ['Nourishing Hair Oil', 'Aloe und sechs silikonfreie Pflanzenöle für Feuchtigkeit, Glanz und weniger Frizz, ohne das Haar zu beschweren.'],
+    lips: ['Forever Aloe Lips', 'Aloe Vera und Jojobaöl gegen rissige, trockene Lippen.'],
+    shampoo: ['Aloe-Jojoba Shampoo', 'Aloe-Vera-Gel und haarkräftigendes Jojobaöl mit fruchtigem Duft.'],
+    conditioner: ['Aloe-Jojoba Conditioner', 'Für geschmeidiges, kämmbares Haar, mit Jojoba-, Argan- und Hagebuttenöl.'],
+    deepcream: ['Deep Moisturizing Cream', 'Feuchtigkeitsspendende Nachtpflege mit Aloe Vera, wertvollen Ölen und Ceramiden.'],
+    skinoil: ['Replenishing Skin Oil', 'Leichtes Fluid für ein strahlend frisches Hautbild, pflegt intensiv.'],
+    exfoliator: ['Smoothing Exfoliator (Peeling)', 'Jojoba-Perlen und Bambuspuder lösen sanft abgestorbene Hautzellen.'],
+    mask: ['Aloe Bio-Cellulose Tuchmaske', 'Eine Gesichtsmaske für alle Hauttypen.'],
+    toothgel: ['Forever Bright Zahngel', 'Schonende Zahncreme mit Aloe Vera und Bienenpropolis.'],
+    soap: ['Aloe Liquid Soap', '40 % Aloe-Vera-Gel mit Arganöl und Jojoba, für den ganzen Körper und die ganze Familie.'],
+    bodywash: ['Aloe Body Wash', 'Aloe Vera, Arganöl und Arnika reinigen sanft und pflegen die Haut.'],
+    bodylotion: ['Aloe Body Lotion', 'Argan-, Jojoba- und Macadamiaöl, zieht schnell ein und duftet floral.'],
+    propolis: ['Aloe Propolis Creme', '74 % Aloe-Vera-Gel mit Bienenpropolis und Kamille für trockene, gereizte Haut.'],
+    aloefirst: ['Aloe First Körperspray', '81 % Aloe-Vera-Gel mit Propolis und Kräutern, der Alleskönner für jeden Haushalt.'],
+  };
+
+  const AREA_NAMES = { haar: 'Haarpflege', gesicht: 'Gesichtspflege', koerper: 'Körperpflege' };
+  const SIZE_ORDER = ['small', 'medium', 'large'];
+
+  const SETS = {
+    haar_small: { price: '39,67 €', items: ['hairoil', 'lips'] },
+    haar_medium: { price: '56,69 €', items: ['shampoo', 'conditioner'] },
+    haar_large: { price: '91,55 €', items: ['shampoo', 'conditioner', 'hairoil'] },
+    gesicht_small: { price: '46,58 €', items: ['deepcream', 'lips'] },
+    gesicht_medium: { price: '65,75 €', items: ['skinoil', 'exfoliator', 'lips'] },
+    gesicht_large: { price: '95,32 €', items: ['skinoil', 'exfoliator', 'lips', 'mask'] },
+    koerper_small: { price: '38,32 €', items: ['toothgel', 'soap', 'lips'] },
+    koerper_medium: { price: '62,17 €', items: ['bodywash', 'bodylotion', 'lips'] },
+    koerper_large: { price: '90,26 €', items: ['soap', 'toothgel', 'propolis', 'lips', 'aloefirst'] },
+  };
+  for (const key in SETS) {
+    const [area, size] = key.split('_');
+    SETS[key].name = AREA_NAMES[area] + ' ' + size;
+    SETS[key].image = 'img/geschenke/caroline-' + area + '-' + size + '.webp';
+  }
+
+  function chosenSetKey(){
+    const a = state.answers['bereich'];
+    // Mehrfachauswahl: der erste gewählte Bereich bestimmt das empfohlene Set
+    const area = a ? (a.values ? a.values[0] : a.value) : 'koerper';
+    const b = state.answers['budget'];
+    const opt = b && questions.find(q => q.id === 'budget').options.find(o => o.value === b.value);
+    return area + '_' + (opt ? opt.size : 'medium');
+  }
+
+  // Eine Alternative im selben Bereich: die nächste Größe, bei large die medium
+  function alternativeKey(key){
+    const [area, size] = key.split('_');
+    // Mehrere Bereiche gewählt: als Alternative das Set aus dem zweiten Bereich zeigen
+    const a = state.answers['bereich'];
+    const other = a && a.values && a.values.find(v => v !== area);
+    if(other) return { key: other + '_' + size, label: 'Passt auch' };
+    const i = SIZE_ORDER.indexOf(size);
+    return i < 2
+      ? { key: area + '_' + SIZE_ORDER[i + 1], label: 'Noch mehr verwöhnen' }
+      : { key: area + '_medium', label: 'Etwas günstiger' };
+  }
+
+  function setCardHtml(set){
+    return '<img src="' + set.image + '" alt="Set ' + set.name + '">' +
+      '<div class="set-body"><div class="set-name">' + set.name + '</div>' +
+      '<div class="set-price">' + set.price + '</div>' +
+      '<ul class="set-items">' + set.items.map(i => '<li><b>' + PRODUCTS[i][0] + '</b><span class="item-desc">' + PRODUCTS[i][1] + '</span></li>').join('') + '</ul></div>';
+  }
+
+  const state = {
+    current: 0,
+    answers: {}, // { [questionId]: { value, label } }
+    pendingInfoShown: false,
+  };
+
+  function startQuiz(){
+    state.current = 0;
+    document.getElementById('progressWrap').style.display = 'block';
+    goTo('question');
+    renderQuestion();
+  }
+
+  function renderQuestion(){
+    const q = questions[state.current];
+    const qnumEl = document.getElementById('qnum');
+    const qtitleEl = document.getElementById('qtitle');
+    const qtagEl = document.getElementById('qtag');
+    const qsubtitleEl = document.getElementById('qsubtitle');
+    const optionsEl = document.getElementById('qoptions');
+    const backBtn = document.getElementById('backBtn');
+
+    qnumEl.textContent = 'Frage ' + (state.current + 1);
+    qtitleEl.textContent = q.title;
+
+    if(q.tag){
+      qtagEl.textContent = q.tag;
+      qtagEl.style.display = 'block';
+    } else {
+      qtagEl.style.display = 'none';
+    }
+
+    if(q.subtitle){
+      qsubtitleEl.textContent = q.subtitle;
+      qsubtitleEl.style.display = 'block';
+    } else {
+      qsubtitleEl.style.display = 'none';
+    }
+
+    optionsEl.innerHTML = '';
+    const existing = state.answers[q.id];
+
+    q.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'option';
+      btn.textContent = opt.label;
+      if(existing && (q.type === 'multi' ? existing.values.includes(opt.value) : existing.value === opt.value)) btn.classList.add('selected');
+      btn.onclick = () => selectOption(q, opt, btn);
+      optionsEl.appendChild(btn);
+    });
+
+    backBtn.style.visibility = state.current === 0 ? 'hidden' : 'visible';
+
+    updateProgress();
+  }
+
+  function selectOption(q, opt, btnEl){
+    // Mehrfachauswahl: an- und abwählen, Labels für die Mail zusammenfassen
+    if(q.type === 'multi'){
+      btnEl.classList.toggle('selected');
+      const values = q.options.filter((o, i) => document.querySelectorAll('#qoptions .option')[i].classList.contains('selected'));
+      if(values.length){
+        state.answers[q.id] = { values: values.map(o => o.value), label: values.map(o => o.label).join(', ') };
+      } else {
+        delete state.answers[q.id];
+      }
+      return;
+    }
+    document.querySelectorAll('#qoptions .option').forEach(b => b.classList.remove('selected'));
+    btnEl.classList.add('selected');
+    state.answers[q.id] = { value: opt.value, label: opt.label };
+  }
+
+  function updateProgress(){
+    const total = questions.length;
+    document.getElementById('progressLabel').textContent = 'Frage ' + (state.current + 1) + ' von ' + total;
+    document.getElementById('progressFill').style.width = (((state.current) / total) * 100) + '%';
+  }
+
+  function nextQuestion(){
+    const q = questions[state.current];
+    const existing = state.answers[q.id];
+    if(!existing){
+      document.getElementById('qoptions').scrollIntoView({ behavior:'smooth', block:'center' });
+      return;
+    }
+
+    // Falls die gewählte Option eine Mehr-Info-Seite hat, erst die zeigen
+    if(!state.pendingInfoShown){
+      const selectedOpt = q.options.find(o => o.value === existing.value);
+      if(selectedOpt && selectedOpt.moreInfo){
+        document.getElementById('infoTitle').innerHTML = selectedOpt.moreInfo.title;
+        document.getElementById('infoText').innerHTML = selectedOpt.moreInfo.text;
+        var infoImg = document.getElementById('infoImage');
+        if(selectedOpt.moreInfo.image){
+          infoImg.src = selectedOpt.moreInfo.image;
+          infoImg.style.display = 'block';
+        } else {
+          infoImg.removeAttribute('src');
+          infoImg.style.display = 'none';
+        }
+        state.pendingInfoShown = true;
+        goTo('info');
+        return;
+      }
+    }
+
+    state.pendingInfoShown = false;
+    advanceQuestion();
+  }
+
+  function continueAfterInfo(){
+    state.pendingInfoShown = false;
+    advanceQuestion();
+  }
+
+  function backFromInfo(){
+    state.pendingInfoShown = false;
+    renderQuestion();
+    goTo('question');
+  }
+
+  function advanceQuestion(){
+    if(state.current < questions.length - 1){
+      state.current++;
+      renderQuestion();
+      goTo('question');
+    } else {
+      document.getElementById('progressFill').style.width = '100%';
+      buildSummary();
+      goTo('final');
+    }
+  }
+
+  function prevQuestion(){
+    if(state.current > 0){
+      state.current--;
+      renderQuestion();
+    }
+  }
+
+  function buildSummary(){
+    const key = chosenSetKey();
+    const set = SETS[key];
+    document.getElementById('resultTitle').innerHTML = 'Dein Set: <em>' + set.name + '</em>';
+    document.getElementById('resultCard').innerHTML = setCardHtml(set);
+    const alt = alternativeKey(key);
+    document.getElementById('altLabel').textContent = alt.label + ': ' + SETS[alt.key].name + ' für ' + SETS[alt.key].price;
+    document.getElementById('altCard').innerHTML = setCardHtml(SETS[alt.key]);
+    document.getElementById('thanksCard').innerHTML = setCardHtml(set);
+    document.getElementById('thanksAltCard').innerHTML = setCardHtml(SETS[alt.key]);
+    document.getElementById('summaryLede').textContent =
+      'Trag dich kurz ein, dann melde ich mich persönlich bei dir und wir schauen gemeinsam, welches Set am besten passt.';
+  }
+
+  function isValidEmail(v){
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  }
+
+  async function submitQuiz(){
+    const nameInput = document.getElementById('fname');
+    const nameField = document.getElementById('nameField');
+    const contactInput = document.getElementById('fcontact');
+    const contactField = document.getElementById('contactField');
+    const emailInput = document.getElementById('femail');
+    const emailField = document.getElementById('emailField');
+
+    const name = nameInput.value.trim();
+    const contact = contactInput.value.trim();
+    const email = emailInput.value.trim();
+
+    let hasError = false;
+    if(!name){ nameField.classList.add('invalid'); hasError = true; } else { nameField.classList.remove('invalid'); }
+    if(!contact){ contactField.classList.add('invalid'); hasError = true; } else { contactField.classList.remove('invalid'); }
+    if(!isValidEmail(email)){ emailField.classList.add('invalid'); hasError = true; } else { emailField.classList.remove('invalid'); }
+    if(hasError){
+      (!name ? nameInput : (!contact ? contactInput : emailInput)).focus();
+      return;
+    }
+
+    const payload = {
+      name: name,
+      kontakt: contact,
+      email: email,
+      fuer_wen: state.answers['fuer_wen'] ? state.answers['fuer_wen'].label : '',
+      bereich: state.answers['bereich'] ? state.answers['bereich'].label : '',
+      budget: state.answers['budget'] ? state.answers['budget'].label : '',
+      anzahl: state.answers['anzahl'] ? state.answers['anzahl'].label : '',
+      empfohlenes_set: SETS[chosenSetKey()].name + ' (' + SETS[chosenSetKey()].price + ')',
+    };
+
+    const btn = document.getElementById('submitBtn');
+    const originalLabel = btn.textContent;
+    btn.textContent = 'Wird gesendet …';
+    btn.disabled = true;
+
+    try {
+      const res = await fetch('/.netlify/functions/subscribe-geschenke-natalie-gruber', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if(!res.ok){
+        console.error('MailerLite-Sync fehlgeschlagen:', await res.text());
+      }
+    } catch(err){
+      console.error('Subscribe-Request fehlgeschlagen:', err);
+    } finally {
+      btn.textContent = originalLabel;
+      btn.disabled = false;
+    }
+
+    goTo('thanks');
+  }
+
+  function goTo(screen){
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + screen).classList.add('active');
+    document.getElementById('progressWrap').style.display = (screen === 'question') ? 'block' : 'none';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+
+</body>
+</html>
