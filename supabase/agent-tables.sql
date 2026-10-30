@@ -32,3 +32,15 @@ create table if not exists agent_books (
 );
 
 alter table agent_books enable row level security;
+
+-- FLP360-Downline-Exporte, die Dominik JARVIS als Excel schickt (seit Okt 2026).
+-- Nur Name, Titel, Land, Generation, Startdatum und CC, nie Telefon/E-Mail.
+create table if not exists flp_exports (
+  id bigserial primary key,
+  created_at timestamptz not null default now(),
+  filename text,
+  months jsonb not null,     -- z. B. ["2026-10","2026-09","2026-08","2026-07"]
+  partners jsonb not null    -- [{id,name,titel,generation,land,sponsor_datum,cc:{monat:wert},ytd:{jahr:wert}}]
+);
+
+alter table flp_exports enable row level security;

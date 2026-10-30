@@ -5,12 +5,14 @@
 //   - telegram-webhook.js        Body { mode: 'chat', chatId }
 //                                     { mode: 'voice', fileId, updateId }
 //                                     { mode: 'book', fileId, fileName, caption }
+//                                     { mode: 'flp', fileId, fileName, caption }
 //   - scheduled-agent-briefing.js Body { mode: 'briefing' }
 // Lädt den Gesprächsverlauf, lässt JARVIS arbeiten und schickt die Antwort
 // per Telegram an Dominik.
 
 const { runAgent, loadHistory, saveMessage, makeClient } = require('./_lib/agent');
 const books = require('./_lib/books');
+const flp = require('./_lib/flp');
 const { transcribe } = require('./_lib/speech');
 const { sendMessage, sendTyping, downloadFile, agentSecret } = require('./_lib/telegram');
 
@@ -43,6 +45,14 @@ async function readBook({ fileId, fileName, caption }) {
   return `📚 Gelesen und in meiner Bibliothek gespeichert: "${book.title}" (${pages} Seiten).\n\n${summary}\n\nFrag mich einfach, z. B. "Was sagt das Buch dazu, wie ich Laura motivieren kann?"`;
 }
 
+// FLP360-Excel einlesen und speichern (ohne Kontaktdaten)
+async function readFlpExport({ fileId, fileName }) {
+  const parsed = flp.parseExport(await downloadFile(fileId));
+  await flp.saveExport(fileName, parsed);
+  const s = flp.summarize(parsed);
+  return `📊 FLP-Export gespeichert: ${s.partner} Partner (${s.fbo} FBO, ${s.fpc} FPC), Monate ${s.monate.join(', ')}. Telefonnummern und E-Mails habe ich weggelassen.\n\nOhne persönliches CC im ${s.monate[0]}: ${s.fbo_ohne_cc_aktueller_monat} FBO und ${s.fpc_ohne_cc_aktueller_monat} FPC.\n\nFrag mich z. B. "Liste mir alle inaktiven FBO und FPC, zuerst die, die zuletzt bestellt haben, als PDF".`;
+}
+
 exports.handler = async function (event) {
   if (event.headers['x-agent-secret'] !== agentSecret()) {
     return { statusCode: 403, body: 'Kein Zugriff' };
@@ -59,6 +69,14 @@ exports.handler = async function (event) {
       await saveMessage('assistant', reply);
       await sendMessage(chatId, reply);
       return { statusCode: 200, body: 'ok' };
+    }
+    if (mode === 'flp') {
+      const reply = await readFlpExport(payload);
+      await saveMessage('assistant', reply);
+      await sendMessage(chatId, reply);
+      // Hat Dominik zur Datei gleich eine Frage geschrieben, direkt beantworten
+      if (!payload.caption) return { statusCode: 200, body: 'ok' };
+      await saveMessage('user', payload.caption);
     }
     if (mode === 'briefing') {
       await saveMessage('user', BRIEFING_PROMPT, { kind: 'briefing' });

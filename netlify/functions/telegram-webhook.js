@@ -71,8 +71,22 @@ exports.handler = async function (event) {
     const doc = msg.document;
     if (doc) {
       const isPdf = doc.mime_type === 'application/pdf' || /\.pdf$/i.test(doc.file_name || '');
+      const isExcel = /spreadsheetml/.test(doc.mime_type || '') || /\.xlsx$/i.test(doc.file_name || '');
+      if (isExcel) {
+        const marker = `[FLP-Export geschickt: ${doc.file_name || 'Export.xlsx'}]${msg.caption ? ' ' + msg.caption : ''}`;
+        const saved = await saveMessage('user', marker, { telegram_update_id: update.update_id });
+        if (saved) {
+          await sendMessage(chatId, '📊 Danke, ich lese den FLP-Export ein.');
+          await fetch(`${process.env.URL}/.netlify/functions/telegram-agent-background`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-agent-secret': agentSecret() },
+            body: JSON.stringify({ mode: 'flp', fileId: doc.file_id, fileName: doc.file_name, caption: msg.caption || '' }),
+          });
+        }
+        return { statusCode: 200, body: 'ok' };
+      }
       if (!isPdf) {
-        await sendMessage(chatId, 'Ich kann Bücher nur als PDF lesen.');
+        await sendMessage(chatId, 'Ich kann Bücher als PDF und den FLP360-Downline-Export als Excel-Datei (.xlsx) lesen.');
       } else if (doc.file_size > 20 * 1024 * 1024) {
         await sendMessage(chatId, 'Das PDF ist größer als 20 MB, so große Dateien lässt Telegram mich nicht herunterladen. Kannst du es verkleinern (z. B. auf ilovepdf.com "PDF komprimieren") oder in Teile aufteilen?');
       } else {
@@ -90,7 +104,7 @@ exports.handler = async function (event) {
       return { statusCode: 200, body: 'ok' };
     }
     if (!text) {
-      await sendMessage(chatId, 'Ich verstehe im Moment Text, Sprachnachrichten und PDF-Bücher. Bilder kommen später.');
+      await sendMessage(chatId, 'Ich verstehe im Moment Text, Sprachnachrichten, PDF-Bücher und den FLP-Export als Excel. Bilder kommen später.');
       return { statusCode: 200, body: 'ok' };
     }
 

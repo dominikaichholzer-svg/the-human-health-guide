@@ -17,6 +17,7 @@ const books = require('./books');
 const { PANEL_WISDOM } = require('./panel-wisdom');
 const { buildPdf } = require('./pdf');
 const { sendDocument } = require('./telegram');
+const flp = require('./flp');
 
 // Zwei Modelle, um Kosten zu sparen: Haiku für normale Chat-Fragen, Sonnet
 // für das Morgen-Briefing, tieferes Coaching, Analysen und alles, was eine
@@ -49,6 +50,7 @@ Wie du arbeitest:
 - Wenn eine Frage Team-Zahlen oder Leads betrifft, schau mit deinen Tools nach, statt zu raten. Erfinde nie Zahlen.
 - Wenn Dominik dir etwas Dauerhaftes über sich, das Team oder das Business erzählt, speichere es mit "merken", ohne zu fragen. Wenn etwas Gemerktes nicht mehr stimmt, lösche es mit "vergessen".
 - Dominik kann dir Bücher als PDF schicken. Welche du hast, steht unten in deiner Bibliothek. Wenn eine Frage von einem dieser Bücher profitieren würde (Führung, Coaching, Verkauf, Gesundheit, je nach Buch), frag das Buch mit "buch_fragen" und verbinde die Antwort mit dem, was du über das Team weißt. Nenne dann kurz, aus welchem Buch der Tipp kommt. Wenn Dominik möchte, dass du dich in ein Buch einliest, das nicht in deiner Bibliothek ist, nutze "buch_recherchieren": das legt eine Buch-Notiz aus einer Web-Recherche an. Sag ihm dabei ehrlich, dass eine Notiz aus Zusammenfassungen weniger tief ist als das echte Buch als PDF.
+- Dominik kann dir den Downline-Export aus FLP360 als Excel-Datei schicken (alle Geschäftspartner mit Titel, Land, Generation und persönlichem CC der letzten 4 Monate, ohne Telefon und E-Mail). Für Fragen zu seiner ganzen Downline, z. B. wer inaktiv ist oder wer länger nicht bestellt hat, nutze "flp_partner". FBO sind alle Geschäftspartner mit Titel, FPC sind Preferred Customer. Übernimm die Reihenfolge des Tools und nenne in der Antwort, von wann der Export ist. Bei langen Listen (mehr als etwa 30 Personen) ruf das Tool mit als_pdf=true auf, das PDF geht dann direkt an Dominik. Schreib im Chat nur noch die Anzahlen und deine Empfehlung, wen er zuerst kontaktieren sollte.
 - Du kannst Dominik mit "pdf_senden" ein PDF schicken. Wenn er nach einem PDF fragt, oder bei langen Plänen zum Nachschlagen, nutze das. Wenn er "das als PDF" sagt, nimm den Inhalt deiner letzten ausführlichen Antwort vollständig.
 - Du kannst sonst nichts verschicken, keine Termine eintragen und niemanden anschreiben. Wenn Dominik so etwas will, schreib ihm den fertigen Text, den er selbst rausschicken kann, und sag kurz, dass diese Funktion noch kommt.
 - Antworte auf Deutsch, per Du, kurz und konkret wie in einem Chat. Kein Markdown (keine Sternchen, keine Rauten, keine Tabellen), weil Telegram das als reinen Text zeigt. Aufzählungen nur mit einfachen Bindestrichen oder Zahlen. Keine Motivationsfloskeln.`;
@@ -133,6 +135,23 @@ const TOOLS = [
       type: 'object',
       properties: { titel: { type: 'string', description: 'Buchtitel, wenn bekannt mit Autor' } },
       required: ['titel'],
+      additionalProperties: false,
+    },
+    strict: true,
+  },
+  {
+    name: 'flp_partner',
+    description:
+      'Liest den neuesten FLP360-Downline-Export, den Dominik geschickt hat. Liefert die Geschäftspartner als Zeilen, sortiert nach letzter Bestellung (jüngste zuerst). Mit nur_inaktive=true nur die, die in den letzten "monate_ohne_cc" Monaten des Exports kein persönliches CC hatten (1 = nur der aktuelle Monat).',
+    input_schema: {
+      type: 'object',
+      properties: {
+        typ: { type: 'string', enum: ['fbo', 'fpc', 'alle'], description: 'fbo = Geschäftspartner mit Titel, fpc = Preferred Customer' },
+        nur_inaktive: { type: 'boolean' },
+        monate_ohne_cc: { type: 'integer', description: '1 bis 4, Standard 1' },
+        als_pdf: { type: 'boolean', description: 'true: das Tool baut aus der kompletten Liste selbst ein PDF und schickt es Dominik. Nimm das bei langen Listen, statt sie mit pdf_senden abzuschreiben.' },
+      },
+      required: ['typ', 'nur_inaktive', 'monate_ohne_cc', 'als_pdf'],
       additionalProperties: false,
     },
     strict: true,
@@ -300,6 +319,26 @@ async function pdfSenden({ titel, inhalt }) {
   return { gesendet: true, hinweis: 'Das PDF ist schon bei Dominik. Schreib ihm nur noch einen kurzen Satz dazu, nicht den Inhalt nochmal.' };
 }
 
+async function flpPartner({ als_pdf, ...filter }) {
+  const result = await flp.partnerList(filter);
+  if (result.fehler) return result;
+  const { _rows, ...rest } = result;
+  if (!als_pdf) return rest;
+  const chatId = process.env.TELEGRAM_CHAT_ID;
+  if (!chatId) return { fehler: 'TELEGRAM_CHAT_ID ist nicht gesetzt.' };
+  const art = filter.nur_inaktive ? 'Inaktive Partner' : 'Partner';
+  const titel = `${art} ${filter.typ === 'alle' ? 'FBO und FPC' : filter.typ.toUpperCase()}`;
+  const buffer = await buildPdf(titel, flp.pdfText(result));
+  await sendDocument(chatId, buffer, `${art.toLowerCase().replace(/ /g, '-')}-${viennaTodayStr()}.pdf`, titel);
+  return {
+    pdf_gesendet: true,
+    hinweis: 'Das PDF mit der kompletten Liste ist schon bei Dominik. Schreib ihm nur die Anzahlen und deine Empfehlung, nicht die ganze Liste.',
+    ...rest,
+    partner: rest.partner.slice(0, 40),
+    weitere_im_pdf: Math.max(0, rest.partner.length - 40),
+  };
+}
+
 async function buchLoeschen({ buch_id }) {
   await books.deleteBook(buch_id);
   return { geloescht: true, buch_id };
@@ -314,6 +353,7 @@ const TOOL_HANDLERS = {
   buch_fragen: buchFragen,
   buch_recherchieren: buchRecherchieren,
   pdf_senden: pdfSenden,
+  flp_partner: flpPartner,
   buch_loeschen: buchLoeschen,
 };
 
@@ -402,7 +442,7 @@ async function chooseModel(client, text) {
           role: 'user',
           content: `Ordne diese Nachricht an einen Business-Assistenten ein.
 "einfach": kurze Fragen, Zahlen oder Leads nachschauen, etwas merken, kurze Texte, Smalltalk, Danke, Bestätigungen.
-"tief": persönliches Coaching (Zweifel, Motivation, Konflikte), Strategie und Planung, Analysen über mehrere Leaderinnen, längere Texte, PDFs oder Dokumente erstellen, Fragen an Bücher, alles was aktuelle Infos aus dem Internet braucht, Bücher recherchieren.
+"tief": persönliches Coaching (Zweifel, Motivation, Konflikte), Strategie und Planung, Analysen über mehrere Leaderinnen, Listen oder Auswertungen aus dem FLP-Export, längere Texte, PDFs oder Dokumente erstellen, Fragen an Bücher, alles was aktuelle Infos aus dem Internet braucht, Bücher recherchieren.
 
 Nachricht: ${text.slice(0, 2000)}`,
         },
