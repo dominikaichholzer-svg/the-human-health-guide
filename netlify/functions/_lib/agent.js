@@ -50,7 +50,7 @@ Wie du arbeitest:
 - Wenn eine Frage Team-Zahlen oder Leads betrifft, schau mit deinen Tools nach, statt zu raten. Erfinde nie Zahlen.
 - Wenn Dominik dir etwas Dauerhaftes über sich, das Team oder das Business erzählt, speichere es mit "merken", ohne zu fragen. Wenn etwas Gemerktes nicht mehr stimmt, lösche es mit "vergessen".
 - Dominik kann dir Bücher als PDF schicken. Welche du hast, steht unten in deiner Bibliothek. Wenn eine Frage von einem dieser Bücher profitieren würde (Führung, Coaching, Verkauf, Gesundheit, je nach Buch), frag das Buch mit "buch_fragen" und verbinde die Antwort mit dem, was du über das Team weißt. Nenne dann kurz, aus welchem Buch der Tipp kommt. Wenn Dominik möchte, dass du dich in ein Buch einliest, das nicht in deiner Bibliothek ist, nutze "buch_recherchieren": das legt eine Buch-Notiz aus einer Web-Recherche an. Sag ihm dabei ehrlich, dass eine Notiz aus Zusammenfassungen weniger tief ist als das echte Buch als PDF.
-- Dominik kann dir den Downline-Export aus FLP360 als Excel-Datei schicken (alle Geschäftspartner mit Titel, Land, Generation und persönlichem CC der letzten 4 Monate, ohne Telefon und E-Mail). Für Fragen zu seiner ganzen Downline, z. B. wer inaktiv ist oder wer länger nicht bestellt hat, nutze "flp_partner". FBO sind alle Geschäftspartner mit Titel, FPC sind Preferred Customer. Übernimm die Reihenfolge des Tools und nenne in der Antwort, von wann der Export ist. Bei langen Listen (mehr als etwa 30 Personen) ruf das Tool mit als_pdf=true auf, das PDF geht dann direkt an Dominik. Schreib im Chat nur noch die Anzahlen und deine Empfehlung, wen er zuerst kontaktieren sollte.
+- Dominik kann dir den Downline-Export aus FLP360 als Excel-Datei schicken (alle Geschäftspartner mit Titel, Land, Generation und persönlichem CC der letzten 4 Monate, ohne Telefon und E-Mail). Für Fragen zu seiner ganzen Downline, z. B. wer inaktiv ist oder wer länger nicht bestellt hat, nutze "flp_partner". FBO sind alle Geschäftspartner mit Titel, FPC sind Preferred Customer. Fragt er nach dem Team oder allen Registrierten einer bestimmten Person, setz downline_von auf ihren Namen. Übernimm die Reihenfolge des Tools und nenne in der Antwort, von wann der Export ist. Bei langen Listen (mehr als etwa 30 Personen) ruf das Tool mit als_pdf=true auf, das PDF geht dann direkt an Dominik. Schreib im Chat nur noch die Anzahlen und deine Empfehlung, wen er zuerst kontaktieren sollte.
 - Du kannst Dominik mit "pdf_senden" ein PDF schicken. Wenn er nach einem PDF fragt, oder bei langen Plänen zum Nachschlagen, nutze das. Wenn er "das als PDF" sagt, nimm den Inhalt deiner letzten ausführlichen Antwort vollständig.
 - Du kannst sonst nichts verschicken, keine Termine eintragen und niemanden anschreiben. Wenn Dominik so etwas will, schreib ihm den fertigen Text, den er selbst rausschicken kann, und sag kurz, dass diese Funktion noch kommt.
 - Antworte auf Deutsch, per Du, kurz und konkret wie in einem Chat. Kein Markdown (keine Sternchen, keine Rauten, keine Tabellen), weil Telegram das als reinen Text zeigt. Aufzählungen nur mit einfachen Bindestrichen oder Zahlen. Keine Motivationsfloskeln.`;
@@ -149,9 +149,10 @@ const TOOLS = [
         typ: { type: 'string', enum: ['fbo', 'fpc', 'alle'], description: 'fbo = Geschäftspartner mit Titel, fpc = Preferred Customer' },
         nur_inaktive: { type: 'boolean' },
         monate_ohne_cc: { type: 'integer', description: '1 bis 4, Standard 1' },
+        downline_von: { type: 'string', description: 'Name einer Person, z. B. "Sarah Blenke": dann nur ihre komplette Downline (alle unter ihr, sie selbst nicht). Leer lassen für die ganze Downline von Dominik.' },
         als_pdf: { type: 'boolean', description: 'true: das Tool baut aus der kompletten Liste selbst ein PDF und schickt es Dominik. Nimm das bei langen Listen, statt sie mit pdf_senden abzuschreiben.' },
       },
-      required: ['typ', 'nur_inaktive', 'monate_ohne_cc', 'als_pdf'],
+      required: ['typ', 'nur_inaktive', 'monate_ohne_cc', 'downline_von', 'als_pdf'],
       additionalProperties: false,
     },
     strict: true,
@@ -327,9 +328,11 @@ async function flpPartner({ als_pdf, ...filter }) {
   const chatId = process.env.TELEGRAM_CHAT_ID;
   if (!chatId) return { fehler: 'TELEGRAM_CHAT_ID ist nicht gesetzt.' };
   const art = filter.nur_inaktive ? 'Inaktive Partner' : 'Partner';
-  const titel = `${art} ${filter.typ === 'alle' ? 'FBO und FPC' : filter.typ.toUpperCase()}`;
+  const team = filter.downline_von && filter.downline_von.trim() ? ` im Team von ${filter.downline_von.trim()}` : '';
+  const titel = `${art} ${filter.typ === 'alle' ? 'FBO und FPC' : filter.typ.toUpperCase()}${team}`;
+  const datei = `${art}${team}`.toLowerCase().replace(/[^a-z0-9äöüß]+/g, '-');
   const buffer = await buildPdf(titel, flp.pdfText(result));
-  await sendDocument(chatId, buffer, `${art.toLowerCase().replace(/ /g, '-')}-${viennaTodayStr()}.pdf`, titel);
+  await sendDocument(chatId, buffer, `${datei}-${viennaTodayStr()}.pdf`, titel);
   return {
     pdf_gesendet: true,
     hinweis: 'Das PDF mit der kompletten Liste ist schon bei Dominik. Schreib ihm nur die Anzahlen und deine Empfehlung, nicht die ganze Liste.',

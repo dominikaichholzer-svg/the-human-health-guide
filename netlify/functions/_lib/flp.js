@@ -197,14 +197,38 @@ function summarize(exp) {
   };
 }
 
+// Der Export steht in Baumreihenfolge (TREESEQUENCE, Tiefensuche): die
+// Downline einer Person sind alle folgenden Zeilen mit höherer Generation,
+// bis wieder jemand auf ihrer Generation oder darüber kommt.
+function downlineOf(partners, wer) {
+  const words = wer.toLowerCase().split(/\s+/).filter(Boolean);
+  const hits = partners
+    .map((p, i) => ({ p, i }))
+    .filter(({ p }) => words.every((w) => p.name.toLowerCase().includes(w)));
+  if (!hits.length) return { fehler: `Niemand mit dem Namen "${wer}" im Export gefunden.` };
+  if (hits.length > 1) return { fehler: `Mehrere Treffer für "${wer}": ${hits.map(({ p }) => p.name).join(', ')}. Frag Dominik, wen er meint.` };
+  const { p: leader, i: start } = hits[0];
+  if (leader.generation == null) return { fehler: 'Im Export fehlt die Spalte GENERATION, so kann ich die Downline nicht bestimmen.' };
+  const team = [];
+  for (let i = start + 1; i < partners.length && partners[i].generation > leader.generation; i++) team.push(partners[i]);
+  return { leader, team };
+}
+
 // Für das JARVIS-Tool: gefilterte und sortierte Liste
-async function partnerList({ typ, nur_inaktive, monate_ohne_cc }) {
+async function partnerList({ typ, nur_inaktive, monate_ohne_cc, downline_von }) {
   const exp = await latestExport();
   if (!exp) return { fehler: 'Noch kein FLP-Export gespeichert. Dominik muss mir zuerst die Excel-Datei aus FLP360 (Downline, Download) schicken.' };
   const months = exp.months;
   const n = Math.min(Math.max(monate_ohne_cc || 1, 1), months.length);
   const window = months.slice(0, n);
   let list = exp.partners;
+  let leader = null;
+  if (downline_von && downline_von.trim()) {
+    const d = downlineOf(list, downline_von.trim());
+    if (d.fehler) return d;
+    leader = d.leader;
+    list = d.team;
+  }
   if (typ === 'fbo') list = list.filter((p) => !isFpc(p));
   if (typ === 'fpc') list = list.filter(isFpc);
   if (nur_inaktive) list = list.filter((p) => window.every((m) => !(p.cc[m] > 0)));
@@ -220,9 +244,11 @@ async function partnerList({ typ, nur_inaktive, monate_ohne_cc }) {
   return {
     export_vom: String(exp.created_at).slice(0, 10),
     monate_im_export: months.map(monthLabel),
-    filter: nur_inaktive
-      ? `kein persönliches CC in: ${window.map(monthLabel).join(', ')}`
-      : 'alle',
+    downline_von: leader ? `${leader.name} (${leader.titel}, Gen ${leader.generation})` : null,
+    filter: [
+      leader ? `Downline von ${leader.name}` : null,
+      nur_inaktive ? `kein persönliches CC in: ${window.map(monthLabel).join(', ')}` : null,
+    ].filter(Boolean).join(', ') || 'alle',
     hinweis: 'Sortiert nach letzter Bestellung, die jüngste zuerst. "Letzte Bestellung" ist der letzte Monat mit persönlichem CC. Angaben wie "früher in 2026" oder ein Jahr kommen aus der Jahressumme (Gruppen-CC) und sind nur ungefähr. Ist der aktuelle Monat erst ein paar Tage alt, haben viele noch nicht bestellt.',
     anzahl: rows.length,
     anzahl_fbo: rows.filter((r) => r.typ === 'FBO').length,
