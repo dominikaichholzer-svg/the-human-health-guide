@@ -72,11 +72,17 @@ exports.handler = async function (event) {
     const leaderId = leaders[0].id;
 
     const numOrNull = (v) => (v === '' || v === undefined || v === null ? null : Number(v));
+    // CC mit bis zu 3 Nachkommastellen (Komma wird als Dezimalzeichen akzeptiert)
+    const ccOrNull = (v) => {
+      if (v === '' || v === undefined || v === null) return null;
+      const n = Number(String(v).replace(',', '.'));
+      return Number.isFinite(n) ? Math.round(n * 1000) / 1000 : null;
+    };
 
     const row = {
       leader_id: leaderId,
       week_start,
-      cc_stand: numOrNull(payload.cc_stand),
+      cc_stand: ccOrNull(payload.cc_stand),
       geschaeftspraesentationen_versendet: numOrNull(payload.geschaeftspraesentationen_versendet),
       produkte_verschenkt: numOrNull(payload.produkte_verschenkt),
       naechstes_event_mitgebracht: numOrNull(payload.naechstes_event_mitgebracht),

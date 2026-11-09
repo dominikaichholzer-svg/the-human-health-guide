@@ -75,7 +75,7 @@ function monthlyTotals(weeklyEntries) {
 }
 
 function sumMonths(totals, keys) {
-  return keys.reduce((sum, k) => sum + (totals[k] || 0), 0);
+  return Math.round(keys.reduce((sum, k) => sum + (totals[k] || 0), 0) * 1000) / 1000;
 }
 
 function computeProgress(leader, weeklyEntries) {
