@@ -5,6 +5,7 @@ create table if not exists daily_reflections (
   leader_id uuid not null references leaders(id) on delete cascade,
   entry_date date not null,
   kontakte_heute int,
+  verkaeufe_heute int,
   stimmung int check (stimmung between 1 and 5),
   gut text,
   schwer text,
@@ -15,3 +16,6 @@ create table if not exists daily_reflections (
 );
 
 alter table daily_reflections enable row level security;
+
+-- Falls die Tabelle schon ohne Verkäufe angelegt wurde:
+alter table daily_reflections add column if not exists verkaeufe_heute int;

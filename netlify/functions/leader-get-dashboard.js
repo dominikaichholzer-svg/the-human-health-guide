@@ -44,7 +44,7 @@ exports.handler = async function (event) {
     let recentDays = [];
     try {
       recentDays = await pgrest('daily_reflections', {
-        query: `leader_id=eq.${leader.id}&order=entry_date.desc&limit=14&select=entry_date,kontakte_heute,stimmung,gut,schwer,morgen`,
+        query: `leader_id=eq.${leader.id}&order=entry_date.desc&limit=14&select=entry_date,kontakte_heute,verkaeufe_heute,stimmung,gut,schwer,morgen`,
       });
     } catch (e) { recentDays = []; }
 

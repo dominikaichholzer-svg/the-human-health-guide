@@ -5,6 +5,7 @@
 //   "token": "...",
 //   "entry_date": "2026-11-12",   // heute oder gestern (Wien)
 //   "kontakte_heute": 10,
+//   "verkaeufe_heute": 2,
 //   "stimmung": 4,                // 1 bis 5
 //   "gut": "...", "schwer": "...", "morgen": "..."
 // }
@@ -63,6 +64,7 @@ exports.handler = async function (event) {
       leader_id: leaders[0].id,
       entry_date,
       kontakte_heute: intOrNull(payload.kontakte_heute),
+      verkaeufe_heute: intOrNull(payload.verkaeufe_heute),
       stimmung: stimmung >= 1 && stimmung <= 5 ? stimmung : null,
       gut: text(payload.gut),
       schwer: text(payload.schwer),
