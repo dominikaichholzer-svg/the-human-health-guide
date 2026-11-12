@@ -240,7 +240,7 @@
         <button class="btn save-products-btn" data-leader="${l.id}" type="button" style="padding:8px 14px; font-size:12px; width:auto;">Speichern</button>
         ${heatmapHtml(l.visitsByDay)}
         ${intakeHtml(l.intake)}
-        ${weeksHtml(l.recentWeeks)}
+        ${weeksHtml(l.recentWeeks)}${daysHtml(l.recentDays)}
       </div>
     `;
   }
@@ -261,6 +261,17 @@
       ${row('Ziel und Warum', i.warum)}
       ${row('Was hilft beim Dranbleiben', i.support_needed)}
     </details>`;
+  }
+  function daysHtml(days){
+    if(!days || !days.length) return '';
+    const MOODS = { 1:'😞', 2:'😕', 3:'😐', 4:'🙂', 5:'😄' };
+    return `<details class="more-box"><summary>Tagesabschlüsse (letzte ${days.length})</summary>${days.map(d => `
+      <div class="week-entry">
+        <p class="lmeta"><b>${esc(d.entry_date)}</b> ${d.stimmung ? MOODS[d.stimmung] : ''} · Kontakte ${esc(d.kontakte_heute ?? '–')}</p>
+        ${d.gut ? `<p class="lmeta"><b>Gut gelaufen:</b> ${esc(d.gut)}</p>` : ''}
+        ${d.schwer ? `<p class="lmeta"><b>Schwierig:</b> ${esc(d.schwer)}</p>` : ''}
+        ${d.morgen ? `<p class="lmeta"><b>Nächster Schritt:</b> ${esc(d.morgen)}</p>` : ''}
+      </div>`).join('')}</details>`;
   }
   function weeksHtml(weeks){
     if(!weeks || !weeks.length) return '';

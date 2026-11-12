@@ -9,6 +9,7 @@
 
 const { pgrest } = require('./_lib/supabase');
 const { sendPush } = require('./_lib/webpush');
+const { dashboardUrl } = require('./_lib/pushlinks');
 
 exports.handler = async function (event) {
   if (event.httpMethod !== 'POST') {
@@ -36,6 +37,9 @@ exports.handler = async function (event) {
       : undefined; // kein Filter = alle
 
     const subs = await pgrest('push_subscriptions', { query });
+    const leaderRows = await pgrest('leaders', { query: 'select=id,token' });
+    const tokenById = {};
+    for (const l of leaderRows || []) tokenById[l.id] = l.token;
 
     let sent = 0;
     let removed = 0;
@@ -43,7 +47,7 @@ exports.handler = async function (event) {
       try {
         await sendPush(
           { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
-          { title, body, url: '/' }
+          { title, body, url: tokenById[sub.leader_id] ? dashboardUrl(tokenById[sub.leader_id]) : '/' }
         );
         sent++;
       } catch (err) {

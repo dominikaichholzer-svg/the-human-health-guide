@@ -66,6 +66,13 @@ exports.handler = async function (event) {
       });
       const intake = intakeRows && intakeRows[0] ? intakeRows[0] : null;
 
+      let recentDays = [];
+      try {
+        recentDays = await pgrest('daily_reflections', {
+          query: `leader_id=eq.${leader.id}&order=entry_date.desc&limit=7&select=entry_date,kontakte_heute,stimmung,gut,schwer,morgen`,
+        });
+      } catch (e) { recentDays = []; }
+
       const sinceDate = daysAgo(today, 55);
       const visits = await pgrest('dashboard_visits', {
         query: `leader_id=eq.${leader.id}&visited_at=gte.${sinceDate}&select=visited_at`,
@@ -83,6 +90,7 @@ exports.handler = async function (event) {
         lastSubmitted: weeklyEntries[0] ? weeklyEntries[0].week_start : null,
         latestInsight,
         visitsByDay,
+        recentDays,
       });
     }
 

@@ -14,3 +14,8 @@
 # JARVIS Morgen-Briefing per Telegram, 05:30 UTC = 06:30 Wien (Winterzeit) / 07:30 (Sommerzeit)
 [functions."scheduled-agent-briefing"]
   schedule = "30 5 * * *"
+
+# Tagesreflexion-Erinnerung um 19:00 Wiener Zeit. 17:00 UTC = 19:00 Sommerzeit,
+# 18:00 UTC = 19:00 Winterzeit. Die Funktion prüft selbst, welcher Lauf passt.
+[functions."scheduled-daily-reflection-push"]
+  schedule = "0 17,18 * * *"

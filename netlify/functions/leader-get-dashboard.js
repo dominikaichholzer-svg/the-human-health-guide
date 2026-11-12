@@ -39,6 +39,15 @@ exports.handler = async function (event) {
       query: `leader_id=eq.${leader.id}&order=week_start.desc&limit=26`,
     });
 
+    // Tägliche Reflexionen der letzten 14 Tage (Tabelle daily_reflections).
+    // Fehlt die Tabelle noch, soll das Dashboard trotzdem laden.
+    let recentDays = [];
+    try {
+      recentDays = await pgrest('daily_reflections', {
+        query: `leader_id=eq.${leader.id}&order=entry_date.desc&limit=14&select=entry_date,kontakte_heute,stimmung,gut,schwer,morgen`,
+      });
+    } catch (e) { recentDays = []; }
+
     const currentMonthStart = viennaTodayStr().slice(0, 7) + '-01';
     const strategyRows = await pgrest('monthly_strategy', {
       query: `target_month=eq.${currentMonthStart}&select=content`,
@@ -77,6 +86,8 @@ exports.handler = async function (event) {
         progress,
         recentWeeks: weeklyEntries,
         currentWeekMonday,
+        today: viennaTodayStr(),
+        recentDays,
         missingThisWeek,
         strategy: { ready: strategyReady, content: strategyReady ? strategyContent : null },
         intakeDone,

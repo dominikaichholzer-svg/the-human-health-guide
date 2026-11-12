@@ -7,6 +7,7 @@
 const { pgrest } = require('./_lib/supabase');
 const { sendPush } = require('./_lib/webpush');
 const { viennaTodayStr } = require('./_lib/ranks');
+const { dashboardUrl } = require('./_lib/pushlinks');
 
 function mondayOf(dateStr) {
   const d = new Date(dateStr + 'T00:00:00Z');
@@ -31,7 +32,7 @@ exports.handler = async function () {
     const today = viennaTodayStr();
     const currentWeekMonday = mondayOf(today);
 
-    const leaders = await pgrest('leaders', { query: 'select=id,name' });
+    const leaders = await pgrest('leaders', { query: 'select=id,name,token' });
     const results = [];
 
     for (const leader of leaders) {
@@ -54,7 +55,7 @@ exports.handler = async function () {
         try {
           await sendPush(
             { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
-            { title: 'Nicht vergessen 👋', body: 'Diese Woche noch keine Zahlen eingetragen. 2 Minuten reichen.', url: '/leader-dashboard.html' }
+            { title: 'Nicht vergessen 👋', body: 'Diese Woche noch keine Zahlen eingetragen. 2 Minuten reichen.', url: dashboardUrl(leader.token, 'entry', 'weekly') }
           );
           sent++;
         } catch (err) {

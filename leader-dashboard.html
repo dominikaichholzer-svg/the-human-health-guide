@@ -76,6 +76,21 @@
   .field input, .field textarea{ width:100%; background: rgba(255,255,255,0.04); border: 1.5px solid var(--hairline); border-radius: 10px; padding: 12px 13px; color: var(--ink); font-family: var(--sans); font-size: 14.5px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.25); }
   .field textarea{ resize: vertical; min-height: 60px; font-family: var(--sans); }
   .field input:focus, .field textarea:focus{ outline:none; border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-dim); }
+
+  /* Tages- und Wochenreflexion */
+  .mode-switch{ display:flex; gap:6px; margin-bottom:14px; background: rgba(255,255,255,0.04); border:1px solid var(--hairline); border-radius: 12px; padding:4px; }
+  .mode-btn{ flex:1; padding: 10px 8px; border:none; border-radius: 9px; background: transparent; color: var(--ink-muted); font-family: var(--sans); font-weight:600; font-size:14px; cursor:pointer; }
+  .mode-btn.active{ background: linear-gradient(180deg, var(--gold-light), var(--gold)); color: var(--on-gold); }
+  .mood-row{ display:flex; gap:8px; }
+  .mood-btn{ flex:1; padding: 10px 0; border:1.5px solid var(--hairline); border-radius:10px; background: rgba(255,255,255,0.04); font-size:22px; cursor:pointer; line-height:1; }
+  .mood-btn.active{ border-color: var(--gold); background: var(--gold-dim); box-shadow: 0 0 0 3px var(--gold-dim); }
+  .day-toggle{ display:flex; gap:8px; margin-bottom:14px; font-size:13px; color: var(--ink-muted); align-items:center; }
+  .day-toggle button{ background:none; border:1px solid var(--hairline); color: var(--ink-muted); padding:6px 12px; border-radius:999px; font-size:12.5px; cursor:pointer; font-family: var(--sans); }
+  .day-toggle button.active{ border-color: var(--gold); color: var(--gold); }
+  .day-row{ display:flex; gap:10px; justify-content:space-between; padding: 9px 0; border-bottom:1px solid var(--hairline); font-size:13.5px; }
+  .day-row:last-child{ border-bottom:none; }
+  .day-row .dd{ font-family: var(--mono); font-size:12px; color: var(--ink-muted); }
+  .streak{ font-size:13px; color: var(--gold); margin: -4px 0 14px; }
   .field-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .check-group{ margin: 4px 0 18px; }
   .check-group-title{ display:block; font-family: var(--mono); font-size: 10.5px; letter-spacing:0.06em; text-transform:uppercase; color: var(--ink-muted); margin-bottom: 9px; }
@@ -361,7 +376,52 @@
 
     <div class="tab-panel" data-tab="entry" hidden>
 
-    <section class="card">
+    <div class="mode-switch" role="tablist" aria-label="Reflexion wählen">
+      <button type="button" class="mode-btn active" data-mode="daily">🌙 Täglich</button>
+      <button type="button" class="mode-btn" data-mode="weekly">📝 Wöchentlich</button>
+    </div>
+
+    <section class="card" id="dailyCard">
+      <h2 class="card-title">Dein Tagesabschluss</h2>
+      <p class="progress-sub" style="font-size:13.5px; margin-bottom:12px;">2 Minuten am Abend. Jeden Tag um 19:00 erinnert dich dein Handy daran, wenn du Benachrichtigungen aktiviert hast (Menü, Mehr).</p>
+      <div class="streak" id="dayStreak" hidden></div>
+      <div class="day-toggle" id="dayToggle">
+        <button type="button" class="active" data-day="today">Heute</button>
+        <button type="button" data-day="yesterday">Gestern nachtragen</button>
+      </div>
+      <form id="dayForm">
+        <div class="field">
+          <label for="day_kontakte">Wie viele neue Kontakte hast du heute gemacht?</label>
+          <input type="number" step="1" min="0" inputmode="numeric" id="day_kontakte" placeholder="Ziel: 10">
+        </div>
+        <div class="field">
+          <label>Wie fühlst du dich nach diesem Tag?</label>
+          <div class="mood-row" id="moodRow">
+            <button type="button" class="mood-btn" data-mood="1" aria-label="Sehr schlecht">😞</button>
+            <button type="button" class="mood-btn" data-mood="2" aria-label="Eher schlecht">😕</button>
+            <button type="button" class="mood-btn" data-mood="3" aria-label="Okay">😐</button>
+            <button type="button" class="mood-btn" data-mood="4" aria-label="Gut">🙂</button>
+            <button type="button" class="mood-btn" data-mood="5" aria-label="Sehr gut">😄</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="day_gut">Was ist heute richtig gut gelaufen?</label>
+          <textarea id="day_gut"></textarea>
+        </div>
+        <div class="field">
+          <label for="day_schwer">Was war heute schwierig oder hat dich gebremst?</label>
+          <textarea id="day_schwer"></textarea>
+        </div>
+        <div class="field">
+          <label for="day_morgen">Was ist dein wichtigster Schritt für morgen?</label>
+          <textarea id="day_morgen"></textarea>
+        </div>
+        <button type="submit" class="btn" id="daySubmitBtn">Tagesabschluss speichern</button>
+        <p class="progress-sub" id="daySaveStatus" style="text-align:center; margin-top:10px;"></p>
+      </form>
+    </section>
+
+    <section class="card" id="weeklyCard" hidden>
       <h2 class="card-title">Diese Woche eintragen</h2>
       <form id="weekForm">
         <div class="field-grid">
@@ -441,6 +501,11 @@
     <section class="card">
       <h2 class="card-title">Letzte Wochen</h2>
       <div class="weeks-list" id="weeksList"></div>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Letzte Tage</h2>
+      <div id="daysList"></div>
     </section>
 
     </div>
@@ -1157,10 +1222,13 @@
       renderProducts(dashboardData.specializedProducts);
       renderTps(dashboardData.newTps);
       prefillForm(dashboardData.recentWeeks, dashboardData.currentWeekMonday);
+      renderDays();
+      prefillDay();
 
       document.getElementById('loadingState').hidden = true;
       document.getElementById('mainContent').hidden = false;
       document.getElementById('menuBtn').hidden = false;
+      handleDeepLink();
     } catch(err){
       document.getElementById('loadingState').hidden = true;
       document.getElementById('errorState').hidden = false;
@@ -1211,6 +1279,121 @@
       btn.textContent = 'Speichern';
     }
   });
+
+
+  // ============ Tägliche und wöchentliche Reflexion ============
+  const escHtml = (t) => String(t == null ? '' : t).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const MOODS = { 1:'😞', 2:'😕', 3:'😐', 4:'🙂', 5:'😄' };
+  let reflectionMode = 'daily';
+  let dayTarget = 'today';
+  let dayMood = null;
+
+  function setMode(mode){
+    reflectionMode = mode === 'weekly' ? 'weekly' : 'daily';
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === reflectionMode));
+    document.getElementById('dailyCard').hidden = reflectionMode !== 'daily';
+    document.getElementById('weeklyCard').hidden = reflectionMode !== 'weekly';
+  }
+  document.querySelectorAll('.mode-btn').forEach(b => b.addEventListener('click', () => setMode(b.dataset.mode)));
+
+  function shiftDate(iso, n){
+    const d = new Date(iso + 'T00:00:00Z');
+    d.setUTCDate(d.getUTCDate() + n);
+    return d.toISOString().slice(0, 10);
+  }
+  function targetDate(){
+    if(!dashboardData || !dashboardData.today) return null;
+    return dayTarget === 'yesterday' ? shiftDate(dashboardData.today, -1) : dashboardData.today;
+  }
+
+  function setMood(v){
+    dayMood = v;
+    document.querySelectorAll('.mood-btn').forEach(b => b.classList.toggle('active', Number(b.dataset.mood) === v));
+  }
+  document.querySelectorAll('.mood-btn').forEach(b => b.addEventListener('click', () => setMood(Number(b.dataset.mood))));
+
+  function prefillDay(){
+    const date = targetDate();
+    const entry = date && (dashboardData.recentDays || []).find(d => d.entry_date === date);
+    document.getElementById('day_kontakte').value = entry && entry.kontakte_heute != null ? entry.kontakte_heute : '';
+    document.getElementById('day_gut').value = entry && entry.gut ? entry.gut : '';
+    document.getElementById('day_schwer').value = entry && entry.schwer ? entry.schwer : '';
+    document.getElementById('day_morgen').value = entry && entry.morgen ? entry.morgen : '';
+    setMood(entry && entry.stimmung ? entry.stimmung : null);
+  }
+
+  document.querySelectorAll('#dayToggle button').forEach(b => b.addEventListener('click', () => {
+    dayTarget = b.dataset.day;
+    document.querySelectorAll('#dayToggle button').forEach(x => x.classList.toggle('active', x === b));
+    document.getElementById('daySaveStatus').textContent = '';
+    prefillDay();
+  }));
+
+  function renderDays(){
+    const days = (dashboardData && dashboardData.recentDays) || [];
+    const list = document.getElementById('daysList');
+    list.innerHTML = days.length
+      ? days.slice(0, 10).map(d => `<div class="day-row"><span class="dd">${escHtml(fmtDate(d.entry_date))}</span><span>${d.stimmung ? MOODS[d.stimmung] : ''}</span><span>${d.kontakte_heute != null ? d.kontakte_heute + ' Kontakte' : '–'}</span></div>`).join('')
+      : '<p class="progress-sub">Noch keine Tagesabschlüsse.</p>';
+
+    // Serie: wie viele Tage in Folge (heute noch offen zählt nicht als Bruch)
+    const have = new Set(days.map(d => d.entry_date));
+    let cursor = dashboardData.today;
+    if(!have.has(cursor)) cursor = shiftDate(cursor, -1);
+    let streak = 0;
+    while(have.has(cursor)){ streak++; cursor = shiftDate(cursor, -1); }
+    const el = document.getElementById('dayStreak');
+    el.hidden = streak < 2;
+    el.textContent = `🔥 ${streak} Tage in Folge`;
+  }
+
+  document.getElementById('dayForm').addEventListener('submit', async function(e){
+    e.preventDefault();
+    const btn = document.getElementById('daySubmitBtn');
+    const status = document.getElementById('daySaveStatus');
+    const entryDate = targetDate();
+    if(!entryDate) return;
+    btn.disabled = true;
+    btn.textContent = 'Wird gespeichert …';
+    try {
+      const res = await fetch('/.netlify/functions/leader-submit-day', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          token,
+          entry_date: entryDate,
+          kontakte_heute: document.getElementById('day_kontakte').value,
+          stimmung: dayMood,
+          gut: document.getElementById('day_gut').value,
+          schwer: document.getElementById('day_schwer').value,
+          morgen: document.getElementById('day_morgen').value,
+        }),
+      });
+      if(res.ok){
+        status.textContent = 'Gespeichert ✓ Gute Nacht und bis morgen.';
+        await loadDashboard();
+      } else {
+        status.textContent = 'Fehler beim Speichern, bitte nochmal versuchen.';
+      }
+    } catch(err){
+      status.textContent = 'Fehler beim Speichern, bitte nochmal versuchen.';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Tagesabschluss speichern';
+    }
+  });
+
+  // Link aus der Erinnerung: ?tab=entry&mode=daily|weekly
+  let deepLinkHandled = false;
+  function handleDeepLink(){
+    if(deepLinkHandled) return;
+    deepLinkHandled = true;
+    const q = new URLSearchParams(location.search);
+    if(q.get('tab') === 'entry'){
+      switchTab('entry');
+      setMode(q.get('mode'));
+    }
+  }
 
   // ============ Push-Benachrichtigungen ============
   const VAPID_PUBLIC_KEY = 'BJdoAE8VuCAke1rAHszp49u0sbMseHCCXo0HRY13Hs5xufKMoM_K2OgwM_xJHpNgy9ZnyEC_QqxYdQrMeQbCG5M';
