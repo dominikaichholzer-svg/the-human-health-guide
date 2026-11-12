@@ -8,6 +8,7 @@
 
 const { pgrest } = require('./_lib/supabase');
 const { computeProgress, viennaTodayStr } = require('./_lib/ranks');
+const { planWindow } = require('./_lib/plan');
 
 exports.handler = async function (event) {
   if (event.httpMethod !== 'GET') {
@@ -48,6 +49,24 @@ exports.handler = async function (event) {
       });
     } catch (e) { recentDays = []; }
 
+    // Monatsplanung: aktueller und nächster Monat, plus Sperre ab dem 25.
+    // Fehlt die Tabelle noch, wird nie gesperrt (sonst käme niemand mehr rein).
+    const pw = planWindow(viennaTodayStr());
+    let plans = [];
+    let plansAvailable = true;
+    try {
+      plans = await pgrest('monthly_plans', {
+        query: `leader_id=eq.${leader.id}&target_month=in.(${pw.current},${pw.next})&select=target_month,plan_cc,sponsoring_cc,eigen_cc,kunden_konzepte,team_cc`,
+      });
+    } catch (e) { plansAvailable = false; plans = []; }
+    const planInfo = {
+      currentMonth: pw.current,
+      nextMonth: pw.next,
+      requiredMonth: pw.required,
+      locked: !!(plansAvailable && pw.required && !plans.some((p) => p.target_month === pw.required)),
+      plans,
+    };
+
     const currentMonthStart = viennaTodayStr().slice(0, 7) + '-01';
     const strategyRows = await pgrest('monthly_strategy', {
       query: `target_month=eq.${currentMonthStart}&select=content`,
@@ -87,6 +106,7 @@ exports.handler = async function (event) {
         recentWeeks: weeklyEntries,
         currentWeekMonday,
         today: viennaTodayStr(),
+        planInfo,
         recentDays,
         missingThisWeek,
         strategy: { ready: strategyReady, content: strategyReady ? strategyContent : null },

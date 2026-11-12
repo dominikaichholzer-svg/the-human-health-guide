@@ -9,12 +9,16 @@
 // - Tagesreflexion noch nicht ausgefüllt: Erinnerung dazu.
 // - Sonntags zusätzlich: Wochenreflexion noch offen? Dann wird sie erwähnt,
 //   auch wenn die Tagesreflexion schon da ist.
+// - Ab dem 25.: fehlt die Monatsplanung für den nächsten Monat, kommt jeden
+//   Abend diese Erinnerung (sie hat Vorrang, weil das Dashboard bis dahin
+//   gesperrt ist).
 // Wer keine Push-Benachrichtigung aktiviert hat, bekommt nichts.
 
 const { pgrest } = require('./_lib/supabase');
 const { sendPush } = require('./_lib/webpush');
 const { viennaTodayStr } = require('./_lib/ranks');
 const { dashboardUrl } = require('./_lib/pushlinks');
+const { planWindow } = require('./_lib/plan');
 
 function mondayOf(dateStr) {
   const d = new Date(dateStr + 'T00:00:00Z');
@@ -41,6 +45,7 @@ exports.handler = async function () {
   try {
     const today = viennaTodayStr();
     const weekStart = mondayOf(today);
+    const pw = planWindow(today);
     const leaders = await pgrest('leaders', { query: 'select=id,name,token' });
     const results = [];
 
@@ -49,6 +54,37 @@ exports.handler = async function () {
       if (!subs || subs.length === 0) {
         results.push({ leader: leader.name, skipped: 'kein Push aktiviert' });
         continue;
+      }
+
+      // Monatsplanung fällig? (nur ab dem 25. für den nächsten Monat)
+      if (pw.day >= 25) {
+        let planDone = true;
+        try {
+          const plan = await pgrest('monthly_plans', {
+            query: `leader_id=eq.${leader.id}&target_month=eq.${pw.next}&select=id`,
+          });
+          planDone = !!(plan && plan.length);
+        } catch (e) { planDone = true; }
+        if (!planDone) {
+          const planPayload = {
+            title: 'Deine Monatsplanung ist fällig 🗓️',
+            body: 'Bis du sie abgibst, ist dein Dashboard gesperrt. Dauert etwa 5 Minuten.',
+            url: dashboardUrl(leader.token, 'plan'),
+          };
+          let planSent = 0;
+          for (const sub of subs) {
+            try {
+              await sendPush({ endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } }, planPayload);
+              planSent++;
+            } catch (err) {
+              if (err.statusCode === 404 || err.statusCode === 410) {
+                await pgrest('push_subscriptions', { method: 'DELETE', query: `id=eq.${sub.id}` });
+              }
+            }
+          }
+          results.push({ leader: leader.name, plan: true, sent: planSent });
+          continue;
+        }
       }
 
       const day = await pgrest('daily_reflections', {

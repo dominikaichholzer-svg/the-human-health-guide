@@ -7,6 +7,7 @@
 
 const { pgrest } = require('./_lib/supabase');
 const { computeProgress, viennaTodayStr } = require('./_lib/ranks');
+const { planWindow } = require('./_lib/plan');
 
 function nextMonthStart(todayStr) {
   const [y, m] = todayStr.split('-').map(Number);
@@ -66,6 +67,14 @@ exports.handler = async function (event) {
       });
       const intake = intakeRows && intakeRows[0] ? intakeRows[0] : null;
 
+      let monthlyPlans = [];
+      try {
+        const pw = planWindow(today);
+        monthlyPlans = await pgrest('monthly_plans', {
+          query: `leader_id=eq.${leader.id}&target_month=in.(${pw.current},${pw.next})&order=target_month.asc&select=target_month,plan_cc,sponsoring_cc,eigen_cc,kunden_konzepte,team_cc`,
+        });
+      } catch (e) { monthlyPlans = []; }
+
       let recentDays = [];
       try {
         recentDays = await pgrest('daily_reflections', {
@@ -91,6 +100,7 @@ exports.handler = async function (event) {
         latestInsight,
         visitsByDay,
         recentDays,
+        monthlyPlans,
       });
     }
 

@@ -240,7 +240,7 @@
         <button class="btn save-products-btn" data-leader="${l.id}" type="button" style="padding:8px 14px; font-size:12px; width:auto;">Speichern</button>
         ${heatmapHtml(l.visitsByDay)}
         ${intakeHtml(l.intake)}
-        ${weeksHtml(l.recentWeeks)}${daysHtml(l.recentDays)}
+        ${plansHtml(l.monthlyPlans)}${weeksHtml(l.recentWeeks)}${daysHtml(l.recentDays)}
       </div>
     `;
   }
@@ -261,6 +261,23 @@
       ${row('Ziel und Warum', i.warum)}
       ${row('Was hilft beim Dranbleiben', i.support_needed)}
     </details>`;
+  }
+  function plansHtml(plans){
+    const MONTHS = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+    const KONZ = { whatsapp_event:'WhatsApp-Event', wellness_abend:'Wellness-Abend', testboxen:'Testboxen', lips_zahnpasta:'Lips + Zahnpasta', c9:'C9', geschenke:'Geschenke-Umfrage', sonstige:'Sonstiges' };
+    const n = (v) => Number(v).toLocaleString('de-AT', { maximumFractionDigits: 3 });
+    if(!plans || !plans.length) return `<details class="more-box"><summary>Monatsplanung</summary><p class="lmeta">Noch keine Planung abgegeben.</p></details>`;
+    return `<details class="more-box"><summary>Monatsplanung (${plans.length})</summary>${plans.map(p => {
+      const k = p.kunden_konzepte || {};
+      const kSum = Object.values(k).reduce((a, v) => a + Number(v || 0), 0);
+      const konz = Object.keys(k).filter(key => Number(k[key]) > 0).map(key => `${KONZ[key] || key} ${n(k[key])}`).join(' · ');
+      return `<div class="week-entry">
+        <p class="lmeta"><b>${MONTHS[Number(p.target_month.slice(5, 7)) - 1]} ${p.target_month.slice(0, 4)}</b>: Plan <b>${n(p.plan_cc)} CC</b></p>
+        <p class="lmeta">Sponsern ${p.sponsoring_cc != null ? n(p.sponsoring_cc) : '–'} · Eigenverbrauch ${p.eigen_cc != null ? n(p.eigen_cc) : '–'} · Kunden ${n(kSum)}</p>
+        ${konz ? `<p class="lmeta">Kunden nach Konzept: ${esc(konz)}</p>` : ''}
+        <p class="lmeta">Team gesamt: ${p.team_cc != null ? n(p.team_cc) + ' CC' : '–'}</p>
+      </div>`;
+    }).join('')}</details>`;
   }
   function daysHtml(days){
     if(!days || !days.length) return '';

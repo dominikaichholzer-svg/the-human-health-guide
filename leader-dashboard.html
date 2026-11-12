@@ -99,6 +99,16 @@
   .praise-pop .praise-icon{ font-size:34px; margin-bottom:8px; }
   .praise-pop .praise-text{ font-family: var(--serif); font-size:23px; line-height:1.25; color: var(--ink); }
   .praise-pop .praise-sub{ margin-top:10px; font-family: var(--mono); font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color: var(--gold); }
+
+  /* Monatsplanung und Sperre ab dem 25. */
+  .menu-item.locked{ opacity:0.4; pointer-events:none; }
+  .lock-banner{ background: rgba(232,96,76,0.12); border:1.5px solid #E8604C; border-radius:12px; padding:14px 16px; margin-bottom:16px; font-size:14px; line-height:1.5; }
+  .lock-banner b{ color:#F2A69A; }
+  .plan-sum{ font-size:13.5px; line-height:1.5; margin: 2px 0 16px; padding:10px 12px; border-radius:10px; background: rgba(255,255,255,0.04); border:1px solid var(--hairline); color: var(--ink-muted); }
+  .plan-sum b{ color: var(--gold); }
+  .plan-sum.warn b{ color:#F2A69A; }
+  .plan-sub{ font-family: var(--mono); font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color: var(--gold); margin: 18px 0 10px; }
+  .field select{ width:100%; background: rgba(255,255,255,0.04); border:1.5px solid var(--hairline); border-radius:10px; padding:12px 13px; color: var(--ink); font-family: var(--sans); font-size:14.5px; }
   .field-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .check-group{ margin: 4px 0 18px; }
   .check-group-title{ display:block; font-family: var(--mono); font-size: 10.5px; letter-spacing:0.06em; text-transform:uppercase; color: var(--ink-muted); margin-bottom: 9px; }
@@ -238,6 +248,7 @@
     </div>
     <button type="button" class="menu-item" data-tab="overview">📊 Überblick</button>
     <button type="button" class="menu-item" data-tab="entry">✍️ Eintragen &amp; Reflektieren</button>
+    <button type="button" class="menu-item" data-tab="plan">🗓️ Monatsplanung</button>
     <button type="button" class="menu-item" data-tab="chat">💬 Chat mit JARVIS</button>
     <button type="button" class="menu-item" data-tab="history">📅 Verlauf</button>
     <button type="button" class="menu-item" data-tab="team">🤝 Team</button>
@@ -494,6 +505,60 @@
 
     </div>
 
+    <div class="tab-panel" data-tab="plan" hidden>
+
+    <div class="lock-banner" id="lockBanner" hidden></div>
+
+    <section class="card">
+      <h2 class="card-title">Deine Monatsplanung</h2>
+      <p class="progress-sub" style="font-size:13.5px; margin-bottom:14px;">Wer seinen Monat plant, erreicht ihn auch. Plane deine CC und verteile sie auf die Wege, über die du sie machen willst. Spätestens am 25. für den nächsten Monat.</p>
+      <form id="planForm">
+        <div class="field">
+          <label for="plan_month">Planung für</label>
+          <select id="plan_month"></select>
+        </div>
+        <div class="field">
+          <label for="plan_cc">Wie viel CC planst du persönlich in diesem Monat?</label>
+          <input type="number" step="0.001" min="0" inputmode="decimal" id="plan_cc" placeholder="z. B. 12,5">
+        </div>
+
+        <div class="plan-sub">So kommst du dorthin</div>
+        <div class="field-grid">
+          <div class="field">
+            <label for="plan_sponsoring">Davon durch Sponsern (CC)</label>
+            <input type="number" step="0.001" min="0" inputmode="decimal" id="plan_sponsoring" placeholder="0">
+          </div>
+          <div class="field">
+            <label for="plan_eigen">Davon Eigenverbrauch (CC)</label>
+            <input type="number" step="0.001" min="0" inputmode="decimal" id="plan_eigen" placeholder="0">
+          </div>
+        </div>
+
+        <div class="plan-sub">Davon Kundenbestellungen, nach Konzept (CC)</div>
+        <div class="field-grid">
+          <div class="field"><label for="plan_k_whatsapp_event">WhatsApp-Event</label><input type="number" step="0.001" min="0" inputmode="decimal" id="plan_k_whatsapp_event" placeholder="0"></div>
+          <div class="field"><label for="plan_k_wellness_abend">Wellness-Abend</label><input type="number" step="0.001" min="0" inputmode="decimal" id="plan_k_wellness_abend" placeholder="0"></div>
+          <div class="field"><label for="plan_k_testboxen">Testboxen</label><input type="number" step="0.001" min="0" inputmode="decimal" id="plan_k_testboxen" placeholder="0"></div>
+          <div class="field"><label for="plan_k_lips_zahnpasta">Lips + Zahnpasta</label><input type="number" step="0.001" min="0" inputmode="decimal" id="plan_k_lips_zahnpasta" placeholder="0"></div>
+          <div class="field"><label for="plan_k_c9">C9 / Clean9</label><input type="number" step="0.001" min="0" inputmode="decimal" id="plan_k_c9" placeholder="0"></div>
+          <div class="field"><label for="plan_k_geschenke">Geschenke-Umfrage</label><input type="number" step="0.001" min="0" inputmode="decimal" id="plan_k_geschenke" placeholder="0"></div>
+          <div class="field"><label for="plan_k_sonstige">Sonstiges</label><input type="number" step="0.001" min="0" inputmode="decimal" id="plan_k_sonstige" placeholder="0"></div>
+        </div>
+        <div class="plan-sum" id="planSum"></div>
+
+        <div class="plan-sub">Dein Team</div>
+        <div class="field">
+          <label for="plan_team">Wie viel CC macht dein Team in Summe?</label>
+          <input type="number" step="0.001" min="0" inputmode="decimal" id="plan_team" placeholder="z. B. 40">
+        </div>
+
+        <button type="submit" class="btn" id="planSubmitBtn">Monatsplanung speichern</button>
+        <p class="progress-sub" id="planSaveStatus" style="text-align:center; margin-top:10px;"></p>
+      </form>
+    </section>
+
+    </div>
+
     <div class="tab-panel" data-tab="chat" hidden>
 
     <section class="card">
@@ -616,7 +681,9 @@
     document.getElementById('menuDrawer').setAttribute('aria-hidden', 'true');
     document.getElementById('menuBtn').setAttribute('aria-expanded', 'false');
   }
+  let planLocked = false;
   function switchTab(name){
+    if(planLocked && name !== 'plan') name = 'plan';
     document.querySelectorAll('.tab-panel').forEach(p => { p.hidden = (p.dataset.tab !== name); });
     document.querySelectorAll('.menu-item').forEach(b => {
       b.classList.toggle('active', b.dataset.tab === name);
@@ -1236,6 +1303,7 @@
       prefillForm(dashboardData.recentWeeks, dashboardData.currentWeekMonday);
       renderDays();
       prefillDay();
+      setupPlan();
 
       document.getElementById('loadingState').hidden = true;
       document.getElementById('mainContent').hidden = false;
@@ -1524,6 +1592,111 @@
     raf = requestAnimationFrame(frame);
   }
 
+
+  // ============ Monatsplanung (Sperre ab dem 25.) ============
+  const MONTHS_DE = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  const monthLabel = (iso) => `${MONTHS_DE[Number(iso.slice(5, 7)) - 1]} ${iso.slice(0, 4)}`;
+  const PLAN_KONZEPTE = ['whatsapp_event','wellness_abend','testboxen','lips_zahnpasta','c9','geschenke','sonstige'];
+  const planNum = (id) => { const v = Number(String(document.getElementById(id).value).replace(',', '.')); return Number.isFinite(v) ? v : 0; };
+  const fmtPlan = (v) => Number(v).toLocaleString('de-AT', { maximumFractionDigits: 3 });
+
+  function updatePlanSums(){
+    const kunden = PLAN_KONZEPTE.reduce((a, k) => a + planNum('plan_k_' + k), 0);
+    const verteilt = kunden + planNum('plan_sponsoring') + planNum('plan_eigen');
+    const plan = planNum('plan_cc');
+    const diff = Math.round((plan - verteilt) * 1000) / 1000;
+    const el = document.getElementById('planSum');
+    el.classList.toggle('warn', Math.abs(diff) > 0.0005 && plan > 0);
+    let hint = '';
+    if(plan > 0){
+      hint = Math.abs(diff) <= 0.0005 ? ' Alles verteilt ✓'
+        : diff > 0 ? ` Noch <b>${fmtPlan(diff)} CC</b> nicht verteilt.`
+        : ` Du hast <b>${fmtPlan(-diff)} CC</b> mehr verteilt als geplant.`;
+    }
+    el.innerHTML = `Kundenbestellungen gesamt: <b>${fmtPlan(kunden)} CC</b> · Verteilt: <b>${fmtPlan(verteilt)} von ${fmtPlan(plan)} CC</b>.${hint}`;
+  }
+  ['plan_cc','plan_sponsoring','plan_eigen'].concat(PLAN_KONZEPTE.map(k => 'plan_k_' + k))
+    .forEach(id => document.getElementById(id).addEventListener('input', updatePlanSums));
+
+  function prefillPlan(){
+    const info = dashboardData.planInfo;
+    const month = document.getElementById('plan_month').value;
+    const plan = info && (info.plans || []).find(p => p.target_month === month);
+    const set = (id, v) => { document.getElementById(id).value = v != null ? v : ''; };
+    set('plan_cc', plan && plan.plan_cc);
+    set('plan_sponsoring', plan && plan.sponsoring_cc);
+    set('plan_eigen', plan && plan.eigen_cc);
+    set('plan_team', plan && plan.team_cc);
+    const k = (plan && plan.kunden_konzepte) || {};
+    PLAN_KONZEPTE.forEach(key => set('plan_k_' + key, k[key]));
+    updatePlanSums();
+  }
+  document.getElementById('plan_month').addEventListener('change', () => { document.getElementById('planSaveStatus').textContent = ''; prefillPlan(); });
+
+  function setupPlan(){
+    const info = dashboardData.planInfo;
+    if(!info) return;
+    const sel = document.getElementById('plan_month');
+    const previous = sel.value;
+    sel.innerHTML = [info.currentMonth, info.nextMonth].map(m => `<option value="${m}">${monthLabel(m)}</option>`).join('');
+    // Standard: der Monat, den die Sperre verlangt; sonst der laufende
+    sel.value = previous && [info.currentMonth, info.nextMonth].includes(previous) ? previous : (info.requiredMonth || info.currentMonth);
+    prefillPlan();
+
+    planLocked = !!info.locked;
+    document.querySelectorAll('.menu-item').forEach(b => b.classList.toggle('locked', planLocked && b.dataset.tab !== 'plan'));
+    const banner = document.getElementById('lockBanner');
+    banner.hidden = !planLocked;
+    if(planLocked){
+      banner.innerHTML = `<b>Dein Dashboard ist gesperrt.</b> Bevor es weitergeht, brauche ich deine Monatsplanung für <b>${monthLabel(info.requiredMonth)}</b>. Danach ist wieder alles frei.`;
+      switchTab('plan');
+    }
+  }
+
+  document.getElementById('planForm').addEventListener('submit', async function(e){
+    e.preventDefault();
+    const btn = document.getElementById('planSubmitBtn');
+    const status = document.getElementById('planSaveStatus');
+    if(!document.getElementById('plan_cc').value){
+      status.textContent = 'Bitte trag zuerst deinen Plan in CC ein.';
+      return;
+    }
+    const month = document.getElementById('plan_month').value;
+    const wasLocked = planLocked;
+    const konzepte = {};
+    PLAN_KONZEPTE.forEach(k => { konzepte[k] = document.getElementById('plan_k_' + k).value; });
+    btn.disabled = true;
+    btn.textContent = 'Wird gespeichert …';
+    try {
+      const res = await fetch('/.netlify/functions/leader-submit-plan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          token,
+          target_month: month,
+          plan_cc: document.getElementById('plan_cc').value,
+          sponsoring_cc: document.getElementById('plan_sponsoring').value,
+          eigen_cc: document.getElementById('plan_eigen').value,
+          kunden_konzepte: konzepte,
+          team_cc: document.getElementById('plan_team').value,
+        }),
+      });
+      if(res.ok){
+        status.textContent = 'Gespeichert ✓';
+        await loadDashboard();
+        celebrate('Monatsplanung ' + monthLabel(month));
+        if(wasLocked && !planLocked) switchTab('overview');
+      } else {
+        status.textContent = 'Fehler beim Speichern, bitte nochmal versuchen.';
+      }
+    } catch(err){
+      status.textContent = 'Fehler beim Speichern, bitte nochmal versuchen.';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Monatsplanung speichern';
+    }
+  });
+
   // Link aus der Erinnerung: ?tab=entry&mode=daily|weekly
   let deepLinkHandled = false;
   function handleDeepLink(){
@@ -1533,6 +1706,8 @@
     if(q.get('tab') === 'entry'){
       switchTab('entry');
       setMode(q.get('mode'));
+    } else if(q.get('tab') === 'plan'){
+      switchTab('plan');
     }
   }
 
