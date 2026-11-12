@@ -61,7 +61,14 @@ async function summarizeBook(client, book) {
   return textOf(response);
 }
 
+const SCHULUNG_PREFIX = 'schulung-video:';
+const isSchulung = (book) => typeof book.filename === 'string' && book.filename.startsWith(SCHULUNG_PREFIX);
+
 async function askBook(client, book, frage) {
+  // Academy-Videos: eigener Prompt, damit Zahlen wörtlich bleiben (keine Seitenzahlen)
+  const prompt = isSchulung(book)
+    ? `Das ist das Transkript eines Schulungsvideos. Beantworte diese Frage nur anhand des Transkripts oben: ${frage}\n\nGib die passenden Aussagen, Regeln und Beispiele aus dem Video wieder. Zahlen, Prozentwerte, Ränge, CC-Werte und Fristen nennst du genau so, wie sie im Transkript stehen: nicht runden, nicht ergänzen, nichts aus eigenem Wissen dazuschreiben. Nenne nur Zahlen, die tatsächlich im Transkript vorkommen. Es gibt keine Seitenzahlen. Wenn das Video dazu nichts sagt oder eine Zahl unklar ist (z. B. weil sie nur eingeblendet wurde), sag das klar. Antwort auf Deutsch, kein Markdown.`
+    : `Beantworte diese Frage nur anhand des Buchs oben: ${frage}\n\nGib die wichtigsten passenden Aussagen und Methoden aus dem Buch wieder, jeweils mit Seitenzahl, in eigenen Worten statt langer Zitate. Wenn das Buch dazu nichts sagt, sag das klar. Antwort auf Deutsch, kein Markdown.`;
   const response = await client.messages.create({
     model: READER_MODEL,
     max_tokens: 4000,
@@ -73,7 +80,7 @@ async function askBook(client, book, frage) {
           bookBlock(book),
           {
             type: 'text',
-            text: `Beantworte diese Frage nur anhand des Buchs oben: ${frage}\n\nGib die wichtigsten passenden Aussagen und Methoden aus dem Buch wieder, jeweils mit Seitenzahl, in eigenen Worten statt langer Zitate. Wenn das Buch dazu nichts sagt, sag das klar. Antwort auf Deutsch, kein Markdown.`,
+            text: prompt,
           },
         ],
       },
@@ -144,7 +151,7 @@ async function listBooks() {
 }
 
 async function getBook(id) {
-  const rows = await pgrest('agent_books', { query: `id=eq.${Number(id)}&select=id,title,content` });
+  const rows = await pgrest('agent_books', { query: `id=eq.${Number(id)}&select=id,title,filename,content` });
   return rows[0] || null;
 }
 
@@ -154,6 +161,7 @@ async function deleteBook(id) {
 
 module.exports = {
   MAX_CHARS,
+  isSchulung,
   WEB_NOTE,
   researchBook,
   extractPdfText,
