@@ -5,7 +5,7 @@
 //   "token": "...",
 //   "entry_date": "2026-11-12",   // heute oder gestern (Wien)
 //   "kontakte_heute": 10,
-//   "verkaeufe_heute": 2,
+//   "verkaeufe_heute": 1.903,    // Verkäufe des Tages in CC, bis 3 Nachkommastellen
 //   "stimmung": 4,                // 1 bis 5
 //   "gut": "...", "schwer": "...", "morgen": "..."
 // }
@@ -49,6 +49,12 @@ exports.handler = async function (event) {
     const n = Number(v);
     return Number.isFinite(n) ? Math.max(0, Math.round(n)) : null;
   };
+  // CC mit bis zu 3 Nachkommastellen, Komma wird als Dezimalzeichen akzeptiert
+  const ccOrNull = (v) => {
+    if (v === '' || v === undefined || v === null) return null;
+    const n = Number(String(v).replace(',', '.'));
+    return Number.isFinite(n) && n >= 0 ? Math.round(n * 1000) / 1000 : null;
+  };
   const stimmung = intOrNull(payload.stimmung);
   const text = (v) => (typeof v === 'string' && v.trim() ? v.trim().slice(0, 2000) : null);
 
@@ -64,7 +70,7 @@ exports.handler = async function (event) {
       leader_id: leaders[0].id,
       entry_date,
       kontakte_heute: intOrNull(payload.kontakte_heute),
-      verkaeufe_heute: intOrNull(payload.verkaeufe_heute),
+      verkaeufe_heute: ccOrNull(payload.verkaeufe_heute),
       stimmung: stimmung >= 1 && stimmung <= 5 ? stimmung : null,
       gut: text(payload.gut),
       schwer: text(payload.schwer),
