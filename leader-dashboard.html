@@ -534,15 +534,14 @@
           </div>
         </div>
 
-        <div class="plan-sub">Davon Kundenbestellungen, nach Konzept (CC)</div>
-        <div class="field-grid">
-          <div class="field"><label for="plan_k_whatsapp_event">WhatsApp-Event</label><input type="number" step="0.001" min="0" inputmode="decimal" id="plan_k_whatsapp_event" placeholder="0"></div>
-          <div class="field"><label for="plan_k_wellness_abend">Wellness-Abend</label><input type="number" step="0.001" min="0" inputmode="decimal" id="plan_k_wellness_abend" placeholder="0"></div>
-          <div class="field"><label for="plan_k_testboxen">Testboxen</label><input type="number" step="0.001" min="0" inputmode="decimal" id="plan_k_testboxen" placeholder="0"></div>
-          <div class="field"><label for="plan_k_lips_zahnpasta">Lips + Zahnpasta</label><input type="number" step="0.001" min="0" inputmode="decimal" id="plan_k_lips_zahnpasta" placeholder="0"></div>
-          <div class="field"><label for="plan_k_c9">C9 / Clean9</label><input type="number" step="0.001" min="0" inputmode="decimal" id="plan_k_c9" placeholder="0"></div>
-          <div class="field"><label for="plan_k_geschenke">Geschenke-Umfrage</label><input type="number" step="0.001" min="0" inputmode="decimal" id="plan_k_geschenke" placeholder="0"></div>
-          <div class="field"><label for="plan_k_sonstige">Sonstiges</label><input type="number" step="0.001" min="0" inputmode="decimal" id="plan_k_sonstige" placeholder="0"></div>
+        <div class="plan-sub">Kundenbestellungen</div>
+        <div class="field">
+          <label for="plan_kunden">Davon Kundenbestellungen (CC)</label>
+          <input type="number" step="0.001" min="0" inputmode="decimal" id="plan_kunden" placeholder="0">
+        </div>
+        <div class="field">
+          <label for="plan_kunden_text">Wie teilst du das auf, und mit welchem Konzept?</label>
+          <textarea id="plan_kunden_text" placeholder="z. B. 3 CC über Testboxen (20 Stück verschicken), 2 CC über ein WhatsApp-Event am 10. und 24., 1,5 CC über C9"></textarea>
         </div>
         <div class="plan-sum" id="planSum"></div>
 
@@ -1596,12 +1595,11 @@
   // ============ Monatsplanung (Sperre ab dem 25.) ============
   const MONTHS_DE = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
   const monthLabel = (iso) => `${MONTHS_DE[Number(iso.slice(5, 7)) - 1]} ${iso.slice(0, 4)}`;
-  const PLAN_KONZEPTE = ['whatsapp_event','wellness_abend','testboxen','lips_zahnpasta','c9','geschenke','sonstige'];
   const planNum = (id) => { const v = Number(String(document.getElementById(id).value).replace(',', '.')); return Number.isFinite(v) ? v : 0; };
   const fmtPlan = (v) => Number(v).toLocaleString('de-AT', { maximumFractionDigits: 3 });
 
   function updatePlanSums(){
-    const kunden = PLAN_KONZEPTE.reduce((a, k) => a + planNum('plan_k_' + k), 0);
+    const kunden = planNum('plan_kunden');
     const verteilt = kunden + planNum('plan_sponsoring') + planNum('plan_eigen');
     const plan = planNum('plan_cc');
     const diff = Math.round((plan - verteilt) * 1000) / 1000;
@@ -1615,7 +1613,7 @@
     }
     el.innerHTML = `Kundenbestellungen gesamt: <b>${fmtPlan(kunden)} CC</b> · Verteilt: <b>${fmtPlan(verteilt)} von ${fmtPlan(plan)} CC</b>.${hint}`;
   }
-  ['plan_cc','plan_sponsoring','plan_eigen'].concat(PLAN_KONZEPTE.map(k => 'plan_k_' + k))
+  ['plan_cc','plan_sponsoring','plan_eigen','plan_kunden']
     .forEach(id => document.getElementById(id).addEventListener('input', updatePlanSums));
 
   function prefillPlan(){
@@ -1627,8 +1625,8 @@
     set('plan_sponsoring', plan && plan.sponsoring_cc);
     set('plan_eigen', plan && plan.eigen_cc);
     set('plan_team', plan && plan.team_cc);
-    const k = (plan && plan.kunden_konzepte) || {};
-    PLAN_KONZEPTE.forEach(key => set('plan_k_' + key, k[key]));
+    set('plan_kunden', plan && plan.kunden_cc);
+    set('plan_kunden_text', plan && plan.kunden_text);
     updatePlanSums();
   }
   document.getElementById('plan_month').addEventListener('change', () => { document.getElementById('planSaveStatus').textContent = ''; prefillPlan(); });
@@ -1663,8 +1661,6 @@
     }
     const month = document.getElementById('plan_month').value;
     const wasLocked = planLocked;
-    const konzepte = {};
-    PLAN_KONZEPTE.forEach(k => { konzepte[k] = document.getElementById('plan_k_' + k).value; });
     btn.disabled = true;
     btn.textContent = 'Wird gespeichert …';
     try {
@@ -1677,7 +1673,8 @@
           plan_cc: document.getElementById('plan_cc').value,
           sponsoring_cc: document.getElementById('plan_sponsoring').value,
           eigen_cc: document.getElementById('plan_eigen').value,
-          kunden_konzepte: konzepte,
+          kunden_cc: document.getElementById('plan_kunden').value,
+          kunden_text: document.getElementById('plan_kunden_text').value,
           team_cc: document.getElementById('plan_team').value,
         }),
       });

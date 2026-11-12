@@ -6,7 +6,8 @@
 //   "target_month": "2026-12-01",       // aktueller oder nächster Monat (1. des Monats)
 //   "plan_cc": 12.5,
 //   "sponsoring_cc": 4, "eigen_cc": 1.2,
-//   "kunden_konzepte": { "whatsapp_event": 2, "testboxen": 3, ... },
+//   "kunden_cc": 6.5,
+//   "kunden_text": "3 CC Testboxen, 2 CC WhatsApp-Event, 1,5 CC C9",
 //   "team_cc": 40
 // }
 //
@@ -16,8 +17,6 @@
 const { pgrest } = require('./_lib/supabase');
 const { viennaTodayStr } = require('./_lib/ranks');
 const { planWindow } = require('./_lib/plan');
-
-const KONZEPTE = ['whatsapp_event', 'wellness_abend', 'testboxen', 'lips_zahnpasta', 'c9', 'geschenke', 'sonstige'];
 
 const cc = (v) => {
   if (v === '' || v === undefined || v === null) return null;
@@ -49,12 +48,9 @@ exports.handler = async function (event) {
     return { statusCode: 400, body: JSON.stringify({ error: 'Bitte trag deinen Plan in CC ein' }) };
   }
 
-  const konzepte = {};
-  const input = payload.kunden_konzepte && typeof payload.kunden_konzepte === 'object' ? payload.kunden_konzepte : {};
-  for (const key of KONZEPTE) {
-    const v = cc(input[key]);
-    if (v !== null) konzepte[key] = v;
-  }
+  const kundenText = typeof payload.kunden_text === 'string' && payload.kunden_text.trim()
+    ? payload.kunden_text.trim().slice(0, 3000)
+    : null;
 
   try {
     const leaders = await pgrest('leaders', { query: `token=eq.${encodeURIComponent(token)}&select=id` });
@@ -71,7 +67,8 @@ exports.handler = async function (event) {
         plan_cc: planCc,
         sponsoring_cc: cc(payload.sponsoring_cc),
         eigen_cc: cc(payload.eigen_cc),
-        kunden_konzepte: konzepte,
+        kunden_cc: cc(payload.kunden_cc),
+        kunden_text: kundenText,
         team_cc: cc(payload.team_cc),
         updated_at: new Date().toISOString(),
       }],

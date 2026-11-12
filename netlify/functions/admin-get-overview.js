@@ -71,7 +71,7 @@ exports.handler = async function (event) {
       try {
         const pw = planWindow(today);
         monthlyPlans = await pgrest('monthly_plans', {
-          query: `leader_id=eq.${leader.id}&target_month=in.(${pw.current},${pw.next})&order=target_month.asc&select=target_month,plan_cc,sponsoring_cc,eigen_cc,kunden_konzepte,team_cc`,
+          query: `leader_id=eq.${leader.id}&target_month=in.(${pw.current},${pw.next})&order=target_month.asc&select=target_month,plan_cc,sponsoring_cc,eigen_cc,kunden_cc,kunden_text,team_cc`,
         });
       } catch (e) { monthlyPlans = []; }
 
