@@ -146,6 +146,7 @@
       <p class="card-sub" id="pushSendStatus" style="text-align:center; margin-top:8px;"></p>
     </section>
 
+    <p style="text-align:center; margin:26px 0 6px; font-size:13px;"><a id="backupLink" href="#" style="color:var(--gold);">Datensicherung herunterladen</a></p>
     <footer class="legal">© 2026 Coach Oaki · The Human Health Guide</footer>
   </div>
 
@@ -160,6 +161,7 @@
   };
 
   const adminKey = new URLSearchParams(location.search).get('key');
+  document.getElementById('backupLink').href = '/.netlify/functions/admin-backup?key=' + encodeURIComponent(adminKey || '');
   let overviewData = null;
 
   function monthLabel(dateStr){

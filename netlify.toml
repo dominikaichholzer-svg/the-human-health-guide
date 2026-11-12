@@ -19,3 +19,54 @@
 # 18:00 UTC = 19:00 Winterzeit. Die Funktion prüft selbst, welcher Lauf passt.
 [functions."scheduled-daily-reflection-push"]
   schedule = "0 17,18 * * *"
+
+# Interne Dateien nicht öffentlich ausliefern (Quellcode der Funktionen,
+# Datenbank-Skripte, Übergabe-Dokumente, interne Skripte). Die Funktionen
+# selbst laufen weiter unter /.netlify/functions/ (mit Punkt).
+[[redirects]]
+  from = "/netlify/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/supabase/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/uebergabe/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/package.json"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/package-lock.json"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/netlify.toml"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/skript-5min-geschaeftsmodell.md"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/skript-5min-mamabusiness.md"
+  to = "/404.html"
+  status = 404
+  force = true
