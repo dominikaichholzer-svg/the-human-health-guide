@@ -66,6 +66,8 @@ exports.handler = async function (event) {
       entry_date,
       kontakte_heute: intOrNull(payload.kontakte_heute),
       verkaeufe_heute: ccOrNull(payload.verkaeufe_heute),
+      gespraeche_heute: intOrNull(payload.gespraeche_heute),
+      neue_kunden_heute: intOrNull(payload.neue_kunden_heute),
       stimmung: stimmung >= 1 && stimmung <= 5 ? stimmung : null,
       gut: text(payload.gut),
       schwer: text(payload.schwer),
@@ -73,12 +75,21 @@ exports.handler = async function (event) {
       updated_at: new Date().toISOString(),
     };
 
-    const saved = await pgrest('daily_reflections', {
+    const save = (body) => pgrest('daily_reflections', {
       method: 'POST',
       query: 'on_conflict=leader_id,entry_date',
       prefer: 'resolution=merge-duplicates,return=representation',
-      body: [row],
+      body: [body],
     });
+    let saved;
+    try {
+      saved = await save(row);
+    } catch (err) {
+      // Spalten aus supabase/devplans.sql fehlen noch: ohne sie speichern
+      if (!(err.data && err.data.code === 'PGRST204')) throw err;
+      const { gespraeche_heute, neue_kunden_heute, ...rest } = row;
+      saved = await save(rest);
+    }
 
     return { statusCode: 200, body: JSON.stringify({ success: true, entry: saved && saved[0] }) };
   } catch (err) {

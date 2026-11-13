@@ -67,11 +67,13 @@ async function buildLeaderContext(leader, todayStr) {
     lines.push(`Für ${monthKey} gibt es noch keine Monatsplanung.`);
   }
 
-  const days = (await safe(pgrest('daily_reflections', { query: `leader_id=eq.${leader.id}&entry_date=gte.${monthKey}-01&order=entry_date.desc&select=entry_date,kontakte_heute,verkaeufe_heute,stimmung,schwer,morgen` }), [])) || [];
+  const days = (await safe(pgrest('daily_reflections', { query: `leader_id=eq.${leader.id}&entry_date=gte.${monthKey}-01&order=entry_date.desc&select=*` }), [])) || [];
   if (days.length) {
     const k = days.reduce((a, d) => a + (Number(d.kontakte_heute) || 0), 0);
     const v = days.reduce((a, d) => a + (Number(d.verkaeufe_heute) || 0), 0);
-    lines.push(`Tagesabschlüsse diesen Monat: ${days.length}, zusammen ${k} neue Kontakte und ${fmt(v)} CC Verkäufe. Letzter: ${days[0].entry_date}${days[0].schwer ? `, schwierig war: "${String(days[0].schwer).slice(0, 200)}"` : ''}${days[0].morgen ? `, Plan für morgen: "${String(days[0].morgen).slice(0, 200)}"` : ''}.`);
+    const g = days.reduce((a, d) => a + (Number(d.gespraeche_heute) || 0), 0);
+    const nk = days.reduce((a, d) => a + (Number(d.neue_kunden_heute) || 0), 0);
+    lines.push(`Tagesabschlüsse diesen Monat: ${days.length}, zusammen ${k} neue Kontakte, ${g} Gespräche, ${nk} neue Kundinnen und ${fmt(v)} CC Verkäufe. Letzter: ${days[0].entry_date}${days[0].schwer ? `, schwierig war: "${String(days[0].schwer).slice(0, 200)}"` : ''}${days[0].morgen ? `, Plan für morgen: "${String(days[0].morgen).slice(0, 200)}"` : ''}.`);
   } else {
     lines.push('Diesen Monat noch kein Tagesabschluss.');
   }
@@ -100,6 +102,14 @@ async function buildLeaderContext(leader, todayStr) {
     const d = prof[0].data;
     if (d.fuer_leaderin) lines.push(`Ihr Entwicklungsprofil (Stand ${String(prof[0].created_at).slice(0, 10)}): Stärken: ${(d.fuer_leaderin.staerken || []).join('; ')}. Nächster Wachstumsschritt: ${d.fuer_leaderin.naechster_schritt}.`);
     if (d.chat_hinweise) lines.push(`So unterstützt du sie am besten: ${d.chat_hinweise}`);
+  }
+
+  // Persönlicher Entwicklungsplan. Dominiks Feedback zum Plan ist für sie bestimmt und darf rein,
+  // seine vertraulichen Coaching-Notizen (coaching_notes, author=admin) nicht.
+  const devPlans = await safe(require('./devplan').leaderPlans(leader.id, today), null);
+  const cur = devPlans && devPlans.current;
+  if (cur) {
+    lines.push(`Ihr Entwicklungsplan ${cur.month} (${cur.status === 'proposed' ? 'Vorschlag, noch nicht bestätigt' : 'bestätigt'}): Schwerpunkt "${cur.focus}". Ziel: ${cur.goal}. Schritte: ${cur.steps.map((s) => `${s.done ? '[erledigt] ' : '[offen] '}${s.text}`).join('; ')}.${cur.coachFeedback ? ` Dominiks Feedback dazu: ${cur.coachFeedback}` : ''} Richte deine Empfehlungen auf diesen Schwerpunkt aus.`);
   }
 
   const teams = await safe(loadTeams([leader.id], today, { coaching: true }), null);

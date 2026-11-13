@@ -32,6 +32,10 @@
 [functions."scheduled-leader-profiles"]
   schedule = "0 19 * * 0"
 
+# Entwicklungspläne: täglich 04:00 UTC, JARVIS arbeitet nur, wo etwas fällig ist
+[functions."scheduled-devplans"]
+  schedule = "0 4 * * *"
+
 # Interne Dateien nicht öffentlich ausliefern (Quellcode der Funktionen,
 # Datenbank-Skripte, Übergabe-Dokumente, interne Skripte). Die Funktionen
 # selbst laufen weiter unter /.netlify/functions/ (mit Punkt).

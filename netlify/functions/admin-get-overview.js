@@ -12,6 +12,7 @@ const { memberSignals, leaderSignals } = require('./_lib/signals');
 const { logAccess } = require('./_lib/auth');
 const { monthsBack } = require('./_lib/ranks');
 const { latestProfiles } = require('./_lib/profile');
+const { leaderPlans } = require('./_lib/devplan');
 const { computeProgress, viennaTodayStr } = require('./_lib/ranks');
 const { planWindow } = require('./_lib/plan');
 
@@ -126,7 +127,7 @@ exports.handler = async function (event) {
       let recentDays = [];
       try {
         recentDays = await pgrest('daily_reflections', {
-          query: `leader_id=eq.${leader.id}&order=entry_date.desc&limit=7&select=entry_date,kontakte_heute,verkaeufe_heute,stimmung,gut,schwer,morgen`,
+          query: `leader_id=eq.${leader.id}&order=entry_date.desc&limit=7&select=*`,
         });
       } catch (e) { recentDays = []; }
 
@@ -162,6 +163,7 @@ exports.handler = async function (event) {
         adminNotes: adminNotesBy[leader.id] || [],
         monthClose: actualsBy[leader.id] || null,
         profile: profiles ? profiles[leader.id] || null : undefined,
+        devplan: await leaderPlans(leader.id).catch(() => undefined),
       });
     }
 

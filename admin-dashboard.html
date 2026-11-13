@@ -430,7 +430,7 @@
         <button class="btn save-products-btn" data-leader="${l.id}" type="button" style="padding:8px 14px; font-size:12px; width:auto;">Speichern</button>
         ${heatmapHtml(l.visitsByDay)}
         ${intakeHtml(l.intake)}
-        ${profileHtml(l)}${teamHtml(l.team)}${adminNotesHtml(l)}${plansHtml(l.monthlyPlans)}${weeksHtml(l.recentWeeks)}${daysHtml(l.recentDays)}
+        ${devplanHtml(l)}${profileHtml(l)}${teamHtml(l.team)}${adminNotesHtml(l)}${plansHtml(l.monthlyPlans)}${weeksHtml(l.recentWeeks)}${daysHtml(l.recentDays)}
       </div>
     `;
   }
@@ -653,6 +653,47 @@
     const c = l.monthClose || {};
     return `<p class="lmeta">Monatsabschluss ${MONTHS[Number(k.slice(5, 7)) - 1]}: Eigenverbrauch <b>${n(c.eigenCc)}</b> · Global gesamt <b>${n(c.globalCc)}</b> · 4CC-Partnerinnen <b>${c.fourCc == null ? '–' : c.fourCc}</b></p>`;
   }
+
+  // Persönlicher Entwicklungsplan der Leaderin
+  const DP_STATUS = { proposed: 'Vorschlag, noch nicht bestätigt', confirmed: 'bestätigt', reviewed: 'ausgewertet' };
+  function devplanHtml(l){
+    if(l.devplan === undefined) return '';
+    const dp = l.devplan || {};
+    const MONTHS = ['Jänner','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+    const mn = (k) => MONTHS[Number(k.slice(5, 7)) - 1];
+    const block = (p, label) => {
+      if(!p) return '';
+      const done = p.steps.filter(s => s.done).length;
+      return `<div class="pl">${label} · ${mn(p.month)} · ${DP_STATUS[p.status] || p.status}</div>
+        <p class="ps"><b>${esc(p.focus)}</b><br>${esc(p.goal)}</p>
+        <ul>${p.steps.map(s => `<li>${s.done ? '✓ ' : ''}${esc(s.text)}${s.note ? ` <i style="color:var(--ink-muted)">(${esc(s.note)})</i>` : ''}</li>`).join('')}</ul>
+        <p class="ps" style="color:var(--ink-muted); margin-top:4px;">${done}/${p.steps.length} Schritte erledigt</p>
+        ${p.review ? `<p class="ps"><b>Auswertung:</b> ${esc(p.review.erreicht)} ${esc(p.review.verbessert)}<br><b>Nächster Schritt:</b> ${esc(p.review.naechster_schritt)}</p>` : ''}
+        ${p.reflection ? `<p class="ps"><b>Ihre Sicht:</b> ${esc(p.reflection)}</p>` : ''}
+        <textarea data-dpfb="${l.id}" data-month="${p.month}" style="min-height:56px; font-size:13px; margin-top:6px;" placeholder="Dein Feedback und Coaching-Schwerpunkt (sieht ${esc(l.name)})">${p.coachFeedback ? esc(p.coachFeedback).replace(/<br>/g, '\n') : ''}</textarea>
+        <div class="pfoot"><span></span><button type="button" data-dpfbsave="${l.id}" data-month="${p.month}">Feedback speichern</button></div>`;
+    };
+    const body = block(dp.current, 'Laufender Monat') + block(dp.next, 'Nächster Monat');
+    const canRegen = [dp.current, dp.next].some(p => p && p.status === 'proposed');
+    return `<div class="prof"><h4>Entwicklungsplan</h4>${body || '<p class="ps" style="color:var(--ink-muted)">Noch kein Plan. JARVIS schlägt ihn automatisch vor (ab dem 25. für den nächsten Monat).</p>'}
+      <div class="pfoot"><span></span><button type="button" data-dpregen="${l.id}">${canRegen || !body ? 'JARVIS neu vorschlagen lassen' : 'Vorschlag erstellen, falls fällig'}</button></div></div>`;
+  }
+  document.getElementById('leaderGrid').addEventListener('click', async e => {
+    const save = e.target.closest('[data-dpfbsave]');
+    const regen = e.target.closest('[data-dpregen]');
+    if(!save && !regen) return;
+    const b = save || regen;
+    b.disabled = true;
+    const body = save
+      ? { key: adminKey, leader_id: save.dataset.dpfbsave, month: save.dataset.month, feedback: document.querySelector(`[data-dpfb="${save.dataset.dpfbsave}"][data-month="${save.dataset.month}"]`).value }
+      : { key: adminKey, leader_id: regen.dataset.dpregen, regenerate: true };
+    try {
+      const res = await fetch('/.netlify/functions/admin-devplan', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      if(!res.ok) throw new Error();
+      if(save){ b.textContent = 'Gespeichert ✓'; setTimeout(() => { b.textContent = 'Feedback speichern'; b.disabled = false; }, 2000); }
+      else { b.textContent = 'JARVIS arbeitet, ca. 40 Sek.'; setTimeout(() => loadOverview(), 40000); }
+    } catch(err){ b.disabled = false; b.textContent = 'Fehler, nochmal versuchen'; }
+  });
 
   // JARVIS-Entwicklungsprofil (wöchentlich, baut auf dem letzten auf)
   function profileHtml(l){

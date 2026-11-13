@@ -2,6 +2,8 @@
 //
 // Hintergrund-Funktion (bis 15 Minuten Laufzeit): JARVIS aktualisiert die
 // Entwicklungsprofile. Body: { leader_id? }  ohne leader_id = alle Leaderinnen.
+// Mit { mode: "devplans", leader_id?, force? } stattdessen die Entwicklungspläne:
+// Vorschlag und Monatsauswertung, nur wo fällig (force = Vorschlag neu erstellen).
 // Aufruf nur mit dem internen Geheimnis (x-agent-secret), von
 // scheduled-leader-profiles.js (Sonntag 20:00) oder admin-profile-refresh.js.
 
@@ -9,6 +11,7 @@ const { pgrest } = require('./_lib/supabase');
 const { agentSecret } = require('./_lib/telegram');
 const { makeClient } = require('./_lib/agent');
 const { updateProfile } = require('./_lib/profile');
+const { runDevplans } = require('./_lib/devplan');
 
 exports.handler = async function (event) {
   if ((event.headers || {})['x-agent-secret'] !== agentSecret()) return { statusCode: 403, body: 'Kein Zugriff' };
@@ -17,6 +20,10 @@ exports.handler = async function (event) {
   const q = p.leader_id && /^[0-9a-f-]{36}$/i.test(p.leader_id) ? `id=eq.${p.leader_id}&select=*` : 'select=*&order=sort_order.asc';
   const leaders = (await pgrest('leaders', { query: q })) || [];
   const client = makeClient();
+  if (p.mode === 'devplans') {
+    const results = await runDevplans(client, leaders, undefined, { force: !!p.force });
+    return { statusCode: 200, body: JSON.stringify({ results }) };
+  }
   const results = [];
   for (const leader of leaders) {
     try {

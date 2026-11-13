@@ -229,6 +229,25 @@
   .pin-prog .bar span{ display:block; height:100%; background: linear-gradient(90deg, var(--green), var(--green-light)); }
   .ch-streak{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; font-size:12.5px; font-weight:600; color: var(--gold-light); margin:-4px 0 12px; }
   .ch-flames{ font-size:16px; letter-spacing:1px; }
+  .dp-month{ font-size:11.5px; font-weight:700; letter-spacing:0.07em; text-transform:uppercase; color: var(--gold-light); margin:0 0 4px; }
+  .dp-focus{ font-size:20px; font-weight:700; letter-spacing:-0.01em; line-height:1.25; margin:0 0 6px; }
+  .dp-why{ font-size:13px; color: var(--ink-muted); line-height:1.5; margin:0 0 10px; }
+  .dp-goal{ background: rgba(255,255,255,0.03); border:1px solid var(--hairline); border-radius:10px; padding:10px 12px; font-size:13.5px; line-height:1.5; margin-bottom:12px; }
+  .dp-goal b{ display:block; font-size:11px; letter-spacing:0.07em; text-transform:uppercase; color: var(--ink-muted); margin-bottom:2px; }
+  .dp-step{ display:flex; gap:10px; align-items:flex-start; padding:9px 0; border-top:1px solid var(--hairline); font-size:14px; line-height:1.45; }
+  .dp-step:first-of-type{ border-top:none; }
+  .dp-step input[type=checkbox]{ width:20px; height:20px; accent-color: var(--green); margin-top:1px; flex:none; }
+  .dp-step.done span{ color: var(--ink-muted); text-decoration: line-through; }
+  .dp-step small{ display:block; color: var(--ink-muted); font-size:12px; margin-top:2px; text-decoration:none; }
+  .dp-note-btn{ background:none; border:none; color: var(--gold-light); font-size:12px; cursor:pointer; padding:0; font-family: var(--sans); white-space:nowrap; }
+  .dp-coach{ border-left:3px solid var(--gold); padding:6px 0 6px 10px; font-size:13px; line-height:1.5; margin:12px 0 4px; }
+  .dp-coach b{ color: var(--gold-light); }
+  .dp-edit input, .dp-edit textarea{ width:100%; background: rgba(255,255,255,0.04); border:1.5px solid var(--hairline); border-radius:10px; padding:10px 12px; color: var(--ink); font-family: var(--sans); font-size:14px; margin-bottom:8px; }
+  .dp-edit textarea{ min-height:70px; resize:vertical; }
+  .dp-review{ background: rgba(212,175,106,0.06); border:1px solid rgba(212,175,106,0.35); border-radius:12px; padding:12px 14px; margin-bottom:16px; }
+  .dp-review p{ margin:4px 0 8px; font-size:13.5px; line-height:1.5; }
+  .dp-review b{ font-size:11px; letter-spacing:0.07em; text-transform:uppercase; color: var(--gold-light); }
+  .dp-sep{ border-top:1px solid var(--hairline); margin:16px 0; }
   .gr-l{ font-size:11.5px; font-weight:700; letter-spacing:0.07em; text-transform:uppercase; color: var(--ink-muted); margin:0 0 6px; }
   .gr-list{ margin:0 0 14px; padding:0; list-style:none; }
   .gr-list li{ position:relative; padding:5px 0 5px 22px; font-size:14px; line-height:1.45; }
@@ -539,7 +558,7 @@
 
 
     <section class="card" id="growthCard" hidden>
-      <h2 class="card-title">Dein Wachstum</h2>
+      <h2 class="card-title" id="growthTitle">Dein Wachstum</h2>
       <div id="growthContent"></div>
     </section>
 
@@ -628,6 +647,16 @@
         <div class="field">
           <label for="day_verkaeufe">Wie viel Verkauf hast du heute gemacht? (in CC)</label>
           <input type="number" step="0.001" min="0" inputmode="decimal" id="day_verkaeufe" placeholder="z. B. 1,903 (auch 0 zählt)">
+        </div>
+        <div class="field-grid">
+          <div class="field">
+            <label for="day_gespraeche">Echte Gespräche heute</label>
+            <input type="number" step="1" min="0" inputmode="numeric" id="day_gespraeche" placeholder="z. B. 3">
+          </div>
+          <div class="field">
+            <label for="day_kunden">Neue Kundinnen heute</label>
+            <input type="number" step="1" min="0" inputmode="numeric" id="day_kunden" placeholder="z. B. 1">
+          </div>
         </div>
         <div class="field">
           <label>Wie fühlst du dich nach diesem Tag?</label>
@@ -777,6 +806,12 @@
         <button type="submit" class="btn" id="planSubmitBtn">Monatsplanung speichern</button>
         <p class="progress-sub" id="planSaveStatus" style="text-align:center; margin-top:10px;"></p>
       </form>
+    </section>
+
+    <section class="card" id="devplanHint" hidden style="border-color: rgba(212,175,106,0.45);">
+      <h2 class="card-title">Dein Entwicklungsschwerpunkt</h2>
+      <p class="progress-sub" style="font-size:13.5px;" id="devplanHintText"></p>
+      <button type="button" class="btn ch-done-btn" id="devplanHintBtn">Jetzt ansehen und bestätigen</button>
     </section>
 
     <section class="card" id="teamCcCard" hidden>
@@ -1321,8 +1356,132 @@
     }
   }
 
+  // ============ Persönlicher Entwicklungsplan ============
+  let devplanEdit = false;
+  async function devplanPost(body){
+    const res = await fetch('/.netlify/functions/leader-devplan', {
+      method: 'POST', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(token ? { token, ...body } : body),
+    });
+    let data = {}; try { data = await res.json(); } catch(e){}
+    return { res, data };
+  }
+  function renderDevplan(dp, growth){
+    const card = document.getElementById('growthCard');
+    const hint = document.getElementById('devplanHint');
+    hint.hidden = true;
+    if(!dp || (!dp.current && !dp.next && !dp.pendingReview)){ renderGrowth(growth); return; }
+    card.hidden = false;
+    document.getElementById('growthTitle').textContent = 'Dein Entwicklungsplan';
+    const mName = (k) => monthName(k).split(' ')[0];
+    let html = '';
+    // 1. Rückblick, der auf ihre Sicht wartet
+    const r = dp.pendingReview;
+    if(r){
+      html += `<div class="dp-review"><div class="dp-month">Dein ${mName(r.month)} im Rückblick</div>
+        <b>Erreicht</b><p>${escHtml(r.review.erreicht)}</p>
+        <b>Verbessert</b><p>${escHtml(r.review.verbessert)}</p>
+        <b>Dein nächster Schritt</b><p>${escHtml(r.review.naechster_schritt)}</p>
+        <div class="dp-edit"><textarea id="dpReflect" placeholder="Deine Sicht: Was nimmst du aus diesem Monat mit?"></textarea></div>
+        <button type="button" class="btn" data-dp="reflect" data-month="${r.month}">Rückblick speichern</button></div>`;
+    }
+    // 2. Offener Vorschlag (für nächsten oder laufenden Monat)
+    const prop = [dp.next, dp.current].find(x => x && x.status === 'proposed');
+    if(prop){
+      const nextMonth = dp.next && prop.month === dp.next.month;
+      if(nextMonth){
+        hint.hidden = false;
+        document.getElementById('devplanHintText').textContent = `JARVIS hat dir einen Entwicklungsschwerpunkt für ${mName(prop.month)} vorgeschlagen: „${prop.focus}". Bestätige ihn oder pass ihn an.`;
+      }
+      if(devplanEdit){
+        html += `<div class="dp-month">Dein Schwerpunkt für ${mName(prop.month)} · anpassen</div>
+          <div class="dp-edit"><input type="text" id="dpFocus" maxlength="200" value="${escHtml(prop.focus)}">
+          <textarea id="dpGoal" maxlength="400">${escHtml(prop.goal)}</textarea>
+          <textarea id="dpSteps" style="min-height:120px;">${escHtml(prop.steps.map(s => s.text).join('\n'))}</textarea>
+          <p class="progress-sub" style="font-size:11.5px; margin:-4px 0 8px;">Ein Schritt pro Zeile.</p></div>
+          <button type="button" class="btn" data-dp="confirm-edit" data-month="${prop.month}">So bestätigen</button>
+          <button type="button" class="tm-edit-btn" data-dp="cancel" style="display:block; margin:10px auto 0;">Abbrechen</button>`;
+      } else {
+        html += `<div class="dp-month">JARVIS schlägt für ${mName(prop.month)} vor</div>
+          <div class="dp-focus">${escHtml(prop.focus)}</div>
+          ${prop.why ? `<p class="dp-why">${escHtml(prop.why)}</p>` : ''}
+          <div class="dp-goal"><b>Ziel</b>${escHtml(prop.goal)}</div>
+          ${prop.steps.map(s => `<div class="dp-step"><span>• ${escHtml(s.text)}</span></div>`).join('')}
+          <button type="button" class="btn" data-dp="confirm" data-month="${prop.month}" style="margin-top:12px;">So übernehmen</button>
+          <button type="button" class="btn ch-done-btn" data-dp="edit">Anpassen</button>`;
+      }
+      if(dp.current && dp.current.status !== 'proposed') html += '<div class="dp-sep"></div>';
+    }
+    // 3. Laufender, bestätigter Plan
+    const c = dp.current;
+    if(c && c.status !== 'proposed'){
+      const done = c.steps.filter(s => s.done).length;
+      const pct = c.steps.length ? Math.round(done / c.steps.length * 100) : 0;
+      html += `<div class="dp-month">Dein Schwerpunkt im ${mName(c.month)} · ${done}/${c.steps.length}</div>
+        <div class="dp-focus">${escHtml(c.focus)}</div>
+        <div class="dp-goal"><b>Ziel</b>${escHtml(c.goal)}</div>
+        <div class="ck-bar" style="margin-bottom:8px;"><span style="width:${pct}%"></span></div>
+        ${c.steps.map((s, i) => `<label class="dp-step ${s.done ? 'done' : ''}"><input type="checkbox" data-dpstep="${i}" data-month="${c.month}" ${s.done ? 'checked' : ''} ${c.status === 'reviewed' ? 'disabled' : ''}>
+          <span>${escHtml(s.text)}${s.note ? `<small>${escHtml(s.note)}</small>` : ''}</span>
+          ${c.status === 'reviewed' ? '' : `<button type="button" class="dp-note-btn" data-dpnote="${i}" data-month="${c.month}">${s.note ? 'Notiz ändern' : 'Notiz'}</button>`}</label>`).join('')}
+        ${c.coachFeedback ? `<div class="dp-coach"><b>Dominik:</b> ${escHtml(c.coachFeedback)}</div>` : ''}
+        ${c.training ? `<p class="progress-sub" style="font-size:12.5px; margin-top:8px;">Passende Schulung: ${escHtml(c.training.replace(/^Schulung:\s*/i, ''))}</p>` : ''}
+        <button type="button" class="btn ch-done-btn" data-dp="ask" style="margin-top:12px;">Mit JARVIS daran arbeiten</button>`;
+    }
+    if(!html){ renderGrowth(growth); return; }
+    document.getElementById('growthContent').innerHTML = html;
+  }
+  document.getElementById('devplanHintBtn').addEventListener('click', () => { switchTab('overview'); setTimeout(() => document.getElementById('growthCard').scrollIntoView({ behavior: 'smooth' }), 100); });
+  document.getElementById('growthContent').addEventListener('click', async e => {
+    const b = e.target.closest('[data-dp],[data-dpnote]');
+    if(!b) return;
+    const dp = dashboardData.devplan;
+    if(b.dataset.dp === 'edit'){ devplanEdit = true; renderDevplan(dp, dashboardData.growth); return; }
+    if(b.dataset.dp === 'cancel'){ devplanEdit = false; renderDevplan(dp, dashboardData.growth); return; }
+    if(b.dataset.dp === 'ask'){
+      askJarvis({ message: `Mein Entwicklungsschwerpunkt diesen Monat ist: ${dp.current.focus}. Ziel: ${dp.current.goal}. Hilf mir, den nächsten offenen Schritt konkret umzusetzen, gern mit einer kleinen Übung.` }, 'Hilf mir bei meinem Entwicklungsschwerpunkt');
+      return;
+    }
+    let body = null;
+    if(b.dataset.dp === 'confirm'){
+      const p = [dp.next, dp.current].find(x => x && x.month === b.dataset.month);
+      body = { action: 'confirm', month: p.month, focus: p.focus, goal: p.goal, steps: p.steps.map(s => s.text) };
+    } else if(b.dataset.dp === 'confirm-edit'){
+      body = { action: 'confirm', month: b.dataset.month, focus: document.getElementById('dpFocus').value, goal: document.getElementById('dpGoal').value, steps: document.getElementById('dpSteps').value.split('\n') };
+    } else if(b.dataset.dp === 'reflect'){
+      body = { action: 'reflect', month: b.dataset.month, text: document.getElementById('dpReflect').value };
+    } else if(b.dataset.dpnote !== undefined){
+      e.preventDefault();
+      const step = dp.current.steps[Number(b.dataset.dpnote)];
+      const note = prompt('Kurze Notiz zu diesem Schritt (wie lief es?)', step.note || '');
+      if(note === null) return;
+      body = { action: 'step', month: b.dataset.month, index: Number(b.dataset.dpnote), note };
+    }
+    if(!body) return;
+    b.disabled = true;
+    const { res, data } = await devplanPost(body);
+    b.disabled = false;
+    if(!res.ok){ alert(data.error || 'Speichern hat nicht geklappt.'); return; }
+    devplanEdit = false;
+    if(body.action === 'confirm') celebrate('Entwicklungsplan steht');
+    if(body.action === 'reflect') celebrate('Monat abgeschlossen');
+    await loadDashboard();
+  });
+  document.getElementById('growthContent').addEventListener('change', async e => {
+    const cb = e.target.closest('[data-dpstep]');
+    if(!cb) return;
+    cb.disabled = true;
+    const { res } = await devplanPost({ action: 'step', month: cb.dataset.month, index: Number(cb.dataset.dpstep), done: cb.checked });
+    cb.disabled = false;
+    if(!res.ok){ cb.checked = !cb.checked; return; }
+    if(cb.checked) celebrate('Schritt geschafft');
+    await loadDashboard();
+  });
+
   // ============ Dein Wachstum (JARVIS-Entwicklungsprofil, Sicht der Leaderin) ============
   function renderGrowth(g){
+    document.getElementById('growthTitle').textContent = 'Dein Wachstum';
     const card = document.getElementById('growthCard');
     if(!g){ card.hidden = true; return; }
     card.hidden = false;
@@ -1981,7 +2140,7 @@
       renderXmas(dashboardData.slug);
       renderNugget();
       renderCockpit(dashboardData);
-      renderGrowth(dashboardData.growth);
+      renderDevplan(dashboardData.devplan, dashboardData.growth);
       renderChallenge(dashboardData.challenge);
       if(dashboardData.pins && dashboardData.pins.newPin) lastNewPin = dashboardData.pins.newPin;
       renderPins(dashboardData.pins ? { ...dashboardData.pins, newPin: lastNewPin } : null);
@@ -2097,6 +2256,8 @@
     const entry = date && (dashboardData.recentDays || []).find(d => d.entry_date === date);
     document.getElementById('day_kontakte').value = entry && entry.kontakte_heute != null ? entry.kontakte_heute : '';
     document.getElementById('day_verkaeufe').value = entry && entry.verkaeufe_heute != null ? entry.verkaeufe_heute : '';
+    document.getElementById('day_gespraeche').value = entry && entry.gespraeche_heute != null ? entry.gespraeche_heute : '';
+    document.getElementById('day_kunden').value = entry && entry.neue_kunden_heute != null ? entry.neue_kunden_heute : '';
     document.getElementById('day_gut').value = entry && entry.gut ? entry.gut : '';
     document.getElementById('day_schwer').value = entry && entry.schwer ? entry.schwer : '';
     document.getElementById('day_morgen').value = entry && entry.morgen ? entry.morgen : '';
@@ -2145,6 +2306,8 @@
           entry_date: entryDate,
           kontakte_heute: document.getElementById('day_kontakte').value,
           verkaeufe_heute: document.getElementById('day_verkaeufe').value,
+          gespraeche_heute: document.getElementById('day_gespraeche').value,
+          neue_kunden_heute: document.getElementById('day_kunden').value,
           stimmung: dayMood,
           gut: document.getElementById('day_gut').value,
           schwer: document.getElementById('day_schwer').value,

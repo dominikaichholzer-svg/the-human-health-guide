@@ -72,7 +72,7 @@ async function gatherInput(leader, todayStr) {
   const since = new Date(Date.parse(today + 'T00:00:00Z') - WEEKS_BACK * 7 * 86400000).toISOString().slice(0, 10);
   const safe = async (p) => { try { return (await p) || []; } catch (e) { return []; } };
   const [days, weeks, plans, actuals, chal, notes, team, prev] = await Promise.all([
-    safe(pgrest('daily_reflections', { query: `leader_id=eq.${leader.id}&entry_date=gte.${since}&order=entry_date.asc&select=entry_date,kontakte_heute,verkaeufe_heute,stimmung,gut,schwer,morgen` })),
+    safe(pgrest('daily_reflections', { query: `leader_id=eq.${leader.id}&entry_date=gte.${since}&order=entry_date.asc&select=*` })),
     safe(pgrest('weekly_entries', { query: `leader_id=eq.${leader.id}&week_start=gte.${monthsBack(today, 2)[0]}-01&order=week_start.asc&select=*` })),
     safe(pgrest('monthly_plans', { query: `leader_id=eq.${leader.id}&target_month=gte.${monthsBack(today, 2)[0]}-01&select=target_month,plan_cc,sponsoring_cc,eigen_cc,kunden_cc,kunden_text` })),
     safe(pgrest('monthly_actuals', { query: `leader_id=eq.${leader.id}&order=month.desc&limit=2&select=*` })),
@@ -96,7 +96,7 @@ async function gatherInput(leader, todayStr) {
   }
   lines.push(`Tagesabschlüsse (${days.length} in ${WEEKS_BACK} Wochen):`);
   for (const d of days.slice(-20)) {
-    lines.push(`- ${d.entry_date}: ${d.kontakte_heute ?? '–'} Kontakte, ${d.verkaeufe_heute ?? '–'} CC, Stimmung ${d.stimmung ?? '–'}/5. Gut: ${cut(d.gut, 120) || '–'}. Schwer: ${cut(d.schwer, 120) || '–'}. Morgen: ${cut(d.morgen, 100) || '–'}.`);
+    lines.push(`- ${d.entry_date}: ${d.kontakte_heute ?? '–'} Kontakte, ${d.gespraeche_heute ?? '–'} Gespräche, ${d.neue_kunden_heute ?? '–'} neue Kundinnen, ${d.verkaeufe_heute ?? '–'} CC, Stimmung ${d.stimmung ?? '–'}/5. Gut: ${cut(d.gut, 120) || '–'}. Schwer: ${cut(d.schwer, 120) || '–'}. Morgen: ${cut(d.morgen, 100) || '–'}.`);
   }
   if (chal.length) {
     lines.push('Leadership-Challenge:');

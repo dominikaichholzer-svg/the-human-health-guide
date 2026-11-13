@@ -13,6 +13,7 @@ const { planWindow } = require('./_lib/plan');
 const { leaderChallenge } = require('./_lib/challenge');
 const { monthMetrics, evaluate, publicPin } = require('./_lib/pins');
 const { planStatus } = require('./_lib/leader-context');
+const { leaderPlans } = require('./_lib/devplan');
 
 exports.handler = async function (event) {
   if (event.httpMethod !== 'GET') {
@@ -42,7 +43,7 @@ exports.handler = async function (event) {
     let recentDays = [];
     try {
       recentDays = await pgrest('daily_reflections', {
-        query: `leader_id=eq.${leader.id}&order=entry_date.desc&limit=14&select=entry_date,kontakte_heute,verkaeufe_heute,stimmung,gut,schwer,morgen`,
+        query: `leader_id=eq.${leader.id}&order=entry_date.desc&limit=14&select=*`,
       });
     } catch (e) { recentDays = []; }
 
@@ -148,12 +149,17 @@ exports.handler = async function (event) {
       }
     } catch (e) { growth = null; }
 
+    // Persönlicher Entwicklungsplan (supabase/devplans.sql)
+    let devplan = null;
+    try { devplan = await leaderPlans(leader.id); } catch (e) { devplan = null; }
+
     return {
       statusCode: 200,
       body: JSON.stringify({
         name: leader.name,
         cockpit,
         growth,
+        devplan,
         challenge,
         pins,
         slug: leader.slug || null,
