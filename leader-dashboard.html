@@ -184,13 +184,13 @@
   .tm-edit{ margin-top:10px; padding-top:10px; border-top:1px solid var(--hairline); }
   .tm-edit .btn{ padding:10px 14px; font-size:13px; }
   .pin-new{ text-align:center; background: var(--gold-dim); border:1px solid var(--gold); border-radius:14px; padding:16px; margin-bottom:14px; }
-  .pin-new .pe{ font-size:44px; line-height:1; }
+  .pin-new .pe{ line-height:0; margin:8px 0 2px; }
   .pin-new .pl{ font-family: var(--serif); font-size:20px; margin:6px 0 2px; }
   .pin-new .pm{ font-family: var(--mono); font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color: var(--gold); }
   .pin-new .pn{ font-size:13.5px; line-height:1.5; margin-top:10px; font-style:italic; }
   .pin-gallery{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
   .pin-chip{ border:1px solid var(--hairline); border-radius:12px; padding:8px 10px; text-align:center; min-width:84px; flex:1 1 84px; max-width:120px; }
-  .pin-chip .pe{ font-size:24px; }
+  .pin-chip .pe{ line-height:0; }
   .pin-chip .pl{ font-size:11.5px; line-height:1.3; margin-top:3px; }
   .pin-chip .pm{ font-size:10px; color: var(--ink-muted); margin-top:2px; }
   .pin-prog{ display:flex; align-items:center; gap:8px; font-size:12.5px; margin:6px 0; color: var(--ink-muted); }
@@ -765,6 +765,7 @@
 
 </div>
 
+<script src="/pin-badges.js"></script>
 <script>
   const RANK_LABELS = {
     supervisor: 'Supervisor',
@@ -1155,20 +1156,20 @@
     card.hidden = false;
     let html = '';
     if(p.newPin){
-      html += `<div class="pin-new"><div class="pm">Neu · ${pinMonth(p.newPin.month)}</div><div class="pe">${p.newPin.emoji}</div><div class="pl">${escHtml(p.newPin.label)}</div>
+      html += `<div class="pin-new"><div class="pm">Neu · ${pinMonth(p.newPin.month)}</div><div class="pe">${PIN_BADGE(p.newPin.key, 104)}</div><div class="pl">${escHtml(p.newPin.label)}</div>
         ${p.newPin.reason ? `<div class="progress-sub" style="font-size:13px;">${escHtml(p.newPin.reason)}</div>` : ''}
         ${p.newPin.note ? `<div class="pn">„${escHtml(p.newPin.note)}" · Dominik</div>` : ''}</div>`;
     }
     const older = p.history.filter(h => !p.newPin || h.month !== p.newPin.month);
     if(older.length){
-      html += `<div class="pin-gallery">${older.map(h => `<div class="pin-chip" title="${escHtml((h.reason || '') + (h.note ? ' · ' + h.note : ''))}"><div class="pe">${h.emoji}</div><div class="pl">${escHtml(h.label)}</div><div class="pm">${pinMonth(h.month)}</div></div>`).join('')}</div>`;
+      html += `<div class="pin-gallery">${older.map(h => `<div class="pin-chip" title="${escHtml((h.reason || '') + (h.note ? ' · ' + h.note : ''))}"><div class="pe">${PIN_BADGE(h.key, 52)}</div><div class="pl">${escHtml(h.label)}</div><div class="pm">${pinMonth(h.month)}</div></div>`).join('')}</div>`;
     } else if(!p.newPin){
       html += `<p class="progress-sub" style="font-size:13.5px;">Jeden Monat vergibt Dominik dir einen Leadership-Pin für das, was du besonders gut gemacht hast. Er bleibt in deiner Sammlung.</p>`;
     }
     html += `<div class="ch-label">Dein Weg diesen Monat</div>` + p.progress.map(r => {
       const pct = r.ok ? 100 : (r.target ? Math.min(100, Math.round((Number(r.value) || 0) / r.target * 100)) : 0);
       const val = r.target != null ? `${fmtCc(Number(r.value) || 0)}/${fmtCc(r.target)}` : '';
-      return `<div class="pin-prog ${r.ok ? 'ok' : ''}" title="${escHtml(r.rule)}"><span style="flex:1;">${r.emoji} ${escHtml(r.label)}${r.ok ? ' ✓' : ''}</span><span>${val}</span><span class="bar"><span style="width:${pct}%"></span></span></div>`;
+      return `<div class="pin-prog ${r.ok ? 'ok' : ''}" title="${escHtml(r.rule)}">${PIN_BADGE(r.key, 30, { dim: !r.ok })}<span style="flex:1;">${escHtml(r.label)}${r.ok ? ' ✓' : ''}</span><span>${val}</span><span class="bar"><span style="width:${pct}%"></span></span></div>`;
     }).join('');
     document.getElementById('pinsContent').innerHTML = html;
     if(p.newPin && !pinCelebrated){

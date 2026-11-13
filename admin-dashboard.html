@@ -70,7 +70,8 @@
   .pin-leader h3{ font-family: var(--serif); font-weight:400; font-size:16px; margin:0 0 6px; }
   .pin-opt{ display:flex; align-items:flex-start; gap:8px; font-size:13px; line-height:1.45; margin:6px 0; cursor:pointer; color: var(--ink-muted); }
   .pin-opt.ok{ color: var(--ink); }
-  .pin-opt input{ margin-top:3px; accent-color: var(--gold); }
+  .pin-opt input{ margin-top:9px; accent-color: var(--gold); }
+  .pin-opt .pin-badge{ flex:none; }
   .pin-opt .pv{ font-family: var(--mono); font-size:11px; color: var(--gold); white-space:nowrap; }
   .pin-awarded{ font-size:13px; background: var(--gold-dim); border-radius:10px; padding:8px 10px; margin:6px 0 8px; }
   .pin-leader textarea{ min-height:56px; font-size:13px; margin-top:6px; }
@@ -231,6 +232,7 @@
 
 </div>
 
+<script src="/pin-badges.js"></script>
 <script>
   const RANK_LABELS = {
     supervisor: 'Supervisor',
@@ -483,9 +485,9 @@
       const opts = l.pins.map(p => {
         const prog = p.target != null ? `${typeof p.value === 'number' ? p.value.toLocaleString('de-AT', { maximumFractionDigits: 3 }) : p.value}/${p.target.toLocaleString('de-AT', { maximumFractionDigits: 3 })}` : (p.value ? String(p.value) : '–');
         return `<label class="pin-opt ${p.ok ? 'ok' : ''}"><input type="radio" name="pin_${l.id}" value="${p.key}" ${p.key === chosen ? 'checked' : ''} ${preview ? 'disabled' : ''}>
-          <span>${p.emoji} <b>${esc(p.label)}</b> ${p.ok ? '✓' : ''}${l.proposal === p.key ? ' <i>(Vorschlag)</i>' : ''}<br><small>${esc(p.reason || p.rule)}</small></span><span class="pv">${prog}</span></label>`;
+          ${PIN_BADGE(p.key, 30, { dim: !p.ok })}<span><b>${esc(p.label)}</b> ${p.ok ? '✓' : ''}${l.proposal === p.key ? ' <i>(Vorschlag)</i>' : ''}<br><small>${esc(p.reason || p.rule)}</small></span><span class="pv">${prog}</span></label>`;
       }).join('') + `<label class="pin-opt"><input type="radio" name="pin_${l.id}" value="" ${chosen === '' ? 'checked' : ''} ${preview ? 'disabled' : ''}><span>Keinen Pin diesen Monat</span></label>`;
-      const aw = l.awarded ? `<div class="pin-awarded">Vergeben: ${l.awarded.emoji} <b>${esc(l.awarded.label)}</b>${l.awarded.reason ? ' · ' + esc(l.awarded.reason) : ''}${l.awarded.seen ? ' · gesehen ✓' : ' · noch nicht gesehen'}</div>` : '';
+      const aw = l.awarded ? `<div class="pin-awarded">${PIN_BADGE(l.awarded.key, 34)} Vergeben: <b>${esc(l.awarded.label)}</b>${l.awarded.reason ? ' · ' + esc(l.awarded.reason) : ''}${l.awarded.seen ? ' · gesehen ✓' : ' · noch nicht gesehen'}</div>` : '';
       return `<div class="pin-leader" data-pl="${l.id}"><h3>${esc(l.name)}</h3>${aw}${opts}
         ${preview ? '' : `<textarea data-pnote="${l.id}" placeholder="Deine persönlichen Worte dazu (sieht nur sie)">${l.awarded && l.awarded.note ? esc(l.awarded.note).replace(/<br>/g, '\n') : ''}</textarea>
         <button type="button" class="btn" data-paward="${l.id}" style="padding:10px; font-size:13.5px;">${l.awarded ? 'Änderung speichern' : 'Pin vergeben'}</button>
