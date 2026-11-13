@@ -42,7 +42,7 @@ exports.handler = async function (event) {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
   const key = event.queryStringParameters && event.queryStringParameters.key;
-  const adminCheck = requireAdmin(event, null);
+  const adminCheck = await requireAdmin(event, null);
   if (!adminCheck.ok) return adminCheck.response;
 
   const backup = { erstellt: new Date().toISOString(), tabellen: {}, fehler: {} };

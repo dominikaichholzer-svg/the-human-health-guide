@@ -23,7 +23,7 @@ exports.handler = async function (event) {
   }
 
   const { key, target_month, content } = payload;
-  const adminCheck = requireAdmin(event, payload);
+  const adminCheck = await requireAdmin(event, payload);
   if (!adminCheck.ok) return adminCheck.response;
   if (!target_month || isNaN(Date.parse(target_month))) {
     return { statusCode: 400, body: JSON.stringify({ error: 'target_month fehlt oder ungültig' }) };

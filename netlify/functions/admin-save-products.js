@@ -21,7 +21,7 @@ exports.handler = async function (event) {
   }
 
   const { key, leader_id, specialized_products } = payload;
-  const adminCheck = requireAdmin(event, payload);
+  const adminCheck = await requireAdmin(event, payload);
   if (!adminCheck.ok) return adminCheck.response;
   if (!leader_id) {
     return { statusCode: 400, body: JSON.stringify({ error: 'leader_id fehlt' }) };

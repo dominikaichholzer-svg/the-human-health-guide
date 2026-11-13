@@ -25,7 +25,7 @@ exports.handler = async function (event) {
   }
 
   const { key, leader_id, title, body } = payload;
-  const adminCheck = requireAdmin(event, payload);
+  const adminCheck = await requireAdmin(event, payload);
   if (!adminCheck.ok) return adminCheck.response;
   if (!title || !body) {
     return { statusCode: 400, body: JSON.stringify({ error: 'title und body sind Pflicht' }) };

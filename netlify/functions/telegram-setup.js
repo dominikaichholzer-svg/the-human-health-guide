@@ -11,7 +11,7 @@ const { requireAdmin } = require('./_lib/auth');
 
 exports.handler = async function (event) {
   const key = event.queryStringParameters && event.queryStringParameters.key;
-  const adminCheck = requireAdmin(event, null);
+  const adminCheck = await requireAdmin(event, null);
   if (!adminCheck.ok) return adminCheck.response;
   try {
     await tg('setWebhook', {

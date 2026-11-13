@@ -9,8 +9,7 @@
 // alter persönlicher Link (?id=<token>) weiter. Beim Passwort-Setzen wird der
 // alte Token gelöscht, danach öffnet der Link nichts mehr.
 //
-// Admin: vorerst weiter der Schlüssel ADMIN_SECRET_KEY, aber zeitkonstant
-// verglichen. Der Admin-Login mit E-Mail-Code kommt als nächster Schritt.
+// Admin: Passwort + E-Mail-Code, Sitzung im Cookie "eagle_admin" (siehe unten).
 
 const crypto = require('crypto');
 const { pgrest } = require('./supabase');
@@ -250,14 +249,69 @@ async function requireLeader(event, payload) {
   return { ok: false, response: json(401, { error: 'Nicht angemeldet' }) };
 }
 
-// Für alle admin-* Functions. key aus Query (GET) oder Body (POST).
-function requireAdmin(event, payload) {
+// ---------- Admin ----------
+//
+// Admin meldet sich mit Benutzername + Passwort + 6-stelligem E-Mail-Code an
+// (admin-auth.js). Die Sitzung liegt im Cookie "eagle_admin" (7 Tage,
+// SameSite=Strict). Der alte Schlüssel ADMIN_SECRET_KEY in der Adresse gilt
+// nur noch, solange das Admin-Konto nicht eingerichtet ist (oder die Tabellen
+// aus supabase/admin-auth.sql noch fehlen). Er bleibt als Umgebungsvariable,
+// weil das Telegram-Geheimnis daraus abgeleitet wird.
+
+const ADMIN_COOKIE = 'eagle_admin';
+const ADMIN_SESSION_DAYS = 7;
+
+function adminCookie(value) {
+  return `${ADMIN_COOKIE}=${encodeURIComponent(value)}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=${ADMIN_SESSION_DAYS * 86400}`;
+}
+function clearAdminCookie() {
+  return `${ADMIN_COOKIE}=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0`;
+}
+
+// null = kein Konto. Wirft, wenn die Tabelle fehlt.
+async function getAdminAccount() {
+  const rows = await pgrest('admin_account', { query: 'id=eq.1&select=*' });
+  return (rows && rows[0]) || null;
+}
+
+async function createAdminSession(event) {
+  const raw = randomToken(32);
+  const ua = ((event && event.headers && (event.headers['user-agent'] || event.headers['User-Agent'])) || '').slice(0, 300);
+  await pgrest('admin_sessions', {
+    method: 'POST',
+    body: [{ token_hash: sha256(raw), expires_at: new Date(Date.now() + ADMIN_SESSION_DAYS * 86400000).toISOString(), user_agent: ua }],
+  });
+  return raw;
+}
+
+// { id } oder null
+async function adminFromSession(event) {
+  const raw = readCookie(event, ADMIN_COOKIE);
+  if (!raw || !/^[0-9a-f]{64}$/.test(raw)) return null;
+  const rows = await pgrest('admin_sessions', { query: `token_hash=eq.${sha256(raw)}&revoked_at=is.null&select=id,expires_at` });
+  const s = rows && rows[0];
+  if (!s || new Date(s.expires_at).getTime() < Date.now()) return null;
+  return { id: s.id };
+}
+
+function keyMatches(event, payload) {
   const key = (payload && payload.key) || (event.queryStringParameters && event.queryStringParameters.key);
   const expected = process.env.ADMIN_SECRET_KEY;
-  if (!expected || !key || !safeEqual(key, expected)) {
-    return { ok: false, response: json(403, { error: 'Kein Zugriff' }) };
+  return !!(expected && key && safeEqual(key, expected));
+}
+
+// Für alle admin-* Functions. Liefert { ok:true, via } oder { ok:false, response }.
+async function requireAdmin(event, payload) {
+  let accountExists = true;
+  try {
+    if (await adminFromSession(event)) return { ok: true, via: 'session' };
+    accountExists = !!(await getAdminAccount());
+  } catch (e) {
+    // Tabellen fehlen noch: wie bisher nur mit Schlüssel
+    accountExists = false;
   }
-  return { ok: true };
+  if (!accountExists && keyMatches(event, payload)) return { ok: true, via: 'key' };
+  return { ok: false, response: json(403, { error: 'Kein Zugriff' }) };
 }
 
 module.exports = {
@@ -284,4 +338,11 @@ module.exports = {
   publicLeader,
   requireLeader,
   requireAdmin,
+  ADMIN_COOKIE,
+  adminCookie,
+  clearAdminCookie,
+  getAdminAccount,
+  createAdminSession,
+  adminFromSession,
+  keyMatches,
 };

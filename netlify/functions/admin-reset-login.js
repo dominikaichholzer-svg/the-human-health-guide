@@ -20,7 +20,7 @@ exports.handler = async function (event) {
   } catch (e) {
     return A.json(400, { error: 'Ungültiges JSON' });
   }
-  const adminCheck = A.requireAdmin(event, payload);
+  const adminCheck = await A.requireAdmin(event, payload);
   if (!adminCheck.ok) return adminCheck.response;
 
   const leaderId = payload.leader_id;
