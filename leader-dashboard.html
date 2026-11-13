@@ -6,7 +6,7 @@
 <title>Coach Oaki · Leader-Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&display=swap" rel="stylesheet">
 <style>
   :root{
     /* Design 2026-11: Schwarz + Grün (Fortschritt) + Gold (Pins, Krone, Akzente) */
@@ -321,6 +321,22 @@
   .product-choice input{ width:18px; height:18px; accent-color: var(--gold); margin:0; flex-shrink:0; }
   .product-choice.disabled{ opacity:0.45; cursor:not-allowed; }
   .vision-modal-box .quote-text{ font-family: var(--serif); font-style: italic; font-size:15.5px; line-height:1.5; color: var(--ink); margin: 0 0 18px; }
+
+  /* ---------- Design 2026-11: einheitlich Inter (ersetzt Fraunces und IBM Plex Mono) ---------- */
+  :root{ --serif: 'Inter', sans-serif; --mono: 'Inter', sans-serif; }
+  .eyebrow{ font-weight:700; letter-spacing:0.1em; }
+  .field label, .plan-sub, .ch-label, .hud-label, .pin-new .pm{ font-weight:700; letter-spacing:0.07em; }
+  .auth-card h1{ font-weight:800; letter-spacing:-0.01em; }
+  .praise-pop .praise-text{ font-weight:700; letter-spacing:-0.01em; }
+  .eagle-stage-label b{ font-weight:700; color: var(--gold-light); }
+  .team-row .tm-name, .tp-item .tpname{ font-weight:700; }
+  .team-row .tm-rank{ font-weight:700; letter-spacing:0.07em; }
+  .vision-modal-box h2{ font-weight:700; }
+  .vision-card .quote-text, .vision-modal-box .quote-text{ font-weight:500; }
+  .ch-week{ font-weight:700; letter-spacing:0.07em; }
+  section.card.warn-card{ background: rgba(245,165,36,0.07); border-left-color: var(--amber); }
+  .badge{ background: rgba(255,255,255,0.04); }
+  .mode-switch{ background: var(--bg-raised); }
 </style>
 </head>
 <body>
