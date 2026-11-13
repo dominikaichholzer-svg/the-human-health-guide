@@ -295,6 +295,17 @@
   .chat-msg.user{ align-self:flex-end; background: linear-gradient(180deg, var(--gold-light), var(--gold)); color: var(--on-gold); border-bottom-right-radius:4px; }
   .chat-msg.assistant{ align-self:flex-start; background: rgba(255,255,255,0.04); border:1px solid var(--hairline); color: var(--ink); border-bottom-left-radius:4px; }
   .chat-msg.assistant .chat-label{ display:block; font-family: var(--mono); font-size:9.5px; letter-spacing:0.1em; text-transform:uppercase; color: var(--gold); margin-bottom:5px; }
+  .chat-save{ display:flex; gap:12px; margin-top:8px; padding-top:7px; border-top:1px solid var(--hairline); }
+  .chat-save{ flex-wrap:wrap; }
+  .chat-save button{ background:none; border:none; padding:0; color: var(--gold-light); font-family: var(--sans); font-size:11.5px; font-weight:600; cursor:pointer; white-space:nowrap; }
+  .chat-save button:disabled{ color: var(--green-light); cursor:default; }
+  .ln-item{ display:flex; gap:10px; align-items:flex-start; padding:9px 0; border-top:1px solid var(--hairline); font-size:13.5px; line-height:1.5; }
+  .ln-item:first-child{ border-top:none; }
+  .ln-item input{ width:19px; height:19px; accent-color: var(--green); flex:none; margin-top:2px; }
+  .ln-item.done .ln-text{ color: var(--ink-muted); text-decoration: line-through; }
+  .ln-text{ flex:1; white-space:pre-wrap; }
+  .ln-kind{ font-size:10.5px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color: var(--ink-muted); display:block; }
+  .ln-del{ background:none; border:none; color: var(--ink-muted); cursor:pointer; font-size:15px; padding:0 2px; }
   .chat-msg.thinking{ color: var(--ink-muted); font-style:italic; }
   .chat-input-row{ display:flex; gap:8px; }
   .chat-input-row textarea{ flex:1; min-height:46px; max-height:120px; resize:vertical; background: rgba(255,255,255,0.04); border: 1.5px solid var(--hairline); border-radius: 12px; padding: 12px 13px; color: var(--ink); font-family: var(--sans); font-size: 14px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.25); }
@@ -843,12 +854,17 @@
 
     <section class="card">
       <h2 class="card-title">Chat mit JARVIS</h2>
-      <p class="progress-sub" style="margin-bottom:14px;">Frag JARVIS nach Ideen für Ansprache, Planung oder Einwände. Dieses Gespräch wird nicht gespeichert, es ist nur für diese Sitzung da.</p>
+      <p class="progress-sub" style="margin-bottom:14px;">Dein Coach für Ansprache, Einwände, Präsentation, Partnergewinnung und Teamführung. Er kennt deine Zahlen, deinen Entwicklungsplan und die Schulungen. Frag ihn auch nach einer Übung oder einem Rollenspiel. Was dir hilft, speicherst du als Lernnotiz.</p>
       <div class="chat-window" id="chatWindow"></div>
       <div class="chat-input-row">
         <textarea id="chatInput" placeholder="z.B. Wie spreche ich jemanden an, der schon abgesagt hat?"></textarea>
         <button class="btn" id="chatSendBtn" type="button">Senden</button>
       </div>
+    </section>
+
+    <section class="card" id="notesCard">
+      <h2 class="card-title">Deine Lernnotizen &amp; Aufgaben</h2>
+      <div id="notesList"><p class="progress-sub">Noch nichts gespeichert. Unter jeder Antwort von JARVIS kannst du sie als Notiz oder Aufgabe sichern.</p></div>
     </section>
 
     </div>
@@ -2035,10 +2051,31 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...(token ? { token } : {}), ...(special || { message: text }), history: chatHistory }),
       });
-      const data = await res.json();
+      let data = await res.json();
+      // Antwort entsteht im Hintergrund (JARVIS kann dafür in Schulungen nachschlagen)
+      if(res.status === 202 && data.jobId){
+        thinkingEl.innerHTML = '<span class="chat-label">JARVIS</span>denkt nach …';
+        const started = Date.now();
+        let finalData = null;
+        while(Date.now() - started < 150000){
+          await new Promise(r => setTimeout(r, 1500));
+          try {
+            const pr = await fetch('/.netlify/functions/leader-chat-poll?id=' + encodeURIComponent(data.jobId) + (token ? '&token=' + encodeURIComponent(token) : ''), { credentials: 'same-origin' });
+            const pd = await pr.json();
+            if(pd.status === 'done'){ finalData = { reply: pd.reply, shownMessage: data.shownMessage }; break; }
+            if(pd.status === 'error') break;
+            if(Date.now() - started > 8000) thinkingEl.innerHTML = '<span class="chat-label">JARVIS</span>schlägt nach …';
+          } catch(e){}
+        }
+        if(!finalData){ thinkingEl.classList.remove('thinking'); thinkingEl.innerHTML = '<span class="chat-label">JARVIS</span>Entschuldige, das hat zu lange gedauert. Versuch es bitte nochmal.'; return; }
+        data = finalData;
+      }
       thinkingEl.classList.remove('thinking');
       if(res.ok){
-        thinkingEl.innerHTML = '<span class="chat-label">JARVIS</span>' + formatReply(data.reply);
+        thinkingEl.innerHTML = '<span class="chat-label">JARVIS</span>' + formatReply(data.reply)
+          + '<div class="chat-save"><button type="button" data-save="note">📌 Als Lernnotiz</button><button type="button" data-save="task">✅ Als Aufgabe</button></div>';
+        thinkingEl.dataset.reply = data.reply;
+        loadNotes();
         chatHistory.push({ role: 'user', content: data.shownMessage || text || label });
         chatHistory.push({ role: 'assistant', content: data.reply });
         chatHistory = chatHistory.slice(-10);
@@ -2060,6 +2097,51 @@
       sendChatMessage();
     }
   });
+  // Antwort als Lernnotiz oder Aufgabe sichern
+  document.getElementById('chatWindow').addEventListener('click', async e => {
+    const b = e.target.closest('[data-save]');
+    if(!b) return;
+    const msg = b.closest('.chat-msg');
+    b.disabled = true;
+    const ok = await notesPost({ action: 'add', kind: b.dataset.save, text: (msg.dataset.reply || '').slice(0, 2000), source: 'chat' });
+    b.textContent = ok ? (b.dataset.save === 'task' ? '✓ Aufgabe gespeichert' : '✓ Notiz gespeichert') : 'Fehler';
+    if(ok) loadNotes();
+  });
+
+  // ============ Lernnotizen & Aufgaben ============
+  async function notesPost(body){
+    try {
+      const res = await fetch('/.netlify/functions/leader-notes', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(token ? { token, ...body } : body) });
+      return res.ok;
+    } catch(e){ return false; }
+  }
+  async function loadNotes(){
+    try {
+      const res = await fetch('/.netlify/functions/leader-notes' + (token ? '?token=' + encodeURIComponent(token) : ''), { credentials: 'same-origin' });
+      if(!res.ok){ document.getElementById('notesCard').hidden = true; return; }
+      const { notes } = await res.json();
+      document.getElementById('notesCard').hidden = false;
+      const el = document.getElementById('notesList');
+      if(!notes.length){ el.innerHTML = '<p class="progress-sub">Noch nichts gespeichert. Unter jeder Antwort von JARVIS kannst du sie als Notiz oder Aufgabe sichern.</p>'; return; }
+      // offene Aufgaben zuerst, dann Notizen, erledigte Aufgaben zuletzt
+      const order = (n) => n.kind === 'task' && !n.done ? 0 : n.kind === 'note' ? 1 : 2;
+      el.innerHTML = notes.slice().sort((a, b) => order(a) - order(b)).map(n => `<div class="ln-item ${n.done ? 'done' : ''}">
+        ${n.kind === 'task' ? `<input type="checkbox" data-lntoggle="${n.id}" ${n.done ? 'checked' : ''}>` : '<span style="width:19px; flex:none;">📌</span>'}
+        <span class="ln-text"><span class="ln-kind">${n.kind === 'task' ? 'Aufgabe' : 'Notiz'} · ${new Date(n.created_at).toLocaleDateString('de-AT')}</span>${escHtml(n.text)}</span>
+        <button type="button" class="ln-del" data-lndel="${n.id}" aria-label="Löschen">×</button></div>`).join('');
+    } catch(e){}
+  }
+  document.getElementById('notesList').addEventListener('change', async e => {
+    const cb = e.target.closest('[data-lntoggle]');
+    if(!cb) return;
+    if(await notesPost({ action: 'toggle', id: Number(cb.dataset.lntoggle), done: cb.checked })){ if(cb.checked) celebrate('Aufgabe erledigt'); loadNotes(); }
+  });
+  document.getElementById('notesList').addEventListener('click', async e => {
+    const b = e.target.closest('[data-lndel]');
+    if(!b || !confirm('Diesen Eintrag löschen?')) return;
+    if(await notesPost({ action: 'delete', id: Number(b.dataset.lndel) })) loadNotes();
+  });
+
   // Aus "Mein Team" oder aus der Push-Warnung heraus direkt fragen
   function askJarvis(special, label){
     switchTab('chat');
@@ -2140,6 +2222,7 @@
       renderXmas(dashboardData.slug);
       renderNugget();
       renderCockpit(dashboardData);
+      loadNotes();
       renderDevplan(dashboardData.devplan, dashboardData.growth);
       renderChallenge(dashboardData.challenge);
       if(dashboardData.pins && dashboardData.pins.newPin) lastNewPin = dashboardData.pins.newPin;

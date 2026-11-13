@@ -4,131 +4,62 @@
 // Body: { message, history }                       normale Frage
 //       { prepare_member_id, history }             Coaching-Gespräch mit einer eigenen Partnerin vorbereiten
 //       { ask: "plan", history }                   Ideen, wenn sie hinter dem Monatsplan liegt (aus der Push-Warnung)
-// Antwort: { reply, shownMessage }  (shownMessage = was als ihre Frage im Chat erscheint)
-//   history: [{ role: 'user'|'assistant', content: '...' }, ...] letzte paar
-//            Nachrichten, nur fürs Gesprächsgedächtnis in dieser Sitzung,
-//            wird nicht in der Datenbank gespeichert.
+//   history: letzte Nachrichten dieser Sitzung (nicht gespeichert)
 //
-// Chat-Assistent "JARVIS" für die Leaderinnen: Ideen für Ansprache,
-// Planung, Einwandbehandlung. Nutzt denselben ANTHROPIC_API_KEY wie das
-// wöchentliche AI-Feedback.
+// Ab Schritt 2 (Lernbegleiter) entsteht die Antwort im Hintergrund, weil
+// JARVIS dafür in Schulungen nachschlagen kann (länger als 10 Sekunden):
+//   Antwort: { jobId, shownMessage }  -> die Seite fragt leader-chat-poll ab
+// Fehlt die Tabelle chat_jobs noch, antwortet er wie bisher direkt, ohne Werkzeuge:
+//   Antwort: { reply, shownMessage }
 
 const { pgrest } = require('./_lib/supabase');
 const { requireLeader } = require('./_lib/auth');
-const { PANEL_WISDOM } = require('./_lib/panel-wisdom');
 const { makeClient } = require('./_lib/agent');
-const { buildLeaderContext } = require('./_lib/leader-context');
-const { viennaTodayStr } = require('./_lib/ranks');
+const { agentSecret } = require('./_lib/telegram');
+const { resolveMessage, answer } = require('./_lib/leader-chat-core');
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-// Leitplanken für Phase 4: JARVIS empfiehlt, entscheidet aber nie über Menschen
-const GUARDRAILS = `Leitplanken, die immer gelten:
-- Du siehst unten die echten Daten der Leaderin und ihres Teams. Nutze sie, wenn sie zur Frage passen, und erfinde keine Zahlen. Fehlt etwas, sag es und schlag vor, es im Dashboard einzutragen.
-- Du triffst nie Entscheidungen über Menschen. Du bewertest nicht, ob eine Partnerin "es schafft", ob sich jemand lohnt oder ob man sich von jemandem trennen oder weniger kümmern sollte. Du gibst Beobachtungen, Fragen und Gesprächsideen. Die Entscheidung trifft immer die Leaderin selbst.
-- Die Coaching-Notizen sind vertraulich. Zitiere sie nur, wenn es hilft, und schlag nie vor, sie an andere weiterzugeben.
-- Keine Heil- oder Einkommensversprechen.`;
-
-const PREPARE_PROMPT = (name) => `Bereite mein nächstes Coaching-Gespräch mit ${name} vor. Nutze ihre Zahlen, Ziele, Hinweise und meine Notizen. Gib mir kurz:
-1. einen wertschätzenden, konkreten Einstieg,
-2. drei offene Fragen, die ich stellen kann,
-3. worauf ich achten sollte,
-4. einen möglichen gemeinsamen nächsten Schritt, den sie selbst festlegt.`;
-const PLAN_PROMPT = 'Ich liege hinter meinem Monatsplan. Gib mir 3 konkrete Ideen für die restlichen Tage, passend zu meinem Plan und meinem Kundenkonzept.';
-
-const SYSTEM_PROMPT = `Du bist JARVIS, ein Business-Coaching-Assistent für die Team-Leaderinnen bei einem Forever-Living-Team (Aloe-Vera-Produkte, Direktvertrieb/Network-Marketing). Die Leaderinnen chatten mit dir, wenn sie Ideen brauchen: wie sie jemanden ansprechen, ihre Woche planen, mit einem Einwand umgehen, oder einfach eine zweite Meinung wollen.
-
-Wichtiger Kontext zum Team-System, damit deine Antworten wirklich passen:
-- Grundprinzip der Ansprache: immer ein echtes, ehrliches Kompliment zuerst, nie ein kalter Pitch. Nicht "ich bin selbstständig und suche Testpersonen", sondern eher "ich lerne gerade Leute/die Gegend kennen" als Rahmen.
-- Bei Produkttests/Umfragen: Kontakt sichern (Name + Nummer/Insta) ist das Wichtigste, sonst verpufft der Kontakt.
-- Conversion von Kunde zu Team-Partnerin passiert meist NICHT über kalte Geschäfts-Pitches, sondern dadurch dass jemand vom Produkt begeistert ist und dann persönlich gefragt wird, ob sie die Produkte dauerhaft 30% günstiger bekommen will (als FPC/Vorzugskunde oder FBO/Geschäftspartnerin).
-- 3-Monats-Zyklus: Monat 1 = Verschenken (Testboxen, Kontakte sammeln), Monat 2 = Nachfassen & Verkaufen (30%-Rabatt anbieten), Monat 3 = Einladen (Open House/Business-Präsentation).
-- Rangweg: Supervisor → Assistant Manager → Manager → Eagle Manager. Ziel ist Manager bis 30.04.2027, dann das Eagle-Jahr bis 30.04.2028.
-- Einwände immer erst anerkennen, dann locker antworten, nie dagegenhalten.
-
-Antworte auf Deutsch, warm aber knapp (2-5 Sätze meistens, außer explizit mehr verlangt wird), konkret und direkt umsetzbar, keine generischen Motivationsfloskeln. Wenn eine Frage nichts mit dem Geschäft zu tun hat, darfst du trotzdem freundlich helfen, aber dein Schwerpunkt ist Business-Coaching.`;
+const reply = (code, obj) => ({ statusCode: code, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(obj) });
 
 exports.handler = async function (event) {
-  if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: 'Method Not Allowed' };
-  }
-
+  if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' };
   let payload;
   try {
     payload = JSON.parse(event.body);
   } catch (e) {
-    return { statusCode: 400, body: JSON.stringify({ error: 'Ungültiger Request-Body' }) };
+    return reply(400, { error: 'Ungültiger Request-Body' });
   }
-
-  const { history } = payload;
-  const freeText = typeof payload.message === 'string' ? payload.message.trim().slice(0, 4000) : '';
-  if (!freeText && !payload.prepare_member_id && payload.ask !== 'plan') {
-    return { statusCode: 400, body: JSON.stringify({ error: 'Nachricht fehlt' }) };
-  }
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return { statusCode: 503, body: JSON.stringify({ error: 'Chat ist aktuell nicht verfügbar.' }) };
-  }
+  if (!process.env.ANTHROPIC_API_KEY) return reply(503, { error: 'Chat ist aktuell nicht verfügbar.' });
 
   try {
     const auth = await requireLeader(event, payload);
     if (!auth.ok) return auth.response;
     const leader = auth.leader;
-    const today = viennaTodayStr();
+    const r = await resolveMessage(leader, payload);
+    if (r.error) return reply(r.status, { error: r.error });
 
-    // Was als Frage gilt: freier Text, Gesprächsvorbereitung oder Plan-Ideen
-    let message = freeText;
-    if (payload.prepare_member_id) {
-      if (!UUID.test(String(payload.prepare_member_id))) return { statusCode: 400, body: JSON.stringify({ error: 'Ungültige Partnerin' }) };
-      const rows = await pgrest('team_members', { query: `id=eq.${payload.prepare_member_id}&leader_id=eq.${leader.id}&select=name` });
-      if (!rows || !rows[0]) return { statusCode: 404, body: JSON.stringify({ error: 'Nicht gefunden' }) };
-      message = PREPARE_PROMPT(rows[0].name);
-    } else if (payload.ask === 'plan') {
-      message = PLAN_PROMPT;
-    }
-
-    let contextText = '';
+    // Im Hintergrund mit Werkzeugen beantworten
+    let job = null;
     try {
-      contextText = (await buildLeaderContext(leader, today)).text;
-    } catch (e) {
-      contextText = 'Die Dashboard-Daten sind gerade nicht verfügbar.';
+      const rows = await pgrest('chat_jobs', {
+        method: 'POST',
+        prefer: 'return=representation',
+        body: [{ leader_id: leader.id, status: 'pending', request: { message: r.message, history: Array.isArray(payload.history) ? payload.history.slice(-10) : [] }, shown_message: r.message }],
+      });
+      job = rows && rows[0];
+    } catch (e) { job = null; }
+    if (job) {
+      await fetch(`${process.env.URL}/.netlify/functions/leader-chat-background`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-agent-secret': agentSecret() },
+        body: JSON.stringify({ job_id: job.id }),
+      });
+      return reply(202, { jobId: job.id, shownMessage: r.message });
     }
-    const seasonal = today.startsWith('2026-11')
-      ? '\n- November 2026 ist ein Sondermonat: Fokus auf Weihnachtsgeschenke verkaufen. Jede Leaderin hat eine persönliche Geschenke-Umfrage mit 9 Sets (Haar, Gesicht, Körper in small, medium, large), den Link findet sie im Dashboard unter Überblick.'
-      : '';
 
-    const safeHistory = (Array.isArray(history) ? history : [])
-      .filter((m) => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
-      .slice(-10);
-
-    const messages = [
-      ...safeHistory.map((m) => ({ role: m.role, content: m.content })),
-      { role: 'user', content: message },
-    ];
-
-    // Das Modell denkt bei längeren Fragen zuerst nach (eigene Blöcke ohne
-    // Text), darum alle Text-Blöcke zusammensetzen statt nur den ersten
-    // Block zu lesen, und genug max_tokens für Denken plus Antwort lassen.
-    const response = await makeClient().beta.messages.create({
-      model: 'claude-sonnet-5-5',
-      max_tokens: 4000,
-      betas: ['server-side-fallback-2026-07-01'],
-      fallbacks: 'default',
-      output_config: { effort: 'low' },
-      system: SYSTEM_PROMPT + seasonal + '\n\n' + GUARDRAILS + '\n\n' + PANEL_WISDOM + `\n\nDu sprichst gerade mit ${leader.name}.\n\nIhre Dashboard-Daten:\n${contextText}`,
-      messages,
-    });
-    const text = response.content
-      .filter((b) => b.type === 'text')
-      .map((b) => b.text)
-      .join('')
-      .trim();
-    const reply =
-      response.stop_reason === 'refusal' || !text
-        ? 'Dazu kann ich dir gerade leider nichts sagen. Frag mich gern etwas anderes.'
-        : text;
-
-    return { statusCode: 200, body: JSON.stringify({ reply, shownMessage: message }) };
+    // Fallback: direkt, ohne Werkzeuge
+    const text = await answer(makeClient(), leader, r.message, payload.history, { tools: false });
+    return reply(200, { reply: text, shownMessage: r.message });
   } catch (err) {
-    return { statusCode: 500, body: JSON.stringify({ error: 'Serverfehler', detail: err.message }) };
+    return reply(500, { error: 'Serverfehler', detail: err.message });
   }
 };

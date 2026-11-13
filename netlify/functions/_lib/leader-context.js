@@ -112,6 +112,13 @@ async function buildLeaderContext(leader, todayStr) {
     lines.push(`Ihr Entwicklungsplan ${cur.month} (${cur.status === 'proposed' ? 'Vorschlag, noch nicht bestätigt' : 'bestätigt'}): Schwerpunkt "${cur.focus}". Ziel: ${cur.goal}. Schritte: ${cur.steps.map((s) => `${s.done ? '[erledigt] ' : '[offen] '}${s.text}`).join('; ')}.${cur.coachFeedback ? ` Dominiks Feedback dazu: ${cur.coachFeedback}` : ''} Richte deine Empfehlungen auf diesen Schwerpunkt aus.`);
   }
 
+  // Lernnotizen und offene Aufgaben (Gedächtnis zwischen den Gesprächen)
+  const notes = (await safe(pgrest('learning_notes', { query: `leader_id=eq.${leader.id}&order=created_at.desc&limit=30&select=kind,text,done,created_at` }), [])) || [];
+  const openTasks = notes.filter((n) => n.kind === 'task' && !n.done).slice(0, 5);
+  const lastNotes = notes.filter((n) => n.kind === 'note').slice(0, 5);
+  if (openTasks.length) lines.push(`Ihre offenen Aufgaben: ${openTasks.map((n) => String(n.text).slice(0, 200)).join(' | ')}`);
+  if (lastNotes.length) lines.push(`Ihre letzten Lernnotizen: ${lastNotes.map((n) => `${String(n.created_at).slice(0, 10)}: ${String(n.text).slice(0, 200)}`).join(' | ')}`);
+
   const teams = await safe(loadTeams([leader.id], today, { coaching: true }), null);
   const members = teams ? teams.byLeader[leader.id].members.filter((m) => m.active) : [];
   if (members.length) {

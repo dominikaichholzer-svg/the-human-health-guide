@@ -137,6 +137,9 @@
   .prof .gf i{ display:block; color: var(--gold-light); font-style:normal; }
   .prof .pfoot{ display:flex; justify-content:space-between; align-items:center; margin-top:10px; font-size:11px; color: var(--ink-muted); }
   .prof .pfoot button{ background:none; border:1px solid var(--hairline); color: var(--ink); border-radius:8px; padding:5px 9px; font-family: var(--sans); font-size:11.5px; cursor:pointer; }
+  .bk-row{ display:flex; justify-content:space-between; align-items:center; gap:10px; padding:8px 0; border-top:1px solid var(--hairline); font-size:13px; }
+  .bk-row small{ display:block; color: var(--ink-muted); font-size:11px; }
+  .bk-row select{ flex:none; background: rgba(255,255,255,0.04); border:1px solid var(--hairline); color: var(--ink); border-radius:8px; padding:6px 8px; font-family: var(--sans); font-size:12px; }
   .sig{ font-size:12px; line-height:1.4; color:#F0B07A; background: rgba(226,104,90,0.10); border-left:2px solid #E2685A; border-radius:6px; padding:5px 8px; margin:6px 0; }
   .tm-detail{ font-size:12px; color: var(--ink-muted); line-height:1.5; margin:2px 0 8px; }
   .tm-detail i{ color: var(--ink); }
@@ -281,6 +284,12 @@
 
 
     <div class="leader-grid" id="leaderGrid"></div>
+
+    <section class="card" id="booksAdminCard" hidden>
+      <h2 class="card-title">Unterlagen für die Leaderinnen</h2>
+      <p class="card-sub" id="booksSummary"></p>
+      <details class="more-box"><summary>Freigaben ansehen und ändern</summary><div id="booksList" style="margin-top:8px;"></div></details>
+    </section>
 
     <section class="card" id="challengeAdminCard" hidden>
       <h2 class="card-title">Leadership-Challenge</h2>
@@ -430,7 +439,7 @@
         <button class="btn save-products-btn" data-leader="${l.id}" type="button" style="padding:8px 14px; font-size:12px; width:auto;">Speichern</button>
         ${heatmapHtml(l.visitsByDay)}
         ${intakeHtml(l.intake)}
-        ${devplanHtml(l)}${profileHtml(l)}${teamHtml(l.team)}${adminNotesHtml(l)}${plansHtml(l.monthlyPlans)}${weeksHtml(l.recentWeeks)}${daysHtml(l.recentDays)}
+        ${devplanHtml(l)}${notesHtml(l)}${profileHtml(l)}${teamHtml(l.team)}${adminNotesHtml(l)}${plansHtml(l.monthlyPlans)}${weeksHtml(l.recentWeeks)}${daysHtml(l.recentDays)}
       </div>
     `;
   }
@@ -654,6 +663,37 @@
     return `<p class="lmeta">Monatsabschluss ${MONTHS[Number(k.slice(5, 7)) - 1]}: Eigenverbrauch <b>${n(c.eigenCc)}</b> · Global gesamt <b>${n(c.globalCc)}</b> · 4CC-Partnerinnen <b>${c.fourCc == null ? '–' : c.fourCc}</b></p>`;
   }
 
+  // Lernnotizen und Aufgaben der Leaderin (aus dem Chat oder selbst angelegt)
+  function notesHtml(l){
+    if(!l.learningNotes) return '';
+    const open = l.learningNotes.filter(n => n.kind === 'task' && !n.done).length;
+    const list = l.learningNotes.map(n => `<li>${n.kind === 'task' ? (n.done ? '✓ ' : '☐ ') : '📌 '}${esc(String(n.text).slice(0, 300))}${String(n.text).length > 300 ? ' …' : ''} <i style="color:var(--ink-muted)">${new Date(n.created_at).toLocaleDateString('de-AT')}</i></li>`).join('');
+    return `<details class="more-box"><summary>Lernnotizen &amp; Aufgaben (${l.learningNotes.length}${open ? `, ${open} offen` : ''})</summary>${list ? `<ul style="font-size:12.5px; line-height:1.5; padding-left:16px;">${list}</ul>` : '<p class="lmeta">Noch nichts gespeichert.</p>'}</details>`;
+  }
+
+  // ============ Unterlagen für die Leaderinnen (Freigabe der JARVIS-Bibliothek) ============
+  const BOOK_LEVELS = [['', 'Nur für mich'], ['alle', 'Alle Leaderinnen'], ['ab_assistant_manager', 'Ab Assistant Manager'], ['ab_manager', 'Ab Manager']];
+  async function loadBooksAdmin(){
+    try {
+      const res = await fetch('/.netlify/functions/admin-books' + (adminKey ? '?key=' + encodeURIComponent(adminKey) : ''), { credentials: 'same-origin' });
+      if(!res.ok) return;
+      const { books } = await res.json();
+      document.getElementById('booksAdminCard').hidden = false;
+      const shared = books.filter(b => b.team_level).length;
+      document.getElementById('booksSummary').textContent = `${shared} von ${books.length} Unterlagen sind für die Leaderinnen freigegeben. Neue Unterlagen schickst du JARVIS als PDF auf Telegram, dann erscheinen sie hier.`;
+      document.getElementById('booksList').innerHTML = books.map(b => `<div class="bk-row"><span><b>${esc(b.title.replace(/^Schulung:\s*/i, ''))}</b><small>${esc(b.kind)}</small></span>
+        <select data-book="${b.id}">${BOOK_LEVELS.map(([v, t]) => `<option value="${v}" ${(b.team_level || '') === v ? 'selected' : ''}>${t}</option>`).join('')}</select></div>`).join('');
+    } catch(e){}
+  }
+  document.getElementById('booksList').addEventListener('change', async e => {
+    const sel = e.target.closest('[data-book]');
+    if(!sel) return;
+    sel.disabled = true;
+    const res = await fetch('/.netlify/functions/admin-books', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: adminKey, id: Number(sel.dataset.book), team_level: sel.value || null }) });
+    sel.disabled = false;
+    if(!res.ok) alert('Speichern hat nicht geklappt.'); else loadBooksAdmin();
+  });
+
   // Persönlicher Entwicklungsplan der Leaderin
   const DP_STATUS = { proposed: 'Vorschlag, noch nicht bestätigt', confirmed: 'bestätigt', reviewed: 'ausgewertet' };
   function devplanHtml(l){
@@ -866,6 +906,7 @@
       loadChallengeAdmin();
       loadPinsAdmin();
       loadRankings();
+      loadBooksAdmin();
 
       renderMasterView();
       renderDryAlert(overviewData.leaders);

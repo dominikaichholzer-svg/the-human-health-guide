@@ -164,6 +164,7 @@ exports.handler = async function (event) {
         monthClose: actualsBy[leader.id] || null,
         profile: profiles ? profiles[leader.id] || null : undefined,
         devplan: await leaderPlans(leader.id).catch(() => undefined),
+        learningNotes: await pgrest('learning_notes', { query: `leader_id=eq.${leader.id}&order=created_at.desc&limit=20&select=kind,text,done,created_at` }).catch(() => undefined),
       });
     }
 
