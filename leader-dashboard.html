@@ -9,12 +9,17 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg: #15110D;
-    --bg-raised: #221B14;
-    --bg-raised-hover: #2A2218;
-    --ink: #F3EADA;
-    --ink-muted: #9C8E78;
-    --hairline: rgba(212,175,106,0.16);
+    /* Design 2026-11: Schwarz + Grün (Fortschritt) + Gold (Pins, Krone, Akzente) */
+    --bg: #09090A;
+    --bg-raised: #141416;
+    --bg-raised-hover: #1C1C1F;
+    --ink: #F5F5F4;
+    --ink-muted: #9B9BA1;
+    --hairline: rgba(255,255,255,0.08);
+    --green: #22C55E;
+    --green-light: #4ADE80;
+    --green-dim: rgba(34,197,94,0.14);
+    --amber: #F5A524;
     --gold: #D4AF6A;
     --gold-light: #E8CB8F;
     --gold-dim: rgba(212,175,106,0.12);
@@ -33,8 +38,7 @@
   body{
     min-height:100vh; display:flex; justify-content:center; padding: 32px 16px 64px;
     background:
-      radial-gradient(ellipse 700px 460px at 18% -8%, rgba(212,175,106,0.12) 0%, rgba(212,175,106,0) 60%),
-      radial-gradient(ellipse 600px 460px at 100% 6%, rgba(212,175,106,0.07) 0%, rgba(212,175,106,0) 55%),
+      radial-gradient(ellipse 700px 420px at 50% -10%, rgba(34,197,94,0.06) 0%, rgba(34,197,94,0) 60%),
       var(--bg);
     background-attachment: fixed;
   }
@@ -53,14 +57,39 @@
   @keyframes hudBlink{ 50%{ opacity:0; } }
   .lede{ color: var(--ink-muted); font-size: 14.5px; line-height:1.6; margin: 14px 0 8px; }
 
+  /* ---------- Cockpit (Startseite) ---------- */
+  .cockpit{ padding: 22px 20px 20px; background: linear-gradient(180deg, #17171A 0%, #121214 100%); }
+  .ck-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:12px; padding-bottom:16px; border-bottom:1px solid var(--hairline); }
+  .ck-eyebrow{ font-size:11.5px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color: var(--ink-muted); }
+  .ck-title{ font-size:23px; font-weight:700; letter-spacing:-0.01em; margin:4px 0 4px; line-height:1.2; }
+  .ck-title #ckCrown{ display:inline-block; vertical-align:-3px; margin-left:4px; }
+  .ck-head > div:first-child{ min-width:0; flex:1; }
+  .ck-sub{ font-size:13px; color: var(--ink-muted); }
+  .ck-rank{ flex:none; font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color: var(--green-light); background: var(--green-dim); border:1px solid rgba(34,197,94,0.3); border-radius:8px; padding:5px 9px; }
+  .ck-label{ font-size:11.5px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color: var(--ink); }
+  .ck-block{ padding:18px 0 16px; border-bottom:1px solid var(--hairline); }
+  .ck-goal{ display:flex; align-items:baseline; justify-content:space-between; margin:12px 0 10px; }
+  .ck-big{ font-size:32px; font-weight:700; letter-spacing:-0.02em; font-variant-numeric: tabular-nums; }
+  .ck-big small{ font-size:18px; font-weight:600; color: var(--ink-muted); }
+  .ck-pct{ font-size:20px; font-weight:700; color: var(--green-light); font-variant-numeric: tabular-nums; }
+  .ck-bar{ height:10px; border-radius:6px; background: rgba(255,255,255,0.07); overflow:hidden; }
+  .ck-bar span{ display:block; height:100%; width:0; border-radius:6px; background: linear-gradient(90deg, var(--green), var(--green-light)); transition: width .8s cubic-bezier(.4,0,.2,1); }
+  .ck-status{ font-size:12.5px; margin-top:9px; color: var(--ink-muted); }
+  .ck-status.ok{ color: var(--green-light); } .ck-status.behind{ color: var(--amber); } .ck-status.done{ color: var(--gold-light); }
+  .ck-stats{ display:grid; grid-template-columns:1fr 1fr; gap:10px; padding-top:16px; }
+  .ck-stat{ background: rgba(255,255,255,0.03); border:1px solid var(--hairline); border-radius:12px; padding:12px 14px; }
+  .ck-stat .ck-l{ font-size:12px; color: var(--ink-muted); }
+  .ck-num{ font-size:26px; font-weight:700; margin-top:4px; font-variant-numeric: tabular-nums; }
+  .ck-plan-btn{ margin-top:12px; }
+  .hero-block{ display:none; }
   section.card{ background: var(--bg-raised); border: 1px solid var(--hairline); border-radius: var(--radius); padding: 22px 22px 20px; margin-bottom: 18px; box-shadow: var(--shadow-md); position:relative; z-index:1; }
-  h2.card-title{ font-family: var(--serif); font-weight: 400; font-size: 19px; margin: 0 0 14px; display:flex; align-items:center; gap:9px; color: var(--ink); }
+  h2.card-title{ font-family: var(--sans); font-weight: 700; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; margin: 0 0 14px; display:flex; align-items:center; gap:9px; color: var(--ink); }
   h2.card-title::before{ content:''; display:inline-block; width:7px; height:7px; border-radius:50%; background: var(--gold); flex-shrink:0; box-shadow: 0 0 6px rgba(212,175,106,0.7); }
 
   .progress-wrap{ margin-bottom: 4px; }
   .progress-meta{ display:flex; justify-content:space-between; font-family: var(--mono); font-size: 11px; color: var(--ink-muted); letter-spacing:0.04em; margin-bottom:8px; }
   .progress-track{ position:relative; height: 11px; border-radius: 8px; background: rgba(255,255,255,0.06); overflow:hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.4); }
-  .progress-fill{ position:absolute; top:0; left:0; height:100%; border-radius:8px; background: linear-gradient(90deg, var(--gold), var(--gold-light)); width:0%; transition: width 0.6s cubic-bezier(.4,0,.2,1); box-shadow: 0 0 12px rgba(212,175,106,0.6); }
+  .progress-fill{ position:absolute; top:0; left:0; height:100%; border-radius:8px; background: linear-gradient(90deg, var(--green), var(--green-light)); width:0%; transition: width 0.6s cubic-bezier(.4,0,.2,1); box-shadow: 0 0 12px rgba(34,197,94,0.45); }
   .progress-sub{ font-size: 12.5px; color: var(--ink-muted); margin-top: 8px; }
 
   .note-box{ background: var(--gold-dim); border: none; border-left: 3px solid var(--gold); border-radius: 10px; padding: 14px 16px; font-size: 13.5px; line-height: 1.55; color: var(--ink); }
@@ -179,13 +208,14 @@
   .team-row .tm-rank{ font-family: var(--mono); font-size:10px; letter-spacing:0.06em; text-transform:uppercase; color: var(--gold); }
   .team-row .tm-meta{ font-size:12px; color: var(--ink-muted); margin-top:4px; line-height:1.45; }
   .tm-bar{ height:5px; border-radius:3px; background: rgba(255,255,255,0.06); margin-top:6px; overflow:hidden; }
-  .tm-bar span{ display:block; height:100%; background: linear-gradient(90deg, var(--gold), var(--gold-light)); }
+  .tm-bar span{ display:block; height:100%; background: linear-gradient(90deg, var(--green), var(--green-light)); }
   .tm-edit-btn{ background:none; border:none; color: var(--gold); font-size:12px; cursor:pointer; padding:0; font-family: var(--sans); }
   .tm-edit{ margin-top:10px; padding-top:10px; border-top:1px solid var(--hairline); }
   .tm-edit .btn{ padding:10px 14px; font-size:13px; }
-  .pin-new{ text-align:center; background: var(--gold-dim); border:1px solid var(--gold); border-radius:14px; padding:16px; margin-bottom:14px; }
+  .pin-new{ text-align:center; background: radial-gradient(ellipse at 50% 0%, rgba(212,175,106,0.16), rgba(212,175,106,0.04) 70%); border:1px solid rgba(212,175,106,0.45); border-radius:14px; padding:16px; margin-bottom:14px; }
+  .pin-new .pl{ font-family: var(--sans); font-weight:700; }
   .pin-new .pe{ line-height:0; margin:8px 0 2px; }
-  .pin-new .pl{ font-family: var(--serif); font-size:20px; margin:6px 0 2px; }
+  .pin-new .pl{ font-size:20px; margin:6px 0 2px; }
   .pin-new .pm{ font-family: var(--mono); font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color: var(--gold); }
   .pin-new .pn{ font-size:13.5px; line-height:1.5; margin-top:10px; font-style:italic; }
   .pin-gallery{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
@@ -196,7 +226,9 @@
   .pin-prog{ display:flex; align-items:center; gap:8px; font-size:12.5px; margin:6px 0; color: var(--ink-muted); }
   .pin-prog.ok{ color: var(--ink); }
   .pin-prog .bar{ flex:0 0 70px; height:5px; border-radius:3px; background: rgba(255,255,255,0.06); overflow:hidden; }
-  .pin-prog .bar span{ display:block; height:100%; background: linear-gradient(90deg, var(--gold), var(--gold-light)); }
+  .pin-prog .bar span{ display:block; height:100%; background: linear-gradient(90deg, var(--green), var(--green-light)); }
+  .ch-chip{ margin-left:auto; font-size:11px; font-weight:700; letter-spacing:0.06em; color: var(--gold-light); background: var(--gold-dim); border:1px solid rgba(212,175,106,0.3); border-radius:8px; padding:4px 8px; text-transform:none; }
+  .ch-headline{ font-size:21px; font-weight:700; letter-spacing:-0.01em; margin:2px 0 10px; line-height:1.25; }
   .ch-week{ font-family: var(--mono); font-size:10.5px; letter-spacing:0.12em; text-transform:uppercase; color: var(--gold); margin: -6px 0 12px; }
   .ch-label{ font-family: var(--mono); font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color: var(--ink-muted); margin: 14px 0 6px; }
   .ch-text{ font-size:14px; line-height:1.55; color: var(--ink); margin:0; }
@@ -307,6 +339,7 @@
       <button type="button" class="menu-close" id="menuClose" aria-label="Menü schließen">×</button>
     </div>
     <button type="button" class="menu-item" data-tab="overview">📊 Überblick</button>
+    <button type="button" class="menu-item" data-tab="inspiration">✨ Inspiration &amp; Strategie</button>
     <button type="button" class="menu-item" data-tab="entry">✍️ Eintragen &amp; Reflektieren</button>
     <button type="button" class="menu-item" data-tab="plan">🗓️ Monatsplanung</button>
     <button type="button" class="menu-item" data-tab="chat">💬 Chat mit JARVIS</button>
@@ -434,22 +467,28 @@
       <p class="lede" id="rankLabel"></p>
     </div>
 
-    <div id="visionSection">
-    <div class="hud-label">Deine Zukunfts-Vision</div>
-    <div class="hud-frame">
-      <span class="hud-corner tl"></span>
-      <span class="hud-corner tr"></span>
-      <span class="hud-corner bl"></span>
-      <span class="hud-corner br"></span>
-      <div class="vision-card" id="visionCard"></div>
-    </div>
-    </div>
 
     <div class="tab-nav">
       <button type="button" class="current-section" id="currentSection"><span id="currentSectionLabel">📊 Überblick</span><small>Menü ☰</small></button>
     </div>
 
     <div class="tab-panel" data-tab="overview">
+
+    <section class="card cockpit" id="cockpitCard">
+      <div class="ck-head">
+        <div>
+          <div class="ck-eyebrow" id="ckHello">Hallo</div>
+          <div class="ck-title">Dein Leadership Hub <span id="ckCrown"></span></div>
+          <div class="ck-sub">Dein Business. Deine Verantwortung. Deine Entwicklung.</div>
+        </div>
+        <span class="ck-rank" id="ckRank"></span>
+      </div>
+      <div class="ck-block" id="ckGoalBlock"></div>
+      <div class="ck-stats">
+        <div class="ck-stat"><div class="ck-l">Neue Kontakte</div><div class="ck-num" id="ckContacts">–</div></div>
+        <div class="ck-stat"><div class="ck-l">Präsentationen</div><div class="ck-num" id="ckPres">–</div></div>
+      </div>
+    </section>
 
     <div class="badges-row" id="badgesRow"></div>
 
@@ -465,20 +504,59 @@
       </ul>
     </section>
 
+    <section class="card" id="pinsCard" hidden>
+      <h2 class="card-title">Dein Leadership-Pin</h2>
+      <div id="pinsContent"></div>
+    </section>
+
     <section class="card" id="challengeCard" hidden>
-      <h2 class="card-title">Leadership-Challenge</h2>
+      <h2 class="card-title">52 Wochen Leadership <span class="ch-chip" id="chChip" hidden></span></h2>
       <div id="challengeContent"></div>
     </section>
 
-    <section class="card" id="pinsCard" hidden>
-      <h2 class="card-title">Deine Leadership-Pins</h2>
-      <div id="pinsContent"></div>
-    </section>
 
     <section class="card" id="progressCard">
       <h2 class="card-title">Rang-Fortschritt</h2>
       <div class="eagle-stage" id="eagleStage"></div>
       <div id="progressContent"></div>
+    </section>
+
+
+
+
+
+
+
+    </div>
+
+    <div class="tab-panel" data-tab="inspiration" hidden>
+
+    <div id="visionSection">
+    <div class="hud-label">Deine Zukunfts-Vision</div>
+    <div class="hud-frame">
+      <span class="hud-corner tl"></span>
+      <span class="hud-corner tr"></span>
+      <span class="hud-corner bl"></span>
+      <span class="hud-corner br"></span>
+      <div class="vision-card" id="visionCard"></div>
+    </div>
+    </div>
+
+    <section class="card" id="strategyCard">
+      <h2 class="card-title">Strategie diesen Monat</h2>
+      <div id="strategyContent"></div>
+    </section>
+
+    <section class="card" id="nuggetCard">
+      <h2 class="card-title">Golden Nugget des Tages</h2>
+      <p class="progress-sub" id="nuggetText" style="font-size:14px; line-height:1.6;"></p>
+      <p class="progress-sub" id="nuggetAuthor" style="font-size:12px; margin-top:6px;"></p>
+    </section>
+
+    <section class="card" id="quotaCard">
+      <h2 class="card-title">Deine Erfolgsquote</h2>
+      <p class="progress-sub" style="font-size:13.5px;">"Wenn wir die Quote kennen, wissen wir, was es braucht, und können entscheiden, ob wir bereit sind, den Preis für den Erfolg zu zahlen." (Rolf Kipp)</p>
+      <div id="quotaContent" style="font-size:14px; line-height:1.7; margin-top:8px;"></div>
     </section>
 
     <section class="card" id="cycleCard">
@@ -495,23 +573,6 @@
       <p class="progress-sub" style="font-size:13px; margin-top:12px;">Vorschlag für deine Nachricht:</p>
       <div class="note-box" id="xmasMsg" style="font-size:13.5px;"></div>
       <button class="btn btn-ghost" type="button" id="xmasCopyMsgBtn" style="margin-top:10px; width:100%;">Nachricht kopieren</button>
-    </section>
-
-    <section class="card" id="quotaCard">
-      <h2 class="card-title">Deine Erfolgsquote</h2>
-      <p class="progress-sub" style="font-size:13.5px;">"Wenn wir die Quote kennen, wissen wir, was es braucht, und können entscheiden, ob wir bereit sind, den Preis für den Erfolg zu zahlen." (Rolf Kipp)</p>
-      <div id="quotaContent" style="font-size:14px; line-height:1.7; margin-top:8px;"></div>
-    </section>
-
-    <section class="card" id="nuggetCard">
-      <h2 class="card-title">Golden Nugget des Tages</h2>
-      <p class="progress-sub" id="nuggetText" style="font-size:14px; line-height:1.6;"></p>
-      <p class="progress-sub" id="nuggetAuthor" style="font-size:12px; margin-top:6px;"></p>
-    </section>
-
-    <section class="card" id="strategyCard">
-      <h2 class="card-title">Strategie diesen Monat</h2>
-      <div id="strategyContent"></div>
     </section>
 
     </div>
@@ -1130,13 +1191,25 @@
       el.innerHTML = `<p class="ch-text">Geschafft: 52 Wochen Leadership-Challenge. Du hast <b>${ch.doneCount}</b> Wochenaufgaben erledigt.</p>`;
       return;
     }
-    let html = `<div class="ch-week">Woche ${ch.weekNo} von ${ch.weeks} · ${ch.doneCount} Aufgabe${ch.doneCount === 1 ? '' : 'n'} erledigt</div>`;
+    const chip = document.getElementById('chChip');
+    chip.hidden = false;
+    chip.textContent = 'Woche ' + String(ch.weekNo).padStart(2, '0');
+    let html = `<div class="ch-week">${ch.doneCount} von ${ch.weeks} Aufgaben erledigt</div>`;
     const c = ch.content;
+    // Erster Satz des Impulses als Überschrift, der Rest darunter
+    let impulsRest = c && c.impuls ? c.impuls : '';
+    if(c && c.impuls){
+      const first = (c.impuls.match(/^[^.!?\n]{3,90}[.!?]/) || [])[0];
+      if(first){
+        html += `<div class="ch-headline">${escHtml(first)}</div>`;
+        impulsRest = c.impuls.slice(first.length).trim();
+      }
+    }
     if(!c){
       html += `<p class="progress-sub">Der Impuls dieser Woche kommt bald.</p>`;
     } else {
       const done = !!(ch.progress && ch.progress.task_done);
-      if(c.impuls) html += `<div class="note-box">${nl2br(c.impuls)}</div>`;
+      if(impulsRest) html += `<div class="note-box">${nl2br(impulsRest)}</div>`;
       if(c.aufgabe) html += `<div class="ch-label">Deine Aufgabe diese Woche</div><p class="ch-text">${nl2br(c.aufgabe)}</p>
         <button type="button" class="btn ch-done-btn ${done ? 'done' : ''}" data-chweek="${ch.weekNo}" data-chdone="${done ? '1' : '0'}">${done ? '✓ Erledigt' : 'Als erledigt markieren'}</button>`;
       if(c.frage){
@@ -1193,10 +1266,17 @@
         ${p.newPin.reason ? `<div class="progress-sub" style="font-size:13px;">${escHtml(p.newPin.reason)}</div>` : ''}
         ${p.newPin.note ? `<div class="pn">„${escHtml(p.newPin.note)}" · Dominik</div>` : ''}</div>`;
     }
-    const older = p.history.filter(h => !p.newPin || h.month !== p.newPin.month);
+    // Kein neuer Pin: den zuletzt erhaltenen groß zeigen, wie eine Auszeichnung
+    const featured = p.newPin || p.history[0] || null;
+    if(!p.newPin && featured){
+      html += `<div class="pin-new pin-featured"><div class="pm">Deine Auszeichnung · ${pinMonth(featured.month)}</div><div class="pe">${PIN_BADGE(featured.key, 92)}</div><div class="pl">${escHtml(featured.label)}</div>
+        ${featured.reason ? `<div class="progress-sub" style="font-size:13px;">${escHtml(featured.reason)}</div>` : ''}
+        ${featured.note ? `<div class="pn">„${escHtml(featured.note)}“ · Dominik</div>` : ''}</div>`;
+    }
+    const older = p.history.filter(h => !featured || h.month !== featured.month);
     if(older.length){
       html += `<div class="pin-gallery">${older.map(h => `<div class="pin-chip" title="${escHtml((h.reason || '') + (h.note ? ' · ' + h.note : ''))}"><div class="pe">${PIN_BADGE(h.key, 52)}</div><div class="pl">${escHtml(h.label)}</div><div class="pm">${pinMonth(h.month)}</div></div>`).join('')}</div>`;
-    } else if(!p.newPin){
+    } else if(!featured){
       html += `<p class="progress-sub" style="font-size:13.5px;">Jeden Monat vergibt Dominik dir einen Leadership-Pin für das, was du besonders gut gemacht hast. Er bleibt in deiner Sammlung.</p>`;
     }
     html += `<div class="ch-label">Dein Weg diesen Monat</div>` + p.progress.map(r => {
@@ -1209,6 +1289,48 @@
       pinCelebrated = true;
       setTimeout(() => celebrate(`Neuer Pin: ${p.newPin.label}`), 600);
     }
+  }
+
+  // ============ Cockpit (Startseite) ============
+  const CROWN_SVG = '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="ckg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF1C4"/><stop offset="1" stop-color="#C9973F"/></linearGradient></defs><path d="M3 18 L2 7 L7.5 11.5 L12 4 L16.5 11.5 L22 7 L21 18 Z" fill="url(#ckg)"/><rect x="3" y="19" width="18" height="2.6" rx="1" fill="url(#ckg)"/></svg>';
+  function viennaHour(){
+    try {
+      const part = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Vienna', hour: '2-digit', hourCycle: 'h23' }).formatToParts(new Date()).find(p => p.type === 'hour');
+      const h = Number(part && part.value);
+      return Number.isFinite(h) ? h : new Date().getHours();
+    } catch(e){ return new Date().getHours(); }
+  }
+  function renderCockpit(d){
+    const h = viennaHour();
+    const hello = h < 11 ? 'Guten Morgen' : h < 18 ? 'Hallo' : 'Guten Abend';
+    document.getElementById('ckHello').textContent = `${hello}, ${d.name}`;
+    document.getElementById('ckCrown').innerHTML = CROWN_SVG;
+    document.getElementById('ckRank').textContent = RANK_LABELS[d.currentRank] || d.currentRank || '';
+    const c = d.cockpit;
+    const block = document.getElementById('ckGoalBlock');
+    const monthLabel = c ? monthName(c.month).split(' ')[0] : '';
+    if(!c || !c.planCc){
+      block.innerHTML = `<div class="ck-label">Dein Monatsziel${monthLabel ? ' · ' + monthLabel : ''}</div>
+        <p class="ck-status" style="margin-top:10px;">Für diesen Monat gibt es noch keine Planung. Setz dir dein Ziel, dann siehst du hier jeden Tag, wo du stehst.</p>
+        <button type="button" class="btn ck-plan-btn" id="ckPlanBtn">Monat planen</button>`;
+      document.getElementById('ckPlanBtn').addEventListener('click', () => switchTab('plan'));
+    } else {
+      const cc = c.ccSoFar || 0;
+      const pct = Math.round(cc / c.planCc * 100);
+      const st = c.status || {};
+      const statusHtml = st.reached
+        ? `<div class="ck-status done">Plan erreicht. Stark!</div>`
+        : st.behind
+          ? `<div class="ck-status behind">Noch ${fmtCc(st.remaining)} CC in ${st.daysLeft} Tagen. JARVIS hilft dir gern.</div>`
+          : `<div class="ck-status ok">Im Plan · noch ${st.daysLeft != null ? st.daysLeft : '–'} Tage</div>`;
+      block.innerHTML = `<div class="ck-label">Dein Monatsziel · ${monthLabel}</div>
+        <div class="ck-goal"><span class="ck-big">${fmtCc(cc)} <small>/ ${fmtCc(c.planCc)} CC</small></span><span class="ck-pct">${pct} %</span></div>
+        <div class="ck-bar"><span style="width:0%"></span></div>${statusHtml}
+        ${c.ccSoFar == null ? '<div class="ck-status">Dein CC-Stand kommt aus der Wochenreflexion.</div>' : ''}`;
+      requestAnimationFrame(() => { block.querySelector('.ck-bar span').style.width = Math.min(100, pct) + '%'; });
+    }
+    document.getElementById('ckContacts').textContent = c ? c.contacts : '–';
+    document.getElementById('ckPres').textContent = c ? c.presentations : '–';
   }
 
   function renderNugget(){
@@ -1813,6 +1935,7 @@
       renderCycle();
       renderXmas(dashboardData.slug);
       renderNugget();
+      renderCockpit(dashboardData);
       renderChallenge(dashboardData.challenge);
       if(dashboardData.pins && dashboardData.pins.newPin) lastNewPin = dashboardData.pins.newPin;
       renderPins(dashboardData.pins ? { ...dashboardData.pins, newPin: lastNewPin } : null);

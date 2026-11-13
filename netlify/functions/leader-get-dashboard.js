@@ -12,6 +12,7 @@ const { computeProgress, viennaTodayStr } = require('./_lib/ranks');
 const { planWindow } = require('./_lib/plan');
 const { leaderChallenge } = require('./_lib/challenge');
 const { monthMetrics, evaluate, publicPin } = require('./_lib/pins');
+const { planStatus } = require('./_lib/leader-context');
 
 exports.handler = async function (event) {
   if (event.httpMethod !== 'GET') {
@@ -113,10 +114,36 @@ exports.handler = async function (event) {
       };
     } catch (e) { pins = null; }
 
+    // Cockpit der Startseite: Monatsziel (Plan vs. CC-Stand), Kontakte und Präsentationen im laufenden Monat
+    let cockpit = null;
+    try {
+      const today = viennaTodayStr();
+      const mk = today.slice(0, 7);
+      const monthWeeks = (weeklyEntries || []).filter((w) => String(w.week_start).slice(0, 7) === mk);
+      const ccVals = monthWeeks.map((w) => w.cc_stand).filter((v) => v != null).map(Number);
+      const ccSoFar = ccVals.length ? Math.max(...ccVals) : null;
+      let monthDays = [];
+      try {
+        monthDays = (await pgrest('daily_reflections', { query: `leader_id=eq.${leader.id}&entry_date=gte.${mk}-01&select=kontakte_heute` })) || [];
+      } catch (e) { monthDays = []; }
+      const dayContacts = monthDays.reduce((a, d) => a + (Number(d.kontakte_heute) || 0), 0);
+      const weekContacts = monthWeeks.reduce((a, w) => a + (Number(w.kontakte_gesamt) || 0), 0);
+      const plan = (plans || []).find((p) => String(p.target_month).slice(0, 7) === mk);
+      cockpit = {
+        month: mk,
+        planCc: plan ? Number(plan.plan_cc) : null,
+        ccSoFar,
+        status: plan ? planStatus(Number(plan.plan_cc), ccSoFar, today) : null,
+        contacts: Math.max(dayContacts, weekContacts),
+        presentations: monthWeeks.reduce((a, w) => a + (Number(w.geschaeftspraesentationen_versendet) || 0), 0),
+      };
+    } catch (e) { cockpit = null; }
+
     return {
       statusCode: 200,
       body: JSON.stringify({
         name: leader.name,
+        cockpit,
         challenge,
         pins,
         slug: leader.slug || null,
