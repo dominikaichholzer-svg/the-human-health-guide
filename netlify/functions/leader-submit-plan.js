@@ -15,6 +15,7 @@
 // CC mit bis zu 3 Nachkommastellen, Komma wird als Dezimalzeichen akzeptiert.
 
 const { pgrest } = require('./_lib/supabase');
+const { requireLeader } = require('./_lib/auth');
 const { viennaTodayStr } = require('./_lib/ranks');
 const { planWindow } = require('./_lib/plan');
 
@@ -36,9 +37,6 @@ exports.handler = async function (event) {
   }
 
   const { token, target_month } = payload;
-  if (!token) {
-    return { statusCode: 400, body: JSON.stringify({ error: 'Token fehlt' }) };
-  }
   const w = planWindow(viennaTodayStr());
   if (target_month !== w.current && target_month !== w.next) {
     return { statusCode: 400, body: JSON.stringify({ error: 'target_month muss der aktuelle oder der nächste Monat sein' }) };
@@ -53,10 +51,9 @@ exports.handler = async function (event) {
     : null;
 
   try {
-    const leaders = await pgrest('leaders', { query: `token=eq.${encodeURIComponent(token)}&select=id` });
-    if (!leaders || leaders.length === 0) {
-      return { statusCode: 404, body: JSON.stringify({ error: 'Nicht gefunden' }) };
-    }
+    const auth = await requireLeader(event, payload);
+    if (!auth.ok) return auth.response;
+    const leaders = [auth.leader];
     const saved = await pgrest('monthly_plans', {
       method: 'POST',
       query: 'on_conflict=leader_id,target_month',

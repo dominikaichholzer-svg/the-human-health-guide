@@ -20,6 +20,7 @@
 // Eintrag per Upsert (ein Eintrag pro Leaderin pro Woche).
 
 const { pgrest } = require('./_lib/supabase');
+const { requireLeader } = require('./_lib/auth');
 const { viennaTodayStr } = require('./_lib/ranks');
 
 function mondayOf(dateStr) {
@@ -42,9 +43,6 @@ exports.handler = async function (event) {
   }
 
   const { token, week_start } = payload;
-  if (!token) {
-    return { statusCode: 400, body: JSON.stringify({ error: 'Token fehlt' }) };
-  }
   if (!week_start || isNaN(Date.parse(week_start))) {
     return { statusCode: 400, body: JSON.stringify({ error: 'week_start fehlt oder ungültig' }) };
   }
@@ -63,12 +61,9 @@ exports.handler = async function (event) {
   }
 
   try {
-    const leaders = await pgrest('leaders', {
-      query: `token=eq.${encodeURIComponent(token)}&select=id`,
-    });
-    if (!leaders || leaders.length === 0) {
-      return { statusCode: 404, body: JSON.stringify({ error: 'Nicht gefunden' }) };
-    }
+    const auth = await requireLeader(event, payload);
+    if (!auth.ok) return auth.response;
+    const leaders = [auth.leader];
     const leaderId = leaders[0].id;
 
     const numOrNull = (v) => (v === '' || v === undefined || v === null ? null : Number(v));

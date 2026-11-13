@@ -14,6 +14,7 @@
 // und speichert per Upsert (ein Eintrag pro Leaderin pro Tag).
 
 const { pgrest } = require('./_lib/supabase');
+const { requireLeader } = require('./_lib/auth');
 const { viennaTodayStr } = require('./_lib/ranks');
 
 function addDays(dateStr, n) {
@@ -35,9 +36,6 @@ exports.handler = async function (event) {
   }
 
   const { token, entry_date } = payload;
-  if (!token) {
-    return { statusCode: 400, body: JSON.stringify({ error: 'Token fehlt' }) };
-  }
   const today = viennaTodayStr();
   const yesterday = addDays(today, -1);
   if (entry_date !== today && entry_date !== yesterday) {
@@ -59,12 +57,9 @@ exports.handler = async function (event) {
   const text = (v) => (typeof v === 'string' && v.trim() ? v.trim().slice(0, 2000) : null);
 
   try {
-    const leaders = await pgrest('leaders', {
-      query: `token=eq.${encodeURIComponent(token)}&select=id`,
-    });
-    if (!leaders || leaders.length === 0) {
-      return { statusCode: 404, body: JSON.stringify({ error: 'Nicht gefunden' }) };
-    }
+    const auth = await requireLeader(event, payload);
+    if (!auth.ok) return auth.response;
+    const leaders = [auth.leader];
 
     const row = {
       leader_id: leaders[0].id,

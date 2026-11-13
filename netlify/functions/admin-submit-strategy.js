@@ -8,6 +8,7 @@
 // dieses Flag nie zurücksetzt (Idempotenz-Schutz für die Erinnerungsmail).
 
 const { pgrest } = require('./_lib/supabase');
+const { requireAdmin } = require('./_lib/auth');
 
 exports.handler = async function (event) {
   if (event.httpMethod !== 'POST') {
@@ -22,9 +23,8 @@ exports.handler = async function (event) {
   }
 
   const { key, target_month, content } = payload;
-  if (!key || key !== process.env.ADMIN_SECRET_KEY) {
-    return { statusCode: 403, body: JSON.stringify({ error: 'Kein Zugriff' }) };
-  }
+  const adminCheck = requireAdmin(event, payload);
+  if (!adminCheck.ok) return adminCheck.response;
   if (!target_month || isNaN(Date.parse(target_month))) {
     return { statusCode: 400, body: JSON.stringify({ error: 'target_month fehlt oder ungültig' }) };
   }

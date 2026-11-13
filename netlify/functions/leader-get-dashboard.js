@@ -1,12 +1,13 @@
 // netlify/functions/leader-get-dashboard.js
 //
-// GET /.netlify/functions/leader-get-dashboard?token=<token>
+// GET /.netlify/functions/leader-get-dashboard   (angemeldet per Cookie,
+// übergangsweise auch ?token=<alter Link>; Prüfung in _lib/auth.js)
 //
-// Lädt die Leaderin anhand ihres persönlichen Tokens (das ist der komplette
-// Auth-Mechanismus: kein Treffer = 404), ihre letzten Wochen-Einträge und
+// Lädt die angemeldete Leaderin, ihre letzten Wochen-Einträge und
 // die Strategie für den laufenden Monat, und berechnet den Fortschritt.
 
 const { pgrest } = require('./_lib/supabase');
+const { requireLeader } = require('./_lib/auth');
 const { computeProgress, viennaTodayStr } = require('./_lib/ranks');
 const { planWindow } = require('./_lib/plan');
 
@@ -15,19 +16,12 @@ exports.handler = async function (event) {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
 
-  const token = event.queryStringParameters && event.queryStringParameters.token;
-  if (!token) {
-    return { statusCode: 400, body: JSON.stringify({ error: 'Token fehlt' }) };
-  }
-
   try {
+    const auth = await requireLeader(event, null);
+    if (!auth.ok) return auth.response;
     const leaders = await pgrest('leaders', {
-      query: `token=eq.${encodeURIComponent(token)}&select=id,name,slug,current_rank,manager_achieved_at,vision_image_url,specialized_products`,
+      query: `id=eq.${auth.leader.id}&select=id,name,slug,current_rank,manager_achieved_at,vision_image_url,specialized_products`,
     });
-
-    if (!leaders || leaders.length === 0) {
-      return { statusCode: 404, body: JSON.stringify({ error: 'Nicht gefunden' }) };
-    }
     const leader = leaders[0];
 
     // Besuch protokollieren, fürs Nutzungs-Muster auf der Team-Übersicht.

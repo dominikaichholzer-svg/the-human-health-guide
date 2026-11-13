@@ -7,6 +7,7 @@
 // Link, kein Datei-Upload, damit es eine "leicht aufgebaute Seite" bleibt.
 
 const { pgrest } = require('./_lib/supabase');
+const { requireLeader } = require('./_lib/auth');
 
 exports.handler = async function (event) {
   if (event.httpMethod !== 'POST') {
@@ -21,18 +22,14 @@ exports.handler = async function (event) {
   }
 
   const { token, vision_image_url } = payload;
-  if (!token) {
-    return { statusCode: 400, body: JSON.stringify({ error: 'Token fehlt' }) };
-  }
   if (vision_image_url && !/^https?:\/\//.test(vision_image_url)) {
     return { statusCode: 400, body: JSON.stringify({ error: 'Bild-Link muss mit http:// oder https:// beginnen' }) };
   }
 
   try {
-    const leaders = await pgrest('leaders', { query: `token=eq.${encodeURIComponent(token)}&select=id` });
-    if (!leaders || leaders.length === 0) {
-      return { statusCode: 404, body: JSON.stringify({ error: 'Nicht gefunden' }) };
-    }
+    const auth = await requireLeader(event, payload);
+    if (!auth.ok) return auth.response;
+    const leaders = [auth.leader];
     const leaderId = leaders[0].id;
 
     await pgrest('leaders', {

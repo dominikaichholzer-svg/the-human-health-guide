@@ -8,6 +8,7 @@
 // Checkboxen.
 
 const { pgrest } = require('./_lib/supabase');
+const { requireLeader } = require('./_lib/auth');
 
 const VALID_STEPS = ['step_1', 'step_2', 'step_3', 'step_4', 'step_5', 'step_6', 'step_7'];
 
@@ -24,15 +25,10 @@ exports.handler = async function (event) {
   }
 
   const { token, tp_id, tp_name, step, value } = payload;
-  if (!token) {
-    return { statusCode: 400, body: JSON.stringify({ error: 'Token fehlt' }) };
-  }
-
   try {
-    const leaders = await pgrest('leaders', { query: `token=eq.${encodeURIComponent(token)}&select=id` });
-    if (!leaders || leaders.length === 0) {
-      return { statusCode: 404, body: JSON.stringify({ error: 'Nicht gefunden' }) };
-    }
+    const auth = await requireLeader(event, payload);
+    if (!auth.ok) return auth.response;
+    const leaders = [auth.leader];
     const leaderId = leaders[0].id;
 
     if (tp_id) {

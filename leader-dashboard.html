@@ -122,6 +122,13 @@
   .week-row .wdate{ font-family: var(--mono); color: var(--ink-muted); font-size: 11.5px; }
   .week-row .wcc{ font-weight:700; color: var(--gold); }
 
+  .auth-card{ max-width: 420px; margin: 40px auto 0; }
+  .auth-card h1{ font-family: var(--serif); font-weight: 600; font-size: 26px; margin: 0 0 6px; }
+  .auth-card .auth-sub{ color: var(--ink-muted); font-size: 14px; line-height: 1.5; margin: 0 0 18px; }
+  .auth-msg{ font-size: 13.5px; line-height:1.5; margin: 0 0 12px; color: var(--error); }
+  .auth-msg.info{ color: var(--ink-muted); }
+  .consent-box{ display:flex; gap:10px; align-items:flex-start; font-size: 13px; line-height: 1.5; color: var(--ink-muted); background: rgba(255,255,255,0.03); border: 1px solid var(--hairline); border-radius: 10px; padding: 12px; margin: 4px 0 16px; cursor:pointer; }
+  .consent-box input{ margin-top: 3px; accent-color: var(--gold); flex: none; }
   .state-msg{ text-align:center; padding: 60px 20px; color: var(--ink-muted); font-size: 14.5px; position:relative; z-index:1; }
 
   footer.legal{ position:relative; z-index:1; margin-top: 10px; padding-top: 18px; border-top: 1px solid var(--hairline); font-size: 11.5px; color: var(--ink-muted); line-height:1.6; }
@@ -253,6 +260,7 @@
     <button type="button" class="menu-item" data-tab="history">📅 Verlauf</button>
     <button type="button" class="menu-item" data-tab="team">🤝 Team</button>
     <button type="button" class="menu-item" data-tab="more">⚙️ Mehr</button>
+    <button type="button" class="menu-item" id="logoutBtn" hidden style="margin-top:18px; color: var(--ink-muted);">🚪 Abmelden</button>
   </nav>
 
   <div class="vision-modal" id="visionModal" role="dialog" aria-modal="true" aria-labelledby="visionModalTitle">
@@ -311,7 +319,59 @@
   </div>
 
   <div id="loadingState" class="state-msg">Lädt …</div>
-  <div id="errorState" class="state-msg" hidden>Dieser Link ist nicht gültig. Bitte wende dich an Dominik für deinen persönlichen Link.</div>
+  <div id="errorState" class="state-msg" hidden>Das Dashboard konnte nicht geladen werden. Bitte lade die Seite neu oder melde dich bei Dominik.</div>
+
+  <!-- Anmelden -->
+  <section class="card auth-card" id="loginCard" hidden>
+    <div class="eyebrow">LEADER-DASHBOARD</div>
+    <h1>Anmelden</h1>
+    <p class="auth-sub">Mit deinem Benutzernamen und deinem Passwort. Dein Handy oder Browser kann beides speichern.</p>
+    <p class="auth-msg" id="loginMsg" hidden></p>
+    <form id="loginForm" method="post" action="#" autocomplete="on">
+      <div class="field">
+        <label for="loginUser">Benutzername</label>
+        <input type="text" id="loginUser" name="username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      </div>
+      <div class="field">
+        <label for="loginPass">Passwort</label>
+        <input type="password" id="loginPass" name="password" autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="btn" id="loginBtn">Anmelden</button>
+    </form>
+    <p class="auth-sub" style="margin:16px 0 0; font-size:12.5px;">Passwort vergessen? Schreib Dominik, du bekommst einen neuen Link.</p>
+  </section>
+
+  <!-- Passwort festlegen (einmalig über den persönlichen Link) -->
+  <section class="card auth-card" id="setupCard" hidden>
+    <div class="eyebrow">EINMALIG</div>
+    <h1 id="setupTitle">Willkommen</h1>
+    <p class="auth-sub">Wähle dein Passwort. Ab dann meldest du dich damit an, dein bisheriger Link funktioniert danach nicht mehr.</p>
+    <p class="auth-msg" id="setupMsg" hidden></p>
+    <form id="setupForm" method="post" action="#" autocomplete="on">
+      <div class="field">
+        <label for="setupUser">Dein Benutzername</label>
+        <input type="text" id="setupUser" name="username" autocomplete="username" readonly>
+      </div>
+      <div class="field">
+        <label for="setupPass">Neues Passwort (mindestens 8 Zeichen)</label>
+        <input type="password" id="setupPass" name="new-password" autocomplete="new-password" minlength="8" required>
+      </div>
+      <div class="field">
+        <label for="setupPass2">Passwort wiederholen</label>
+        <input type="password" id="setupPass2" autocomplete="new-password" minlength="8" required>
+      </div>
+      <label class="consent-box"><input type="checkbox" id="setupConsent" required><span>Damit Dominik dich bestmöglich unterstützen kann, darf er als dein Leader deine Zahlen, Reflexionen und Coaching-Notizen in diesem Dashboard einsehen. Das entspricht dem, was er auch in FLP360 von Forever sieht. Deine Daten bleiben in diesem System und gehen nicht an Dritte. Du kannst deine Zustimmung jederzeit bei Dominik widerrufen.</span></label>
+      <button type="submit" class="btn" id="setupBtn">Passwort speichern und loslegen</button>
+    </form>
+  </section>
+
+  <!-- Zustimmung nachholen -->
+  <section class="card auth-card" id="consentCard" hidden>
+    <div class="eyebrow">KURZ BESTÄTIGEN</div>
+    <h1>Deine Zustimmung</h1>
+    <label class="consent-box"><input type="checkbox" id="consentCheck"><span>Damit Dominik dich bestmöglich unterstützen kann, darf er als dein Leader deine Zahlen, Reflexionen und Coaching-Notizen in diesem Dashboard einsehen. Das entspricht dem, was er auch in FLP360 von Forever sieht. Deine Daten bleiben in diesem System und gehen nicht an Dritte. Du kannst deine Zustimmung jederzeit bei Dominik widerrufen.</span></label>
+    <button type="button" class="btn" id="consentBtn">Zustimmen und weiter</button>
+  </section>
 
   <div id="mainContent" hidden>
 
@@ -630,7 +690,10 @@
     eagle_manager: 'Eagle Manager',
   };
 
-  const token = new URLSearchParams(location.search).get('id');
+  // Alter persönlicher Link (?id=) oder Einmal-Link nach Zurücksetzen (?setup=).
+  // Wird nur bis zur Anmeldung gebraucht, danach läuft alles über das Cookie.
+  const linkToken = new URLSearchParams(location.search).get('setup') || new URLSearchParams(location.search).get('id');
+  let token = null; // nur gesetzt im Übergangsmodus (Login noch nicht eingerichtet)
   let dashboardData = null;
 
   function fmtDate(iso){
@@ -1267,13 +1330,14 @@
   }
 
   async function loadDashboard(){
-    if(!token){
-      document.getElementById('loadingState').hidden = true;
-      document.getElementById('errorState').hidden = false;
-      return;
-    }
     try {
-      const res = await fetch(`/.netlify/functions/leader-get-dashboard?token=${encodeURIComponent(token)}`);
+      const res = await fetch('/.netlify/functions/leader-get-dashboard' + (token ? `?token=${encodeURIComponent(token)}` : ''), { credentials: 'same-origin' });
+      if(res.status === 401){
+        document.getElementById('mainContent').hidden = true;
+        document.getElementById('menuBtn').hidden = true;
+        showAuth('login', 'Bitte melde dich an.', true);
+        return;
+      }
       if(!res.ok){
         document.getElementById('loadingState').hidden = true;
         document.getElementById('errorState').hidden = false;
@@ -1781,7 +1845,155 @@
     updatePushUi();
   }
 
-  loadDashboard();
+  // ============ Anmeldung ============
+  function showAuth(which, msg, info){
+    document.getElementById('loadingState').hidden = true;
+    ['loginCard','setupCard','consentCard'].forEach(id => { document.getElementById(id).hidden = true; });
+    const card = document.getElementById(which + 'Card');
+    card.hidden = false;
+    const m = document.getElementById(which + 'Msg');
+    if(m){
+      m.hidden = !msg;
+      m.textContent = msg || '';
+      m.classList.toggle('info', !!info);
+    }
+  }
+  function hideAuth(){
+    ['loginCard','setupCard','consentCard'].forEach(id => { document.getElementById(id).hidden = true; });
+    document.getElementById('loadingState').hidden = false;
+  }
+  // Geheimen Link aus der Adresszeile entfernen (tab/mode für Push bleiben)
+  function stripLinkFromUrl(){
+    const q = new URLSearchParams(location.search);
+    if(!q.has('id') && !q.has('setup')) return;
+    q.delete('id'); q.delete('setup');
+    const qs = q.toString();
+    history.replaceState(null, '', location.pathname + (qs ? '?' + qs : '') + location.hash);
+  }
+  async function authPost(body){
+    const res = await fetch('/.netlify/functions/auth', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    let data = {};
+    try { data = await res.json(); } catch(e){}
+    return { res, data };
+  }
+  function enterDashboard(){
+    token = null;
+    stripLinkFromUrl();
+    document.getElementById('logoutBtn').hidden = false;
+    hideAuth();
+    loadDashboard();
+  }
+
+  document.getElementById('loginForm').addEventListener('submit', async function(e){
+    e.preventDefault();
+    const btn = document.getElementById('loginBtn');
+    btn.disabled = true; btn.textContent = 'Wird geprüft …';
+    try {
+      const { res, data } = await authPost({
+        action: 'login',
+        username: document.getElementById('loginUser').value,
+        password: document.getElementById('loginPass').value,
+      });
+      if(!res.ok){ showAuth('login', data.error || 'Anmeldung fehlgeschlagen.'); return; }
+      if(data.needsConsent){ showAuth('consent'); return; }
+      enterDashboard();
+    } catch(err){
+      showAuth('login', 'Keine Verbindung. Bitte nochmal versuchen.');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Anmelden';
+    }
+  });
+
+  document.getElementById('setupForm').addEventListener('submit', async function(e){
+    e.preventDefault();
+    const p1 = document.getElementById('setupPass').value;
+    const p2 = document.getElementById('setupPass2').value;
+    if(p1.length < 8){ showAuth('setup', 'Das Passwort braucht mindestens 8 Zeichen.'); return; }
+    if(p1 !== p2){ showAuth('setup', 'Die beiden Passwörter sind nicht gleich.'); return; }
+    if(!document.getElementById('setupConsent').checked){ showAuth('setup', 'Bitte bestätige die Zustimmung.'); return; }
+    const btn = document.getElementById('setupBtn');
+    btn.disabled = true; btn.textContent = 'Wird gespeichert …';
+    try {
+      const { res, data } = await authPost({ action: 'setup', token: linkToken, password: p1, consent: true });
+      if(!res.ok){ showAuth('setup', data.error || 'Speichern fehlgeschlagen.'); return; }
+      enterDashboard();
+    } catch(err){
+      showAuth('setup', 'Keine Verbindung. Bitte nochmal versuchen.');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Passwort speichern und loslegen';
+    }
+  });
+
+  document.getElementById('consentBtn').addEventListener('click', async function(){
+    if(!document.getElementById('consentCheck').checked) return;
+    this.disabled = true;
+    try {
+      const { res } = await authPost({ action: 'consent' });
+      if(res.ok) enterDashboard();
+    } finally { this.disabled = false; }
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', async function(){
+    if(!confirm('Wirklich abmelden? Du brauchst dann wieder Benutzername und Passwort.')) return;
+    try { await authPost({ action: 'logout' }); } catch(e){}
+    location.replace(location.pathname);
+  });
+
+  async function boot(){
+    // 1. Schon angemeldet (Cookie)?
+    let authReady = true;
+    try {
+      const res = await fetch('/.netlify/functions/auth?action=me', { credentials: 'same-origin' });
+      if(res.ok){
+        const me = await res.json();
+        if(me.loggedIn){
+          if(me.needsConsent){ stripLinkFromUrl(); showAuth('consent'); return; }
+          enterDashboard();
+          return;
+        }
+      } else {
+        authReady = false;
+      }
+    } catch(e){ authReady = false; }
+
+    // 2. Persönlicher Link oder Einmal-Link: Passwort festlegen
+    if(linkToken){
+      try {
+        const { res, data } = await authPost({ action: 'setup-check', token: linkToken });
+        if(res.ok){
+          document.getElementById('setupTitle').textContent = 'Willkommen, ' + data.name;
+          document.getElementById('setupUser').value = data.username || '';
+          showAuth('setup');
+          return;
+        }
+        if(res.status === 404 || res.status === 429){
+          stripLinkFromUrl();
+          showAuth('login', res.status === 404
+            ? 'Dein Link ist schon benutzt oder abgelaufen. Melde dich mit Benutzername und Passwort an.'
+            : data.error, res.status === 404);
+          return;
+        }
+      } catch(e){ /* weiter zum Übergangsmodus */ }
+      // Login-System (noch) nicht erreichbar: wie bisher über den Link öffnen
+      token = linkToken;
+      loadDashboard();
+      return;
+    }
+
+    if(!authReady){
+      document.getElementById('loadingState').hidden = true;
+      document.getElementById('errorState').hidden = false;
+      return;
+    }
+    showAuth('login');
+  }
+
+  boot();
 </script>
 
 </body>

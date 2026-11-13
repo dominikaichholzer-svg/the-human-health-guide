@@ -236,6 +236,7 @@
         <p class="lmeta">${barLabel}</p>
         <p class="lmeta">Letzter Eintrag: ${l.lastSubmitted || '–'}</p>
         ${flagHtml}
+        ${loginHtml(l)}
         ${insightHtml}
         <p class="heatmap-label">5 Produkte</p>
         <input type="text" class="products-input" data-leader="${l.id}" value="${(l.specializedProducts || '').replace(/"/g, '&quot;')}" placeholder="z.B. Aloe Gel, Logic Serie, ..." style="width:100%; margin-bottom:6px; padding: 8px 10px; border: 1.5px solid var(--hairline); border-radius: 8px; font-family: var(--sans); font-size: 12.5px; background: rgba(255,255,255,0.04); color: var(--ink);">
@@ -245,6 +246,17 @@
         ${plansHtml(l.monthlyPlans)}${weeksHtml(l.recentWeeks)}${daysHtml(l.recentDays)}
       </div>
     `;
+  }
+
+  function loginHtml(l){
+    const lg = l.login;
+    if(!lg) return '';
+    const status = lg.hasPassword
+      ? `Login: <b>${esc(lg.username || '–')}</b>, Passwort gesetzt am ${String(lg.passwordSetAt || '').slice(0,10)}`
+      : (lg.passwordSetAt ? 'Login: zurückgesetzt, wartet auf neues Passwort' : 'Login: noch alter Link, kein Passwort');
+    return `<p class="lmeta">${status}</p>
+      <button class="btn reset-login-btn" data-leader="${l.id}" data-name="${esc(l.name)}" type="button" style="padding:6px 12px; font-size:11.5px; width:auto; margin:4px 0 8px;">Passwort zurücksetzen</button>
+      <div class="reset-login-out" data-leader="${l.id}" style="font-size:12px; word-break:break-all;"></div>`;
   }
 
   function esc(v){
@@ -406,6 +418,29 @@
     } finally {
       btn.disabled = false;
       btn.textContent = original;
+    }
+  });
+
+  document.getElementById('leaderGrid').addEventListener('click', async function(e){
+    const btn = e.target.closest('.reset-login-btn');
+    if(!btn) return;
+    const leaderId = btn.dataset.leader;
+    if(!confirm(btn.dataset.name + ': Passwort zurücksetzen? Sie wird auf allen Geräten abgemeldet und braucht den neuen Link, um ein neues Passwort zu wählen.')) return;
+    const out = document.querySelector(`.reset-login-out[data-leader="${leaderId}"]`);
+    btn.disabled = true;
+    try {
+      const res = await fetch('/.netlify/functions/admin-reset-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: adminKey, leader_id: leaderId }),
+      });
+      const d = await res.json();
+      if(!res.ok) throw new Error(d.error || 'Fehler');
+      out.innerHTML = 'Neuer Einmal-Link (14 Tage gültig), schick ihn ihr privat:<br><a href="' + esc(d.link) + '" style="color:var(--gold);">' + esc(d.link) + '</a>';
+    } catch(err){
+      out.textContent = 'Fehler: ' + err.message;
+    } finally {
+      btn.disabled = false;
     }
   });
 

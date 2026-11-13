@@ -11,6 +11,7 @@
 // wöchentliche AI-Feedback.
 
 const { pgrest } = require('./_lib/supabase');
+const { requireLeader } = require('./_lib/auth');
 const { PANEL_WISDOM } = require('./_lib/panel-wisdom');
 const { makeClient } = require('./_lib/agent');
 
@@ -40,20 +41,17 @@ exports.handler = async function (event) {
   }
 
   const { token, message, history } = payload;
-  if (!token || !message) {
-    return { statusCode: 400, body: JSON.stringify({ error: 'Token oder Nachricht fehlt' }) };
+  if (!message) {
+    return { statusCode: 400, body: JSON.stringify({ error: 'Nachricht fehlt' }) };
   }
   if (!process.env.ANTHROPIC_API_KEY) {
     return { statusCode: 503, body: JSON.stringify({ error: 'Chat ist aktuell nicht verfügbar.' }) };
   }
 
   try {
-    const leaders = await pgrest('leaders', {
-      query: `token=eq.${encodeURIComponent(token)}&select=id,name,current_rank`,
-    });
-    if (!leaders || leaders.length === 0) {
-      return { statusCode: 404, body: JSON.stringify({ error: 'Nicht gefunden' }) };
-    }
+    const auth = await requireLeader(event, payload);
+    if (!auth.ok) return auth.response;
+    const leaders = [auth.leader];
     const leader = leaders[0];
 
     const safeHistory = (Array.isArray(history) ? history : [])

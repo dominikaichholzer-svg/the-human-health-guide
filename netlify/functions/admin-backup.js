@@ -12,6 +12,7 @@
 // und Reflexionen. Sicher aufbewahren, nicht weitergeben.
 
 const { pgrest } = require('./_lib/supabase');
+const { requireAdmin } = require('./_lib/auth');
 
 const TABLES = [
   'leaders', 'weekly_entries', 'daily_reflections', 'monthly_plans', 'monthly_strategy',
@@ -41,9 +42,8 @@ exports.handler = async function (event) {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
   const key = event.queryStringParameters && event.queryStringParameters.key;
-  if (!key || key !== process.env.ADMIN_SECRET_KEY) {
-    return { statusCode: 403, body: JSON.stringify({ error: 'Kein Zugriff' }) };
-  }
+  const adminCheck = requireAdmin(event, null);
+  if (!adminCheck.ok) return adminCheck.response;
 
   const backup = { erstellt: new Date().toISOString(), tabellen: {}, fehler: {} };
   for (const table of TABLES) {

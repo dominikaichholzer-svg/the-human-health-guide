@@ -8,6 +8,7 @@
 // Push-Dienst) werden automatisch aus der Datenbank entfernt.
 
 const { pgrest } = require('./_lib/supabase');
+const { requireAdmin } = require('./_lib/auth');
 const { sendPush } = require('./_lib/webpush');
 const { dashboardUrl } = require('./_lib/pushlinks');
 
@@ -24,9 +25,8 @@ exports.handler = async function (event) {
   }
 
   const { key, leader_id, title, body } = payload;
-  if (!key || key !== process.env.ADMIN_SECRET_KEY) {
-    return { statusCode: 403, body: JSON.stringify({ error: 'Kein Zugriff' }) };
-  }
+  const adminCheck = requireAdmin(event, payload);
+  if (!adminCheck.ok) return adminCheck.response;
   if (!title || !body) {
     return { statusCode: 400, body: JSON.stringify({ error: 'title und body sind Pflicht' }) };
   }
@@ -37,9 +37,9 @@ exports.handler = async function (event) {
       : undefined; // kein Filter = alle
 
     const subs = await pgrest('push_subscriptions', { query });
-    const leaderRows = await pgrest('leaders', { query: 'select=id,token' });
+    const leaderRows = await pgrest('leaders', { query: 'select=*' });
     const tokenById = {};
-    for (const l of leaderRows || []) tokenById[l.id] = l.token;
+    for (const l of leaderRows || []) tokenById[l.id] = l;
 
     let sent = 0;
     let removed = 0;

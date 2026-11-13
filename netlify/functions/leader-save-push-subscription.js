@@ -8,6 +8,7 @@
 // endpoint statt auf leader_id.
 
 const { pgrest } = require('./_lib/supabase');
+const { requireLeader } = require('./_lib/auth');
 
 exports.handler = async function (event) {
   if (event.httpMethod !== 'POST') {
@@ -22,15 +23,14 @@ exports.handler = async function (event) {
   }
 
   const { token, subscription } = payload;
-  if (!token || !subscription || !subscription.endpoint || !subscription.keys) {
-    return { statusCode: 400, body: JSON.stringify({ error: 'Token oder Subscription fehlt' }) };
+  if (!subscription || !subscription.endpoint || !subscription.keys) {
+    return { statusCode: 400, body: JSON.stringify({ error: 'Subscription fehlt' }) };
   }
 
   try {
-    const leaders = await pgrest('leaders', { query: `token=eq.${encodeURIComponent(token)}&select=id` });
-    if (!leaders || leaders.length === 0) {
-      return { statusCode: 404, body: JSON.stringify({ error: 'Nicht gefunden' }) };
-    }
+    const auth = await requireLeader(event, payload);
+    if (!auth.ok) return auth.response;
+    const leaders = [auth.leader];
     const leaderId = leaders[0].id;
 
     await pgrest('push_subscriptions', {

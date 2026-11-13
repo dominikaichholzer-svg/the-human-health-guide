@@ -11,6 +11,7 @@
 // (Dominik kann sie im Admin-Dashboard jederzeit ändern).
 
 const { pgrest } = require('./_lib/supabase');
+const { requireLeader } = require('./_lib/auth');
 
 exports.handler = async function (event) {
   if (event.httpMethod !== 'POST') {
@@ -26,15 +27,10 @@ exports.handler = async function (event) {
 
   const { token, time_capacity, past_follow_through, support_needed, lieblingsbereich, warum } = payload;
   const fokus = Array.isArray(payload.fokus_produkte) ? payload.fokus_produkte.slice(0, 5).map(String) : [];
-  if (!token) {
-    return { statusCode: 400, body: JSON.stringify({ error: 'Token fehlt' }) };
-  }
-
   try {
-    const leaders = await pgrest('leaders', { query: `token=eq.${encodeURIComponent(token)}&select=id` });
-    if (!leaders || leaders.length === 0) {
-      return { statusCode: 404, body: JSON.stringify({ error: 'Nicht gefunden' }) };
-    }
+    const auth = await requireLeader(event, payload);
+    if (!auth.ok) return auth.response;
+    const leaders = [auth.leader];
     const leaderId = leaders[0].id;
 
     const row = {

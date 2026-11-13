@@ -32,7 +32,7 @@ exports.handler = async function () {
     const today = viennaTodayStr();
     const currentWeekMonday = mondayOf(today);
 
-    const leaders = await pgrest('leaders', { query: 'select=id,name,token' });
+    const leaders = await pgrest('leaders', { query: 'select=*' });
     const results = [];
 
     for (const leader of leaders) {
@@ -55,7 +55,7 @@ exports.handler = async function () {
         try {
           await sendPush(
             { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
-            { title: 'Nicht vergessen 👋', body: 'Diese Woche noch keine Zahlen eingetragen. 2 Minuten reichen.', url: dashboardUrl(leader.token, 'entry', 'weekly') }
+            { title: 'Nicht vergessen 👋', body: 'Diese Woche noch keine Zahlen eingetragen. 2 Minuten reichen.', url: dashboardUrl(leader, 'entry', 'weekly') }
           );
           sent++;
         } catch (err) {

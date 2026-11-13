@@ -6,6 +6,7 @@
 // Dominik legt pro Leaderin fest, auf welche Produkte sie sich spezialisiert.
 
 const { pgrest } = require('./_lib/supabase');
+const { requireAdmin } = require('./_lib/auth');
 
 exports.handler = async function (event) {
   if (event.httpMethod !== 'POST') {
@@ -20,9 +21,8 @@ exports.handler = async function (event) {
   }
 
   const { key, leader_id, specialized_products } = payload;
-  if (!key || key !== process.env.ADMIN_SECRET_KEY) {
-    return { statusCode: 403, body: JSON.stringify({ error: 'Kein Zugriff' }) };
-  }
+  const adminCheck = requireAdmin(event, payload);
+  if (!adminCheck.ok) return adminCheck.response;
   if (!leader_id) {
     return { statusCode: 400, body: JSON.stringify({ error: 'leader_id fehlt' }) };
   }

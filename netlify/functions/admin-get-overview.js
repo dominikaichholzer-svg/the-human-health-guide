@@ -6,6 +6,7 @@
 // Einträge, plus die Strategie-Texte für diesen und nächsten Monat.
 
 const { pgrest } = require('./_lib/supabase');
+const { requireAdmin } = require('./_lib/auth');
 const { computeProgress, viennaTodayStr } = require('./_lib/ranks');
 const { planWindow } = require('./_lib/plan');
 
@@ -37,14 +38,23 @@ exports.handler = async function (event) {
   }
 
   const key = event.queryStringParameters && event.queryStringParameters.key;
-  if (!key || key !== process.env.ADMIN_SECRET_KEY) {
-    return { statusCode: 403, body: JSON.stringify({ error: 'Kein Zugriff' }) };
-  }
+  const adminCheck = requireAdmin(event, null);
+  if (!adminCheck.ok) return adminCheck.response;
 
   try {
     const leaders = await pgrest('leaders', {
       query: 'select=id,name,current_rank,manager_achieved_at,specialized_products&order=sort_order.asc',
     });
+
+    // Login-Status (Spalten aus supabase/auth.sql). Fehlen sie noch, lädt die
+    // Übersicht trotzdem, nur ohne diese Angaben.
+    const loginById = {};
+    try {
+      const rows = await pgrest('leaders', { query: 'select=*' });
+      for (const r of rows || []) {
+        loginById[r.id] = { username: r.username, hasPassword: !!r.password_hash, passwordSetAt: r.password_set_at, consentAt: r.consent_at };
+      }
+    } catch (e) { /* noch nicht eingerichtet */ }
 
     const today = viennaTodayStr();
     const currentMonthStart = today.slice(0, 7) + '-01';
@@ -101,6 +111,7 @@ exports.handler = async function (event) {
         visitsByDay,
         recentDays,
         monthlyPlans,
+        login: loginById[leader.id] || null,
       });
     }
 

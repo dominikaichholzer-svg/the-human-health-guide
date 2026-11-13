@@ -46,7 +46,7 @@ exports.handler = async function () {
     const today = viennaTodayStr();
     const weekStart = mondayOf(today);
     const pw = planWindow(today);
-    const leaders = await pgrest('leaders', { query: 'select=id,name,token' });
+    const leaders = await pgrest('leaders', { query: 'select=*' });
     const results = [];
 
     for (const leader of leaders) {
@@ -69,7 +69,7 @@ exports.handler = async function () {
           const planPayload = {
             title: 'Deine Monatsplanung ist fällig 🗓️',
             body: 'Bis du sie abgibst, ist dein Dashboard gesperrt. Dauert etwa 5 Minuten.',
-            url: dashboardUrl(leader.token, 'plan'),
+            url: dashboardUrl(leader, 'plan'),
           };
           let planSent = 0;
           for (const sub of subs) {
@@ -105,19 +105,19 @@ exports.handler = async function () {
         payload = {
           title: 'Dein Tagesabschluss 🌙',
           body: 'Tages- und Wochenreflexion warten auf dich. Zusammen etwa 5 Minuten.',
-          url: dashboardUrl(leader.token, 'entry', 'daily'),
+          url: dashboardUrl(leader, 'entry', 'daily'),
         };
       } else if (!dayDone) {
         payload = {
           title: 'Dein Tagesabschluss 🌙',
           body: 'Was lief heute gut? 2 Minuten reichen.',
-          url: dashboardUrl(leader.token, 'entry', 'daily'),
+          url: dashboardUrl(leader, 'entry', 'daily'),
         };
       } else if (!weekDone) {
         payload = {
           title: 'Deine Wochenreflexion 📝',
           body: 'Die Woche ist fast vorbei. Trag deine Zahlen ein und schau zurück.',
-          url: dashboardUrl(leader.token, 'entry', 'weekly'),
+          url: dashboardUrl(leader, 'entry', 'weekly'),
         };
       }
       if (!payload) {

@@ -7,12 +7,12 @@
 // aktuellen Stand.
 
 const { tg, agentSecret } = require('./_lib/telegram');
+const { requireAdmin } = require('./_lib/auth');
 
 exports.handler = async function (event) {
   const key = event.queryStringParameters && event.queryStringParameters.key;
-  if (!key || key !== process.env.ADMIN_SECRET_KEY) {
-    return { statusCode: 403, body: 'Kein Zugriff' };
-  }
+  const adminCheck = requireAdmin(event, null);
+  if (!adminCheck.ok) return adminCheck.response;
   try {
     await tg('setWebhook', {
       url: `${process.env.URL}/.netlify/functions/telegram-webhook`,
