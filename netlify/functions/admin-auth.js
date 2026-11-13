@@ -61,7 +61,9 @@ exports.handler = async function (event) {
         return A.json(200, { ready: false }); // Tabellen fehlen noch
       }
       const s = await A.adminFromSession(event);
-      return A.json(200, { ready: true, loggedIn: !!s, accountExists: !!account });
+      // Jeder Seitenaufruf verlängert die Sitzung (7 Tage ab der letzten Nutzung)
+      const headers = s ? { 'Set-Cookie': await A.renewAdminSession(s) } : undefined;
+      return A.json(200, { ready: true, loggedIn: !!s, accountExists: !!account }, headers);
     }
 
     if (event.httpMethod !== 'POST') return A.json(405, { error: 'Method Not Allowed' });

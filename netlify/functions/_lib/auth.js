@@ -252,8 +252,12 @@ async function requireLeader(event, payload) {
 // ---------- Admin ----------
 //
 // Admin meldet sich mit Benutzername + Passwort + 6-stelligem E-Mail-Code an
-// (admin-auth.js). Die Sitzung liegt im Cookie "eagle_admin" (7 Tage,
-// SameSite=Strict). Der alte Schlüssel ADMIN_SECRET_KEY in der Adresse gilt
+// (admin-auth.js). Die Sitzung liegt im Cookie "eagle_admin". Sie läuft erst
+// nach 7 Tagen OHNE Nutzung ab: jeder Aufruf der Admin-Seite verlängert sie.
+// SameSite=Lax (nicht Strict), damit sie auch gilt, wenn das Dashboard über
+// einen Link aus WhatsApp, Mail oder einem Chat geöffnet wird. Schreibende
+// Aufrufe sind trotzdem geschützt: Lax schickt das Cookie bei fremden
+// POST-Anfragen nicht mit. Der alte Schlüssel ADMIN_SECRET_KEY in der Adresse gilt
 // nur noch, solange das Admin-Konto nicht eingerichtet ist (oder die Tabellen
 // aus supabase/admin-auth.sql noch fehlen). Er bleibt als Umgebungsvariable,
 // weil das Telegram-Geheimnis daraus abgeleitet wird.
@@ -262,10 +266,10 @@ const ADMIN_COOKIE = 'eagle_admin';
 const ADMIN_SESSION_DAYS = 7;
 
 function adminCookie(value) {
-  return `${ADMIN_COOKIE}=${encodeURIComponent(value)}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=${ADMIN_SESSION_DAYS * 86400}`;
+  return `${ADMIN_COOKIE}=${encodeURIComponent(value)}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${ADMIN_SESSION_DAYS * 86400}`;
 }
 function clearAdminCookie() {
-  return `${ADMIN_COOKIE}=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0`;
+  return `${ADMIN_COOKIE}=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`;
 }
 
 // null = kein Konto. Wirft, wenn die Tabelle fehlt.
@@ -284,14 +288,26 @@ async function createAdminSession(event) {
   return raw;
 }
 
-// { id } oder null
+// { id, raw } oder null
 async function adminFromSession(event) {
   const raw = readCookie(event, ADMIN_COOKIE);
   if (!raw || !/^[0-9a-f]{64}$/.test(raw)) return null;
   const rows = await pgrest('admin_sessions', { query: `token_hash=eq.${sha256(raw)}&revoked_at=is.null&select=id,expires_at` });
   const s = rows && rows[0];
   if (!s || new Date(s.expires_at).getTime() < Date.now()) return null;
-  return { id: s.id };
+  return { id: s.id, raw, expiresAt: s.expires_at };
+}
+
+// Gleitende Verlängerung: höchstens einmal pro Stunde in die Datenbank schreiben.
+// Liefert den Set-Cookie-Wert, der das Cookie im Browser ebenfalls verlängert.
+async function renewAdminSession(s) {
+  const fresh = new Date(Date.now() + ADMIN_SESSION_DAYS * 86400000);
+  if (fresh.getTime() - new Date(s.expiresAt).getTime() > 3600000) {
+    try {
+      await pgrest('admin_sessions', { method: 'PATCH', query: `id=eq.${s.id}`, body: { expires_at: fresh.toISOString() } });
+    } catch (e) { /* Verlängern ist Zugabe */ }
+  }
+  return adminCookie(s.raw);
 }
 
 function keyMatches(event, payload) {
@@ -344,5 +360,6 @@ module.exports = {
   getAdminAccount,
   createAdminSession,
   adminFromSession,
+  renewAdminSession,
   keyMatches,
 };
