@@ -351,7 +351,8 @@
     const rows = order.map(m => {
       const p = m.progress || {};
       const prog = p.ccTarget ? ` · ${n(p.ccSoFar)}/${p.ccTarget} bis ${TEAM_RANKS[p.nextRank]}` : '';
-      return `<p class="lmeta" style="padding-left:${depth(m) * 14}px;${m.active ? '' : ' opacity:0.5;'}">${depth(m) ? '↳ ' : ''}<b>${esc(m.name)}</b>, ${TEAM_RANKS[m.rank] || esc(m.rank)} · ${ml(cm)}: ${m.cc[cm] != null ? n(m.cc[cm]) : '–'}${prog}</p>`;
+      const ob = m.onboarding ? ` · Einarbeitung ${m.onboarding.done}/7` : '';
+      return `<p class="lmeta" style="padding-left:${depth(m) * 14}px;${m.active ? '' : ' opacity:0.5;'}">${depth(m) ? '↳ ' : ''}<b>${esc(m.name)}</b>, ${TEAM_RANKS[m.rank] || esc(m.rank)} · ${ml(cm)}: ${m.cc[cm] != null ? n(m.cc[cm]) : '–'}${prog}${ob}</p>`;
     }).join('');
     return `<details class="more-box"><summary>${head}</summary><p class="lmeta">Team-CC ${trend}</p>${rows}</details>`;
   }

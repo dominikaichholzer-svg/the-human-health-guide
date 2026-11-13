@@ -183,6 +183,8 @@
   .tm-edit-btn{ background:none; border:none; color: var(--gold); font-size:12px; cursor:pointer; padding:0; font-family: var(--sans); }
   .tm-edit{ margin-top:10px; padding-top:10px; border-top:1px solid var(--hairline); }
   .tm-edit .btn{ padding:10px 14px; font-size:13px; }
+  .tm-onboarding{ margin-top:10px; }
+  .tm-onboarding summary{ cursor:pointer; font-size:12.5px; font-weight:600; color: var(--gold); }
   .tm-children{ margin-left:16px; border-left:1px dashed var(--hairline); padding-left:10px; }
   .cc-row{ display:flex; align-items:center; gap:10px; margin-bottom:8px; }
   .cc-row span{ flex:1; font-size:14px; }
@@ -697,19 +699,12 @@
             <select id="tmRank"></select>
           </div>
         </div>
+        <label class="check-row" style="margin-bottom:6px;"><input type="checkbox" id="tmOnboarding"><span>Neu eingestiegen<small>Startet die Einarbeitungs-Checkliste mit 7 Schritten.</small></span></label>
         <button type="submit" class="btn" id="tmAddBtn">Hinzufügen</button>
         <p class="progress-sub" id="tmStatus" style="text-align:center; margin-top:10px;"></p>
       </form>
     </section>
 
-    <section class="card">
-      <h2 class="card-title">Neue Team-Partnerinnen</h2>
-      <div class="add-tp-row" style="margin-bottom:14px;">
-        <input type="text" id="newTpName" placeholder="Name der neuen TP">
-        <button class="btn" id="addTpBtn" type="button">Hinzufügen</button>
-      </div>
-      <div id="tpList"></div>
-    </section>
 
     </div>
 
@@ -1224,7 +1219,7 @@
     }
   }
 
-  // ============ Neue Team-Partnerinnen ============
+  // ============ Einarbeitungs-Checkliste (gehört zur Partnerin in "Mein Team") ============
   const TP_STEP_LABELS = [
     'More Success App + Boards-Zugang gesendet',
     'Foto für Willkommens-Flyer',
@@ -1234,60 +1229,6 @@
     'Ausbildung 2 + Coaching-Call terminiert',
     'Nachbesprochen, Kundenkonzept gewählt',
   ];
-  function renderTps(tps){
-    const el = document.getElementById('tpList');
-    if(!tps || tps.length === 0){
-      el.innerHTML = '<p class="progress-sub">Noch keine neuen Team-Partnerinnen erfasst.</p>';
-      return;
-    }
-    el.innerHTML = tps.map(tp => {
-      const steps = TP_STEP_LABELS.map((label, i) => {
-        const key = 'step_' + (i + 1);
-        const checked = tp[key] ? 'checked' : '';
-        return `<label class="tp-step"><input type="checkbox" ${checked} data-tp="${tp.id}" data-step="${key}">${label}</label>`;
-      }).join('');
-      const doneCount = TP_STEP_LABELS.filter((_, i) => tp['step_' + (i+1)]).length;
-      return `<div class="tp-item"><p class="tpname">${tp.tp_name} <span style="font-family:var(--mono); font-size:10px; color:var(--ink-muted);">${doneCount}/7</span></p><div class="tp-steps">${steps}</div></div>`;
-    }).join('');
-
-    el.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-      cb.addEventListener('change', async function(){
-        this.disabled = true;
-        try {
-          await fetch('/.netlify/functions/leader-save-new-tp', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token, tp_id: this.dataset.tp, step: this.dataset.step, value: this.checked }),
-          });
-          await loadDashboard();
-        } finally {
-          this.disabled = false;
-        }
-      });
-    });
-  }
-
-  document.getElementById('addTpBtn').addEventListener('click', async function(){
-    const input = document.getElementById('newTpName');
-    const name = input.value.trim();
-    if(!name) return;
-    const btn = document.getElementById('addTpBtn');
-    btn.disabled = true;
-    try {
-      const res = await fetch('/.netlify/functions/leader-save-new-tp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, tp_name: name }),
-      });
-      if(res.ok){
-        input.value = '';
-        await loadDashboard();
-      }
-    } finally {
-      btn.disabled = false;
-    }
-  });
-
   // ============ Mein Team ============
   const MEMBER_RANK_LABELS = {
     partner: 'Partnerin (noch kein Rang)',
@@ -1367,10 +1308,15 @@
       const p = m.progress || {};
       const bar = p.ccTarget ? `<div class="tm-bar"><span style="width:${p.pct}%"></span></div>` : '';
       const kids = (children[m.id] || []).map(rowHtml).join('');
+      const ob = m.onboarding;
+      const obHtml = ob ? `<details class="tm-onboarding" ${ob.done < 7 ? 'open' : ''}><summary>Einarbeitung ${ob.done}/7${ob.done === 7 ? ' ✓' : ''}</summary><div class="tp-steps" style="margin-top:8px;">${
+        TP_STEP_LABELS.map((label, i) => `<label class="tp-step"><input type="checkbox" data-tpstep="${m.id}" data-step="step_${i + 1}" ${ob.steps[i] ? 'checked' : ''}>${label}</label>`).join('')
+      }</div></details>` : '';
       return `<div class="team-row ${m.active ? '' : 'inactive'}" data-id="${m.id}">
         <div class="tm-head"><span class="tm-name">${escHtml(m.name)}${m.active ? '' : ' (nicht mehr aktiv)'}</span><button type="button" class="tm-edit-btn" data-edit="${m.id}">Bearbeiten</button></div>
         <div class="tm-rank">${MEMBER_RANK_LABELS[m.rank] || m.rank}</div>
         <div class="tm-meta">CC ${monthName(ccMonth)}: ${cc != null ? fmtCc(cc) : '–'}<br>${progressText(p)}</div>${bar}
+        ${obHtml}
         <div class="tm-edit" data-editbox="${m.id}" hidden></div>
       </div>${kids ? `<div class="tm-children">${kids}</div>` : ''}`;
     }
@@ -1394,8 +1340,17 @@
         </div>
         <label class="check-row"><input type="checkbox" class="tmE-active" ${m.active ? 'checked' : ''}><span>Noch aktiv im Team</span></label>
         <button type="button" class="btn" data-save="${id}">Speichern</button>
+        ${m.onboarding ? '' : `<button type="button" class="tm-edit-btn" data-onboard="${id}" style="display:block; margin:12px auto 0;">Einarbeitungs-Checkliste starten</button>`}
         <p class="progress-sub tmE-status" style="text-align:center; margin-top:8px;"></p>`;
       box.hidden = false;
+      return;
+    }
+    const obBtn = e.target.closest('[data-onboard]');
+    if(obBtn){
+      obBtn.disabled = true;
+      const { res } = await teamPost({ action: 'start-onboarding', id: obBtn.dataset.onboard });
+      obBtn.disabled = false;
+      if(res.ok) await loadDashboard();
       return;
     }
     const saveBtn = e.target.closest('[data-save]');
@@ -1416,6 +1371,21 @@
     }
   });
 
+  document.getElementById('teamTree').addEventListener('change', async function(e){
+    const cb = e.target.closest('[data-tpstep]');
+    if(!cb) return;
+    cb.disabled = true;
+    const { res } = await teamPost({ action: 'tp-step', id: cb.dataset.tpstep, step: cb.dataset.step, value: cb.checked });
+    cb.disabled = false;
+    if(!res.ok){ cb.checked = !cb.checked; return; }
+    const m = teamData.members.find(x => x.id === cb.dataset.tpstep);
+    if(m && m.onboarding){
+      m.onboarding.steps[Number(cb.dataset.step.slice(5)) - 1] = cb.checked;
+      m.onboarding.done = m.onboarding.steps.filter(Boolean).length;
+      cb.closest('details').querySelector('summary').textContent = `Einarbeitung ${m.onboarding.done}/7${m.onboarding.done === 7 ? ' ✓' : ''}`;
+    }
+  });
+
   document.getElementById('teamAddForm').addEventListener('submit', async function(e){
     e.preventDefault();
     const btn = document.getElementById('tmAddBtn');
@@ -1426,13 +1396,16 @@
       name: document.getElementById('tmName').value,
       sponsor_id: document.getElementById('tmSponsor').value || null,
       rank: document.getElementById('tmRank').value,
+      onboarding: document.getElementById('tmOnboarding').checked,
     });
     btn.disabled = false;
     if(!res.ok){ status.textContent = data.error || 'Fehler beim Speichern.'; return; }
     status.textContent = 'Hinzugefügt ✓';
     setTimeout(() => { status.textContent = ''; }, 2000);
     document.getElementById('tmName').value = '';
-    await loadTeam();
+    const startedOnboarding = document.getElementById('tmOnboarding').checked;
+    document.getElementById('tmOnboarding').checked = false;
+    if(startedOnboarding) await loadDashboard(); else await loadTeam();
   });
 
   function renderTeamCc(){
@@ -1616,7 +1589,6 @@
       renderStrategy(dashboardData.strategy, dashboardData.slug);
       renderWeeks(dashboardData.recentWeeks);
       renderProducts(dashboardData.specializedProducts);
-      renderTps(dashboardData.newTps);
       prefillForm(dashboardData.recentWeeks, dashboardData.currentWeekMonday);
       renderDays();
       prefillDay();

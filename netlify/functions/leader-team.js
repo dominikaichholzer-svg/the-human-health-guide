@@ -7,10 +7,15 @@
 // POST { action:"add", name, sponsor_id, rank }           -> Partnerin anlegen
 // POST { action:"update", id, name?, sponsor_id?, rank?, active? }
 // POST { action:"save-cc", month:"2026-11", entries:[{ id, cc }] }   (cc leer = löschen)
+// POST { action:"start-onboarding", id }                 -> Einarbeitungs-Checkliste für diese Partnerin
+// POST { action:"tp-step", id, step:"step_3", value }    -> Schritt der Checkliste abhaken
+//
+// Bei "add" startet { onboarding:true } gleich die Checkliste (Tabelle new_tps,
+// die auch JARVIS und die Kontakt-Quote lesen).
 
 const { pgrest } = require('./_lib/supabase');
 const { requireLeader, json } = require('./_lib/auth');
-const { MEMBER_RANKS, loadTeams } = require('./_lib/team');
+const { STEP_KEYS, MEMBER_RANKS, loadTeams } = require('./_lib/team');
 const { monthsBack, viennaTodayStr } = require('./_lib/ranks');
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -21,7 +26,13 @@ function cleanName(n) {
 }
 
 async function ownMembers(leaderId) {
-  return (await pgrest('team_members', { query: `leader_id=eq.${leaderId}&select=id,sponsor_id` })) || [];
+  return (await pgrest('team_members', { query: `leader_id=eq.${leaderId}&select=id,sponsor_id,name` })) || [];
+}
+
+async function startOnboarding(leaderId, member) {
+  const existing = await pgrest('new_tps', { query: `member_id=eq.${member.id}&select=id` });
+  if (existing && existing.length) return;
+  await pgrest('new_tps', { method: 'POST', body: [{ leader_id: leaderId, tp_name: member.name, member_id: member.id }] });
 }
 
 // true, wenn sponsorId gültig ist (null oder eigene Partnerin) und keinen Kreis erzeugt
@@ -70,8 +81,13 @@ exports.handler = async function (event) {
       const members = await ownMembers(leaderId);
       if (members.length >= 500) return json(400, { error: 'Zu viele Einträge.' });
       if (!sponsorOk(members, null, sponsorId)) return json(400, { error: 'Diese Sponsorin gehört nicht zu deinem Team.' });
-      await pgrest('team_members', { method: 'POST', body: [{ leader_id: leaderId, name, sponsor_id: sponsorId, rank }] });
-      return json(200, { ok: true });
+      const created = await pgrest('team_members', {
+        method: 'POST',
+        prefer: 'return=representation',
+        body: [{ leader_id: leaderId, name, sponsor_id: sponsorId, rank }],
+      });
+      if (p.onboarding && created && created[0]) await startOnboarding(leaderId, created[0]);
+      return json(200, { ok: true, id: created && created[0] ? created[0].id : null });
     }
 
     if (p.action === 'update') {
@@ -94,6 +110,25 @@ exports.handler = async function (event) {
         patch.sponsor_id = sponsorId;
       }
       await pgrest('team_members', { method: 'PATCH', query: `id=eq.${p.id}&leader_id=eq.${leaderId}`, body: patch });
+      if (patch.name) {
+        // Name auch in der Checkliste nachziehen (JARVIS liest ihn dort)
+        try {
+          await pgrest('new_tps', { method: 'PATCH', query: `member_id=eq.${p.id}&leader_id=eq.${leaderId}`, body: { tp_name: patch.name } });
+        } catch (e) { /* Checkliste noch nicht verknüpft */ }
+      }
+      return json(200, { ok: true });
+    }
+
+    if (p.action === 'start-onboarding' || p.action === 'tp-step') {
+      if (!p.id || !UUID.test(p.id)) return json(400, { error: 'id fehlt' });
+      const member = (await ownMembers(leaderId)).find((m) => m.id === p.id);
+      if (!member) return json(404, { error: 'Nicht gefunden' });
+      if (p.action === 'start-onboarding') {
+        await startOnboarding(leaderId, member);
+        return json(200, { ok: true });
+      }
+      if (!STEP_KEYS.includes(p.step)) return json(400, { error: 'Ungültiger Schritt' });
+      await pgrest('new_tps', { method: 'PATCH', query: `member_id=eq.${p.id}&leader_id=eq.${leaderId}`, body: { [p.step]: !!p.value } });
       return json(200, { ok: true });
     }
 

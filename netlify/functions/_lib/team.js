@@ -13,6 +13,7 @@ const { THRESHOLDS, monthsBack, viennaTodayStr } = require('./ranks');
 const MEMBER_RANKS = ['partner', 'supervisor', 'assistant_manager', 'manager', 'eagle_manager'];
 const NEXT_RANK = { partner: 'supervisor', supervisor: 'assistant_manager', assistant_manager: 'manager', manager: 'eagle_manager' };
 const HISTORY_MONTHS = 6;
+const STEP_KEYS = ['step_1', 'step_2', 'step_3', 'step_4', 'step_5', 'step_6', 'step_7'];
 
 function ccMonthKey(todayStr) {
   const day = Number(todayStr.slice(8, 10));
@@ -51,6 +52,20 @@ async function loadTeams(leaderIds, todayStr) {
       query: `member_id=in.(${ids.join(',')})&month=gte.${months[0]}-01&select=member_id,month,cc`,
     });
   }
+  // Einarbeitungs-Checkliste (new_tps, verknüpft über member_id; Spalte aus
+  // supabase/team-onboarding.sql). Fehlt sie noch, ohne Checklisten.
+  const tpBy = {};
+  if (ids.length) {
+    try {
+      const tps = await pgrest('new_tps', {
+        query: `member_id=in.(${ids.join(',')})&select=id,member_id,${STEP_KEYS.join(',')}`,
+      });
+      for (const t of tps || []) {
+        const steps = STEP_KEYS.map((k) => !!t[k]);
+        tpBy[t.member_id] = { tpId: t.id, steps, done: steps.filter(Boolean).length };
+      }
+    } catch (e) { /* noch nicht eingerichtet */ }
+  }
   const ccBy = {};
   for (const r of ccRows || []) {
     (ccBy[r.member_id] = ccBy[r.member_id] || {})[String(r.month).slice(0, 7)] = Number(r.cc);
@@ -65,6 +80,7 @@ async function loadTeams(leaderIds, todayStr) {
       active: m.active,
       cc,
       progress: memberProgress(m.rank, cc, ccMonth),
+      onboarding: tpBy[m.id] || null,
     };
     const bucket = byLeader[m.leader_id];
     if (!bucket) continue;
@@ -76,4 +92,4 @@ async function loadTeams(leaderIds, todayStr) {
   return { ccMonth, months, byLeader };
 }
 
-module.exports = { MEMBER_RANKS, NEXT_RANK, ccMonthKey, memberProgress, loadTeams };
+module.exports = { STEP_KEYS, MEMBER_RANKS, NEXT_RANK, ccMonthKey, memberProgress, loadTeams };
