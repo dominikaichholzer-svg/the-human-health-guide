@@ -11,6 +11,7 @@ const { requireLeader } = require('./_lib/auth');
 const { computeProgress, viennaTodayStr } = require('./_lib/ranks');
 const { planWindow } = require('./_lib/plan');
 const { leaderChallenge } = require('./_lib/challenge');
+const { monthMetrics, evaluate, publicPin } = require('./_lib/pins');
 
 exports.handler = async function (event) {
   if (event.httpMethod !== 'GET') {
@@ -95,11 +96,29 @@ exports.handler = async function (event) {
       challenge = await leaderChallenge(leader.id, viennaTodayStr());
     } catch (e) { challenge = null; }
 
+    // Leadership-Pins (supabase/pins.sql): Sammlung, neuer Pin, Fortschritt im laufenden Monat
+    let pins = null;
+    try {
+      const rows = await pgrest('leader_pins', { query: `leader_id=eq.${leader.id}&order=month.desc&select=*` });
+      const history = (rows || []).map(publicPin);
+      const unseen = (rows || []).filter((r) => !r.seen_at);
+      if (unseen.length) {
+        await pgrest('leader_pins', { method: 'PATCH', query: `leader_id=eq.${leader.id}&seen_at=is.null`, body: { seen_at: new Date().toISOString() } });
+      }
+      const ev = evaluate(await monthMetrics(leader.id, viennaTodayStr().slice(0, 7)));
+      pins = {
+        history,
+        newPin: unseen.length ? publicPin(unseen.sort((a, b) => String(b.month).localeCompare(String(a.month)))[0]) : null,
+        progress: ev.results.map((r) => ({ key: r.key, emoji: r.emoji, label: r.label, rule: r.rule, ok: r.ok, value: r.value, target: r.target })),
+      };
+    } catch (e) { pins = null; }
+
     return {
       statusCode: 200,
       body: JSON.stringify({
         name: leader.name,
         challenge,
+        pins,
         slug: leader.slug || null,
         currentRank: leader.current_rank,
         visionImageUrl: leader.vision_image_url || null,

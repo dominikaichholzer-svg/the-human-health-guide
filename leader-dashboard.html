@@ -183,6 +183,20 @@
   .tm-edit-btn{ background:none; border:none; color: var(--gold); font-size:12px; cursor:pointer; padding:0; font-family: var(--sans); }
   .tm-edit{ margin-top:10px; padding-top:10px; border-top:1px solid var(--hairline); }
   .tm-edit .btn{ padding:10px 14px; font-size:13px; }
+  .pin-new{ text-align:center; background: var(--gold-dim); border:1px solid var(--gold); border-radius:14px; padding:16px; margin-bottom:14px; }
+  .pin-new .pe{ font-size:44px; line-height:1; }
+  .pin-new .pl{ font-family: var(--serif); font-size:20px; margin:6px 0 2px; }
+  .pin-new .pm{ font-family: var(--mono); font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color: var(--gold); }
+  .pin-new .pn{ font-size:13.5px; line-height:1.5; margin-top:10px; font-style:italic; }
+  .pin-gallery{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
+  .pin-chip{ border:1px solid var(--hairline); border-radius:12px; padding:8px 10px; text-align:center; min-width:84px; flex:1 1 84px; max-width:120px; }
+  .pin-chip .pe{ font-size:24px; }
+  .pin-chip .pl{ font-size:11.5px; line-height:1.3; margin-top:3px; }
+  .pin-chip .pm{ font-size:10px; color: var(--ink-muted); margin-top:2px; }
+  .pin-prog{ display:flex; align-items:center; gap:8px; font-size:12.5px; margin:6px 0; color: var(--ink-muted); }
+  .pin-prog.ok{ color: var(--ink); }
+  .pin-prog .bar{ flex:0 0 70px; height:5px; border-radius:3px; background: rgba(255,255,255,0.06); overflow:hidden; }
+  .pin-prog .bar span{ display:block; height:100%; background: linear-gradient(90deg, var(--gold), var(--gold-light)); }
   .ch-week{ font-family: var(--mono); font-size:10.5px; letter-spacing:0.12em; text-transform:uppercase; color: var(--gold); margin: -6px 0 12px; }
   .ch-label{ font-family: var(--mono); font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color: var(--ink-muted); margin: 14px 0 6px; }
   .ch-text{ font-size:14px; line-height:1.55; color: var(--ink); margin:0; }
@@ -438,6 +452,11 @@
     <section class="card" id="challengeCard" hidden>
       <h2 class="card-title">Leadership-Challenge</h2>
       <div id="challengeContent"></div>
+    </section>
+
+    <section class="card" id="pinsCard" hidden>
+      <h2 class="card-title">Deine Leadership-Pins</h2>
+      <div id="pinsContent"></div>
     </section>
 
     <section class="card" id="progressCard">
@@ -1125,6 +1144,39 @@
     }
   });
 
+  // ============ Leadership-Pins ============
+  const PIN_MONTH_NAMES = ['Jänner','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  const pinMonth = (k) => PIN_MONTH_NAMES[Number(k.slice(5, 7)) - 1] + ' ' + k.slice(0, 4);
+  let pinCelebrated = false;
+  let lastNewPin = null; // bleibt in dieser Sitzung oben stehen, auch nach dem Neuladen der Daten
+  function renderPins(p){
+    const card = document.getElementById('pinsCard');
+    if(!p){ card.hidden = true; return; }
+    card.hidden = false;
+    let html = '';
+    if(p.newPin){
+      html += `<div class="pin-new"><div class="pm">Neu · ${pinMonth(p.newPin.month)}</div><div class="pe">${p.newPin.emoji}</div><div class="pl">${escHtml(p.newPin.label)}</div>
+        ${p.newPin.reason ? `<div class="progress-sub" style="font-size:13px;">${escHtml(p.newPin.reason)}</div>` : ''}
+        ${p.newPin.note ? `<div class="pn">„${escHtml(p.newPin.note)}" · Dominik</div>` : ''}</div>`;
+    }
+    const older = p.history.filter(h => !p.newPin || h.month !== p.newPin.month);
+    if(older.length){
+      html += `<div class="pin-gallery">${older.map(h => `<div class="pin-chip" title="${escHtml((h.reason || '') + (h.note ? ' · ' + h.note : ''))}"><div class="pe">${h.emoji}</div><div class="pl">${escHtml(h.label)}</div><div class="pm">${pinMonth(h.month)}</div></div>`).join('')}</div>`;
+    } else if(!p.newPin){
+      html += `<p class="progress-sub" style="font-size:13.5px;">Jeden Monat vergibt Dominik dir einen Leadership-Pin für das, was du besonders gut gemacht hast. Er bleibt in deiner Sammlung.</p>`;
+    }
+    html += `<div class="ch-label">Dein Weg diesen Monat</div>` + p.progress.map(r => {
+      const pct = r.ok ? 100 : (r.target ? Math.min(100, Math.round((Number(r.value) || 0) / r.target * 100)) : 0);
+      const val = r.target != null ? `${fmtCc(Number(r.value) || 0)}/${fmtCc(r.target)}` : '';
+      return `<div class="pin-prog ${r.ok ? 'ok' : ''}" title="${escHtml(r.rule)}"><span style="flex:1;">${r.emoji} ${escHtml(r.label)}${r.ok ? ' ✓' : ''}</span><span>${val}</span><span class="bar"><span style="width:${pct}%"></span></span></div>`;
+    }).join('');
+    document.getElementById('pinsContent').innerHTML = html;
+    if(p.newPin && !pinCelebrated){
+      pinCelebrated = true;
+      setTimeout(() => celebrate(`Neuer Pin: ${p.newPin.label}`), 600);
+    }
+  }
+
   function renderNugget(){
     const start = new Date(new Date().getFullYear(), 0, 0);
     const dayOfYear = Math.floor((new Date() - start) / 86400000);
@@ -1667,6 +1719,8 @@
       renderXmas(dashboardData.slug);
       renderNugget();
       renderChallenge(dashboardData.challenge);
+      if(dashboardData.pins && dashboardData.pins.newPin) lastNewPin = dashboardData.pins.newPin;
+      renderPins(dashboardData.pins ? { ...dashboardData.pins, newPin: lastNewPin } : null);
       renderQuota(dashboardData.recentWeeks, dashboardData.newTps);
       renderStrategy(dashboardData.strategy, dashboardData.slug);
       renderWeeks(dashboardData.recentWeeks);

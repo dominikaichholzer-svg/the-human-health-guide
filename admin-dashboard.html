@@ -66,6 +66,14 @@
   .ch-wk label{ display:block; font-family: var(--mono); font-size:10px; letter-spacing:0.06em; text-transform:uppercase; color: var(--ink-muted); margin: 12px 0 5px; }
   .ch-wk textarea{ min-height: 70px; font-size: 13.5px; }
   .ch-ans{ font-size:12.5px; line-height:1.5; color: var(--ink-muted); margin: 6px 0; padding-left:10px; border-left:2px solid var(--hairline); }
+  .pin-leader{ border:1px solid var(--hairline); border-radius:12px; padding:12px 14px; margin-bottom:10px; }
+  .pin-leader h3{ font-family: var(--serif); font-weight:400; font-size:16px; margin:0 0 6px; }
+  .pin-opt{ display:flex; align-items:flex-start; gap:8px; font-size:13px; line-height:1.45; margin:6px 0; cursor:pointer; color: var(--ink-muted); }
+  .pin-opt.ok{ color: var(--ink); }
+  .pin-opt input{ margin-top:3px; accent-color: var(--gold); }
+  .pin-opt .pv{ font-family: var(--mono); font-size:11px; color: var(--gold); white-space:nowrap; }
+  .pin-awarded{ font-size:13px; background: var(--gold-dim); border-radius:10px; padding:8px 10px; margin:6px 0 8px; }
+  .pin-leader textarea{ min-height:56px; font-size:13px; margin-top:6px; }
   .more-box{ margin-top:12px; border-top:1px solid var(--hairline); padding-top:10px; }
   .more-box summary{ cursor:pointer; font-weight:700; font-size:13px; color: var(--gold); }
   .week-entry{ margin-top:10px; padding-top:8px; border-top:1px dashed var(--hairline); }
@@ -175,6 +183,13 @@
       <div id="chAdminWarn" class="card-sub" style="color:var(--error);" hidden></div>
       <div id="chAdminWeeks"></div>
       <button type="button" class="btn" id="chShowAll" style="background:none; box-shadow:none; color:var(--gold); border:1px solid var(--hairline); padding:10px; font-size:13px;">Alle 52 Wochen anzeigen</button>
+    </section>
+
+    <section class="card" id="pinsAdminCard" hidden>
+      <h2 class="card-title">Leadership-Pins</h2>
+      <p class="card-sub">Pro Leaderin und Monat ein Pin. Das System schlägt den ersten erfüllten vor, du entscheidest. Jede sieht nur ihre eigenen Pins.</p>
+      <select id="pinMonth" style="width:100%; padding:10px 12px; border-radius:10px; background: rgba(255,255,255,0.04); border:1.5px solid var(--hairline); color: var(--ink); font-family: var(--sans); font-size:14px; margin-bottom:12px;"></select>
+      <div id="pinLeaders"></div>
     </section>
 
     <section class="card">
@@ -443,6 +458,62 @@
     finally { btn.disabled = false; }
   });
 
+  // ============ Leadership-Pins ============
+  let pinData = null;
+  const PIN_MONTHS = ['Jänner','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  const pinMonthLabel = (k) => PIN_MONTHS[Number(k.slice(5, 7)) - 1] + ' ' + k.slice(0, 4);
+  async function loadPinsAdmin(month){
+    try {
+      const qs = new URLSearchParams();
+      if(adminKey) qs.set('key', adminKey);
+      if(month) qs.set('month', month);
+      const res = await fetch('/.netlify/functions/admin-pins?' + qs.toString(), { credentials: 'same-origin' });
+      if(!res.ok) return;
+      pinData = await res.json();
+      renderPinsAdmin();
+    } catch(e){}
+  }
+  function renderPinsAdmin(){
+    document.getElementById('pinsAdminCard').hidden = false;
+    const sel = document.getElementById('pinMonth');
+    sel.innerHTML = pinData.months.map((k, i) => `<option value="${k}" ${k === pinData.month ? 'selected' : ''}>${pinMonthLabel(k)}${i === 0 ? ' (läuft, nur Vorschau)' : ''}</option>`).join('');
+    const preview = pinData.isCurrentMonth;
+    document.getElementById('pinLeaders').innerHTML = pinData.leaders.map(l => {
+      const chosen = l.awarded ? l.awarded.key : (l.proposal || '');
+      const opts = l.pins.map(p => {
+        const prog = p.target != null ? `${typeof p.value === 'number' ? p.value.toLocaleString('de-AT', { maximumFractionDigits: 3 }) : p.value}/${p.target.toLocaleString('de-AT', { maximumFractionDigits: 3 })}` : (p.value ? String(p.value) : '–');
+        return `<label class="pin-opt ${p.ok ? 'ok' : ''}"><input type="radio" name="pin_${l.id}" value="${p.key}" ${p.key === chosen ? 'checked' : ''} ${preview ? 'disabled' : ''}>
+          <span>${p.emoji} <b>${esc(p.label)}</b> ${p.ok ? '✓' : ''}${l.proposal === p.key ? ' <i>(Vorschlag)</i>' : ''}<br><small>${esc(p.reason || p.rule)}</small></span><span class="pv">${prog}</span></label>`;
+      }).join('') + `<label class="pin-opt"><input type="radio" name="pin_${l.id}" value="" ${chosen === '' ? 'checked' : ''} ${preview ? 'disabled' : ''}><span>Keinen Pin diesen Monat</span></label>`;
+      const aw = l.awarded ? `<div class="pin-awarded">Vergeben: ${l.awarded.emoji} <b>${esc(l.awarded.label)}</b>${l.awarded.reason ? ' · ' + esc(l.awarded.reason) : ''}${l.awarded.seen ? ' · gesehen ✓' : ' · noch nicht gesehen'}</div>` : '';
+      return `<div class="pin-leader" data-pl="${l.id}"><h3>${esc(l.name)}</h3>${aw}${opts}
+        ${preview ? '' : `<textarea data-pnote="${l.id}" placeholder="Deine persönlichen Worte dazu (sieht nur sie)">${l.awarded && l.awarded.note ? esc(l.awarded.note).replace(/<br>/g, '\n') : ''}</textarea>
+        <button type="button" class="btn" data-paward="${l.id}" style="padding:10px; font-size:13.5px;">${l.awarded ? 'Änderung speichern' : 'Pin vergeben'}</button>
+        <p class="card-sub" data-pstatus="${l.id}" style="text-align:center; margin-top:6px;"></p>`}
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('pinMonth').addEventListener('change', e => loadPinsAdmin(e.target.value));
+  document.getElementById('pinLeaders').addEventListener('click', async e => {
+    const btn = e.target.closest('[data-paward]');
+    if(!btn) return;
+    const id = btn.dataset.paward;
+    const picked = document.querySelector(`input[name="pin_${id}"]:checked`);
+    btn.disabled = true;
+    try {
+      const res = await fetch('/.netlify/functions/admin-pins', {
+        method: 'POST', credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: adminKey, leader_id: id, month: pinData.month, pin_key: picked ? picked.value || null : null, note: document.querySelector(`[data-pnote="${id}"]`).value }),
+      });
+      const d = await res.json().catch(() => ({}));
+      if(!res.ok){ document.querySelector(`[data-pstatus="${id}"]`).textContent = d.error || 'Fehler beim Speichern.'; return; }
+      await loadPinsAdmin(pinData.month);
+      const st = document.querySelector(`[data-pstatus="${id}"]`);
+      if(st){ st.textContent = 'Gespeichert ✓'; setTimeout(() => { st.textContent = ''; }, 2500); }
+    } finally { btn.disabled = false; }
+  });
+
   function plansHtml(plans){
     const MONTHS = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
     const n = (v) => Number(v).toLocaleString('de-AT', { maximumFractionDigits: 3 });
@@ -495,6 +566,7 @@
       }
       overviewData = await res.json();
       loadChallengeAdmin();
+      loadPinsAdmin();
 
       document.getElementById('leaderGrid').innerHTML = overviewData.leaders.map(leaderCardHtml).join('');
       renderDryAlert(overviewData.leaders);
