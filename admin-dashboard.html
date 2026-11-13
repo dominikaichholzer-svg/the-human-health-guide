@@ -713,7 +713,8 @@
     const teamSig = l.team ? l.team.members.reduce((a, m) => a + (m.signals || []).length, 0) : 0;
     const sigCount = (l.signals || []).length + teamSig;
     const status = sigCount ? `<span class="chip chip-amber">⚠️ ${sigCount} Hinweis${sigCount === 1 ? '' : 'e'}</span>` : `<span class="chip chip-green">Alles im Plan</span>`;
-    const next = l.progress && l.progress.nextRank ? RANK_LABELS[l.progress.nextRank] || l.progress.nextRank : null;
+    // Das große Ziel: Manager (bis 30.04.2027), danach Eagle Manager
+    const next = { supervisor: 'Manager', assistant_manager: 'Manager', manager: 'Eagle Manager' }[l.currentRank] || null;
     const active = l.team ? l.team.members.filter(m => m.active).length : 0;
     return `<div class="mv-card ${selectedLeaderId === l.id ? 'active' : ''}">
       <div>${CROWN}</div>

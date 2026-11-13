@@ -227,6 +227,8 @@
   .pin-prog.ok{ color: var(--ink); }
   .pin-prog .bar{ flex:0 0 70px; height:5px; border-radius:3px; background: rgba(255,255,255,0.06); overflow:hidden; }
   .pin-prog .bar span{ display:block; height:100%; background: linear-gradient(90deg, var(--green), var(--green-light)); }
+  .ch-streak{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; font-size:12.5px; font-weight:600; color: var(--gold-light); margin:-4px 0 12px; }
+  .ch-flames{ font-size:16px; letter-spacing:1px; }
   .ch-chip{ margin-left:auto; font-size:11px; font-weight:700; letter-spacing:0.06em; color: var(--gold-light); background: var(--gold-dim); border:1px solid rgba(212,175,106,0.3); border-radius:8px; padding:4px 8px; text-transform:none; }
   .ch-headline{ font-size:21px; font-weight:700; letter-spacing:-0.01em; margin:2px 0 10px; line-height:1.25; }
   .ch-week{ font-family: var(--mono); font-size:10.5px; letter-spacing:0.12em; text-transform:uppercase; color: var(--gold); margin: -6px 0 12px; }
@@ -510,7 +512,7 @@
     </section>
 
     <section class="card" id="challengeCard" hidden>
-      <h2 class="card-title">52 Wochen Leadership <span class="ch-chip" id="chChip" hidden></span></h2>
+      <h2 class="card-title">Wöchentliche Leadership-Challenge</h2>
       <div id="challengeContent"></div>
     </section>
 
@@ -1191,10 +1193,12 @@
       el.innerHTML = `<p class="ch-text">Geschafft: 52 Wochen Leadership-Challenge. Du hast <b>${ch.doneCount}</b> Wochenaufgaben erledigt.</p>`;
       return;
     }
-    const chip = document.getElementById('chChip');
-    chip.hidden = false;
-    chip.textContent = 'Woche ' + String(ch.weekNo).padStart(2, '0');
-    let html = `<div class="ch-week">${ch.doneCount} von ${ch.weeks} Aufgaben erledigt</div>`;
+    // Serie mit Flammen: eine Flamme pro Woche in Folge, bei einer verpassten Woche wieder 0
+    const streak = ch.streak || 0;
+    const flames = streak ? '🔥'.repeat(Math.min(streak, 12)) + (streak > 12 ? ` <b>×${streak}</b>` : '') : '';
+    let html = `<div class="ch-streak">${streak
+      ? `<span class="ch-flames">${flames}</span><span>${streak} ${streak === 1 ? 'Woche' : 'Wochen'} in Folge</span>`
+      : `<span>Starte deine Serie: erledige die Aufgabe dieser Woche.</span>`}</div>`;
     const c = ch.content;
     // Erster Satz des Impulses als Überschrift, der Rest darunter
     let impulsRest = c && c.impuls ? c.impuls : '';
