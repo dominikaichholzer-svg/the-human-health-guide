@@ -229,6 +229,11 @@
   .pin-prog .bar span{ display:block; height:100%; background: linear-gradient(90deg, var(--green), var(--green-light)); }
   .ch-streak{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; font-size:12.5px; font-weight:600; color: var(--gold-light); margin:-4px 0 12px; }
   .ch-flames{ font-size:16px; letter-spacing:1px; }
+  .gr-l{ font-size:11.5px; font-weight:700; letter-spacing:0.07em; text-transform:uppercase; color: var(--ink-muted); margin:0 0 6px; }
+  .gr-list{ margin:0 0 14px; padding:0; list-style:none; }
+  .gr-list li{ position:relative; padding:5px 0 5px 22px; font-size:14px; line-height:1.45; }
+  .gr-list li::before{ content:'✓'; position:absolute; left:0; top:5px; color: var(--green-light); font-weight:800; }
+  .gr-step{ background: var(--green-dim); border:1px solid rgba(34,197,94,0.3); border-radius:12px; padding:12px 14px; font-size:14px; line-height:1.5; }
   .ch-chip{ margin-left:auto; font-size:11px; font-weight:700; letter-spacing:0.06em; color: var(--gold-light); background: var(--gold-dim); border:1px solid rgba(212,175,106,0.3); border-radius:8px; padding:4px 8px; text-transform:none; }
   .ch-headline{ font-size:21px; font-weight:700; letter-spacing:-0.01em; margin:2px 0 10px; line-height:1.25; }
   .ch-week{ font-family: var(--mono); font-size:10.5px; letter-spacing:0.12em; text-transform:uppercase; color: var(--gold); margin: -6px 0 12px; }
@@ -532,6 +537,11 @@
       <div id="challengeContent"></div>
     </section>
 
+
+    <section class="card" id="growthCard" hidden>
+      <h2 class="card-title">Dein Wachstum</h2>
+      <div id="growthContent"></div>
+    </section>
 
     <section class="card" id="progressCard">
       <h2 class="card-title">Rang-Fortschritt</h2>
@@ -1311,6 +1321,21 @@
     }
   }
 
+  // ============ Dein Wachstum (JARVIS-Entwicklungsprofil, Sicht der Leaderin) ============
+  function renderGrowth(g){
+    const card = document.getElementById('growthCard');
+    if(!g){ card.hidden = true; return; }
+    card.hidden = false;
+    document.getElementById('growthContent').innerHTML = `
+      <div class="gr-l">Deine Stärken</div>
+      <ul class="gr-list">${(g.staerken || []).map(x => `<li>${escHtml(x)}</li>`).join('')}</ul>
+      <div class="gr-l">Dein nächster Wachstumsschritt</div>
+      <div class="gr-step">${escHtml(g.naechster_schritt)}</div>
+      <button type="button" class="btn ch-done-btn" id="growthAsk" style="margin-top:12px;">Mit JARVIS daran arbeiten</button>
+      <p class="progress-sub" style="font-size:11.5px; margin-top:8px;">JARVIS aktualisiert das jeden Sonntag aus deinen Einträgen.</p>`;
+    document.getElementById('growthAsk').addEventListener('click', () => askJarvis({ message: `Mein nächster Wachstumsschritt ist: ${g.naechster_schritt} Hilf mir, das diese Woche konkret umzusetzen.` }, 'Hilf mir bei meinem nächsten Wachstumsschritt'));
+  }
+
   // ============ Cockpit (Startseite) ============
   const CROWN_SVG = '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="ckg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF1C4"/><stop offset="1" stop-color="#C9973F"/></linearGradient></defs><path d="M3 18 L2 7 L7.5 11.5 L12 4 L16.5 11.5 L22 7 L21 18 Z" fill="url(#ckg)"/><rect x="3" y="19" width="18" height="2.6" rx="1" fill="url(#ckg)"/></svg>';
   function viennaHour(){
@@ -1956,6 +1981,7 @@
       renderXmas(dashboardData.slug);
       renderNugget();
       renderCockpit(dashboardData);
+      renderGrowth(dashboardData.growth);
       renderChallenge(dashboardData.challenge);
       if(dashboardData.pins && dashboardData.pins.newPin) lastNewPin = dashboardData.pins.newPin;
       renderPins(dashboardData.pins ? { ...dashboardData.pins, newPin: lastNewPin } : null);

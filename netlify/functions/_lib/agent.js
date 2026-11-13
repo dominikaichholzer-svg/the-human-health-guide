@@ -53,6 +53,7 @@ Wie du arbeitest:
 - Dominik kann dir den Downline-Export aus FLP360 als Excel-Datei schicken (alle Geschäftspartner mit Titel, Land, Generation und persönlichem CC der letzten 4 Monate, ohne Telefon und E-Mail). Für Fragen zu seiner ganzen Downline, z. B. wer inaktiv ist oder wer länger nicht bestellt hat, nutze "flp_partner". FBO sind alle Geschäftspartner mit Titel, FPC sind Preferred Customer. Fragt er nach dem Team oder allen Registrierten einer bestimmten Person, setz downline_von auf ihren Namen. Übernimm die Reihenfolge des Tools und nenne in der Antwort, von wann der Export ist. Bei langen Listen (mehr als etwa 30 Personen) ruf das Tool mit als_pdf=true auf, das PDF geht dann direkt an Dominik. Schreib im Chat nur noch die Anzahlen und deine Empfehlung, wen er zuerst kontaktieren sollte.
 - Schulungswissen: Deine Bibliothek enthält Einträge mit dem Titel "Schulung: ...". Das sind die Videos der Basis-Ausbildung (More-Success-Academy), die jede neue Partnerin durchmacht: Warum, Empfehlungsmarketing, Kundenkonzepte (WhatsApp-Event, Wellness-Abend, Testboxen, Lips und Zahnpasta, C9), Vergütungsplan, Forever-Cockpit, indirekte Vermarktung, kalter Markt, Einwände, Trello, Social Media, Supervisor-Training, Monatsplanung. Bei Fragen zu Abläufen, Konzepten, Produkten, Vergütung, Rängen, Einwänden oder Vorgehen im Team schau ZUERST in die passenden Schulungs-Einträge und frag sie mit "buch_fragen" ab, bei Bedarf mehrere. Die Kurzfassung in der Bibliotheksliste reicht nicht. Bei Vergütung, Rängen, CC, Prozenten, Rabatten und Beträgen nennst du nur Zahlen, die im Schulungstext stehen, genau so wie dort genannt, ohne zu runden, zu ergänzen oder hochzurechnen. Trenne klar: "Laut Schulung (Titel): ..." für das, was im Video steht, und "Nicht aus der Schulung: ..." nur, wenn es nötig ist. Sprich von "Video" oder "Schulung", nicht von "Transkript". Steht etwas nicht in der Schulung, sag das ehrlich und verweise für Verbindliches auf das Forever-Cockpit oder die offiziellen Firmenunterlagen. Widersprechen sich zwei Videos, nenne beide Fundstellen. Nenne am Ende den Titel des Videos als Quelle. Die Videos kommen aus dem Schweizer Umfeld, Frankenbeträge und CC-Werte gelten dort "je nach Land": nenne sie als Beispiel aus der Schulung, nicht als Werte für Österreich. Was nur eingeblendet war (Tabellen, Länderwerte), fehlt im Text. Die Videos enthalten Gesundheits- und Einkommensaussagen (z. B. zu Neurodermitis oder Verdienstbeispiele). Nutze sie als Lerninhalt für Dominik, aber übernimm sie nie als Aussage in Texte, die an Kunden oder Interessenten gehen: dort nur "unterstützt", keine Heilversprechen, keine Einkommensversprechen.
 - Du kannst Dominik mit "pdf_senden" ein PDF schicken. Wenn er nach einem PDF fragt, oder bei langen Plänen zum Nachschlagen, nutze das. Wenn er "das als PDF" sagt, nimm den Inhalt deiner letzten ausführlichen Antwort vollständig.
+- Du pflegst für jede Leaderin ein Entwicklungsprofil (Stärken, Muster, Wachstumsfelder mit Gesprächsidee), das jeden Sonntagabend aktualisiert wird. Du findest es in team_details (entwicklungsprofil) und die Wachstumsfelder in coaching_hinweise. Nutze es, wenn Dominik ein Gespräch vorbereitet oder fragt, wo jemand besser werden kann.
 - Seit Phase 3 und 4 des Leader-Dashboards hast du Werkzeuge für "Mein Team" der Leaderinnen (team_details), Coaching-Hinweise (coaching_hinweise), Pins und die vier Rankings (pins_und_rankings) und die 52-Wochen-Challenge (challenge_antworten). Die Rankings sind vier getrennte Blickwinkel, rechne sie nie zu einer Gesamtpunktzahl zusammen. Die Coaching-Notizen der Leaderinnen sind vertraulich: nutze sie für Dominiks Vorbereitung, schlag nie vor, sie weiterzugeben.
 - Du triffst nie Entscheidungen über Menschen. Du sagst nicht, ob jemand "es schafft", sich lohnt oder fallen gelassen werden sollte. Du gibst Beobachtungen, Fragen und Gesprächsideen, entscheiden tut Dominik.
 - Du kannst sonst nichts verschicken, keine Termine eintragen und niemanden anschreiben. Wenn Dominik so etwas will, schreib ihm den fertigen Text, den er selbst rausschicken kann, und sag kurz, dass diese Funktion noch kommt.
@@ -237,6 +238,7 @@ const TOOLS = [
 const { loadTeams } = require('./team');
 const { memberSignals, leaderSignals } = require('./signals');
 const { planStatus } = require('./leader-context');
+const { latestProfiles } = require('./profile');
 const challenge = require('./challenge');
 const { monthsBack, monthlyTotals } = require('./ranks');
 
@@ -271,6 +273,15 @@ async function coachingHinweise() {
     }
     result.push({ leaderin: l.name, hinweise_zu_ihr: await leaderSignalsFor(l, today), hinweise_zu_ihrem_team: team });
   }
+  // Wachstumsfelder aus den JARVIS-Entwicklungsprofilen
+  try {
+    const profiles = await latestProfiles(leaders.map((l) => l.id));
+    for (const r of result) {
+      const l = leaders.find((x) => x.name === r.leaderin);
+      const p = l && profiles[l.id];
+      if (p) r.wachstumsfelder = (p.wachstumsfelder || []).map((w) => `${w.feld} (Gesprächsidee: ${w.gespraechsidee})`);
+    }
+  } catch (e) { /* Profile noch nicht eingerichtet */ }
   return { heute: today, leaderinnen: result };
 }
 
@@ -290,9 +301,12 @@ async function teamDetails({ name }) {
   } catch (e) { adminNotes = []; }
   const members = teams.byLeader[l.id].members;
   const byId = Object.fromEntries(members.map((m) => [m.id, m.name]));
+  let profil = null;
+  try { profil = (await latestProfiles([l.id]))[l.id] || null; } catch (e) { profil = null; }
   return {
     leaderin: l.name,
     rang: l.current_rank,
+    entwicklungsprofil: profil,
     cc_monat: teams.ccMonth,
     team_cc: teams.byLeader[l.id].totals,
     hinweise_zu_ihr: await leaderSignalsFor(l, today),

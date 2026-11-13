@@ -94,6 +94,14 @@ async function buildLeaderContext(leader, todayStr) {
     lines.push(`Monatsabschluss ${String(a.month).slice(0, 7)}: Eigenverbrauch ${a.eigen_cc != null ? fmt(a.eigen_cc) + ' CC' : '–'}, Global gesamt ${a.global_cc != null ? fmt(a.global_cc) + ' CC' : '–'}, Partnerinnen mit mind. 4 CC: ${a.four_cc_count != null ? a.four_cc_count : '–'}.`);
   }
 
+  // JARVIS-Entwicklungsprofil: Stärken, nächster Schritt und Hinweise für den Chat (ohne Dominiks Teil)
+  const prof = (await safe(pgrest('leader_profiles', { query: `leader_id=eq.${leader.id}&order=created_at.desc&limit=1&select=data,created_at` }), [])) || [];
+  if (prof[0] && prof[0].data) {
+    const d = prof[0].data;
+    if (d.fuer_leaderin) lines.push(`Ihr Entwicklungsprofil (Stand ${String(prof[0].created_at).slice(0, 10)}): Stärken: ${(d.fuer_leaderin.staerken || []).join('; ')}. Nächster Wachstumsschritt: ${d.fuer_leaderin.naechster_schritt}.`);
+    if (d.chat_hinweise) lines.push(`So unterstützt du sie am besten: ${d.chat_hinweise}`);
+  }
+
   const teams = await safe(loadTeams([leader.id], today, { coaching: true }), null);
   const members = teams ? teams.byLeader[leader.id].members.filter((m) => m.active) : [];
   if (members.length) {

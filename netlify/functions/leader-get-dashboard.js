@@ -139,11 +139,21 @@ exports.handler = async function (event) {
       };
     } catch (e) { cockpit = null; }
 
+    // JARVIS-Entwicklungsprofil: nur die Sicht für die Leaderin (ohne Dominiks Teil)
+    let growth = null;
+    try {
+      const rows = await pgrest('leader_profiles', { query: `leader_id=eq.${leader.id}&order=created_at.desc&limit=1&select=data,created_at` });
+      if (rows && rows[0] && rows[0].data && rows[0].data.fuer_leaderin) {
+        growth = { ...rows[0].data.fuer_leaderin, stand: String(rows[0].created_at).slice(0, 10) };
+      }
+    } catch (e) { growth = null; }
+
     return {
       statusCode: 200,
       body: JSON.stringify({
         name: leader.name,
         cockpit,
+        growth,
         challenge,
         pins,
         slug: leader.slug || null,

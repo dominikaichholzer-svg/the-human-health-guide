@@ -128,6 +128,15 @@
   .rk-name small{ display:block; color: var(--ink-muted); font-size:11.5px; }
   .rk-val{ font-family: var(--mono); font-size:13px; color: var(--gold); white-space:nowrap; }
   .rk-row.none .rk-val, .rk-row.none .rk-name{ color: var(--ink-muted); }
+  .prof{ margin-top:12px; border:1px solid rgba(212,175,106,0.35); border-radius:12px; padding:12px 14px; background: radial-gradient(ellipse at 0% 0%, rgba(212,175,106,0.08), transparent 70%); }
+  .prof h4{ margin:0 0 4px; font-size:12px; font-weight:800; letter-spacing:0.08em; text-transform:uppercase; color: var(--gold-light); }
+  .prof .ps{ font-size:12.5px; color: var(--ink); line-height:1.5; margin:0 0 8px; }
+  .prof .pl{ font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color: var(--ink-muted); margin:10px 0 4px; }
+  .prof ul{ margin:0; padding-left:16px; font-size:12.5px; line-height:1.5; }
+  .prof .gf{ border-left:2px solid var(--amber); padding:2px 0 2px 9px; margin:6px 0; font-size:12.5px; line-height:1.5; }
+  .prof .gf i{ display:block; color: var(--gold-light); font-style:normal; }
+  .prof .pfoot{ display:flex; justify-content:space-between; align-items:center; margin-top:10px; font-size:11px; color: var(--ink-muted); }
+  .prof .pfoot button{ background:none; border:1px solid var(--hairline); color: var(--ink); border-radius:8px; padding:5px 9px; font-family: var(--sans); font-size:11.5px; cursor:pointer; }
   .sig{ font-size:12px; line-height:1.4; color:#F0B07A; background: rgba(226,104,90,0.10); border-left:2px solid #E2685A; border-radius:6px; padding:5px 8px; margin:6px 0; }
   .tm-detail{ font-size:12px; color: var(--ink-muted); line-height:1.5; margin:2px 0 8px; }
   .tm-detail i{ color: var(--ink); }
@@ -421,7 +430,7 @@
         <button class="btn save-products-btn" data-leader="${l.id}" type="button" style="padding:8px 14px; font-size:12px; width:auto;">Speichern</button>
         ${heatmapHtml(l.visitsByDay)}
         ${intakeHtml(l.intake)}
-        ${teamHtml(l.team)}${adminNotesHtml(l)}${plansHtml(l.monthlyPlans)}${weeksHtml(l.recentWeeks)}${daysHtml(l.recentDays)}
+        ${profileHtml(l)}${teamHtml(l.team)}${adminNotesHtml(l)}${plansHtml(l.monthlyPlans)}${weeksHtml(l.recentWeeks)}${daysHtml(l.recentDays)}
       </div>
     `;
   }
@@ -644,6 +653,35 @@
     const c = l.monthClose || {};
     return `<p class="lmeta">Monatsabschluss ${MONTHS[Number(k.slice(5, 7)) - 1]}: Eigenverbrauch <b>${n(c.eigenCc)}</b> · Global gesamt <b>${n(c.globalCc)}</b> · 4CC-Partnerinnen <b>${c.fourCc == null ? '–' : c.fourCc}</b></p>`;
   }
+
+  // JARVIS-Entwicklungsprofil (wöchentlich, baut auf dem letzten auf)
+  function profileHtml(l){
+    if(l.profile === undefined) return '';
+    const p = l.profile;
+    const btn = `<button type="button" data-prof="${l.id}">Jetzt neu analysieren</button>`;
+    if(!p) return `<div class="prof"><h4>JARVIS-Entwicklungsprofil</h4><p class="ps" style="color:var(--ink-muted)">Noch kein Profil. JARVIS erstellt es jeden Sonntagabend automatisch.</p><div class="pfoot"><span></span>${btn}</div></div>`;
+    const list = (a) => (a || []).map(x => `<li>${esc(x)}</li>`).join('');
+    return `<div class="prof"><h4>JARVIS-Entwicklungsprofil</h4>
+      <p class="ps">${esc(p.zusammenfassung)}</p>
+      ${p.staerken && p.staerken.length ? `<div class="pl">Stärken</div><ul>${list(p.staerken)}</ul>` : ''}
+      ${p.muster && p.muster.length ? `<div class="pl">Muster</div><ul>${list(p.muster)}</ul>` : ''}
+      ${p.wachstumsfelder && p.wachstumsfelder.length ? `<div class="pl">Wachstumsfelder</div>${p.wachstumsfelder.map(w => `<div class="gf"><b>${esc(w.feld)}</b><br>${esc(w.beobachtung)}<i>Gesprächsidee: ${esc(w.gespraechsidee)}</i></div>`).join('')}` : ''}
+      ${p.veraenderung ? `<div class="pl">Seit dem letzten Profil</div><p class="ps">${esc(p.veraenderung)}</p>` : ''}
+      ${p.fuer_leaderin ? `<div class="pl">Das sieht ${esc(l.name)}</div><p class="ps" style="color:var(--ink-muted)">${esc((p.fuer_leaderin.staerken || []).join(' · '))}<br><b style="color:var(--ink)">Nächster Schritt:</b> ${esc(p.fuer_leaderin.naechster_schritt)}</p>` : ''}
+      <div class="pfoot"><span>Stand ${p.stand ? p.stand.split('-').reverse().join('.') : ''}${p.datenlage && p.datenlage !== 'gut' ? ' · wenig Daten' : ''}</span>${btn}</div></div>`;
+  }
+  document.getElementById('leaderGrid').addEventListener('click', async e => {
+    const b = e.target.closest('[data-prof]');
+    if(!b) return;
+    b.disabled = true; b.textContent = 'JARVIS analysiert …';
+    try {
+      const res = await fetch('/.netlify/functions/admin-profile-refresh', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: adminKey, leader_id: b.dataset.prof }) });
+      if(!res.ok) throw new Error();
+      // Die Analyse läuft im Hintergrund (etwa 30 Sekunden), dann neu laden
+      setTimeout(async () => { await loadOverview(); }, 40000);
+      b.textContent = 'Läuft, in ca. 40 Sek. aktualisiert';
+    } catch(err){ b.disabled = false; b.textContent = 'Fehler, nochmal versuchen'; }
+  });
 
   // Deine eigenen Notizen zu einer Leaderin (sieht nur du)
   function adminNotesHtml(l){

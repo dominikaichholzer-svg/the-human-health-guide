@@ -17,7 +17,7 @@ const { transcribe } = require('./_lib/speech');
 const { sendMessage, sendTyping, downloadFile, agentSecret } = require('./_lib/telegram');
 
 const BRIEFING_PROMPT = `[Automatisch, jeden Morgen] Erstelle mein Morgen-Briefing. Schau dir mit deinen Tools das Team, die Coaching-Hinweise (coaching_hinweise) und die neuen Leads der letzten 24 Stunden an. Dann schreib mir kurz:
-- Wer aus dem Team heute meine Aufmerksamkeit braucht und warum (z. B. kein Eintrag seit über einer Woche, Zahlen eingebrochen, hat um Unterstützung gebeten, liegt hinter dem Monatsplan). Nimm die dringendsten Coaching-Hinweise zu den Leaderinnen und ihren Partnerinnen, höchstens 3, mit je einer Gesprächsidee
+- Wer aus dem Team heute meine Aufmerksamkeit braucht und warum (z. B. kein Eintrag seit über einer Woche, Zahlen eingebrochen, hat um Unterstützung gebeten, liegt hinter dem Monatsplan). Nimm die dringendsten Coaching-Hinweise zu den Leaderinnen und ihren Partnerinnen, höchstens 3, mit je einer Gesprächsidee. Montags nenn zusätzlich pro Leaderin in einem Satz das wichtigste Wachstumsfeld aus ihrem neuen Entwicklungsprofil
 - Wer gerade gut läuft und ein Lob verdient
 - Neue Leads, und welche davon heute nachgefasst werden sollten
 - Eine konkrete Sache, die ich heute tun sollte

@@ -28,6 +28,10 @@
 [functions."scheduled-plan-warning"]
   schedule = "0 8 * * *"
 
+# JARVIS-Entwicklungsprofile: Sonntag 19:00 UTC = 20:00 Wien (Winter) / 21:00 (Sommer)
+[functions."scheduled-leader-profiles"]
+  schedule = "0 19 * * 0"
+
 # Interne Dateien nicht öffentlich ausliefern (Quellcode der Funktionen,
 # Datenbank-Skripte, Übergabe-Dokumente, interne Skripte). Die Funktionen
 # selbst laufen weiter unter /.netlify/functions/ (mit Punkt).
