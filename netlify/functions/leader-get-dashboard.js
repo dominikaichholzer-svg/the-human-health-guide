@@ -10,6 +10,7 @@ const { pgrest } = require('./_lib/supabase');
 const { requireLeader } = require('./_lib/auth');
 const { computeProgress, viennaTodayStr } = require('./_lib/ranks');
 const { planWindow } = require('./_lib/plan');
+const { leaderChallenge } = require('./_lib/challenge');
 
 exports.handler = async function (event) {
   if (event.httpMethod !== 'GET') {
@@ -88,10 +89,17 @@ exports.handler = async function (event) {
       query: `leader_id=eq.${leader.id}&order=created_at.desc&select=id,tp_name,step_1,step_2,step_3,step_4,step_5,step_6,step_7`,
     });
 
+    // 52-Wochen-Challenge (supabase/challenge.sql). Fehlt die Tabelle, ohne.
+    let challenge = null;
+    try {
+      challenge = await leaderChallenge(leader.id, viennaTodayStr());
+    } catch (e) { challenge = null; }
+
     return {
       statusCode: 200,
       body: JSON.stringify({
         name: leader.name,
+        challenge,
         slug: leader.slug || null,
         currentRank: leader.current_rank,
         visionImageUrl: leader.vision_image_url || null,

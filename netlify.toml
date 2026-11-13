@@ -20,6 +20,10 @@
 [functions."scheduled-daily-reflection-push"]
   schedule = "0 17,18 * * *"
 
+# Leadership-Challenge: montags 07:00 UTC = 08:00 Wien (Winter) / 09:00 (Sommer)
+[functions."scheduled-challenge-push"]
+  schedule = "0 7 * * 1"
+
 # Interne Dateien nicht öffentlich ausliefern (Quellcode der Funktionen,
 # Datenbank-Skripte, Übergabe-Dokumente, interne Skripte). Die Funktionen
 # selbst laufen weiter unter /.netlify/functions/ (mit Punkt).

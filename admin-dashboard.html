@@ -59,6 +59,13 @@
   .lmeta{ font-size: 12px; color: var(--ink-muted); line-height:1.5; }
   .flag{ display:inline-block; margin-top:8px; font-size: 11px; font-weight:700; padding: 3px 9px; border-radius: 20px; background: rgba(226,104,90,0.15); color: var(--error); }
   .flag.ok{ background: var(--gold-dim); color: var(--gold); }
+  .ch-wk{ border:1px solid var(--hairline); border-radius:12px; padding:10px 13px; margin-bottom:8px; }
+  .ch-wk summary{ cursor:pointer; font-size:13.5px; font-weight:600; color: var(--ink); }
+  .ch-wk summary .st{ font-weight:400; color: var(--ink-muted); font-size:12px; }
+  .ch-wk.current{ border-color: var(--gold); }
+  .ch-wk label{ display:block; font-family: var(--mono); font-size:10px; letter-spacing:0.06em; text-transform:uppercase; color: var(--ink-muted); margin: 12px 0 5px; }
+  .ch-wk textarea{ min-height: 70px; font-size: 13.5px; }
+  .ch-ans{ font-size:12.5px; line-height:1.5; color: var(--ink-muted); margin: 6px 0; padding-left:10px; border-left:2px solid var(--hairline); }
   .more-box{ margin-top:12px; border-top:1px solid var(--hairline); padding-top:10px; }
   .more-box summary{ cursor:pointer; font-weight:700; font-size:13px; color: var(--gold); }
   .week-entry{ margin-top:10px; padding-top:8px; border-top:1px dashed var(--hairline); }
@@ -161,6 +168,14 @@
     </section>
 
     <div class="leader-grid" id="leaderGrid"></div>
+
+    <section class="card" id="challengeAdminCard" hidden>
+      <h2 class="card-title">Leadership-Challenge</h2>
+      <p class="card-sub" id="chAdminStatus"></p>
+      <div id="chAdminWarn" class="card-sub" style="color:var(--error);" hidden></div>
+      <div id="chAdminWeeks"></div>
+      <button type="button" class="btn" id="chShowAll" style="background:none; box-shadow:none; color:var(--gold); border:1px solid var(--hairline); padding:10px; font-size:13px;">Alle 52 Wochen anzeigen</button>
+    </section>
 
     <section class="card">
       <h2 class="card-title">Strategie für nächsten Monat</h2>
@@ -357,6 +372,77 @@
     return `<details class="more-box"><summary>${head}</summary><p class="lmeta">Team-CC ${trend}</p>${rows}</details>`;
   }
 
+  // ============ Leadership-Challenge (Editor) ============
+  let chData = null, chShowAll = false;
+  async function loadChallengeAdmin(){
+    try {
+      const res = await fetch('/.netlify/functions/admin-challenge' + (adminKey ? '?key=' + encodeURIComponent(adminKey) : ''), { credentials: 'same-origin' });
+      if(!res.ok) return;
+      chData = await res.json();
+      renderChallengeAdmin();
+    } catch(e){}
+  }
+  function renderChallengeAdmin(){
+    const card = document.getElementById('challengeAdminCard');
+    card.hidden = false;
+    const cw = chData.currentWeek;
+    const d = (iso) => new Date(iso + 'T00:00:00').toLocaleDateString('de-AT', { day:'2-digit', month:'2-digit', year:'numeric' });
+    document.getElementById('chAdminStatus').textContent = cw === 0
+      ? `Start am Montag, ${d(chData.startDate)}. Leaderinnen sehen eine Woche erst ab ihrem Montag.`
+      : cw > 52 ? 'Die 52 Wochen sind vorbei.' : `Woche ${cw} von 52 läuft. Leaderinnen sehen eine Woche erst ab ihrem Montag.`;
+    const filled = (w) => !!(w.impuls || w.aufgabe || w.frage);
+    const first = Math.max(1, cw);
+    const missing = chData.weeks.filter(w => w.weekNo >= first && w.weekNo <= first + 1 && !filled(w)).map(w => `Woche ${w.weekNo} (ab ${d(w.weekStart)})`);
+    const warn = document.getElementById('chAdminWarn');
+    warn.hidden = !missing.length;
+    warn.textContent = missing.length ? '⚠️ Noch leer: ' + missing.join(', ') : '';
+    const from = Math.max(1, cw - 1), to = Math.min(52, Math.max(cw, 1) + 4);
+    const list = chShowAll ? chData.weeks : chData.weeks.filter(w => w.weekNo >= from && w.weekNo <= to);
+    document.getElementById('chShowAll').textContent = chShowAll ? 'Nur die nächsten Wochen anzeigen' : 'Alle 52 Wochen anzeigen';
+    document.getElementById('chAdminWeeks').innerHTML = list.map(w => {
+      const isCur = w.weekNo === cw;
+      const st = (filled(w) ? '✓ Inhalt' : 'leer') + (w.weekNo <= cw ? ` · ${w.doneCount}/${chData.leaderCount} Aufgabe erledigt · ${w.answers.length} Antwort${w.answers.length === 1 ? '' : 'en'}` : '');
+      const answers = w.answers.length ? `<label>Antworten</label>` + w.answers.map(a => `<p class="ch-ans"><b>${esc(a.name)}</b>${a.taskDone ? ' ✓' : ''}: ${esc(a.answer)}</p>`).join('') : '';
+      return `<details class="ch-wk ${isCur ? 'current' : ''}" ${isCur || (!filled(w) && w.weekNo === first) ? 'open' : ''}>
+        <summary>Woche ${w.weekNo} · ab ${d(w.weekStart)}${isCur ? ' (läuft)' : ''} <span class="st">${st}</span></summary>
+        <label>Impuls</label><textarea data-f="impuls" data-w="${w.weekNo}" placeholder="Der Gedanke der Woche, z. B. eine kurze Geschichte oder ein Zitat mit deiner Erklärung">${escAttr(w.impuls)}</textarea>
+        <label>Wochenaufgabe</label><textarea data-f="aufgabe" data-w="${w.weekNo}" placeholder="Eine konkrete Aufgabe, die sie bis Sonntag erledigen kann">${escAttr(w.aufgabe)}</textarea>
+        <label>Reflexionsfrage</label><textarea data-f="frage" data-w="${w.weekNo}" placeholder="Eine Frage, die sie in der Wochenreflexion beantwortet">${escAttr(w.frage)}</textarea>
+        <button type="button" class="btn" data-chsave="${w.weekNo}" style="padding:11px; font-size:14px;">Woche ${w.weekNo} speichern</button>
+        <p class="card-sub" data-chstatus="${w.weekNo}" style="text-align:center; margin-top:8px;"></p>
+        ${answers}
+      </details>`;
+    }).join('');
+  }
+  function escAttr(v){ return String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  document.getElementById('chShowAll').addEventListener('click', () => { chShowAll = !chShowAll; renderChallengeAdmin(); });
+  document.getElementById('chAdminWeeks').addEventListener('click', async e => {
+    const btn = e.target.closest('[data-chsave]');
+    if(!btn) return;
+    const n = btn.dataset.chsave;
+    const val = (f) => document.querySelector(`[data-w="${n}"][data-f="${f}"]`).value;
+    const status = document.querySelector(`[data-chstatus="${n}"]`);
+    btn.disabled = true;
+    try {
+      const res = await fetch('/.netlify/functions/admin-challenge', {
+        method: 'POST', credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: adminKey, week_no: Number(n), impuls: val('impuls'), aufgabe: val('aufgabe'), frage: val('frage') }),
+      });
+      status.textContent = res.ok ? '' : 'Fehler beim Speichern.';
+      if(res.ok){
+        const w = chData.weeks.find(x => x.weekNo === Number(n));
+        w.impuls = val('impuls'); w.aufgabe = val('aufgabe'); w.frage = val('frage');
+        const open = [...document.querySelectorAll('.ch-wk[open] [data-chsave]')].map(b => b.dataset.chsave);
+        renderChallengeAdmin();
+        document.querySelectorAll('.ch-wk').forEach(dEl => { const b = dEl.querySelector('[data-chsave]'); if(open.includes(b.dataset.chsave)) dEl.open = true; });
+        const ns = document.querySelector(`[data-chstatus="${n}"]`);
+        if(ns){ ns.textContent = 'Gespeichert ✓'; setTimeout(() => { ns.textContent = ''; }, 2500); }
+      }
+    } catch(err){ status.textContent = 'Fehler beim Speichern.'; }
+    finally { btn.disabled = false; }
+  });
+
   function plansHtml(plans){
     const MONTHS = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
     const n = (v) => Number(v).toLocaleString('de-AT', { maximumFractionDigits: 3 });
@@ -408,6 +494,7 @@
         return;
       }
       overviewData = await res.json();
+      loadChallengeAdmin();
 
       document.getElementById('leaderGrid').innerHTML = overviewData.leaders.map(leaderCardHtml).join('');
       renderDryAlert(overviewData.leaders);
