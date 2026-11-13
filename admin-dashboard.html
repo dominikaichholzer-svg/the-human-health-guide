@@ -67,6 +67,11 @@
   .mv-card.active{ border-color: var(--gold); }
   .mv-name{ font-size:16px; font-weight:700; margin:6px 0 2px; }
   .mv-rank{ font-size:12px; color: var(--ink-muted); }
+  .mv-cc{ margin:12px 0 0; padding:10px; border-radius:10px; background: rgba(255,255,255,0.03); border:1px solid var(--hairline); }
+  .mv-cc-l{ font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color: var(--ink-muted); }
+  .mv-cc-n{ font-size:28px; font-weight:800; letter-spacing:-0.02em; margin:2px 0 0; font-variant-numeric: tabular-nums; }
+  .mv-cc-n small{ font-size:14px; font-weight:600; color: var(--ink-muted); }
+  .mv-cc-d{ font-size:11px; color: var(--ink-muted); }
   .mv-goal{ margin:12px 0 10px; text-align:left; }
   .mv-goal .lbl{ display:flex; justify-content:space-between; font-size:11.5px; color: var(--ink-muted); margin-bottom:5px; }
   .mv-goal .lbl b{ color: var(--ink); font-weight:700; }
@@ -704,21 +709,28 @@
   function monthGoal(l){
     const mk = overviewData.strategy.currentMonth.target_month.slice(0, 7);
     const plan = (l.monthlyPlans || []).find(p => String(p.target_month).slice(0, 7) === mk);
-    const ccVals = (l.recentWeeks || []).filter(w => String(w.week_start).slice(0, 7) === mk && w.cc_stand != null).map(w => Number(w.cc_stand));
+    const monthWeeks = (l.recentWeeks || []).filter(w => String(w.week_start).slice(0, 7) === mk && w.cc_stand != null);
+    const ccVals = monthWeeks.map(w => Number(w.cc_stand));
     const cc = ccVals.length ? Math.max(...ccVals) : 0;
-    if(!plan || !(Number(plan.plan_cc) > 0)) return { none: true, cc };
+    const lastWeek = monthWeeks.map(w => String(w.week_start)).sort().pop() || null;
+    const base = { cc, hasCc: ccVals.length > 0, lastWeek, monthKey: mk };
+    if(!plan || !(Number(plan.plan_cc) > 0)) return { ...base, none: true };
     const planCc = Number(plan.plan_cc);
     const now = new Date();
     const dim = new Date(Date.UTC(Number(mk.slice(0, 4)), Number(mk.slice(5, 7)), 0)).getUTCDate();
     const behind = cc < planCc * (now.getDate() / dim) * 0.85;
-    return { cc, planCc, pct: Math.round(cc / planCc * 100), behind };
+    return { ...base, planCc, pct: Math.round(cc / planCc * 100), behind };
   }
   function mvCardHtml(l){
     const n = (v) => Number(v).toLocaleString('de-AT', { maximumFractionDigits: 3 });
     const g = monthGoal(l);
+    const MONTHS_DE = ['Jänner','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+    const ccNow = `<div class="mv-cc"><div class="mv-cc-l">Aktueller CC-Stand · ${MONTHS_DE[Number(g.monthKey.slice(5, 7)) - 1]}</div>
+      <div class="mv-cc-n">${g.hasCc ? n(g.cc) : '–'} <small>CC</small></div>
+      <div class="mv-cc-d">${g.hasCc ? 'laut Wocheneintrag, Woche ab ' + g.lastWeek.split('-').reverse().join('.') : 'diesen Monat noch kein Eintrag'}</div></div>`;
     const goal = g.none
       ? `<div class="mv-goal"><div class="lbl"><span>Monatsziel</span><b style="color:var(--amber)">keine Planung</b></div></div>`
-      : `<div class="mv-goal"><div class="lbl"><span>Monatsziel</span><b>${n(g.cc)} / ${n(g.planCc)} CC</b></div><div class="mv-bar ${g.behind ? 'behind' : ''}"><span style="width:${Math.min(100, g.pct)}%"></span></div></div>`;
+      : `<div class="mv-goal"><div class="lbl"><span>Monatsziel ${n(g.planCc)} CC</span><b>${g.pct} %</b></div><div class="mv-bar ${g.behind ? 'behind' : ''}"><span style="width:${Math.min(100, g.pct)}%"></span></div></div>`;
     const teamSig = l.team ? l.team.members.reduce((a, m) => a + (m.signals || []).length, 0) : 0;
     const sigCount = (l.signals || []).length + teamSig;
     const status = sigCount ? `<span class="chip chip-amber">⚠️ ${sigCount} Hinweis${sigCount === 1 ? '' : 'e'}</span>` : `<span class="chip chip-green">Alles im Plan</span>`;
@@ -729,6 +741,7 @@
       <div>${CROWN}</div>
       <div class="mv-name">${esc(l.name)}</div>
       <div class="mv-rank">${RANK_LABELS[l.currentRank] || l.currentRank}${next ? ' · Ziel: ' + next : ''}</div>
+      ${ccNow}
       ${goal}
       <div>${status}</div>
       <div class="mv-sep"></div>
