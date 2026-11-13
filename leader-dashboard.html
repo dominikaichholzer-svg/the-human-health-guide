@@ -172,6 +172,21 @@
   .tp-steps{ display:grid; grid-template-columns: 1fr 1fr; gap:5px; }
   .tp-step{ display:flex; align-items:flex-start; gap:6px; font-size:11.5px; line-height:1.4; cursor:pointer; color: var(--ink-muted); }
   .tp-step input{ margin-top:2px; }
+  .team-row{ border:1px solid var(--hairline); border-radius:12px; padding:11px 13px; margin-bottom:8px; box-shadow: var(--shadow-sm); }
+  .team-row.inactive{ opacity:0.5; }
+  .team-row .tm-head{ display:flex; align-items:baseline; justify-content:space-between; gap:10px; }
+  .team-row .tm-name{ font-family: var(--serif); font-size:15px; color: var(--ink); }
+  .team-row .tm-rank{ font-family: var(--mono); font-size:10px; letter-spacing:0.06em; text-transform:uppercase; color: var(--gold); }
+  .team-row .tm-meta{ font-size:12px; color: var(--ink-muted); margin-top:4px; line-height:1.45; }
+  .tm-bar{ height:5px; border-radius:3px; background: rgba(255,255,255,0.06); margin-top:6px; overflow:hidden; }
+  .tm-bar span{ display:block; height:100%; background: linear-gradient(90deg, var(--gold), var(--gold-light)); }
+  .tm-edit-btn{ background:none; border:none; color: var(--gold); font-size:12px; cursor:pointer; padding:0; font-family: var(--sans); }
+  .tm-edit{ margin-top:10px; padding-top:10px; border-top:1px solid var(--hairline); }
+  .tm-edit .btn{ padding:10px 14px; font-size:13px; }
+  .tm-children{ margin-left:16px; border-left:1px dashed var(--hairline); padding-left:10px; }
+  .cc-row{ display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+  .cc-row span{ flex:1; font-size:14px; }
+  .cc-row input{ width:120px; background: rgba(255,255,255,0.04); border: 1.5px solid var(--hairline); border-radius: 10px; padding: 9px 11px; color: var(--ink); font-family: var(--sans); font-size: 14.5px; }
   .add-tp-row{ display:flex; gap:8px; }
   .add-tp-row input{ flex:1; padding: 10px 12px; border: 1.5px solid var(--hairline); border-radius: 10px; font-family: var(--sans); font-size: 13.5px; background: rgba(255,255,255,0.04); color: var(--ink); box-shadow: inset 0 1px 3px rgba(0,0,0,0.25); }
   .add-tp-row button{ width:auto; padding: 10px 16px; font-size:13px; }
@@ -515,6 +530,7 @@
           <div class="field">
             <label for="kontakte_gesamt">Kontakte gesamt</label>
             <input type="number" step="1" id="kontakte_gesamt" name="kontakte_gesamt">
+            <small class="progress-sub" id="kontakteHint" style="display:block; font-size:11.5px; margin-top:5px;" hidden></small>
           </div>
           <div class="field">
             <label for="geschaeftspraesentationen_versendet">Geschäftspräs. versendet</label>
@@ -616,6 +632,19 @@
       </form>
     </section>
 
+    <section class="card" id="teamCcCard" hidden>
+      <h2 class="card-title">CC deines Teams</h2>
+      <p class="progress-sub" style="font-size:13.5px; margin-bottom:12px;">Einmal im Monat, zusammen mit deiner Planung: Wie viel CC hat jede Partnerin gemacht? Die Zahlen findest du in FLP360. Leer lassen, wenn du es nicht weißt.</p>
+      <div class="field">
+        <label for="teamCcMonth">Monat</label>
+        <select id="teamCcMonth"></select>
+      </div>
+      <div id="teamCcList"></div>
+      <div class="plan-sum" id="teamCcSum"></div>
+      <button type="button" class="btn" id="teamCcSaveBtn">Team-CC speichern</button>
+      <p class="progress-sub" id="teamCcStatus" style="text-align:center; margin-top:10px;"></p>
+    </section>
+
     </div>
 
     <div class="tab-panel" data-tab="chat" hidden>
@@ -647,6 +676,31 @@
     </div>
 
     <div class="tab-panel" data-tab="team" hidden>
+
+    <section class="card" id="myTeamCard">
+      <h2 class="card-title">Mein Team</h2>
+      <p class="progress-sub" id="teamSummary" style="font-size:13.5px; margin-bottom:12px;">Lädt …</p>
+      <div id="teamTree"></div>
+      <div class="plan-sub">Partnerin hinzufügen</div>
+      <form id="teamAddForm">
+        <div class="field">
+          <label for="tmName">Name</label>
+          <input type="text" id="tmName" maxlength="80" placeholder="Vor- und Nachname" required>
+        </div>
+        <div class="field-grid">
+          <div class="field">
+            <label for="tmSponsor">Gesponsert von</label>
+            <select id="tmSponsor"></select>
+          </div>
+          <div class="field">
+            <label for="tmRank">Rang</label>
+            <select id="tmRank"></select>
+          </div>
+        </div>
+        <button type="submit" class="btn" id="tmAddBtn">Hinzufügen</button>
+        <p class="progress-sub" id="tmStatus" style="text-align:center; margin-top:10px;"></p>
+      </form>
+    </section>
 
     <section class="card">
       <h2 class="card-title">Neue Team-Partnerinnen</h2>
@@ -1234,6 +1288,192 @@
     }
   });
 
+  // ============ Mein Team ============
+  const MEMBER_RANK_LABELS = {
+    partner: 'Partnerin (noch kein Rang)',
+    supervisor: 'Supervisor',
+    assistant_manager: 'Assistant Manager',
+    manager: 'Manager',
+    eagle_manager: 'Eagle Manager',
+  };
+  const MONTH_NAMES = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  const monthName = (key) => { const [y, m] = key.split('-').map(Number); return MONTH_NAMES[m - 1] + ' ' + y; };
+  const prevMonthKey = (key) => { const [y, m] = key.split('-').map(Number); const d = new Date(Date.UTC(y, m - 2, 1)); return d.getUTCFullYear() + '-' + String(d.getUTCMonth() + 1).padStart(2, '0'); };
+  let teamData = null;
+
+  async function teamPost(body){
+    const res = await fetch('/.netlify/functions/leader-team', {
+      method: 'POST', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(token ? { token, ...body } : body),
+    });
+    let data = {};
+    try { data = await res.json(); } catch(e){}
+    return { res, data };
+  }
+
+  async function loadTeam(){
+    try {
+      const res = await fetch('/.netlify/functions/leader-team' + (token ? `?token=${encodeURIComponent(token)}` : ''), { credentials: 'same-origin' });
+      if(!res.ok){ document.getElementById('teamSummary').textContent = 'Mein Team ist gerade nicht verfügbar.'; return; }
+      teamData = await res.json();
+      renderTeam();
+      renderTeamCc();
+    } catch(e){
+      document.getElementById('teamSummary').textContent = 'Mein Team ist gerade nicht verfügbar.';
+    }
+  }
+
+  function rankOptions(selected){
+    return Object.keys(MEMBER_RANK_LABELS).map(r => `<option value="${r}" ${r === selected ? 'selected' : ''}>${MEMBER_RANK_LABELS[r]}</option>`).join('');
+  }
+  // excludeId: sich selbst und eigene Nachkommen nicht als Sponsorin anbieten
+  function sponsorOptions(selected, excludeId){
+    const members = teamData.members;
+    const banned = new Set();
+    if(excludeId){
+      banned.add(excludeId);
+      let grew = true;
+      while(grew){ grew = false; members.forEach(m => { if(m.sponsorId && banned.has(m.sponsorId) && !banned.has(m.id)){ banned.add(m.id); grew = true; } }); }
+    }
+    return `<option value="">Mir selbst</option>` + members.filter(m => !banned.has(m.id))
+      .map(m => `<option value="${m.id}" ${m.id === selected ? 'selected' : ''}>${escHtml(m.name)}</option>`).join('');
+  }
+
+  function progressText(p){
+    if(!p) return '';
+    if(p.done) return 'Höchster Rang erreicht.';
+    if(p.manual) return 'Weg zum Eagle Manager: bitte mit Dominik anschauen.';
+    const span = p.months === 1 ? 'im Monat' : `in ${p.months} Monaten`;
+    return `${fmtCc(p.ccSoFar)} von ${p.ccTarget} CC ${span} bis ${MEMBER_RANK_LABELS[p.nextRank]}`;
+  }
+
+  function renderTeam(){
+    const members = teamData.members || [];
+    const ccMonth = teamData.ccMonth;
+    const active = members.filter(m => m.active);
+    const total = teamData.totals && teamData.totals[ccMonth];
+    document.getElementById('teamSummary').textContent = active.length
+      ? `${active.length} aktive Partnerin${active.length === 1 ? '' : 'nen'} · Team-CC ${monthName(ccMonth)}: ${total != null ? fmtCc(total) : 'noch nicht eingetragen'}`
+      : 'Trag hier deine Partnerinnen ein, auch die aus tieferen Ebenen. So siehst du dein ganzes Team und wer kurz vor dem nächsten Rang steht.';
+
+    const children = {};
+    members.forEach(m => { const k = m.sponsorId || 'root'; (children[k] = children[k] || []).push(m); });
+    const known = new Set(members.map(m => m.id));
+    // Waisen (Sponsorin gelöscht) unter "root"
+    members.forEach(m => { if(m.sponsorId && !known.has(m.sponsorId)) (children.root = children.root || []).push(m); });
+    function rowHtml(m){
+      const cc = m.cc[ccMonth];
+      const p = m.progress || {};
+      const bar = p.ccTarget ? `<div class="tm-bar"><span style="width:${p.pct}%"></span></div>` : '';
+      const kids = (children[m.id] || []).map(rowHtml).join('');
+      return `<div class="team-row ${m.active ? '' : 'inactive'}" data-id="${m.id}">
+        <div class="tm-head"><span class="tm-name">${escHtml(m.name)}${m.active ? '' : ' (nicht mehr aktiv)'}</span><button type="button" class="tm-edit-btn" data-edit="${m.id}">Bearbeiten</button></div>
+        <div class="tm-rank">${MEMBER_RANK_LABELS[m.rank] || m.rank}</div>
+        <div class="tm-meta">CC ${monthName(ccMonth)}: ${cc != null ? fmtCc(cc) : '–'}<br>${progressText(p)}</div>${bar}
+        <div class="tm-edit" data-editbox="${m.id}" hidden></div>
+      </div>${kids ? `<div class="tm-children">${kids}</div>` : ''}`;
+    }
+    document.getElementById('teamTree').innerHTML = (children.root || []).map(rowHtml).join('');
+    document.getElementById('tmSponsor').innerHTML = sponsorOptions(null, null);
+    document.getElementById('tmRank').innerHTML = rankOptions('partner');
+  }
+
+  document.getElementById('teamTree').addEventListener('click', async function(e){
+    const editBtn = e.target.closest('[data-edit]');
+    if(editBtn){
+      const id = editBtn.dataset.edit;
+      const m = teamData.members.find(x => x.id === id);
+      const box = document.querySelector(`[data-editbox="${id}"]`);
+      if(!box.hidden){ box.hidden = true; return; }
+      box.innerHTML = `
+        <div class="field"><label>Name</label><input type="text" class="tmE-name" maxlength="80" value="${escHtml(m.name)}"></div>
+        <div class="field-grid">
+          <div class="field"><label>Gesponsert von</label><select class="tmE-sponsor">${sponsorOptions(m.sponsorId, m.id)}</select></div>
+          <div class="field"><label>Rang</label><select class="tmE-rank">${rankOptions(m.rank)}</select></div>
+        </div>
+        <label class="check-row"><input type="checkbox" class="tmE-active" ${m.active ? 'checked' : ''}><span>Noch aktiv im Team</span></label>
+        <button type="button" class="btn" data-save="${id}">Speichern</button>
+        <p class="progress-sub tmE-status" style="text-align:center; margin-top:8px;"></p>`;
+      box.hidden = false;
+      return;
+    }
+    const saveBtn = e.target.closest('[data-save]');
+    if(saveBtn){
+      const id = saveBtn.dataset.save;
+      const box = document.querySelector(`[data-editbox="${id}"]`);
+      saveBtn.disabled = true;
+      const { res, data } = await teamPost({
+        action: 'update', id,
+        name: box.querySelector('.tmE-name').value,
+        sponsor_id: box.querySelector('.tmE-sponsor').value || null,
+        rank: box.querySelector('.tmE-rank').value,
+        active: box.querySelector('.tmE-active').checked,
+      });
+      saveBtn.disabled = false;
+      if(!res.ok){ box.querySelector('.tmE-status').textContent = data.error || 'Fehler beim Speichern.'; return; }
+      await loadTeam();
+    }
+  });
+
+  document.getElementById('teamAddForm').addEventListener('submit', async function(e){
+    e.preventDefault();
+    const btn = document.getElementById('tmAddBtn');
+    const status = document.getElementById('tmStatus');
+    btn.disabled = true;
+    const { res, data } = await teamPost({
+      action: 'add',
+      name: document.getElementById('tmName').value,
+      sponsor_id: document.getElementById('tmSponsor').value || null,
+      rank: document.getElementById('tmRank').value,
+    });
+    btn.disabled = false;
+    if(!res.ok){ status.textContent = data.error || 'Fehler beim Speichern.'; return; }
+    status.textContent = 'Hinzugefügt ✓';
+    setTimeout(() => { status.textContent = ''; }, 2000);
+    document.getElementById('tmName').value = '';
+    await loadTeam();
+  });
+
+  function renderTeamCc(){
+    const card = document.getElementById('teamCcCard');
+    card.hidden = false;
+    const sel = document.getElementById('teamCcMonth');
+    const months = [teamData.ccMonth, prevMonthKey(teamData.ccMonth)];
+    const current = sel.value && months.includes(sel.value) ? sel.value : teamData.ccMonth;
+    sel.innerHTML = months.map(k => `<option value="${k}" ${k === current ? 'selected' : ''}>${monthName(k)}</option>`).join('');
+    const list = document.getElementById('teamCcList');
+    const active = teamData.members.filter(m => m.active);
+    if(!active.length){
+      list.innerHTML = '<p class="progress-sub">Leg zuerst dein Team an (Menü, Team, Mein Team).</p>';
+      document.getElementById('teamCcSaveBtn').hidden = true;
+      document.getElementById('teamCcSum').hidden = true;
+      return;
+    }
+    document.getElementById('teamCcSaveBtn').hidden = false;
+    document.getElementById('teamCcSum').hidden = false;
+    list.innerHTML = active.map(m => `<label class="cc-row"><span>${escHtml(m.name)}</span><input type="number" step="0.001" min="0" inputmode="decimal" data-cc="${m.id}" value="${m.cc[current] != null ? m.cc[current] : ''}" placeholder="CC"></label>`).join('');
+    updateTeamCcSum();
+  }
+  function updateTeamCcSum(){
+    let sum = 0, n = 0;
+    document.querySelectorAll('#teamCcList [data-cc]').forEach(i => { const v = Number(String(i.value).replace(',', '.')); if(i.value !== '' && Number.isFinite(v)){ sum += v; n++; } });
+    document.getElementById('teamCcSum').textContent = `Team gesamt: ${fmtCc(Math.round(sum * 1000) / 1000)} CC (${n} eingetragen)`;
+  }
+  document.getElementById('teamCcList').addEventListener('input', updateTeamCcSum);
+  document.getElementById('teamCcMonth').addEventListener('change', renderTeamCc);
+  document.getElementById('teamCcSaveBtn').addEventListener('click', async function(){
+    const status = document.getElementById('teamCcStatus');
+    const entries = [...document.querySelectorAll('#teamCcList [data-cc]')].map(i => ({ id: i.dataset.cc, cc: i.value }));
+    this.disabled = true; this.textContent = 'Wird gespeichert …';
+    const { res, data } = await teamPost({ action: 'save-cc', month: document.getElementById('teamCcMonth').value, entries });
+    this.disabled = false; this.textContent = 'Team-CC speichern';
+    if(!res.ok){ status.textContent = data.error || 'Fehler beim Speichern.'; return; }
+    status.textContent = 'Gespeichert ✓';
+    setTimeout(() => { status.textContent = ''; }, 2500);
+    await loadTeam();
+  });
+
   // ============ Chat mit JARVIS ============
   let chatHistory = [];
   // JARVIS' Antwort sicher anzeigen: HTML entschärfen, **fett** und
@@ -1320,6 +1560,7 @@
   const HEALTH_ICONS = { gesundheit_supplemente: '💊', gesundheit_sport: '🏃', gesundheit_ernaehrung: '🥗' };
 
   function prefillForm(weeks, currentWeekMonday){
+    prefillFromDays(currentWeekMonday);
     const current = (weeks || []).find(w => w.week_start === currentWeekMonday);
     if(!current) return;
     ['cc_stand','kontakte_gesamt','geschaeftspraesentationen_versendet','produkte_verschenkt','offline_events_eingeladen','naechstes_event_mitgebracht','nachgefasst','reflexion_1','reflexion_2','reflexion_3'].forEach(key => {
@@ -1327,6 +1568,19 @@
       if(input && current[key] != null) input.value = current[key];
     });
     HEALTH_KEYS.forEach(key => { document.getElementById(key).checked = !!current[key]; });
+  }
+
+  // Kontakte der Woche aus den Tagesabschlüssen vorschlagen (nur wenn das Feld
+  // leer ist; ein schon gespeicherter Wochenwert überschreibt den Vorschlag).
+  function prefillFromDays(currentWeekMonday){
+    const hint = document.getElementById('kontakteHint');
+    const days = ((dashboardData && dashboardData.recentDays) || []).filter(d => d.entry_date >= currentWeekMonday && d.kontakte_heute != null);
+    if(!days.length){ hint.hidden = true; return; }
+    const sum = days.reduce((a, d) => a + Number(d.kontakte_heute || 0), 0);
+    const input = document.getElementById('kontakte_gesamt');
+    if(input.value === '') input.value = sum;
+    hint.textContent = `Aus deinen Tagesabschlüssen: ${sum} (${days.length} Tag${days.length === 1 ? '' : 'e'})`;
+    hint.hidden = false;
   }
 
   async function loadDashboard(){
@@ -1367,6 +1621,7 @@
       renderDays();
       prefillDay();
       setupPlan();
+      loadTeam();
 
       document.getElementById('loadingState').hidden = true;
       document.getElementById('mainContent').hidden = false;

@@ -297,7 +297,7 @@
         <button class="btn save-products-btn" data-leader="${l.id}" type="button" style="padding:8px 14px; font-size:12px; width:auto;">Speichern</button>
         ${heatmapHtml(l.visitsByDay)}
         ${intakeHtml(l.intake)}
-        ${plansHtml(l.monthlyPlans)}${weeksHtml(l.recentWeeks)}${daysHtml(l.recentDays)}
+        ${teamHtml(l.team)}${plansHtml(l.monthlyPlans)}${weeksHtml(l.recentWeeks)}${daysHtml(l.recentDays)}
       </div>
     `;
   }
@@ -330,6 +330,32 @@
       ${row('Was hilft beim Dranbleiben', i.support_needed)}
     </details>`;
   }
+  const TEAM_RANKS = { partner:'Partnerin', supervisor:'Supervisor', assistant_manager:'Assistant Manager', manager:'Manager', eagle_manager:'Eagle Manager' };
+  function teamHtml(team){
+    if(!team || !overviewData || !overviewData.teamCcMonth) return '';
+    const MONTHS = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+    const ml = (k) => MONTHS[Number(k.slice(5, 7)) - 1] + ' ' + k.slice(2, 4);
+    const n = (v) => Number(v).toLocaleString('de-AT', { maximumFractionDigits: 3 });
+    const cm = overviewData.teamCcMonth;
+    const active = team.members.filter(m => m.active);
+    const total = team.totals[cm];
+    const head = `Mein Team (${active.length}) · ${ml(cm)}: ${total != null ? n(total) + ' CC' : '–'}`;
+    if(!team.members.length) return `<details class="more-box"><summary>Mein Team</summary><p class="lmeta">Noch niemand eingetragen.</p></details>`;
+    const months = overviewData.teamMonths.slice(-4);
+    const trend = months.map(k => `${ml(k)}: <b>${team.totals[k] != null ? n(team.totals[k]) : '–'}</b>`).join(' · ');
+    const byId = Object.fromEntries(team.members.map(m => [m.id, m]));
+    const depth = (m) => { let d = 0, c = m; while(c && c.sponsorId && byId[c.sponsorId] && d < 20){ d++; c = byId[c.sponsorId]; } return d; };
+    const order = [];
+    const visit = (parent) => team.members.filter(m => (m.sponsorId || null) === parent || (parent === null && m.sponsorId && !byId[m.sponsorId])).forEach(m => { order.push(m); visit(m.id); });
+    visit(null);
+    const rows = order.map(m => {
+      const p = m.progress || {};
+      const prog = p.ccTarget ? ` · ${n(p.ccSoFar)}/${p.ccTarget} bis ${TEAM_RANKS[p.nextRank]}` : '';
+      return `<p class="lmeta" style="padding-left:${depth(m) * 14}px;${m.active ? '' : ' opacity:0.5;'}">${depth(m) ? '↳ ' : ''}<b>${esc(m.name)}</b>, ${TEAM_RANKS[m.rank] || esc(m.rank)} · ${ml(cm)}: ${m.cc[cm] != null ? n(m.cc[cm]) : '–'}${prog}</p>`;
+    }).join('');
+    return `<details class="more-box"><summary>${head}</summary><p class="lmeta">Team-CC ${trend}</p>${rows}</details>`;
+  }
+
   function plansHtml(plans){
     const MONTHS = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
     const n = (v) => Number(v).toLocaleString('de-AT', { maximumFractionDigits: 3 });

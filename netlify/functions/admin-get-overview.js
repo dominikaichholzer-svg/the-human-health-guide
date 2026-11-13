@@ -7,6 +7,7 @@
 
 const { pgrest } = require('./_lib/supabase');
 const { requireAdmin } = require('./_lib/auth');
+const { loadTeams } = require('./_lib/team');
 const { computeProgress, viennaTodayStr } = require('./_lib/ranks');
 const { planWindow } = require('./_lib/plan');
 
@@ -54,6 +55,12 @@ exports.handler = async function (event) {
       for (const r of rows || []) {
         loginById[r.id] = { username: r.username, hasPassword: !!r.password_hash, passwordSetAt: r.password_set_at, consentAt: r.consent_at };
       }
+    } catch (e) { /* noch nicht eingerichtet */ }
+
+    // "Mein Team" je Leaderin (supabase/team.sql). Fehlt die Tabelle noch, ohne.
+    let teams = null;
+    try {
+      teams = await loadTeams((leaders || []).map((l) => l.id));
     } catch (e) { /* noch nicht eingerichtet */ }
 
     const today = viennaTodayStr();
@@ -112,6 +119,7 @@ exports.handler = async function (event) {
         recentDays,
         monthlyPlans,
         login: loginById[leader.id] || null,
+        team: teams ? teams.byLeader[leader.id] : null,
       });
     }
 
@@ -125,6 +133,8 @@ exports.handler = async function (event) {
       statusCode: 200,
       body: JSON.stringify({
         leaders: leaderSummaries,
+        teamMonths: teams ? teams.months : [],
+        teamCcMonth: teams ? teams.ccMonth : null,
         strategy: {
           currentMonth: { target_month: currentMonthStart, content: strategyByMonth[currentMonthStart] || '' },
           nextMonth: { target_month: nextMonthStartStr, content: strategyByMonth[nextMonthStartStr] || '' },
