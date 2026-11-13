@@ -350,6 +350,7 @@
         <p class="lmeta">Letzter Eintrag: ${l.lastSubmitted || '–'}</p>
         ${flagHtml}
         ${(l.signals || []).map(x => `<div class="sig">⚠️ ${esc(x.text)}</div>`).join('')}
+        ${monthCloseHtml(l)}
         ${loginHtml(l)}
         ${insightHtml}
         <p class="heatmap-label">5 Produkte</p>
@@ -569,6 +570,16 @@
     } catch(e){}
   }
   document.getElementById('rkMonth').addEventListener('change', e => loadRankings(e.target.value));
+
+  // Monatsabschluss: tatsächlicher Eigenverbrauch und Global gesamt CC
+  function monthCloseHtml(l){
+    if(!overviewData || !overviewData.closeMonth) return '';
+    const MONTHS = ['Jänner','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+    const k = overviewData.closeMonth;
+    const n = (v) => v == null ? '–' : Number(v).toLocaleString('de-AT', { maximumFractionDigits: 3 }) + ' CC';
+    const c = l.monthClose || {};
+    return `<p class="lmeta">Monatsabschluss ${MONTHS[Number(k.slice(5, 7)) - 1]}: Eigenverbrauch <b>${n(c.eigenCc)}</b> · Global gesamt <b>${n(c.globalCc)}</b></p>`;
+  }
 
   // Deine eigenen Notizen zu einer Leaderin (sieht nur du)
   function adminNotesHtml(l){

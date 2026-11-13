@@ -16,3 +16,6 @@ create table if not exists monthly_actuals (
   unique (leader_id, month)
 );
 alter table monthly_actuals enable row level security;
+
+-- Ergänzung (Nov 2026): Global gesamt CC der Leaderin im Monatsabschluss
+alter table monthly_actuals add column if not exists global_cc numeric(10,3);

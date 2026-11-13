@@ -704,6 +704,10 @@
         <label for="eigenIst">Dein tatsächlicher Eigenverbrauch (CC)</label>
         <input type="number" step="0.001" min="0" inputmode="decimal" id="eigenIst" placeholder="z. B. 2,5">
       </div>
+      <div class="field">
+        <label for="globalIst">Global gesamt CC</label>
+        <input type="number" step="0.001" min="0" inputmode="decimal" id="globalIst" placeholder="z. B. 48,25">
+      </div>
       <div class="plan-sub">CC deines Teams</div>
       <div id="teamCcList"></div>
       <div class="plan-sum" id="teamCcSum"></div>
@@ -1660,6 +1664,8 @@
     sel.innerHTML = months.map(k => `<option value="${k}" ${k === current ? 'selected' : ''}>${monthName(k)}</option>`).join('');
     const eigenVal = teamData.eigen && teamData.eigen[current];
     document.getElementById('eigenIst').value = eigenVal != null ? eigenVal : '';
+    const globalVal = teamData.globalCc && teamData.globalCc[current];
+    document.getElementById('globalIst').value = globalVal != null ? globalVal : '';
     const list = document.getElementById('teamCcList');
     const active = teamData.members.filter(m => m.active);
     if(!active.length){
@@ -1682,7 +1688,7 @@
     const status = document.getElementById('teamCcStatus');
     const entries = [...document.querySelectorAll('#teamCcList [data-cc]')].map(i => ({ id: i.dataset.cc, cc: i.value }));
     this.disabled = true; this.textContent = 'Wird gespeichert …';
-    const { res, data } = await teamPost({ action: 'save-cc', month: document.getElementById('teamCcMonth').value, entries, eigen_cc: document.getElementById('eigenIst').value });
+    const { res, data } = await teamPost({ action: 'save-cc', month: document.getElementById('teamCcMonth').value, entries, eigen_cc: document.getElementById('eigenIst').value, global_cc: document.getElementById('globalIst').value });
     this.disabled = false; this.textContent = 'Monatsabschluss speichern';
     if(!res.ok){ status.textContent = data.error || 'Fehler beim Speichern.'; return; }
     status.textContent = 'Gespeichert ✓';

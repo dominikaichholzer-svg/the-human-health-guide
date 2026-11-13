@@ -7,7 +7,7 @@
 
 const { pgrest } = require('./_lib/supabase');
 const { requireAdmin } = require('./_lib/auth');
-const { loadTeams } = require('./_lib/team');
+const { loadTeams, ccMonthKey } = require('./_lib/team');
 const { memberSignals, leaderSignals } = require('./_lib/signals');
 const { logAccess } = require('./_lib/auth');
 const { monthsBack } = require('./_lib/ranks');
@@ -70,6 +70,14 @@ exports.handler = async function (event) {
       }
       // Dominik liest die Coaching-Notizen der Leaderinnen mit: das wird protokolliert
       if (teams.coachingReady) await logAccess(null, 'admin_read_coaching_notes', event);
+    } catch (e) { /* noch nicht eingerichtet */ }
+
+    // Monatsabschluss der Leaderinnen (Eigenverbrauch, Global gesamt CC) für den Eintrage-Monat
+    const closeMonth = teams ? teams.ccMonth : ccMonthKey(viennaTodayStr());
+    const actualsBy = {};
+    try {
+      const rows = await pgrest('monthly_actuals', { query: `month=eq.${closeMonth}-01&select=*` });
+      for (const r of rows || []) actualsBy[r.leader_id] = { eigenCc: r.eigen_cc != null ? Number(r.eigen_cc) : null, globalCc: r.global_cc != null ? Number(r.global_cc) : null };
     } catch (e) { /* noch nicht eingerichtet */ }
 
     // Eigene Notizen von Dominik zu seinen Leaderinnen (nur Admin)
@@ -145,6 +153,7 @@ exports.handler = async function (event) {
         team: teams ? teams.byLeader[leader.id] : null,
         signals,
         adminNotes: adminNotesBy[leader.id] || [],
+        monthClose: actualsBy[leader.id] || null,
       });
     }
 
@@ -160,6 +169,7 @@ exports.handler = async function (event) {
         leaders: leaderSummaries,
         teamMonths: teams ? teams.months : [],
         teamCcMonth: teams ? teams.ccMonth : null,
+        closeMonth,
         strategy: {
           currentMonth: { target_month: currentMonthStart, content: strategyByMonth[currentMonthStart] || '' },
           nextMonth: { target_month: nextMonthStartStr, content: strategyByMonth[nextMonthStartStr] || '' },
