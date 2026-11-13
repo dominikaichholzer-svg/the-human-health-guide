@@ -90,6 +90,8 @@ exports.handler = async function (event) {
       gesundheit_supplemente: payload.gesundheit_supplemente === true,
       gesundheit_sport: payload.gesundheit_sport === true,
       gesundheit_ernaehrung: payload.gesundheit_ernaehrung === true,
+      call_montag: payload.call_montag === true,
+      call_dienstag: payload.call_dienstag === true,
     };
 
     const save = (body) =>
@@ -100,15 +102,23 @@ exports.handler = async function (event) {
         body: [body],
       });
 
+    // Solange neuere Spalten in Supabase noch nicht angelegt sind (PostgREST-Fehler
+    // PGRST204), schrittweise ohne sie speichern statt den ganzen Eintrag zu verlieren:
+    // erst ohne Call-Häkchen (supabase/rankings.sql), dann zusätzlich ohne
+    // Gesundheit und Nachgefasst.
+    const missingColumn = (err) => err.data && err.data.code === 'PGRST204';
+    const { call_montag, call_dienstag, ...withoutCalls } = row;
+    const { gesundheit_supplemente, gesundheit_sport, gesundheit_ernaehrung, nachgefasst, ...basic } = withoutCalls;
     try {
       await save(row);
     } catch (err) {
-      // Solange die Gesundheits- bzw. Nachgefasst-Spalten in Supabase noch nicht angelegt sind
-      // (PostgREST-Fehler PGRST204), ohne sie speichern statt den ganzen
-      // Eintrag zu verlieren
-      if (!(err.data && err.data.code === 'PGRST204')) throw err;
-      const { gesundheit_supplemente, gesundheit_sport, gesundheit_ernaehrung, nachgefasst, ...rest } = row;
-      await save(rest);
+      if (!missingColumn(err)) throw err;
+      try {
+        await save(withoutCalls);
+      } catch (err2) {
+        if (!missingColumn(err2)) throw err2;
+        await save(basic);
+      }
     }
 
     return { statusCode: 200, body: JSON.stringify({ success: true }) };

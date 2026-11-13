@@ -593,6 +593,12 @@
           <label class="check-row"><input type="checkbox" id="gesundheit_ernaehrung"><span>🥗 Gesund ernährt</span></label>
         </div>
 
+        <div class="check-group">
+          <span class="check-group-title">Community-Calls diese Woche</span>
+          <label class="check-row"><input type="checkbox" id="call_montag"><span>📞 Montag-Call besucht</span></label>
+          <label class="check-row"><input type="checkbox" id="call_dienstag"><span>📞 Dienstag-Call besucht</span></label>
+        </div>
+
         <div class="field">
           <label for="nachgefasst">Wie viele hast du diese Woche nachgefasst?</label>
           <input type="number" step="1" min="0" id="nachgefasst" name="nachgefasst">
@@ -669,15 +675,20 @@
     </section>
 
     <section class="card" id="teamCcCard" hidden>
-      <h2 class="card-title">CC deines Teams</h2>
-      <p class="progress-sub" style="font-size:13.5px; margin-bottom:12px;">Einmal im Monat, zusammen mit deiner Planung: Wie viel CC hat jede Partnerin gemacht? Die Zahlen findest du in FLP360. Leer lassen, wenn du es nicht weißt.</p>
+      <h2 class="card-title">Dein Monatsabschluss</h2>
+      <p class="progress-sub" style="font-size:13.5px; margin-bottom:12px;">Einmal im Monat, zusammen mit deiner Planung: die echten Zahlen des Monats. Du findest sie in FLP360. Leer lassen, wenn du etwas nicht weißt.</p>
       <div class="field">
         <label for="teamCcMonth">Monat</label>
         <select id="teamCcMonth"></select>
       </div>
+      <div class="field">
+        <label for="eigenIst">Dein tatsächlicher Eigenverbrauch (CC)</label>
+        <input type="number" step="0.001" min="0" inputmode="decimal" id="eigenIst" placeholder="z. B. 2,5">
+      </div>
+      <div class="plan-sub">CC deines Teams</div>
       <div id="teamCcList"></div>
       <div class="plan-sum" id="teamCcSum"></div>
-      <button type="button" class="btn" id="teamCcSaveBtn">Team-CC speichern</button>
+      <button type="button" class="btn" id="teamCcSaveBtn">Monatsabschluss speichern</button>
       <p class="progress-sub" id="teamCcStatus" style="text-align:center; margin-top:10px;"></p>
     </section>
 
@@ -1549,15 +1560,15 @@
     const months = [teamData.ccMonth, prevMonthKey(teamData.ccMonth)];
     const current = sel.value && months.includes(sel.value) ? sel.value : teamData.ccMonth;
     sel.innerHTML = months.map(k => `<option value="${k}" ${k === current ? 'selected' : ''}>${monthName(k)}</option>`).join('');
+    const eigenVal = teamData.eigen && teamData.eigen[current];
+    document.getElementById('eigenIst').value = eigenVal != null ? eigenVal : '';
     const list = document.getElementById('teamCcList');
     const active = teamData.members.filter(m => m.active);
     if(!active.length){
       list.innerHTML = '<p class="progress-sub">Leg zuerst dein Team an (Menü, Team, Mein Team).</p>';
-      document.getElementById('teamCcSaveBtn').hidden = true;
       document.getElementById('teamCcSum').hidden = true;
       return;
     }
-    document.getElementById('teamCcSaveBtn').hidden = false;
     document.getElementById('teamCcSum').hidden = false;
     list.innerHTML = active.map(m => `<label class="cc-row"><span>${escHtml(m.name)}</span><input type="number" step="0.001" min="0" inputmode="decimal" data-cc="${m.id}" value="${m.cc[current] != null ? m.cc[current] : ''}" placeholder="CC"></label>`).join('');
     updateTeamCcSum();
@@ -1573,8 +1584,8 @@
     const status = document.getElementById('teamCcStatus');
     const entries = [...document.querySelectorAll('#teamCcList [data-cc]')].map(i => ({ id: i.dataset.cc, cc: i.value }));
     this.disabled = true; this.textContent = 'Wird gespeichert …';
-    const { res, data } = await teamPost({ action: 'save-cc', month: document.getElementById('teamCcMonth').value, entries });
-    this.disabled = false; this.textContent = 'Team-CC speichern';
+    const { res, data } = await teamPost({ action: 'save-cc', month: document.getElementById('teamCcMonth').value, entries, eigen_cc: document.getElementById('eigenIst').value });
+    this.disabled = false; this.textContent = 'Monatsabschluss speichern';
     if(!res.ok){ status.textContent = data.error || 'Fehler beim Speichern.'; return; }
     status.textContent = 'Gespeichert ✓';
     setTimeout(() => { status.textContent = ''; }, 2500);
@@ -1675,6 +1686,7 @@
       if(input && current[key] != null) input.value = current[key];
     });
     HEALTH_KEYS.forEach(key => { document.getElementById(key).checked = !!current[key]; });
+    ['call_montag', 'call_dienstag'].forEach(key => { document.getElementById(key).checked = !!current[key]; });
   }
 
   // Kontakte der Woche aus den Tagesabschlüssen vorschlagen (nur wenn das Feld
@@ -1765,6 +1777,8 @@
       gesundheit_supplemente: document.getElementById('gesundheit_supplemente').checked,
       gesundheit_sport: document.getElementById('gesundheit_sport').checked,
       gesundheit_ernaehrung: document.getElementById('gesundheit_ernaehrung').checked,
+      call_montag: document.getElementById('call_montag').checked,
+      call_dienstag: document.getElementById('call_dienstag').checked,
     };
 
     try {

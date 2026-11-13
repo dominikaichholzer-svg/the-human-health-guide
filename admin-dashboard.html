@@ -75,6 +75,19 @@
   .pin-opt .pv{ font-family: var(--mono); font-size:11px; color: var(--gold); white-space:nowrap; }
   .pin-awarded{ font-size:13px; background: var(--gold-dim); border-radius:10px; padding:8px 10px; margin:6px 0 8px; }
   .pin-leader textarea{ min-height:56px; font-size:13px; margin-top:6px; }
+  .rk-grid{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+  @media (max-width: 640px){ .rk-grid{ grid-template-columns: 1fr; } }
+  .rk{ border:1px solid var(--hairline); border-radius:12px; padding:12px 14px; }
+  .rk h3{ font-family: var(--serif); font-weight:400; font-size:16px; margin:0 0 2px; }
+  .rk .rk-hint{ font-size:11.5px; color: var(--ink-muted); margin:0 0 10px; line-height:1.4; }
+  .rk-row{ display:flex; align-items:baseline; gap:10px; padding:6px 0; border-top:1px solid var(--hairline); font-size:13.5px; }
+  .rk-row:first-of-type{ border-top:none; }
+  .rk-place{ flex:0 0 22px; font-family: var(--mono); font-size:12px; color: var(--ink-muted); text-align:right; }
+  .rk-place.p1{ color:#E8CB8F; font-weight:700; }
+  .rk-name{ flex:1; }
+  .rk-name small{ display:block; color: var(--ink-muted); font-size:11.5px; }
+  .rk-val{ font-family: var(--mono); font-size:13px; color: var(--gold); white-space:nowrap; }
+  .rk-row.none .rk-val, .rk-row.none .rk-name{ color: var(--ink-muted); }
   .more-box{ margin-top:12px; border-top:1px solid var(--hairline); padding-top:10px; }
   .more-box summary{ cursor:pointer; font-weight:700; font-size:13px; color: var(--gold); }
   .week-entry{ margin-top:10px; padding-top:8px; border-top:1px dashed var(--hairline); }
@@ -191,6 +204,13 @@
       <p class="card-sub">Pro Leaderin und Monat ein Pin. Das System schlägt den ersten erfüllten vor, du entscheidest. Jede sieht nur ihre eigenen Pins.</p>
       <select id="pinMonth" style="width:100%; padding:10px 12px; border-radius:10px; background: rgba(255,255,255,0.04); border:1.5px solid var(--hairline); color: var(--ink); font-family: var(--sans); font-size:14px; margin-bottom:12px;"></select>
       <div id="pinLeaders"></div>
+    </section>
+
+    <section class="card" id="rankingsCard" hidden>
+      <h2 class="card-title">Rankings (nur für dich)</h2>
+      <p class="card-sub">Vier getrennte Blickwinkel, bewusst ohne Gesamtpunktzahl. Die Leaderinnen sehen keine Rankings.</p>
+      <select id="rkMonth" style="width:100%; padding:10px 12px; border-radius:10px; background: rgba(255,255,255,0.04); border:1.5px solid var(--hairline); color: var(--ink); font-family: var(--sans); font-size:14px; margin-bottom:12px;"></select>
+      <div class="rk-grid" id="rkGrid"></div>
     </section>
 
     <section class="card">
@@ -516,6 +536,25 @@
     } finally { btn.disabled = false; }
   });
 
+  // ============ Rankings (nur Admin) ============
+  async function loadRankings(month){
+    try {
+      const qs = new URLSearchParams();
+      if(adminKey) qs.set('key', adminKey);
+      if(month) qs.set('month', month);
+      const res = await fetch('/.netlify/functions/admin-rankings?' + qs.toString(), { credentials: 'same-origin' });
+      if(!res.ok) return;
+      const d = await res.json();
+      document.getElementById('rankingsCard').hidden = false;
+      document.getElementById('rkMonth').innerHTML = d.months.map((k, i) => `<option value="${k}" ${k === d.month ? 'selected' : ''}>${pinMonthLabel(k)}${i === 0 ? ' (läuft, Zwischenstand)' : ''}</option>`).join('');
+      const fmt = (v) => Number(v).toLocaleString('de-AT', { maximumFractionDigits: 3 });
+      document.getElementById('rkGrid').innerHTML = d.rankings.map(r => `<div class="rk"><h3>${esc(r.title)}</h3><p class="rk-hint">${esc(r.hint)}</p>${
+        r.rows.map(x => `<div class="rk-row ${x.value == null ? 'none' : ''}"><span class="rk-place ${x.place === 1 ? 'p1' : ''}">${x.place ? x.place + '.' : ''}</span><span class="rk-name">${esc(x.name)}${x.detail ? `<small>${esc(x.detail)}</small>` : ''}</span><span class="rk-val">${x.value == null ? '–' : fmt(x.value) + ' ' + esc(r.unit === 'Partnerinnen' && x.value === 1 ? 'Partnerin' : r.unit)}</span></div>`).join('')
+      }</div>`).join('');
+    } catch(e){}
+  }
+  document.getElementById('rkMonth').addEventListener('change', e => loadRankings(e.target.value));
+
   function plansHtml(plans){
     const MONTHS = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
     const n = (v) => Number(v).toLocaleString('de-AT', { maximumFractionDigits: 3 });
@@ -569,6 +608,7 @@
       overviewData = await res.json();
       loadChallengeAdmin();
       loadPinsAdmin();
+      loadRankings();
 
       document.getElementById('leaderGrid').innerHTML = overviewData.leaders.map(leaderCardHtml).join('');
       renderDryAlert(overviewData.leaders);

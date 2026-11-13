@@ -67,7 +67,13 @@ exports.handler = async function (event) {
   try {
     if (event.httpMethod === 'GET') {
       const t = await loadTeams([leaderId]);
-      return json(200, { ccMonth: t.ccMonth, months: t.months, ranks: MEMBER_RANKS, ...t.byLeader[leaderId] });
+      // Ist-Eigenverbrauch (supabase/rankings.sql); fehlt die Tabelle, ohne
+      const eigen = {};
+      try {
+        const rows = await pgrest('monthly_actuals', { query: `leader_id=eq.${leaderId}&month=gte.${t.months[0]}-01&select=month,eigen_cc` });
+        for (const r of rows || []) if (r.eigen_cc != null) eigen[String(r.month).slice(0, 7)] = Number(r.eigen_cc);
+      } catch (e) { /* noch nicht eingerichtet */ }
+      return json(200, { ccMonth: t.ccMonth, months: t.months, ranks: MEMBER_RANKS, eigen, ...t.byLeader[leaderId] });
     }
 
     const p = payload;
@@ -138,6 +144,17 @@ exports.handler = async function (event) {
       const allowed = monthsBack(today, 3);
       if (!allowed.includes(p.month)) return json(400, { error: 'Dieser Monat kann nicht mehr geändert werden.' });
       if (!Array.isArray(p.entries) || p.entries.length > 500) return json(400, { error: 'Keine Einträge' });
+      // Tatsächlicher Eigenverbrauch der Leaderin selbst (optional, leer = löschen)
+      let eigen;
+      if (p.eigen_cc !== undefined) {
+        const raw = p.eigen_cc === null ? '' : String(p.eigen_cc).trim().replace(',', '.');
+        if (raw === '') eigen = null;
+        else {
+          eigen = Number(raw);
+          if (!Number.isFinite(eigen) || eigen < 0 || eigen > 100000) return json(400, { error: 'Ungültige Zahl beim Eigenverbrauch' });
+          eigen = Math.round(eigen * 1000) / 1000;
+        }
+      }
       const own = new Set((await ownMembers(leaderId)).map((m) => m.id));
       const upserts = [];
       const deletes = [];
@@ -159,6 +176,19 @@ exports.handler = async function (event) {
       }
       if (deletes.length) {
         await pgrest('team_member_cc', { method: 'DELETE', query: `member_id=in.(${deletes.join(',')})&month=eq.${p.month}-01` });
+      }
+      if (eigen !== undefined) {
+        try {
+          await pgrest('monthly_actuals', {
+            method: 'POST',
+            query: 'on_conflict=leader_id,month',
+            prefer: 'resolution=merge-duplicates',
+            body: [{ leader_id: leaderId, month: p.month + '-01', eigen_cc: eigen, updated_at: new Date().toISOString() }],
+          });
+        } catch (e) {
+          console.error('monthly_actuals', e.message);
+          if (eigen !== null) return json(500, { error: 'Team-CC gespeichert, der Eigenverbrauch konnte noch nicht gespeichert werden.' });
+        }
       }
       return json(200, { ok: true, saved: upserts.length });
     }
