@@ -3,7 +3,8 @@
 // "Mein Team" der angemeldeten Leaderin. Jede sieht und ändert nur ihre
 // eigenen Partnerinnen (Prüfung über _lib/auth.js und leader_id).
 //
-// GET                                                   -> Team, CC der letzten Monate, Fortschritt
+// GET                                                   -> Team, CC der letzten Monate, Fortschritt,
+//                                                          support (wer braucht Unterstützung), pattern
 // POST { action:"add", name, sponsor_id, rank }           -> Partnerin anlegen
 // POST { action:"update", id, name?, sponsor_id?, rank?, active? }
 // POST { action:"save-cc", month:"2026-11", entries:[{ id, cc }] }   (cc leer = löschen)
@@ -21,6 +22,7 @@ const { pgrest } = require('./_lib/supabase');
 const { requireLeader, json } = require('./_lib/auth');
 const { STEP_KEYS, MEMBER_RANKS, loadTeams } = require('./_lib/team');
 const { memberSignals } = require('./_lib/signals');
+const { supportList, teamPattern } = require('./_lib/support');
 const { monthsBack, viennaTodayStr } = require('./_lib/ranks');
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -76,6 +78,9 @@ exports.handler = async function (event) {
       const t = await loadTeams([leaderId], viennaTodayStr(), { coaching: true });
       const today = viennaTodayStr();
       for (const m of t.byLeader[leaderId].members) m.signals = memberSignals(m, t.ccMonth, today);
+      // Wer braucht gerade Unterstützung? (nur mit Ziele & Notizen sinnvoll)
+      const support = t.coachingReady ? supportList(t.byLeader[leaderId].members, t.ccMonth, today) : [];
+      const pattern = t.coachingReady ? teamPattern(t.byLeader[leaderId].members, today) : null;
       // Ist-Eigenverbrauch (supabase/rankings.sql); fehlt die Tabelle, ohne
       const eigen = {}, globalCc = {}, fourCc = {};
       try {
@@ -88,7 +93,7 @@ exports.handler = async function (event) {
           if (r.four_cc_count != null) fourCc[k] = Number(r.four_cc_count);
         }
       } catch (e) { /* noch nicht eingerichtet */ }
-      return json(200, { ccMonth: t.ccMonth, months: t.months, ranks: MEMBER_RANKS, eigen, globalCc, fourCc, coachingReady: t.coachingReady, ...t.byLeader[leaderId] });
+      return json(200, { ccMonth: t.ccMonth, months: t.months, ranks: MEMBER_RANKS, eigen, globalCc, fourCc, coachingReady: t.coachingReady, support, pattern, ...t.byLeader[leaderId] });
     }
 
     const p = payload;

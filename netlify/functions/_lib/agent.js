@@ -272,7 +272,12 @@ async function coachingHinweise() {
         if (sig.length) team.push({ partnerin: m.name, hinweise: sig.map((x) => x.text) });
       }
     }
-    result.push({ leaderin: l.name, hinweise_zu_ihr: await leaderSignalsFor(l, today), hinweise_zu_ihrem_team: team });
+    const hz = await leaderSignalsFor(l, today);
+    if (teams) {
+      const pat = require('./support').teamPattern(teams.byLeader[l.id].members, today);
+      if (pat) hz.push(`Teamführung: ${pat.text}`);
+    }
+    result.push({ leaderin: l.name, hinweise_zu_ihr: hz, hinweise_zu_ihrem_team: team });
   }
   // Wachstumsfelder aus den JARVIS-Entwicklungsprofilen
   try {

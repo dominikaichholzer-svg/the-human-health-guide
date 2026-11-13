@@ -290,6 +290,20 @@
   .tm-mini-btn{ margin-top:6px; padding:9px 12px; font-size:13px; }
   .attn{ background: rgba(226,104,90,0.08); border:1px solid rgba(226,104,90,0.35); border-radius:12px; padding:10px 12px; margin-bottom:12px; font-size:13px; line-height:1.5; }
   .attn b{ color: var(--ink); }
+  .sup{ border:1px solid rgba(212,175,106,0.35); border-radius:14px; padding:12px 14px; margin-bottom:14px; background: radial-gradient(ellipse at 0% 0%, rgba(212,175,106,0.08), transparent 70%); }
+  .sup-h{ font-size:15px; font-weight:800; margin:0 0 4px; }
+  .sup-sub{ font-size:12.5px; color: var(--ink-muted); margin:0 0 10px; line-height:1.45; }
+  .sup-pattern{ background: var(--gold-dim); border-left:2px solid var(--gold); border-radius:8px; padding:8px 10px; font-size:13px; line-height:1.5; margin-bottom:10px; }
+  .sup-row{ border-top:1px solid var(--hairline); padding:10px 0; }
+  .sup-row:first-of-type{ border-top:none; }
+  .sup-name{ font-weight:700; font-size:14.5px; }
+  .sup-why{ font-size:12.5px; color:#F0B07A; line-height:1.45; margin-top:2px; }
+  .sup-btns{ display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+  .sup-btns button{ background:none; border:1px solid var(--gold); color: var(--gold); border-radius:10px; padding:7px 10px; font-family: inherit; font-size:12.5px; font-weight:600; cursor:pointer; }
+  .sup-btns button.ghost{ border-color: var(--hairline); color: var(--ink-muted); }
+  .sup-focus{ margin-top:10px; background: rgba(255,255,255,0.03); border:1px solid var(--hairline); border-radius:12px; padding:10px 12px; font-size:13.5px; line-height:1.5; }
+  .sup-focus b{ color: var(--gold-light); }
+  .sup-focus p{ margin:0 0 6px; }
   .tm-onboarding{ margin-top:10px; }
   .tm-onboarding summary{ cursor:pointer; font-size:12.5px; font-weight:600; color: var(--gold); }
   .tm-children{ margin-left:16px; border-left:1px dashed var(--hairline); padding-left:10px; }
@@ -1901,12 +1915,97 @@
       </div>${kids ? `<div class="tm-children">${kids}</div>` : ''}`;
     }
     document.getElementById('teamTree').innerHTML = (children.root || []).map(rowHtml).join('');
-    const attn = members.filter(m => (m.signals || []).length);
-    document.getElementById('teamAttention').innerHTML = attn.length
-      ? `<div class="attn"><b>Braucht deine Aufmerksamkeit</b><br>${attn.map(m => m.signals.map(x => `${escHtml(m.name)}: ${escHtml(x.text)}`).join('<br>')).join('<br>')}</div>` : '';
+    renderSupport();
     document.getElementById('tmSponsor').innerHTML = sponsorOptions(null, null);
     document.getElementById('tmRank').innerHTML = rankOptions('partner');
   }
+
+  // ============ Wer braucht gerade Unterstützung? (Schritt 4) ============
+  const focusById = {};        // memberId -> 'loading' | Vorschlag | { error }
+  let supportShowAll = false;
+  function renderSupport(){
+    const box = document.getElementById('teamAttention');
+    const list = (teamData && teamData.support) || [];
+    const pat = teamData && teamData.pattern;
+    if(!teamData || !teamData.coachingReady || (!list.length && !pat)){
+      // ohne Ziele & Notizen nur die bisherigen Hinweise
+      const attn = ((teamData && teamData.members) || []).filter(m => (m.signals || []).length);
+      box.innerHTML = attn.length ? `<div class="attn"><b>Braucht deine Aufmerksamkeit</b><br>${attn.map(m => m.signals.map(x => `${escHtml(m.name)}: ${escHtml(x.text)}`).join('<br>')).join('<br>')}</div>` : '';
+      return;
+    }
+    const shown = supportShowAll ? list : list.slice(0, 5);
+    const focusHtml = (id) => {
+      const f = focusById[id];
+      if(!f) return '';
+      if(f === 'loading') return `<div class="sup-focus">JARVIS schaut sich ihre Daten an …</div>`;
+      if(f.error) return `<div class="sup-focus">${escHtml(f.error)}</div>`;
+      return `<div class="sup-focus">
+        ${f.datenlage === 'duenn' ? '<p style="color:var(--ink-muted); font-size:12px;">Wenig Daten zu ihr, darum ein Vorschlag zum Kennenlernen.</p>' : ''}
+        <p><b>Schwerpunkt:</b> ${escHtml(f.schwerpunkt)}</p>
+        <p>${escHtml(f.warum)}</p>
+        <p><b>Ihr Ziel:</b> ${escHtml(f.ziel)}<br><b>Ihr nächster Schritt:</b> ${escHtml(f.naechster_schritt)}</p>
+        <p><b>Deine Frage zum Einstieg:</b> <i>${escHtml(f.gespraechsfrage)}</i></p>
+        <div class="sup-btns">
+          <button type="button" data-fgoal="${id}">Als Ziel übernehmen</button>
+          <button type="button" data-fnote="${id}">Als Notiz merken</button>
+          <button type="button" class="ghost" data-fdrop="${id}">Verwerfen</button>
+        </div></div>`;
+    };
+    box.innerHTML = `<div class="sup">
+      <div class="sup-h">Wer braucht gerade Unterstützung?</div>
+      <p class="sup-sub">Aus deinen Einträgen in Mein Team. Du entscheidest, wen du dir diese Woche vornimmst.</p>
+      ${pat ? `<div class="sup-pattern">${escHtml(pat.text)}<br><span style="color:var(--ink-muted)">${escHtml(pat.tip)}</span></div>` : ''}
+      ${shown.map(s => `<div class="sup-row">
+        <div class="sup-name">${escHtml(s.name)} <span style="font-weight:500; color:var(--ink-muted); font-size:12px;">${MEMBER_RANK_LABELS[s.rank] || ''}</span></div>
+        <div class="sup-why">${s.reasons.map(escHtml).join(' · ')}</div>
+        <div class="sup-btns">
+          <button type="button" data-focus="${s.id}" ${focusById[s.id] === 'loading' ? 'disabled' : ''}>JARVIS: Coaching-Schwerpunkt</button>
+          <button type="button" class="ghost" data-prepare="${s.id}" data-name="${escHtml(s.name)}">Gespräch vorbereiten</button>
+        </div>${focusHtml(s.id)}</div>`).join('')}
+      ${list.length > 5 ? `<button type="button" class="tm-edit-btn" data-supall style="margin-top:6px;">${supportShowAll ? 'Weniger anzeigen' : `Alle ${list.length} anzeigen`}</button>` : ''}
+      ${!list.length ? '<p class="sup-sub" style="margin:0;">Gerade braucht niemand dringend Unterstützung. Stark!</p>' : ''}
+    </div>`;
+  }
+  async function loadFocus(id){
+    focusById[id] = 'loading'; renderSupport();
+    try {
+      const res = await fetch('/.netlify/functions/leader-focus', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(token ? { token, member_id: id } : { member_id: id }) });
+      const data = await res.json().catch(() => ({}));
+      if(!res.ok || !data.jobId) throw new Error(data.error || 'JARVIS ist gerade nicht erreichbar.');
+      for(let i = 0; i < 60; i++){
+        await new Promise(r => setTimeout(r, 1500));
+        const pr = await fetch('/.netlify/functions/leader-chat-poll?id=' + encodeURIComponent(data.jobId) + (token ? '&token=' + encodeURIComponent(token) : ''), { credentials: 'same-origin' });
+        const pd = await pr.json().catch(() => ({}));
+        if(pd.status === 'done'){ focusById[id] = JSON.parse(pd.reply); renderSupport(); return; }
+        if(pd.status === 'error' || !pr.ok) throw new Error('JARVIS konnte gerade keinen Vorschlag machen.');
+      }
+      throw new Error('Das dauert zu lange, versuch es gleich nochmal.');
+    } catch(err){ focusById[id] = { error: err.message }; renderSupport(); }
+  }
+  document.getElementById('teamAttention').addEventListener('click', async e => {
+    const b = e.target.closest('[data-focus],[data-prepare],[data-fgoal],[data-fnote],[data-fdrop],[data-supall]');
+    if(!b) return;
+    if(b.dataset.supall !== undefined){ supportShowAll = !supportShowAll; renderSupport(); return; }
+    if(b.dataset.prepare){ askJarvis({ prepare_member_id: b.dataset.prepare }, `Bereite mein Gespräch mit ${b.dataset.name} vor`); return; }
+    if(b.dataset.focus){ loadFocus(b.dataset.focus); return; }
+    if(b.dataset.fdrop){ delete focusById[b.dataset.fdrop]; renderSupport(); return; }
+    const id = b.dataset.fgoal || b.dataset.fnote;
+    const f = focusById[id];
+    if(!f || !f.schwerpunkt) return;
+    b.disabled = true;
+    let body;
+    if(b.dataset.fgoal){
+      const d = new Date(); d.setDate(d.getDate() + 30);
+      body = { action: 'save-goal', id, goal: f.ziel, next_step: f.naechster_schritt, target_date: d.toISOString().slice(0, 10) };
+    } else {
+      body = { action: 'add-note', id, note: `Coaching-Schwerpunkt (JARVIS): ${f.schwerpunkt}. Frage fürs Gespräch: ${f.gespraechsfrage}` };
+    }
+    const { res, data } = await teamPost(body);
+    if(!res.ok){ b.disabled = false; alert(data.error || 'Speichern hat nicht geklappt.'); return; }
+    delete focusById[id];
+    celebrate(b.dataset.fgoal ? 'Ziel gesetzt' : 'Gemerkt');
+    await loadTeam();
+  });
 
   document.getElementById('teamTree').addEventListener('click', async function(e){
     const editBtn = e.target.closest('[data-edit]');

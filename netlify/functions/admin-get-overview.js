@@ -9,6 +9,7 @@ const { pgrest } = require('./_lib/supabase');
 const { requireAdmin } = require('./_lib/auth');
 const { loadTeams, ccMonthKey } = require('./_lib/team');
 const { memberSignals, leaderSignals } = require('./_lib/signals');
+const { supportList, teamPattern } = require('./_lib/support');
 const { logAccess } = require('./_lib/auth');
 const { monthsBack } = require('./_lib/ranks');
 const { latestProfiles } = require('./_lib/profile');
@@ -162,6 +163,8 @@ exports.handler = async function (event) {
         monthlyPlans,
         login: loginById[leader.id] || null,
         team: teams ? teams.byLeader[leader.id] : null,
+        // Ihre Teamführung: wer gerade Unterstützung braucht und ob sie genug coacht
+        teamSupport: teams && teams.coachingReady ? { list: supportList(teams.byLeader[leader.id].members, teams.ccMonth, viennaTodayStr()).slice(0, 5), pattern: teamPattern(teams.byLeader[leader.id].members, viennaTodayStr()) } : undefined,
         signals,
         adminNotes: adminNotesBy[leader.id] || [],
         monthClose: actualsBy[leader.id] || null,

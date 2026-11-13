@@ -134,6 +134,12 @@ async function buildLeaderContext(leader, todayStr) {
       const notes = (m.notes || []).slice(0, 3).map((n) => `${String(n.createdAt).slice(0, 10)}: ${String(n.note).slice(0, 300)}`);
       lines.push(`- ${m.name} (${RANK_DE[m.rank] || m.rank}${m.sponsorId && byId[m.sponsorId] ? `, gesponsert von ${byId[m.sponsorId].name}` : ''}${m.startDate ? `, dabei seit ${m.startDate}` : ''}).${m.warum ? ` Warum: ${String(m.warum).slice(0, 200)}.` : ''}${m.onboarding && m.onboarding.done < 7 ? ` Einarbeitung ${m.onboarding.done}/7.` : ''}${goals.length ? ` Ziele: ${goals.join('; ')}.` : ''}${sig.length ? ` Hinweise: ${sig.map((x) => x.text).join('; ')}.` : ''}${notes.length ? ` Ihre Notizen: ${notes.join(' | ')}` : ''}`);
     }
+    // Wer gerade Unterstützung braucht (dieselbe Liste wie in "Mein Team")
+    const { supportList, teamPattern } = require('./support');
+    const sup = supportList(members, teams.ccMonth, today).slice(0, 3);
+    if (sup.length) lines.push(`Braucht gerade Unterstützung (laut Mein Team): ${sup.map((s) => `${s.name} (${s.reasons.join('; ')})`).join(' | ')}`);
+    const pat = teamPattern(members, today);
+    if (pat) lines.push(`Muster in ihrer Teamführung: ${pat.text} Sprich das an, wenn es passt, ohne Vorwurf.`);
   } else {
     lines.push('In "Mein Team" ist noch niemand eingetragen.');
   }
