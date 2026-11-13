@@ -105,7 +105,9 @@ async function loadTeams(leaderIds, todayStr, opts) {
       rank: m.rank,
       active: m.active,
       cc,
-      progress: memberProgress(m.rank, cc, ccMonth),
+      // CC je Partnerin werden seit Nov 2026 nicht mehr eingetragen (die Leaderin sieht sie in FLP360).
+      // Ohne Werte gibt es darum keinen Rang-Fortschritt statt eines irreführenden "0 von 10 CC".
+      progress: Object.keys(cc).length ? memberProgress(m.rank, cc, ccMonth) : null,
       onboarding: tpBy[m.id] || null,
       startDate: m.start_date || null,
       warum: m.warum || null,
@@ -114,7 +116,7 @@ async function loadTeams(leaderIds, todayStr, opts) {
       entry.notes = notesBy[m.id] || [];
       entry.goals = (goalsBy[m.id] || []).map((g) => ({
         id: g.id, goal: g.goal, targetRank: g.target_rank, targetDate: g.target_date, nextStep: g.next_step, status: g.status,
-        progress: g.target_rank ? rankGoalProgress(g.target_rank, cc, ccMonth) : null,
+        progress: g.target_rank && Object.keys(cc).length ? rankGoalProgress(g.target_rank, cc, ccMonth) : null,
       }));
     }
     const bucket = byLeader[m.leader_id];

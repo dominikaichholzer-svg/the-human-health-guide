@@ -77,7 +77,7 @@ exports.handler = async function (event) {
     const actualsBy = {};
     try {
       const rows = await pgrest('monthly_actuals', { query: `month=eq.${closeMonth}-01&select=*` });
-      for (const r of rows || []) actualsBy[r.leader_id] = { eigenCc: r.eigen_cc != null ? Number(r.eigen_cc) : null, globalCc: r.global_cc != null ? Number(r.global_cc) : null };
+      for (const r of rows || []) actualsBy[r.leader_id] = { eigenCc: r.eigen_cc != null ? Number(r.eigen_cc) : null, globalCc: r.global_cc != null ? Number(r.global_cc) : null, fourCc: r.four_cc_count != null ? Number(r.four_cc_count) : null };
     } catch (e) { /* noch nicht eingerichtet */ }
 
     // Eigene Notizen von Dominik zu seinen Leaderinnen (nur Admin)

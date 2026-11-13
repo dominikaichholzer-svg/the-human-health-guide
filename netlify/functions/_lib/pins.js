@@ -21,9 +21,9 @@ const PINS = [
   },
   {
     key: 'team_growth', emoji: '📈', label: 'Team-Wachstum',
-    rule: 'Team-CC höher als im Vormonat',
-    check: (m) => ({ ok: m.teamCc != null && m.teamCcPrev != null && m.teamCc > m.teamCcPrev, value: m.teamCc || 0, target: m.teamCcPrev != null ? m.teamCcPrev : null,
-      reason: m.teamCc != null ? `Team-CC ${fmt(m.teamCc)}${m.teamCcPrev != null ? `, im Vormonat ${fmt(m.teamCcPrev)}` : ''}` : '' }),
+    rule: 'Global gesamt CC höher als im Vormonat',
+    check: (m) => ({ ok: m.globalCc != null && m.globalCcPrev != null && m.globalCc > m.globalCcPrev, value: m.globalCc || 0, target: m.globalCcPrev != null ? m.globalCcPrev : null,
+      reason: m.globalCc != null ? `Global gesamt ${fmt(m.globalCc)} CC${m.globalCcPrev != null ? `, im Vormonat ${fmt(m.globalCcPrev)}` : ''}` : '' }),
   },
   {
     key: 'plan_hero', emoji: '🎯', label: 'Plan-Erfüllerin',
@@ -64,24 +64,20 @@ async function monthMetrics(leaderId, monthKey, todayStr) {
   const prevKey = monthsBack(from, 2)[0];
 
   const safe = async (p) => { try { return (await p) || []; } catch (e) { return []; } };
-  const [days, weeks, plans, tps, members] = await Promise.all([
+  const [days, weeks, plans, tps, actuals] = await Promise.all([
     safe(pgrest('daily_reflections', { query: `leader_id=eq.${leaderId}&entry_date=gte.${from}&entry_date=lt.${to}&select=entry_date,kontakte_heute` })),
     safe(pgrest('weekly_entries', { query: `leader_id=eq.${leaderId}&week_start=gte.${from}&week_start=lt.${to}&select=week_start,cc_stand,kontakte_gesamt` })),
     safe(pgrest('monthly_plans', { query: `leader_id=eq.${leaderId}&target_month=eq.${from}&select=plan_cc` })),
     safe(pgrest('new_tps', { query: `leader_id=eq.${leaderId}&created_at=gte.${from}&created_at=lt.${to}&select=tp_name` })),
-    safe(pgrest('team_members', { query: `leader_id=eq.${leaderId}&select=id` })),
+    safe(pgrest('monthly_actuals', { query: `leader_id=eq.${leaderId}&month=in.(${prevKey}-01,${from})&select=*` })),
   ]);
 
-  let teamCc = null, teamCcPrev = null;
-  if (members.length) {
-    const cc = await safe(pgrest('team_member_cc', {
-      query: `member_id=in.(${members.map((m) => m.id).join(',')})&month=in.(${prevKey}-01,${from})&select=month,cc`,
-    }));
-    for (const r of cc) {
-      const k = String(r.month).slice(0, 7);
-      if (k === monthKey) teamCc = Math.round(((teamCc || 0) + Number(r.cc)) * 1000) / 1000;
-      else teamCcPrev = Math.round(((teamCcPrev || 0) + Number(r.cc)) * 1000) / 1000;
-    }
+  // Global gesamt CC aus dem Monatsabschluss (dieser Monat und Vormonat)
+  let globalCc = null, globalCcPrev = null;
+  for (const r of actuals) {
+    if (r.global_cc == null) continue;
+    if (String(r.month).slice(0, 7) === monthKey) globalCc = Number(r.global_cc);
+    else globalCcPrev = Number(r.global_cc);
   }
 
   // Challenge-Wochen, die in diesem Monat begonnen haben (und schon begonnen haben)
@@ -106,8 +102,8 @@ async function monthMetrics(leaderId, monthKey, todayStr) {
     personalCc: totals[monthKey] != null ? totals[monthKey] : null,
     planCc: plans[0] && plans[0].plan_cc != null ? Number(plans[0].plan_cc) : 0,
     newPartners: tps.map((t) => t.tp_name),
-    teamCc,
-    teamCcPrev,
+    globalCc,
+    globalCcPrev,
     challengeWeeks: weekNos.length,
     challengeDone,
   };

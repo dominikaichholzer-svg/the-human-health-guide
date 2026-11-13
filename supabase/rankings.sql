@@ -19,3 +19,5 @@ alter table monthly_actuals enable row level security;
 
 -- Ergänzung (Nov 2026): Global gesamt CC der Leaderin im Monatsabschluss
 alter table monthly_actuals add column if not exists global_cc numeric(10,3);
+-- Ergänzung (Nov 2026): Anzahl Partnerinnen mit mindestens 4 CC (aus FLP360 abgelesen)
+alter table monthly_actuals add column if not exists four_cc_count int;

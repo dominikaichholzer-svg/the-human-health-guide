@@ -225,9 +225,6 @@
   .tm-onboarding{ margin-top:10px; }
   .tm-onboarding summary{ cursor:pointer; font-size:12.5px; font-weight:600; color: var(--gold); }
   .tm-children{ margin-left:16px; border-left:1px dashed var(--hairline); padding-left:10px; }
-  .cc-row{ display:flex; align-items:center; gap:10px; margin-bottom:8px; }
-  .cc-row span{ flex:1; font-size:14px; }
-  .cc-row input{ width:120px; background: rgba(255,255,255,0.04); border: 1.5px solid var(--hairline); border-radius: 10px; padding: 9px 11px; color: var(--ink); font-family: var(--sans); font-size: 14.5px; }
   .add-tp-row{ display:flex; gap:8px; }
   .add-tp-row input{ flex:1; padding: 10px 12px; border: 1.5px solid var(--hairline); border-radius: 10px; font-family: var(--sans); font-size: 13.5px; background: rgba(255,255,255,0.04); color: var(--ink); box-shadow: inset 0 1px 3px rgba(0,0,0,0.25); }
   .add-tp-row button{ width:auto; padding: 10px 16px; font-size:13px; }
@@ -695,7 +692,7 @@
 
     <section class="card" id="teamCcCard" hidden>
       <h2 class="card-title">Dein Monatsabschluss</h2>
-      <p class="progress-sub" style="font-size:13.5px; margin-bottom:12px;">Einmal im Monat, zusammen mit deiner Planung: die echten Zahlen des Monats. Du findest sie in FLP360. Leer lassen, wenn du etwas nicht weißt.</p>
+      <p class="progress-sub" style="font-size:13.5px; margin-bottom:12px;">Einmal im Monat, zusammen mit deiner Planung: deine drei Zahlen des Monats. Du findest sie in FLP360.</p>
       <div class="field">
         <label for="teamCcMonth">Monat</label>
         <select id="teamCcMonth"></select>
@@ -705,12 +702,13 @@
         <input type="number" step="0.001" min="0" inputmode="decimal" id="eigenIst" placeholder="z. B. 2,5">
       </div>
       <div class="field">
-        <label for="globalIst">Global gesamt CC</label>
+        <label for="globalIst">Global gesamt CC (du und dein ganzes Team)</label>
         <input type="number" step="0.001" min="0" inputmode="decimal" id="globalIst" placeholder="z. B. 48,25">
       </div>
-      <div class="plan-sub">CC deines Teams</div>
-      <div id="teamCcList"></div>
-      <div class="plan-sum" id="teamCcSum"></div>
+      <div class="field">
+        <label for="fourCcIst">Anzahl Partnerinnen mit mindestens 4 CC</label>
+        <input type="number" step="1" min="0" inputmode="numeric" id="fourCcIst" placeholder="z. B. 3">
+      </div>
       <button type="button" class="btn" id="teamCcSaveBtn">Monatsabschluss speichern</button>
       <p class="progress-sub" id="teamCcStatus" style="text-align:center; margin-top:10px;"></p>
     </section>
@@ -1450,13 +1448,7 @@
       .map(m => `<option value="${m.id}" ${m.id === selected ? 'selected' : ''}>${escHtml(m.name)}</option>`).join('');
   }
 
-  function progressText(p){
-    if(!p) return '';
-    if(p.done) return 'Höchster Rang erreicht.';
-    if(p.manual) return 'Weg zum Eagle Manager: bitte mit Dominik anschauen.';
-    const span = p.months === 1 ? 'im Monat' : `in ${p.months} Monaten`;
-    return `${fmtCc(p.ccSoFar)} von ${p.ccTarget} CC ${span} bis ${MEMBER_RANK_LABELS[p.nextRank]}`;
-  }
+
 
   // Ziele & Notizen einer Partnerin (aufgeklappte Bereiche bleiben nach dem Neuladen offen)
   const openCoach = new Set();
@@ -1488,12 +1480,10 @@
 
   function renderTeam(){
     const members = teamData.members || [];
-    const ccMonth = teamData.ccMonth;
     const active = members.filter(m => m.active);
-    const total = teamData.totals && teamData.totals[ccMonth];
     document.getElementById('teamSummary').textContent = active.length
-      ? `${active.length} aktive Partnerin${active.length === 1 ? '' : 'nen'} · Team-CC ${monthName(ccMonth)}: ${total != null ? fmtCc(total) : 'noch nicht eingetragen'}`
-      : 'Trag hier deine Partnerinnen ein, auch die aus tieferen Ebenen. So siehst du dein ganzes Team und wer kurz vor dem nächsten Rang steht.';
+      ? `${active.length} aktive Partnerin${active.length === 1 ? '' : 'nen'} in deinem Team`
+      : 'Trag hier deine Partnerinnen ein, auch die aus tieferen Ebenen. So hast du dein ganzes Team, ihre Einarbeitung, Ziele und deine Notizen an einem Ort.';
 
     const children = {};
     members.forEach(m => { const k = m.sponsorId || 'root'; (children[k] = children[k] || []).push(m); });
@@ -1501,9 +1491,6 @@
     // Waisen (Sponsorin gelöscht) unter "root"
     members.forEach(m => { if(m.sponsorId && !known.has(m.sponsorId)) (children.root = children.root || []).push(m); });
     function rowHtml(m){
-      const cc = m.cc[ccMonth];
-      const p = m.progress || {};
-      const bar = p.ccTarget ? `<div class="tm-bar"><span style="width:${p.pct}%"></span></div>` : '';
       const kids = (children[m.id] || []).map(rowHtml).join('');
       const ob = m.onboarding;
       const obHtml = ob ? `<details class="tm-onboarding" ${ob.done < 7 ? 'open' : ''}><summary>Einarbeitung ${ob.done}/7${ob.done === 7 ? ' ✓' : ''}</summary><div class="tp-steps" style="margin-top:8px;">${
@@ -1515,7 +1502,6 @@
         <div class="tm-head"><span class="tm-name">${escHtml(m.name)}${m.active ? '' : ' (nicht mehr aktiv)'}</span><button type="button" class="tm-edit-btn" data-edit="${m.id}">Bearbeiten</button></div>
         <div class="tm-rank">${MEMBER_RANK_LABELS[m.rank] || m.rank}</div>
         ${prof}
-        <div class="tm-meta">CC ${monthName(ccMonth)}: ${cc != null ? fmtCc(cc) : '–'}<br>${progressText(p)}</div>${bar}
         ${sig}
         ${obHtml}
         ${teamData.coachingReady ? coachHtml(m) : ''}
@@ -1666,29 +1652,14 @@
     document.getElementById('eigenIst').value = eigenVal != null ? eigenVal : '';
     const globalVal = teamData.globalCc && teamData.globalCc[current];
     document.getElementById('globalIst').value = globalVal != null ? globalVal : '';
-    const list = document.getElementById('teamCcList');
-    const active = teamData.members.filter(m => m.active);
-    if(!active.length){
-      list.innerHTML = '<p class="progress-sub">Leg zuerst dein Team an (Menü, Team, Mein Team).</p>';
-      document.getElementById('teamCcSum').hidden = true;
-      return;
-    }
-    document.getElementById('teamCcSum').hidden = false;
-    list.innerHTML = active.map(m => `<label class="cc-row"><span>${escHtml(m.name)}</span><input type="number" step="0.001" min="0" inputmode="decimal" data-cc="${m.id}" value="${m.cc[current] != null ? m.cc[current] : ''}" placeholder="CC"></label>`).join('');
-    updateTeamCcSum();
+    const fourVal = teamData.fourCc && teamData.fourCc[current];
+    document.getElementById('fourCcIst').value = fourVal != null ? fourVal : '';
   }
-  function updateTeamCcSum(){
-    let sum = 0, n = 0;
-    document.querySelectorAll('#teamCcList [data-cc]').forEach(i => { const v = Number(String(i.value).replace(',', '.')); if(i.value !== '' && Number.isFinite(v)){ sum += v; n++; } });
-    document.getElementById('teamCcSum').textContent = `Team gesamt: ${fmtCc(Math.round(sum * 1000) / 1000)} CC (${n} eingetragen)`;
-  }
-  document.getElementById('teamCcList').addEventListener('input', updateTeamCcSum);
   document.getElementById('teamCcMonth').addEventListener('change', renderTeamCc);
   document.getElementById('teamCcSaveBtn').addEventListener('click', async function(){
     const status = document.getElementById('teamCcStatus');
-    const entries = [...document.querySelectorAll('#teamCcList [data-cc]')].map(i => ({ id: i.dataset.cc, cc: i.value }));
     this.disabled = true; this.textContent = 'Wird gespeichert …';
-    const { res, data } = await teamPost({ action: 'save-cc', month: document.getElementById('teamCcMonth').value, entries, eigen_cc: document.getElementById('eigenIst').value, global_cc: document.getElementById('globalIst').value });
+    const { res, data } = await teamPost({ action: 'save-cc', month: document.getElementById('teamCcMonth').value, entries: [], eigen_cc: document.getElementById('eigenIst').value, global_cc: document.getElementById('globalIst').value, four_cc: document.getElementById('fourCcIst').value });
     this.disabled = false; this.textContent = 'Monatsabschluss speichern';
     if(!res.ok){ status.textContent = data.error || 'Fehler beim Speichern.'; return; }
     status.textContent = 'Gespeichert ✓';

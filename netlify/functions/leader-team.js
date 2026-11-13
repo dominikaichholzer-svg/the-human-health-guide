@@ -77,7 +77,7 @@ exports.handler = async function (event) {
       const today = viennaTodayStr();
       for (const m of t.byLeader[leaderId].members) m.signals = memberSignals(m, t.ccMonth, today);
       // Ist-Eigenverbrauch (supabase/rankings.sql); fehlt die Tabelle, ohne
-      const eigen = {}, globalCc = {};
+      const eigen = {}, globalCc = {}, fourCc = {};
       try {
         // select=* : global_cc ist eine spätere Spalte und darf noch fehlen
         const rows = await pgrest('monthly_actuals', { query: `leader_id=eq.${leaderId}&month=gte.${t.months[0]}-01&select=*` });
@@ -85,9 +85,10 @@ exports.handler = async function (event) {
           const k = String(r.month).slice(0, 7);
           if (r.eigen_cc != null) eigen[k] = Number(r.eigen_cc);
           if (r.global_cc != null) globalCc[k] = Number(r.global_cc);
+          if (r.four_cc_count != null) fourCc[k] = Number(r.four_cc_count);
         }
       } catch (e) { /* noch nicht eingerichtet */ }
-      return json(200, { ccMonth: t.ccMonth, months: t.months, ranks: MEMBER_RANKS, eigen, globalCc, coachingReady: t.coachingReady, ...t.byLeader[leaderId] });
+      return json(200, { ccMonth: t.ccMonth, months: t.months, ranks: MEMBER_RANKS, eigen, globalCc, fourCc, coachingReady: t.coachingReady, ...t.byLeader[leaderId] });
     }
 
     const p = payload;
@@ -223,6 +224,13 @@ exports.handler = async function (event) {
       const globalP = parseOwn(p.global_cc, 'Global gesamt CC');
       if (globalP.error) return json(400, { error: globalP.error });
       const eigen = eigenP.value, globalCc = globalP.value;
+      let fourCc;
+      if (p.four_cc !== undefined) {
+        const raw = p.four_cc === null ? '' : String(p.four_cc).trim();
+        if (raw === '') fourCc = null;
+        else if (/^\d{1,4}$/.test(raw)) fourCc = Number(raw);
+        else return json(400, { error: 'Bitte bei den 4CC-Partnerinnen eine ganze Zahl eingeben.' });
+      }
       const own = new Set((await ownMembers(leaderId)).map((m) => m.id));
       const upserts = [];
       const deletes = [];
@@ -245,10 +253,11 @@ exports.handler = async function (event) {
       if (deletes.length) {
         await pgrest('team_member_cc', { method: 'DELETE', query: `member_id=in.(${deletes.join(',')})&month=eq.${p.month}-01` });
       }
-      if (eigen !== undefined || globalCc !== undefined) {
+      if (eigen !== undefined || globalCc !== undefined || fourCc !== undefined) {
         const row = { leader_id: leaderId, month: p.month + '-01', updated_at: new Date().toISOString() };
         if (eigen !== undefined) row.eigen_cc = eigen;
         if (globalCc !== undefined) row.global_cc = globalCc;
+        if (fourCc !== undefined) row.four_cc_count = fourCc;
         try {
           await pgrest('monthly_actuals', {
             method: 'POST',
@@ -258,7 +267,7 @@ exports.handler = async function (event) {
           });
         } catch (e) {
           console.error('monthly_actuals', e.message);
-          if (eigen != null || globalCc != null) return json(500, { error: 'Team-CC gespeichert, Eigenverbrauch und Global gesamt CC konnten noch nicht gespeichert werden.' });
+          if (eigen != null || globalCc != null || fourCc != null) return json(500, { error: 'Der Monatsabschluss konnte noch nicht gespeichert werden.' });
         }
       }
       return json(200, { ok: true, saved: upserts.length });

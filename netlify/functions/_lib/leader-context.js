@@ -88,17 +88,22 @@ async function buildLeaderContext(leader, todayStr) {
     lines.push('Leadership-Pins diesen Monat: ' + pinEval.results.map((r) => `${r.label} ${r.ok ? 'erreicht' : r.target != null ? `${fmt(r.value || 0)}/${fmt(r.target)}` : 'offen'}`).join(', ') + '.');
   }
 
+  // Monatsabschluss (eigene Zahlen aus FLP360) der letzten 2 Monate
+  const actuals = (await safe(pgrest('monthly_actuals', { query: `leader_id=eq.${leader.id}&order=month.desc&limit=2&select=*` }), [])) || [];
+  for (const a of actuals) {
+    lines.push(`Monatsabschluss ${String(a.month).slice(0, 7)}: Eigenverbrauch ${a.eigen_cc != null ? fmt(a.eigen_cc) + ' CC' : '–'}, Global gesamt ${a.global_cc != null ? fmt(a.global_cc) + ' CC' : '–'}, Partnerinnen mit mind. 4 CC: ${a.four_cc_count != null ? a.four_cc_count : '–'}.`);
+  }
+
   const teams = await safe(loadTeams([leader.id], today, { coaching: true }), null);
   const members = teams ? teams.byLeader[leader.id].members.filter((m) => m.active) : [];
   if (members.length) {
     const byId = Object.fromEntries(members.map((m) => [m.id, m]));
-    lines.push(`Ihr Team (${members.length} aktiv, CC-Monat ${teams.ccMonth}):`);
+    lines.push(`Ihr Team (${members.length} aktiv; CC je Partnerin stehen nicht im Dashboard, die sieht sie in FLP360):`);
     for (const m of members) {
       const sig = memberSignals(m, teams.ccMonth, today);
-      const cc = teams.months.slice(-3).map((k) => `${k}: ${m.cc[k] != null ? fmt(m.cc[k]) : '–'}`).join(', ');
       const goals = (m.goals || []).filter((g) => g.status === 'open').map((g) => `${g.goal}${g.targetDate ? ' bis ' + g.targetDate : ''}${g.progress ? ` (${g.progress.pct} %)` : ''}${g.nextStep ? `, nächster Schritt: ${g.nextStep}` : ''}`);
       const notes = (m.notes || []).slice(0, 3).map((n) => `${String(n.createdAt).slice(0, 10)}: ${String(n.note).slice(0, 300)}`);
-      lines.push(`- ${m.name} (${RANK_DE[m.rank] || m.rank}${m.sponsorId && byId[m.sponsorId] ? `, gesponsert von ${byId[m.sponsorId].name}` : ''}${m.startDate ? `, dabei seit ${m.startDate}` : ''}). CC ${cc}.${m.warum ? ` Warum: ${String(m.warum).slice(0, 200)}.` : ''}${m.onboarding && m.onboarding.done < 7 ? ` Einarbeitung ${m.onboarding.done}/7.` : ''}${goals.length ? ` Ziele: ${goals.join('; ')}.` : ''}${sig.length ? ` Hinweise: ${sig.map((x) => x.text).join('; ')}.` : ''}${notes.length ? ` Ihre Notizen: ${notes.join(' | ')}` : ''}`);
+      lines.push(`- ${m.name} (${RANK_DE[m.rank] || m.rank}${m.sponsorId && byId[m.sponsorId] ? `, gesponsert von ${byId[m.sponsorId].name}` : ''}${m.startDate ? `, dabei seit ${m.startDate}` : ''}).${m.warum ? ` Warum: ${String(m.warum).slice(0, 200)}.` : ''}${m.onboarding && m.onboarding.done < 7 ? ` Einarbeitung ${m.onboarding.done}/7.` : ''}${goals.length ? ` Ziele: ${goals.join('; ')}.` : ''}${sig.length ? ` Hinweise: ${sig.map((x) => x.text).join('; ')}.` : ''}${notes.length ? ` Ihre Notizen: ${notes.join(' | ')}` : ''}`);
     }
   } else {
     lines.push('In "Mein Team" ist noch niemand eingetragen.');

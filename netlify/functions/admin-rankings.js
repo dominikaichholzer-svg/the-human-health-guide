@@ -5,7 +5,7 @@
 //   1. Persönliche CC       (höchster CC-Stand der Wocheneinträge im Monat)
 //   2. Call-Teilnahme Mo/Di (Häkchen in der Wochenreflexion, Wochen ab Montag im Monat)
 //   3. Eigenverbrauch CC    (tatsächlicher Wert aus dem Monatsabschluss)
-//   4. 4CC-Leaderentwicklung (Partnerinnen in "Mein Team" mit mindestens 4 CC im Monat)
+//   4. 4CC-Leaderentwicklung (Anzahl Partnerinnen mit mindestens 4 CC, aus dem Monatsabschluss)
 //
 // GET ?month=2026-11   (ohne month: Vormonat; wählbar: laufender + 3 Monate davor)
 
@@ -52,16 +52,10 @@ async function computeRankings(requestedMonth) {
     const leaders = (await pgrest('leaders', { query: 'select=id,name&order=sort_order.asc' })) || [];
     const mondays = mondaysIn(month, today);
 
-    const [weeks, actuals, members] = await Promise.all([
+    const [weeks, actuals] = await Promise.all([
       safe(pgrest('weekly_entries', { query: `week_start=gte.${from}&week_start=lt.${to}&select=*` })),
-      safe(pgrest('monthly_actuals', { query: `month=eq.${from}&select=leader_id,eigen_cc` })),
-      safe(pgrest('team_members', { query: 'select=id,leader_id,name' })),
+      safe(pgrest('monthly_actuals', { query: `month=eq.${from}&select=*` })),
     ]);
-    let ccRows = { ok: true, rows: [] };
-    if (members.rows.length) {
-      ccRows = await safe(pgrest('team_member_cc', { query: `month=eq.${from}&select=member_id,cc` }));
-    }
-    const memberById = Object.fromEntries(members.rows.map((m) => [m.id, m]));
     const callsTracked = weeks.rows.some((w) => 'call_montag' in w);
 
     const personal = [], calls = [], eigen = [], fourCc = [];
@@ -78,10 +72,7 @@ async function computeRankings(requestedMonth) {
       const a = actuals.rows.find((r) => r.leader_id === l.id);
       eigen.push({ name: l.name, value: a && a.eigen_cc != null ? Number(a.eigen_cc) : null });
 
-      const strong = ccRows.rows.filter((r) => memberById[r.member_id] && memberById[r.member_id].leader_id === l.id && Number(r.cc) >= FOUR_CC)
-        .map((r) => memberById[r.member_id].name);
-      const hasTeamCc = ccRows.rows.some((r) => memberById[r.member_id] && memberById[r.member_id].leader_id === l.id);
-      fourCc.push({ name: l.name, value: hasTeamCc ? strong.length : null, detail: strong.join(', ') });
+      fourCc.push({ name: l.name, value: a && a.four_cc_count != null ? Number(a.four_cc_count) : null });
     }
 
     return {
@@ -92,7 +83,7 @@ async function computeRankings(requestedMonth) {
         { key: 'personal_cc', title: 'Persönliche CC', unit: 'CC', hint: 'Höchster CC-Stand aus den Wocheneinträgen des Monats', rows: rank(personal) },
         { key: 'calls', title: 'Call-Teilnahme Montag/Dienstag', unit: '%', hint: callsTracked ? `${mondays.length} Call-Wochen im Monat, selbst abgehakt in der Wochenreflexion` : 'Noch keine Daten (Call-Häkchen gibt es ab jetzt in der Wochenreflexion)', rows: rank(calls) },
         { key: 'eigen_cc', title: 'Eigenverbrauch CC', unit: 'CC', hint: actuals.ok ? 'Tatsächlicher Wert aus dem Monatsabschluss' : 'Noch nicht eingerichtet', rows: rank(eigen) },
-        { key: 'four_cc', title: '4CC-Leaderentwicklung', unit: 'Partnerinnen', hint: `Partnerinnen in "Mein Team" mit mindestens ${FOUR_CC} CC im Monat`, rows: rank(fourCc) },
+        { key: 'four_cc', title: '4CC-Leaderentwicklung', unit: 'Partnerinnen', hint: `Partnerinnen mit mindestens ${FOUR_CC} CC im Monat, laut Monatsabschluss`, rows: rank(fourCc) },
       ],
     };
   }

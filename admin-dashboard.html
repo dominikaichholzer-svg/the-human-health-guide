@@ -399,20 +399,15 @@
     const n = (v) => Number(v).toLocaleString('de-AT', { maximumFractionDigits: 3 });
     const cm = overviewData.teamCcMonth;
     const active = team.members.filter(m => m.active);
-    const total = team.totals[cm];
     const sigCount = team.members.reduce((a, m) => a + (m.signals || []).length, 0);
-    const head = `Mein Team (${active.length}) · ${ml(cm)}: ${total != null ? n(total) + ' CC' : '–'}${sigCount ? ` · ⚠️ ${sigCount}` : ''}`;
+    const head = `Mein Team (${active.length})${sigCount ? ` · ⚠️ ${sigCount}` : ''}`;
     if(!team.members.length) return `<details class="more-box"><summary>Mein Team</summary><p class="lmeta">Noch niemand eingetragen.</p></details>`;
-    const months = overviewData.teamMonths.slice(-4);
-    const trend = months.map(k => `${ml(k)}: <b>${team.totals[k] != null ? n(team.totals[k]) : '–'}</b>`).join(' · ');
     const byId = Object.fromEntries(team.members.map(m => [m.id, m]));
     const depth = (m) => { let d = 0, c = m; while(c && c.sponsorId && byId[c.sponsorId] && d < 20){ d++; c = byId[c.sponsorId]; } return d; };
     const order = [];
     const visit = (parent) => team.members.filter(m => (m.sponsorId || null) === parent || (parent === null && m.sponsorId && !byId[m.sponsorId])).forEach(m => { order.push(m); visit(m.id); });
     visit(null);
     const rows = order.map(m => {
-      const p = m.progress || {};
-      const prog = p.ccTarget ? ` · ${n(p.ccSoFar)}/${p.ccTarget} bis ${TEAM_RANKS[p.nextRank]}` : '';
       const ob = m.onboarding ? ` · Einarbeitung ${m.onboarding.done}/7` : '';
       const pad = `padding-left:${depth(m) * 14}px;`;
       const prof = [m.startDate ? 'seit ' + m.startDate.split('-').reverse().join('.') : '', m.warum ? 'Warum: <i>' + esc(m.warum) + '</i>' : ''].filter(Boolean).join(' · ');
@@ -420,9 +415,9 @@
       const notes = (m.notes || []).map(x => `📝 ${new Date(x.createdAt).toLocaleDateString('de-AT')}: ${esc(x.note)}`).join('<br>');
       const sigs = (m.signals || []).map(x => `<div class="sig" style="${pad}">⚠️ ${esc(x.text)}</div>`).join('');
       const detail = [prof, goals, notes].filter(Boolean).join('<br>');
-      return `<p class="lmeta" style="${pad}${m.active ? '' : ' opacity:0.5;'}">${depth(m) ? '↳ ' : ''}<b>${esc(m.name)}</b>, ${TEAM_RANKS[m.rank] || esc(m.rank)} · ${ml(cm)}: ${m.cc[cm] != null ? n(m.cc[cm]) : '–'}${prog}${ob}</p>${sigs}${detail ? `<div class="tm-detail" style="${pad}">${detail}</div>` : ''}`;
+      return `<p class="lmeta" style="${pad}${m.active ? '' : ' opacity:0.5;'}">${depth(m) ? '↳ ' : ''}<b>${esc(m.name)}</b>, ${TEAM_RANKS[m.rank] || esc(m.rank)}${ob}</p>${sigs}${detail ? `<div class="tm-detail" style="${pad}">${detail}</div>` : ''}`;
     }).join('');
-    return `<details class="more-box"><summary>${head}</summary><p class="lmeta">Team-CC ${trend}</p>${rows}</details>`;
+    return `<details class="more-box"><summary>${head}</summary>${rows}</details>`;
   }
 
   // ============ Leadership-Challenge (Editor) ============
@@ -578,7 +573,7 @@
     const k = overviewData.closeMonth;
     const n = (v) => v == null ? '–' : Number(v).toLocaleString('de-AT', { maximumFractionDigits: 3 }) + ' CC';
     const c = l.monthClose || {};
-    return `<p class="lmeta">Monatsabschluss ${MONTHS[Number(k.slice(5, 7)) - 1]}: Eigenverbrauch <b>${n(c.eigenCc)}</b> · Global gesamt <b>${n(c.globalCc)}</b></p>`;
+    return `<p class="lmeta">Monatsabschluss ${MONTHS[Number(k.slice(5, 7)) - 1]}: Eigenverbrauch <b>${n(c.eigenCc)}</b> · Global gesamt <b>${n(c.globalCc)}</b> · 4CC-Partnerinnen <b>${c.fourCc == null ? '–' : c.fourCc}</b></p>`;
   }
 
   // Deine eigenen Notizen zu einer Leaderin (sieht nur du)
