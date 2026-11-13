@@ -39,20 +39,16 @@ function rank(rows) {
   return withVal.concat(rows.filter((r) => r.value == null).map((r) => ({ ...r, place: null })));
 }
 
-exports.handler = async function (event) {
-  if (event.httpMethod !== 'GET') return json(405, { error: 'Method Not Allowed' });
-  const adminCheck = await requireAdmin(event, null);
-  if (!adminCheck.ok) return adminCheck.response;
-
+// Berechnung ohne HTTP, damit auch JARVIS (Telegram) sie nutzen kann
+async function computeRankings(requestedMonth) {
   const today = viennaTodayStr();
   const months = monthsBack(today, 4).reverse(); // neueste zuerst
-  const q = event.queryStringParameters || {};
-  const month = months.includes(q.month) ? q.month : months[1];
+  const month = months.includes(requestedMonth) ? requestedMonth : months[1];
   const from = month + '-01';
   const to = nextMonthKey(month) + '-01';
   const safe = async (p) => { try { return { ok: true, rows: (await p) || [] }; } catch (e) { return { ok: false, rows: [] }; } };
 
-  try {
+  {
     const leaders = (await pgrest('leaders', { query: 'select=id,name&order=sort_order.asc' })) || [];
     const mondays = mondaysIn(month, today);
 
@@ -88,7 +84,7 @@ exports.handler = async function (event) {
       fourCc.push({ name: l.name, value: hasTeamCc ? strong.length : null, detail: strong.join(', ') });
     }
 
-    return json(200, {
+    return {
       month,
       months,
       isCurrentMonth: month === months[0],
@@ -98,9 +94,20 @@ exports.handler = async function (event) {
         { key: 'eigen_cc', title: 'Eigenverbrauch CC', unit: 'CC', hint: actuals.ok ? 'Tatsächlicher Wert aus dem Monatsabschluss' : 'Noch nicht eingerichtet', rows: rank(eigen) },
         { key: 'four_cc', title: '4CC-Leaderentwicklung', unit: 'Partnerinnen', hint: `Partnerinnen in "Mein Team" mit mindestens ${FOUR_CC} CC im Monat`, rows: rank(fourCc) },
       ],
-    });
+    };
+  }
+}
+
+exports.handler = async function (event) {
+  if (event.httpMethod !== 'GET') return json(405, { error: 'Method Not Allowed' });
+  const adminCheck = await requireAdmin(event, null);
+  if (!adminCheck.ok) return adminCheck.response;
+  try {
+    return json(200, await computeRankings((event.queryStringParameters || {}).month));
   } catch (err) {
     console.error('admin-rankings', err.message, err.data || '');
     return json(500, { error: 'Rankings gerade nicht verfügbar.' });
   }
 };
+
+exports.computeRankings = computeRankings;

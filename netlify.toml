@@ -24,6 +24,10 @@
 [functions."scheduled-challenge-push"]
   schedule = "0 7 * * 1"
 
+# Warnung "Monatsziel wackelt": täglich 08:00 UTC, aktiv nur am 10. und 20. (Wiener Datum)
+[functions."scheduled-plan-warning"]
+  schedule = "0 8 * * *"
+
 # Interne Dateien nicht öffentlich ausliefern (Quellcode der Funktionen,
 # Datenbank-Skripte, Übergabe-Dokumente, interne Skripte). Die Funktionen
 # selbst laufen weiter unter /.netlify/functions/ (mit Punkt).

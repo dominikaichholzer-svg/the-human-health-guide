@@ -53,6 +53,8 @@ Wie du arbeitest:
 - Dominik kann dir den Downline-Export aus FLP360 als Excel-Datei schicken (alle Geschäftspartner mit Titel, Land, Generation und persönlichem CC der letzten 4 Monate, ohne Telefon und E-Mail). Für Fragen zu seiner ganzen Downline, z. B. wer inaktiv ist oder wer länger nicht bestellt hat, nutze "flp_partner". FBO sind alle Geschäftspartner mit Titel, FPC sind Preferred Customer. Fragt er nach dem Team oder allen Registrierten einer bestimmten Person, setz downline_von auf ihren Namen. Übernimm die Reihenfolge des Tools und nenne in der Antwort, von wann der Export ist. Bei langen Listen (mehr als etwa 30 Personen) ruf das Tool mit als_pdf=true auf, das PDF geht dann direkt an Dominik. Schreib im Chat nur noch die Anzahlen und deine Empfehlung, wen er zuerst kontaktieren sollte.
 - Schulungswissen: Deine Bibliothek enthält Einträge mit dem Titel "Schulung: ...". Das sind die Videos der Basis-Ausbildung (More-Success-Academy), die jede neue Partnerin durchmacht: Warum, Empfehlungsmarketing, Kundenkonzepte (WhatsApp-Event, Wellness-Abend, Testboxen, Lips und Zahnpasta, C9), Vergütungsplan, Forever-Cockpit, indirekte Vermarktung, kalter Markt, Einwände, Trello, Social Media, Supervisor-Training, Monatsplanung. Bei Fragen zu Abläufen, Konzepten, Produkten, Vergütung, Rängen, Einwänden oder Vorgehen im Team schau ZUERST in die passenden Schulungs-Einträge und frag sie mit "buch_fragen" ab, bei Bedarf mehrere. Die Kurzfassung in der Bibliotheksliste reicht nicht. Bei Vergütung, Rängen, CC, Prozenten, Rabatten und Beträgen nennst du nur Zahlen, die im Schulungstext stehen, genau so wie dort genannt, ohne zu runden, zu ergänzen oder hochzurechnen. Trenne klar: "Laut Schulung (Titel): ..." für das, was im Video steht, und "Nicht aus der Schulung: ..." nur, wenn es nötig ist. Sprich von "Video" oder "Schulung", nicht von "Transkript". Steht etwas nicht in der Schulung, sag das ehrlich und verweise für Verbindliches auf das Forever-Cockpit oder die offiziellen Firmenunterlagen. Widersprechen sich zwei Videos, nenne beide Fundstellen. Nenne am Ende den Titel des Videos als Quelle. Die Videos kommen aus dem Schweizer Umfeld, Frankenbeträge und CC-Werte gelten dort "je nach Land": nenne sie als Beispiel aus der Schulung, nicht als Werte für Österreich. Was nur eingeblendet war (Tabellen, Länderwerte), fehlt im Text. Die Videos enthalten Gesundheits- und Einkommensaussagen (z. B. zu Neurodermitis oder Verdienstbeispiele). Nutze sie als Lerninhalt für Dominik, aber übernimm sie nie als Aussage in Texte, die an Kunden oder Interessenten gehen: dort nur "unterstützt", keine Heilversprechen, keine Einkommensversprechen.
 - Du kannst Dominik mit "pdf_senden" ein PDF schicken. Wenn er nach einem PDF fragt, oder bei langen Plänen zum Nachschlagen, nutze das. Wenn er "das als PDF" sagt, nimm den Inhalt deiner letzten ausführlichen Antwort vollständig.
+- Seit Phase 3 und 4 des Leader-Dashboards hast du Werkzeuge für "Mein Team" der Leaderinnen (team_details), Coaching-Hinweise (coaching_hinweise), Pins und die vier Rankings (pins_und_rankings) und die 52-Wochen-Challenge (challenge_antworten). Die Rankings sind vier getrennte Blickwinkel, rechne sie nie zu einer Gesamtpunktzahl zusammen. Die Coaching-Notizen der Leaderinnen sind vertraulich: nutze sie für Dominiks Vorbereitung, schlag nie vor, sie weiterzugeben.
+- Du triffst nie Entscheidungen über Menschen. Du sagst nicht, ob jemand "es schafft", sich lohnt oder fallen gelassen werden sollte. Du gibst Beobachtungen, Fragen und Gesprächsideen, entscheiden tut Dominik.
 - Du kannst sonst nichts verschicken, keine Termine eintragen und niemanden anschreiben. Wenn Dominik so etwas will, schreib ihm den fertigen Text, den er selbst rausschicken kann, und sag kurz, dass diese Funktion noch kommt.
 - Antworte auf Deutsch, per Du, kurz und konkret wie in einem Chat. Kein Markdown (keine Sternchen, keine Rauten, keine Tabellen), weil Telegram das als reinen Text zeigt. Aufzählungen nur mit einfachen Bindestrichen oder Zahlen. Keine Motivationsfloskeln.`;
 
@@ -184,8 +186,164 @@ const TOOLS = [
     },
     strict: true,
   },
+  {
+    name: 'coaching_hinweise',
+    description:
+      'Liefert alle aktuellen Hinweise auf Coaching-Bedarf: zu jeder Leaderin (viele Kontakte aber kaum Präsentationen, Tage ohne Tagesabschluss, Plan im Vormonat verfehlt, liegt hinter dem laufenden Monatsplan) und zu den Partnerinnen in ihrem Team (CC sinkt, Einarbeitung hängt, Ziel bald fällig). Nutze das fürs Morgen-Briefing und wenn Dominik fragt, wo er sich kümmern sollte.',
+    input_schema: { type: 'object', properties: {}, required: [], additionalProperties: false },
+    strict: true,
+  },
+  {
+    name: 'team_details',
+    description:
+      'Liefert für eine Leaderin ihr ganzes "Mein Team": Partnerinnen mit Sponsor, Rang, CC der letzten Monate, Einarbeitung, Entwicklungszielen, Hinweisen und den Coaching-Notizen der Leaderin; dazu Dominiks eigene Notizen zu ihr. Nutze das, wenn es um das Team einer bestimmten Leaderin oder ein Gespräch mit ihr geht.',
+    input_schema: {
+      type: 'object',
+      properties: { name: { type: 'string', description: 'Vorname der Leaderin, z. B. "Laura"' } },
+      required: ['name'],
+      additionalProperties: false,
+    },
+    strict: true,
+  },
+  {
+    name: 'pins_und_rankings',
+    description:
+      'Liefert für einen Monat die vier getrennten Rankings (persönliche CC, Call-Teilnahme, Eigenverbrauch, 4CC-Leaderentwicklung) und die Leadership-Pins (vergeben oder Vorschlag mit Begründung). Die Rankings sind nur für Dominik, nie zu einer Gesamtpunktzahl zusammenrechnen.',
+    input_schema: {
+      type: 'object',
+      properties: { monat: { type: 'string', description: 'Monat als JJJJ-MM, z. B. "2026-11". Leer = Vormonat.' } },
+      required: ['monat'],
+      additionalProperties: false,
+    },
+    strict: true,
+  },
+  {
+    name: 'challenge_antworten',
+    description:
+      'Liefert eine Woche der 52-Wochen-Leadership-Challenge: Impuls, Aufgabe, Reflexionsfrage und je Leaderin, ob die Aufgabe erledigt ist und ihre Antwort.',
+    input_schema: {
+      type: 'object',
+      properties: { woche: { type: 'integer', description: 'Wochennummer 1 bis 52, 0 = laufende Woche' } },
+      required: ['woche'],
+      additionalProperties: false,
+    },
+    strict: true,
+  },
   { type: 'web_search_20260209', name: 'web_search', max_uses: 3 },
 ];
+
+// ---------- Phase 4: Teamführung, Pins, Rankings, Challenge ----------
+
+const { loadTeams } = require('./team');
+const { memberSignals, leaderSignals } = require('./signals');
+const { planStatus } = require('./leader-context');
+const challenge = require('./challenge');
+const { monthsBack, monthlyTotals } = require('./ranks');
+
+async function leaderSignalsFor(leader, today) {
+  const [weeks, days, prevPlans, curPlans] = await Promise.all([
+    pgrest('weekly_entries', { query: `leader_id=eq.${leader.id}&order=week_start.desc&limit=10&select=*` }),
+    pgrest('daily_reflections', { query: `leader_id=eq.${leader.id}&order=entry_date.desc&limit=7&select=entry_date` }).catch(() => []),
+    pgrest('monthly_plans', { query: `leader_id=eq.${leader.id}&target_month=eq.${monthsBack(today, 2)[0]}-01&select=target_month,plan_cc` }).catch(() => []),
+    pgrest('monthly_plans', { query: `leader_id=eq.${leader.id}&target_month=eq.${today.slice(0, 7)}-01&select=plan_cc` }).catch(() => []),
+  ]);
+  const out = leaderSignals({ weeks, days, plans: prevPlans }, today).map((x) => x.text);
+  if (curPlans && curPlans[0]) {
+    const st = planStatus(Number(curPlans[0].plan_cc), monthlyTotals(weeks || [])[today.slice(0, 7)], today);
+    if (st && st.behind) out.push(`Liegt hinter dem Monatsplan: noch ${st.remaining} CC in ${st.daysLeft} Tagen`);
+  }
+  return out;
+}
+
+async function coachingHinweise() {
+  const today = viennaTodayStr();
+  const leaders = await pgrest('leaders', { query: 'select=id,name&order=sort_order.asc' });
+  let teams = null;
+  try { teams = await loadTeams(leaders.map((l) => l.id), today, { coaching: true }); } catch (e) { teams = null; }
+  const result = [];
+  for (const l of leaders) {
+    const team = [];
+    if (teams) {
+      for (const m of teams.byLeader[l.id].members) {
+        const sig = memberSignals(m, teams.ccMonth, today);
+        if (sig.length) team.push({ partnerin: m.name, hinweise: sig.map((x) => x.text) });
+      }
+    }
+    result.push({ leaderin: l.name, hinweise_zu_ihr: await leaderSignalsFor(l, today), hinweise_zu_ihrem_team: team });
+  }
+  return { heute: today, leaderinnen: result };
+}
+
+async function teamDetails({ name }) {
+  const today = viennaTodayStr();
+  const rows = await pgrest('leaders', { query: `name=ilike.${encodeURIComponent(name + '*')}&select=id,name,current_rank` });
+  if (!rows.length) return { fehler: `Keine Leaderin mit dem Namen ${name} gefunden.` };
+  const l = rows[0];
+  const teams = await loadTeams([l.id], today, { coaching: true });
+  // Mitlesen der Coaching-Notizen wird protokolliert, wie im Admin-Dashboard
+  try {
+    await pgrest('access_log', { method: 'POST', body: [{ leader_id: l.id, action: 'jarvis_read_coaching_notes', detail: 'Telegram' }] });
+  } catch (e) { /* Protokoll darf nichts blockieren */ }
+  let adminNotes = [];
+  try {
+    adminNotes = await pgrest('coaching_notes', { query: `leader_id=eq.${l.id}&author=eq.admin&order=created_at.desc&limit=10&select=note,created_at` });
+  } catch (e) { adminNotes = []; }
+  const members = teams.byLeader[l.id].members;
+  const byId = Object.fromEntries(members.map((m) => [m.id, m.name]));
+  return {
+    leaderin: l.name,
+    rang: l.current_rank,
+    cc_monat: teams.ccMonth,
+    team_cc: teams.byLeader[l.id].totals,
+    hinweise_zu_ihr: await leaderSignalsFor(l, today),
+    deine_notizen_zu_ihr: adminNotes.map((n) => ({ datum: String(n.created_at).slice(0, 10), notiz: n.note })),
+    partnerinnen: members.map((m) => ({
+      name: m.name, aktiv: m.active, rang: m.rank, gesponsert_von: m.sponsorId ? byId[m.sponsorId] || null : l.name,
+      dabei_seit: m.startDate, warum: m.warum, cc: m.cc, fortschritt: m.progress,
+      einarbeitung: m.onboarding ? `${m.onboarding.done}/7` : null,
+      ziele: (m.goals || []).map((g) => ({ ziel: g.goal, bis: g.targetDate, status: g.status, naechster_schritt: g.nextStep, fortschritt_prozent: g.progress ? g.progress.pct : null })),
+      hinweise: memberSignals(m, teams.ccMonth, today).map((x) => x.text),
+      notizen_der_leaderin: (m.notes || []).slice(0, 5).map((n) => ({ datum: String(n.createdAt).slice(0, 10), notiz: n.note })),
+    })),
+  };
+}
+
+async function pinsUndRankings({ monat }) {
+  const { computeRankings } = require('../admin-rankings');
+  const { computePins } = require('../admin-pins');
+  const [r, p] = await Promise.all([computeRankings(monat), computePins(monat).catch(() => null)]);
+  return {
+    monat: r.month,
+    rankings: r.rankings.map((x) => ({ titel: x.title, einheit: x.unit, liste: x.rows.map((row) => ({ platz: row.place, name: row.name, wert: row.value, detail: row.detail || undefined })) })),
+    pins: p ? p.leaders.map((l) => ({
+      name: l.name,
+      vergeben: l.awarded ? `${l.awarded.label} (${l.awarded.reason || ''})` : null,
+      vorschlag: l.proposal ? (l.pins.find((x) => x.key === l.proposal) || {}).label : null,
+      erfuellt: l.pins.filter((x) => x.ok).map((x) => `${x.label}: ${x.reason}`),
+    })) : 'Pins noch nicht eingerichtet',
+  };
+}
+
+async function challengeAntworten({ woche }) {
+  const current = challenge.weekNoFor(viennaTodayStr());
+  const n = woche && woche > 0 ? woche : current;
+  if (n < 1 || n > challenge.WEEKS) return { hinweis: current < 1 ? `Die Challenge startet am ${challenge.START}.` : 'Diese Woche gibt es nicht.' };
+  const [content, progress, leaders] = await Promise.all([
+    pgrest('challenge_weeks', { query: `week_no=eq.${n}&select=impuls,aufgabe,frage` }),
+    pgrest('challenge_progress', { query: `week_no=eq.${n}&select=leader_id,task_done,answer` }),
+    pgrest('leaders', { query: 'select=id,name&order=sort_order.asc' }),
+  ]);
+  return {
+    woche: n,
+    ab: challenge.weekStartOf(n),
+    laufende_woche: current,
+    inhalt: content[0] || null,
+    leaderinnen: leaders.map((l) => {
+      const p = progress.find((x) => x.leader_id === l.id);
+      return { name: l.name, aufgabe_erledigt: !!(p && p.task_done), antwort: p && p.answer ? p.answer : null };
+    }),
+  };
+}
 
 // ---------- Tool-Ausführung ----------
 
@@ -359,6 +517,10 @@ const TOOL_HANDLERS = {
   pdf_senden: pdfSenden,
   flp_partner: flpPartner,
   buch_loeschen: buchLoeschen,
+  coaching_hinweise: coachingHinweise,
+  team_details: teamDetails,
+  pins_und_rankings: pinsUndRankings,
+  challenge_antworten: challengeAntworten,
 };
 
 async function runTool(block) {
@@ -535,4 +697,4 @@ async function runAgent(history, options = {}) {
   return 'Ich habe zu viele Schritte gebraucht und abgebrochen. Frag mich bitte etwas genauer.';
 }
 
-module.exports = { runAgent, loadHistory, saveMessage, makeClient };
+module.exports = { runAgent, loadHistory, saveMessage, makeClient, _toolHandlers: TOOL_HANDLERS };

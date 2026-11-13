@@ -33,6 +33,23 @@ async function notify(leader, pin) {
   } catch (e) { /* Push ist Zugabe, darf die Vergabe nicht verhindern */ }
 }
 
+// Vorschläge und vergebene Pins eines Monats (auch für JARVIS, ohne HTTP)
+async function computePins(requestedMonth) {
+  const today = viennaTodayStr();
+  const months = allowedMonths(today);
+  const month = months.includes(requestedMonth) ? requestedMonth : months[1];
+  const leaders = (await pgrest('leaders', { query: 'select=id,name&order=sort_order.asc' })) || [];
+  const awarded = (await pgrest('leader_pins', { query: `month=eq.${month}-01&select=*` })) || [];
+  const awardedBy = Object.fromEntries(awarded.map((r) => [r.leader_id, r]));
+  const out = [];
+  for (const l of leaders) {
+    const metrics = await monthMetrics(l.id, month, today);
+    const ev = evaluate(metrics);
+    out.push({ id: l.id, name: l.name, metrics, pins: ev.results, proposal: ev.proposal ? ev.proposal.key : null, awarded: awardedBy[l.id] ? publicPin(awardedBy[l.id]) : null });
+  }
+  return { month, months, isCurrentMonth: month === months[0], catalog: PINS.map((p) => ({ key: p.key, emoji: p.emoji, label: p.label, rule: p.rule })), leaders: out };
+}
+
 exports.handler = async function (event) {
   let payload = null;
   if (event.httpMethod === 'POST') {
@@ -52,18 +69,7 @@ exports.handler = async function (event) {
 
   try {
     if (event.httpMethod === 'GET') {
-      const q = event.queryStringParameters || {};
-      const month = months.includes(q.month) ? q.month : months[1];
-      const leaders = (await pgrest('leaders', { query: 'select=id,name&order=sort_order.asc' })) || [];
-      const awarded = (await pgrest('leader_pins', { query: `month=eq.${month}-01&select=*` })) || [];
-      const awardedBy = Object.fromEntries(awarded.map((r) => [r.leader_id, r]));
-      const out = [];
-      for (const l of leaders) {
-        const metrics = await monthMetrics(l.id, month, today);
-        const ev = evaluate(metrics);
-        out.push({ id: l.id, name: l.name, metrics, pins: ev.results, proposal: ev.proposal ? ev.proposal.key : null, awarded: awardedBy[l.id] ? publicPin(awardedBy[l.id]) : null });
-      }
-      return json(200, { month, months, isCurrentMonth: month === months[0], catalog: PINS.map((p) => ({ key: p.key, emoji: p.emoji, label: p.label, rule: p.rule })), leaders: out });
+      return json(200, await computePins((event.queryStringParameters || {}).month));
     }
 
     const p = payload;
@@ -103,3 +109,5 @@ exports.handler = async function (event) {
     return json(500, { error: 'Pins gerade nicht verfügbar.' });
   }
 };
+
+exports.computePins = computePins;

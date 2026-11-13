@@ -1467,6 +1467,7 @@
     const noteHtml = notes.map(n => `<div class="tm-note"><small>${new Date(n.createdAt).toLocaleDateString('de-AT')}</small><span>${escHtml(n.note)}</span><button type="button" class="tm-x" data-notedel="${n.id}" aria-label="Notiz löschen">×</button></div>`).join('');
     const openGoals = goals.filter(g => g.status === 'open').length;
     return `<details class="tm-coach" data-coach="${m.id}" ${openCoach.has(m.id) ? 'open' : ''}><summary>Ziele & Notizen (${openGoals} Ziel${openGoals === 1 ? '' : 'e'}, ${notes.length} Notiz${notes.length === 1 ? '' : 'en'})</summary>
+      <button type="button" class="btn tm-mini-btn" data-prepare="${m.id}" data-name="${escHtml(m.name)}" style="margin-top:10px; background:transparent; border:1.5px solid var(--gold); color:var(--gold); box-shadow:none;">Gespräch mit JARVIS vorbereiten</button>
       <div class="ch-label">Entwicklungsziele</div>${goalHtml || '<p class="progress-sub" style="font-size:12.5px;">Noch kein Ziel.</p>'}
       <input type="text" class="tm-mini" data-gf="goal" placeholder="Neues Ziel, z. B. Supervisor" maxlength="300">
       <div class="field-grid" style="gap:8px;"><select class="tm-mini" data-gf="rank"><option value="">kein Rang-Ziel</option>${Object.keys(MEMBER_RANK_LABELS).filter(r => r !== 'partner').map(r => `<option value="${r}">Rang: ${MEMBER_RANK_LABELS[r]}</option>`).join('')}</select>
@@ -1549,6 +1550,8 @@
       box.hidden = false;
       return;
     }
+    const prepBtn = e.target.closest('[data-prepare]');
+    if(prepBtn){ askJarvis({ prepare_member_id: prepBtn.dataset.prepare }, `Bereite mein Gespräch mit ${prepBtn.dataset.name} vor`); return; }
     const coachBtn = e.target.closest('[data-goaladd],[data-goalreach],[data-goaldel],[data-noteadd],[data-notedel]');
     if(coachBtn){
       const panel = coachBtn.closest('[data-coach]');
@@ -1711,27 +1714,29 @@
     return div;
   }
 
-  async function sendChatMessage(){
+  // special: { prepare_member_id } oder { ask: 'plan' } statt freiem Text
+  async function sendChatMessage(special, label){
     const input = document.getElementById('chatInput');
-    const text = input.value.trim();
-    if(!text) return;
+    const text = special ? '' : input.value.trim();
+    if(!special && !text) return;
     const btn = document.getElementById('chatSendBtn');
     btn.disabled = true;
-    input.value = '';
-    appendChatMessage('user', text);
+    if(!special) input.value = '';
+    const userEl = appendChatMessage('user', special ? label : text);
     const thinkingEl = appendChatMessage('assistant', '…');
     thinkingEl.classList.add('thinking');
     try {
       const res = await fetch('/.netlify/functions/leader-chat', {
         method: 'POST',
+        credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, message: text, history: chatHistory }),
+        body: JSON.stringify({ ...(token ? { token } : {}), ...(special || { message: text }), history: chatHistory }),
       });
       const data = await res.json();
       thinkingEl.classList.remove('thinking');
       if(res.ok){
         thinkingEl.innerHTML = '<span class="chat-label">JARVIS</span>' + formatReply(data.reply);
-        chatHistory.push({ role: 'user', content: text });
+        chatHistory.push({ role: 'user', content: data.shownMessage || text || label });
         chatHistory.push({ role: 'assistant', content: data.reply });
         chatHistory = chatHistory.slice(-10);
       } else {
@@ -1745,13 +1750,18 @@
       document.getElementById('chatWindow').scrollTop = document.getElementById('chatWindow').scrollHeight;
     }
   }
-  document.getElementById('chatSendBtn').addEventListener('click', sendChatMessage);
+  document.getElementById('chatSendBtn').addEventListener('click', () => sendChatMessage());
   document.getElementById('chatInput').addEventListener('keydown', function(e){
     if(e.key === 'Enter' && !e.shiftKey){
       e.preventDefault();
       sendChatMessage();
     }
   });
+  // Aus "Mein Team" oder aus der Push-Warnung heraus direkt fragen
+  function askJarvis(special, label){
+    switchTab('chat');
+    sendChatMessage(special, label);
+  }
 
   function renderWeeks(weeks){
     const el = document.getElementById('weeksList');
@@ -2248,6 +2258,11 @@
       setMode(q.get('mode'));
     } else if(q.get('tab') === 'plan'){
       switchTab('plan');
+    } else if(q.get('tab') === 'chat' && q.get('ask') === 'plan'){
+      // nur einmal fragen, auch wenn die Seite (z. B. als App) neu geladen wird
+      q.delete('ask'); q.delete('tab');
+      history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q.toString() : ''));
+      askJarvis({ ask: 'plan' }, 'Ich liege hinter meinem Monatsplan. Was kann ich jetzt tun?');
     }
   }
 
