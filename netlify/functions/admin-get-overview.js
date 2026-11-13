@@ -8,6 +8,9 @@
 const { pgrest } = require('./_lib/supabase');
 const { requireAdmin } = require('./_lib/auth');
 const { loadTeams } = require('./_lib/team');
+const { memberSignals, leaderSignals } = require('./_lib/signals');
+const { logAccess } = require('./_lib/auth');
+const { monthsBack } = require('./_lib/ranks');
 const { computeProgress, viennaTodayStr } = require('./_lib/ranks');
 const { planWindow } = require('./_lib/plan');
 
@@ -60,7 +63,20 @@ exports.handler = async function (event) {
     // "Mein Team" je Leaderin (supabase/team.sql). Fehlt die Tabelle noch, ohne.
     let teams = null;
     try {
-      teams = await loadTeams((leaders || []).map((l) => l.id));
+      teams = await loadTeams((leaders || []).map((l) => l.id), viennaTodayStr(), { coaching: true });
+      const t0 = viennaTodayStr();
+      for (const id of Object.keys(teams.byLeader)) {
+        for (const m of teams.byLeader[id].members) m.signals = memberSignals(m, teams.ccMonth, t0);
+      }
+      // Dominik liest die Coaching-Notizen der Leaderinnen mit: das wird protokolliert
+      if (teams.coachingReady) await logAccess(null, 'admin_read_coaching_notes', event);
+    } catch (e) { /* noch nicht eingerichtet */ }
+
+    // Eigene Notizen von Dominik zu seinen Leaderinnen (nur Admin)
+    const adminNotesBy = {};
+    try {
+      const rows = await pgrest('coaching_notes', { query: 'author=eq.admin&order=created_at.desc&select=id,leader_id,note,created_at' });
+      for (const r of rows || []) (adminNotesBy[r.leader_id] = adminNotesBy[r.leader_id] || []).push({ id: r.id, note: r.note, createdAt: r.created_at });
     } catch (e) { /* noch nicht eingerichtet */ }
 
     const today = viennaTodayStr();
@@ -105,6 +121,13 @@ exports.handler = async function (event) {
       });
       const visitsByDay = aggregateVisitsByDay(visits);
 
+      // Hinweise auf Coaching-Bedarf der Leaderin selbst (nur Admin)
+      let prevPlans = [];
+      try {
+        prevPlans = await pgrest('monthly_plans', { query: `leader_id=eq.${leader.id}&target_month=eq.${monthsBack(today, 2)[0]}-01&select=target_month,plan_cc` });
+      } catch (e) { prevPlans = []; }
+      const signals = leaderSignals({ weeks: weeklyEntries, days: recentDays, plans: prevPlans }, today);
+
       leaderSummaries.push({
         id: leader.id,
         name: leader.name,
@@ -120,6 +143,8 @@ exports.handler = async function (event) {
         monthlyPlans,
         login: loginById[leader.id] || null,
         team: teams ? teams.byLeader[leader.id] : null,
+        signals,
+        adminNotes: adminNotesBy[leader.id] || [],
       });
     }
 

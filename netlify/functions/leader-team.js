@@ -9,6 +9,10 @@
 // POST { action:"save-cc", month:"2026-11", entries:[{ id, cc }] }   (cc leer = löschen)
 // POST { action:"start-onboarding", id }                 -> Einarbeitungs-Checkliste für diese Partnerin
 // POST { action:"tp-step", id, step:"step_3", value }    -> Schritt der Checkliste abhaken
+// POST { action:"add-note", id, note } / { action:"delete-note", note_id }      -> Coaching-Notizen
+// POST { action:"save-goal", id, goal_id?, goal, target_rank?, target_date?, next_step?, status? }
+// POST { action:"delete-goal", goal_id }
+// "update" nimmt zusätzlich start_date und warum (Teamprofil).
 //
 // Bei "add" startet { onboarding:true } gleich die Checkliste (Tabelle new_tps,
 // die auch JARVIS und die Kontakt-Quote lesen).
@@ -16,9 +20,12 @@
 const { pgrest } = require('./_lib/supabase');
 const { requireLeader, json } = require('./_lib/auth');
 const { STEP_KEYS, MEMBER_RANKS, loadTeams } = require('./_lib/team');
+const { memberSignals } = require('./_lib/signals');
 const { monthsBack, viennaTodayStr } = require('./_lib/ranks');
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const DATE = /^\d{4}-\d{2}-\d{2}$/;
+const cleanText = (v, max) => (typeof v === 'string' && v.trim() ? v.trim().slice(0, max) : null);
 
 function cleanName(n) {
   const s = String(n || '').trim().replace(/\s+/g, ' ');
@@ -66,14 +73,16 @@ exports.handler = async function (event) {
 
   try {
     if (event.httpMethod === 'GET') {
-      const t = await loadTeams([leaderId]);
+      const t = await loadTeams([leaderId], viennaTodayStr(), { coaching: true });
+      const today = viennaTodayStr();
+      for (const m of t.byLeader[leaderId].members) m.signals = memberSignals(m, t.ccMonth, today);
       // Ist-Eigenverbrauch (supabase/rankings.sql); fehlt die Tabelle, ohne
       const eigen = {};
       try {
         const rows = await pgrest('monthly_actuals', { query: `leader_id=eq.${leaderId}&month=gte.${t.months[0]}-01&select=month,eigen_cc` });
         for (const r of rows || []) if (r.eigen_cc != null) eigen[String(r.month).slice(0, 7)] = Number(r.eigen_cc);
       } catch (e) { /* noch nicht eingerichtet */ }
-      return json(200, { ccMonth: t.ccMonth, months: t.months, ranks: MEMBER_RANKS, eigen, ...t.byLeader[leaderId] });
+      return json(200, { ccMonth: t.ccMonth, months: t.months, ranks: MEMBER_RANKS, eigen, coachingReady: t.coachingReady, ...t.byLeader[leaderId] });
     }
 
     const p = payload;
@@ -111,6 +120,11 @@ exports.handler = async function (event) {
         patch.rank = p.rank;
       }
       if (p.active !== undefined) patch.active = !!p.active;
+      if (p.start_date !== undefined) {
+        if (p.start_date && !DATE.test(p.start_date)) return json(400, { error: 'Ungültiges Startdatum' });
+        patch.start_date = p.start_date || null;
+      }
+      if (p.warum !== undefined) patch.warum = cleanText(p.warum, 1000);
       if (p.sponsor_id !== undefined) {
         if (!sponsorOk(members, p.id, sponsorId)) return json(400, { error: 'Diese Sponsorin geht nicht (gehört nicht zu deinem Team oder wäre im Kreis).' });
         patch.sponsor_id = sponsorId;
@@ -134,7 +148,52 @@ exports.handler = async function (event) {
         return json(200, { ok: true });
       }
       if (!STEP_KEYS.includes(p.step)) return json(400, { error: 'Ungültiger Schritt' });
-      await pgrest('new_tps', { method: 'PATCH', query: `member_id=eq.${p.id}&leader_id=eq.${leaderId}`, body: { [p.step]: !!p.value } });
+      const q = `member_id=eq.${p.id}&leader_id=eq.${leaderId}`;
+      try {
+        await pgrest('new_tps', { method: 'PATCH', query: q, body: { [p.step]: !!p.value, steps_updated_at: new Date().toISOString() } });
+      } catch (e) {
+        if (!(e.data && e.data.code === 'PGRST204')) throw e; // Spalte aus phase3.sql fehlt noch
+        await pgrest('new_tps', { method: 'PATCH', query: q, body: { [p.step]: !!p.value } });
+      }
+      return json(200, { ok: true });
+    }
+
+    if (p.action === 'add-note' || p.action === 'save-goal') {
+      if (!p.id || !UUID.test(p.id)) return json(400, { error: 'id fehlt' });
+      if (!(await ownMembers(leaderId)).some((m) => m.id === p.id)) return json(404, { error: 'Nicht gefunden' });
+      if (p.action === 'add-note') {
+        const note = cleanText(p.note, 4000);
+        if (!note) return json(400, { error: 'Bitte etwas notieren.' });
+        await pgrest('coaching_notes', { method: 'POST', body: [{ author: 'leader', leader_id: leaderId, member_id: p.id, note }] });
+        return json(200, { ok: true });
+      }
+      const goal = cleanText(p.goal, 300);
+      if (!goal) return json(400, { error: 'Bitte ein Ziel eingeben.' });
+      if (p.target_rank && !MEMBER_RANKS.includes(p.target_rank)) return json(400, { error: 'Ungültiger Rang' });
+      if (p.target_date && !DATE.test(p.target_date)) return json(400, { error: 'Ungültiges Datum' });
+      if (p.status && !['open', 'reached'].includes(p.status)) return json(400, { error: 'Ungültiger Status' });
+      const row = {
+        goal, target_rank: p.target_rank || null, target_date: p.target_date || null,
+        next_step: cleanText(p.next_step, 500), status: p.status || 'open', updated_at: new Date().toISOString(),
+      };
+      if (p.goal_id) {
+        if (!/^\d+$/.test(String(p.goal_id))) return json(400, { error: 'Ungültiges Ziel' });
+        await pgrest('member_goals', { method: 'PATCH', query: `id=eq.${p.goal_id}&leader_id=eq.${leaderId}&member_id=eq.${p.id}`, body: row });
+      } else {
+        await pgrest('member_goals', { method: 'POST', body: [{ leader_id: leaderId, member_id: p.id, ...row }] });
+      }
+      return json(200, { ok: true });
+    }
+
+    if (p.action === 'delete-note' || p.action === 'delete-goal') {
+      const id = String(p.note_id || p.goal_id || '');
+      if (!/^\d+$/.test(id)) return json(400, { error: 'id fehlt' });
+      // leader_id im Filter: fremde Einträge werden nie getroffen
+      if (p.action === 'delete-note') {
+        await pgrest('coaching_notes', { method: 'DELETE', query: `id=eq.${id}&leader_id=eq.${leaderId}&author=eq.leader` });
+      } else {
+        await pgrest('member_goals', { method: 'DELETE', query: `id=eq.${id}&leader_id=eq.${leaderId}` });
+      }
       return json(200, { ok: true });
     }
 

@@ -33,8 +33,19 @@ function memberProgress(rank, ccByMonth, refMonthKey) {
   return { nextRank: next, ccSoFar: sum, ccTarget: th.cc, months: th.months, pct: Math.min(100, Math.round((sum / th.cc) * 100)) };
 }
 
+// Fortschritt eines Rang-Ziels (z. B. "manager"): CC im Qualifikationsfenster des Zielrangs
+function rankGoalProgress(targetRank, ccByMonth, refMonthKey) {
+  const th = THRESHOLDS[targetRank];
+  if (!th) return null;
+  const keys = monthsBack(refMonthKey + '-01', th.months);
+  const sum = round3(keys.reduce((s, k) => s + (Number(ccByMonth[k]) || 0), 0));
+  return { ccSoFar: sum, ccTarget: th.cc, months: th.months, pct: Math.min(100, Math.round((sum / th.cc) * 100)) };
+}
+
 // leaderIds: Array von uuids. Liefert { ccMonth, months, byLeader: { id: { members, totals } } }
-async function loadTeams(leaderIds, todayStr) {
+// opts.coaching: zusätzlich Coaching-Notizen der Leaderinnen und Entwicklungsziele je Partnerin
+async function loadTeams(leaderIds, todayStr, opts) {
+  const o = opts || {};
   const today = todayStr || viennaTodayStr();
   const ccMonth = ccMonthKey(today);
   const months = monthsBack(ccMonth + '-01', HISTORY_MONTHS); // älteste zuerst
@@ -43,7 +54,8 @@ async function loadTeams(leaderIds, todayStr) {
   if (!leaderIds.length) return { ccMonth, months, byLeader };
 
   const members = await pgrest('team_members', {
-    query: `leader_id=in.(${leaderIds.join(',')})&select=id,leader_id,name,sponsor_id,rank,active,created_at&order=created_at.asc`,
+    // select=* : Profilfelder (start_date, warum) kommen aus supabase/phase3.sql und dürfen fehlen
+    query: `leader_id=in.(${leaderIds.join(',')})&select=*&order=created_at.asc`,
   });
   const ids = (members || []).map((m) => m.id);
   let ccRows = [];
@@ -58,12 +70,26 @@ async function loadTeams(leaderIds, todayStr) {
   if (ids.length) {
     try {
       const tps = await pgrest('new_tps', {
-        query: `member_id=in.(${ids.join(',')})&select=id,member_id,${STEP_KEYS.join(',')}`,
+        query: `member_id=in.(${ids.join(',')})&select=*`,
       });
       for (const t of tps || []) {
         const steps = STEP_KEYS.map((k) => !!t[k]);
-        tpBy[t.member_id] = { tpId: t.id, steps, done: steps.filter(Boolean).length };
+        tpBy[t.member_id] = { tpId: t.id, steps, done: steps.filter(Boolean).length, lastActivity: t.steps_updated_at || t.created_at || null };
       }
+    } catch (e) { /* noch nicht eingerichtet */ }
+  }
+  // Coaching (supabase/phase3.sql): Notizen der Leaderinnen und Entwicklungsziele
+  const notesBy = {}, goalsBy = {};
+  let coachingReady = false;
+  if (o.coaching && ids.length) {
+    try {
+      const [notes, goals] = await Promise.all([
+        pgrest('coaching_notes', { query: `leader_id=in.(${leaderIds.join(',')})&author=eq.leader&order=created_at.desc&select=id,member_id,note,created_at` }),
+        pgrest('member_goals', { query: `leader_id=in.(${leaderIds.join(',')})&order=created_at.asc&select=*` }),
+      ]);
+      for (const n of notes || []) (notesBy[n.member_id] = notesBy[n.member_id] || []).push({ id: n.id, note: n.note, createdAt: n.created_at });
+      for (const g of goals || []) (goalsBy[g.member_id] = goalsBy[g.member_id] || []).push(g);
+      coachingReady = true;
     } catch (e) { /* noch nicht eingerichtet */ }
   }
   const ccBy = {};
@@ -81,7 +107,16 @@ async function loadTeams(leaderIds, todayStr) {
       cc,
       progress: memberProgress(m.rank, cc, ccMonth),
       onboarding: tpBy[m.id] || null,
+      startDate: m.start_date || null,
+      warum: m.warum || null,
     };
+    if (o.coaching) {
+      entry.notes = notesBy[m.id] || [];
+      entry.goals = (goalsBy[m.id] || []).map((g) => ({
+        id: g.id, goal: g.goal, targetRank: g.target_rank, targetDate: g.target_date, nextStep: g.next_step, status: g.status,
+        progress: g.target_rank ? rankGoalProgress(g.target_rank, cc, ccMonth) : null,
+      }));
+    }
     const bucket = byLeader[m.leader_id];
     if (!bucket) continue;
     bucket.members.push(entry);
@@ -89,7 +124,7 @@ async function loadTeams(leaderIds, todayStr) {
       if (cc[k] != null) bucket.totals[k] = round3((bucket.totals[k] || 0) + cc[k]);
     }
   }
-  return { ccMonth, months, byLeader };
+  return { ccMonth, months, byLeader, coachingReady };
 }
 
-module.exports = { STEP_KEYS, MEMBER_RANKS, NEXT_RANK, ccMonthKey, memberProgress, loadTeams };
+module.exports = { STEP_KEYS, MEMBER_RANKS, NEXT_RANK, ccMonthKey, memberProgress, rankGoalProgress, loadTeams };
