@@ -283,6 +283,15 @@ async function coachingHinweise() {
       if (p) r.wachstumsfelder = (p.wachstumsfelder || []).map((w) => `${w.feld} (Gesprächsidee: ${w.gespraechsidee})`);
     }
   } catch (e) { /* Profile noch nicht eingerichtet */ }
+  // "JARVIS ist aufgefallen": die Erkenntnis der Woche, die sie im Dashboard sieht
+  try {
+    const ins = await require('./insights').latestInsights(leaders.map((l) => l.id));
+    for (const r of result) {
+      const l = leaders.find((x) => x.name === r.leaderin);
+      const i = l && ins[l.id];
+      if (i && i.weekStart >= require('./insights').mondayOf(today)) r.erkenntnis_der_woche = { art: i.kind, titel: i.title, text: i.text, status: i.status };
+    }
+  } catch (e) { /* Erkenntnisse noch nicht eingerichtet */ }
   return { heute: today, leaderinnen: result };
 }
 

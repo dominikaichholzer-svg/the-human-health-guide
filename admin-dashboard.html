@@ -439,7 +439,7 @@
         <button class="btn save-products-btn" data-leader="${l.id}" type="button" style="padding:8px 14px; font-size:12px; width:auto;">Speichern</button>
         ${heatmapHtml(l.visitsByDay)}
         ${intakeHtml(l.intake)}
-        ${devplanHtml(l)}${notesHtml(l)}${profileHtml(l)}${teamHtml(l.team)}${adminNotesHtml(l)}${plansHtml(l.monthlyPlans)}${weeksHtml(l.recentWeeks)}${daysHtml(l.recentDays)}
+        ${insightHtml(l)}${devplanHtml(l)}${notesHtml(l)}${profileHtml(l)}${teamHtml(l.team)}${adminNotesHtml(l)}${plansHtml(l.monthlyPlans)}${weeksHtml(l.recentWeeks)}${daysHtml(l.recentDays)}
       </div>
     `;
   }
@@ -696,6 +696,20 @@
 
   // Persönlicher Entwicklungsplan der Leaderin
   const DP_STATUS = { proposed: 'Vorschlag, noch nicht bestätigt', confirmed: 'bestätigt', reviewed: 'ausgewertet' };
+  // "JARVIS ist aufgefallen …": die Erkenntnis der Woche, die sie im Dashboard sieht
+  const INS_STATUS = { neu: 'offen', erledigt: 'erledigt ✓', spaeter: 'Nicht jetzt' };
+  const INS_KIND = { positiv: 'Positive Entwicklung', stagnation: 'Stagnation', ziel_verfehlt: 'Ziel wiederholt verfehlt', aktivitaet: 'Aktivität' };
+  function insightHtml(l){
+    if(l.insight === undefined) return '';
+    const i = l.insight;
+    if(!i) return `<div class="prof"><h4>JARVIS ist aufgefallen</h4><p class="ps" style="color:var(--ink-muted)">Noch keine Erkenntnis. JARVIS schaut jeden Sonntagabend auf die letzten 3 Monate und meldet sich nur, wenn die Zahlen etwas Klares zeigen.</p></div>`;
+    return `<div class="prof"><h4>JARVIS ist aufgefallen</h4>
+      <div class="pl">${esc(INS_KIND[i.kind] || i.kind)} · Woche ab ${i.weekStart.split('-').reverse().join('.')} · ${INS_STATUS[i.status] || esc(i.status)}</div>
+      <p class="ps"><b>${esc(i.title)}</b><br>${esc(i.text)}</p>
+      ${i.question ? `<p class="ps" style="color:var(--gold-light)">Frage an sie: ${esc(i.question)}</p>` : ''}
+      ${i.suggestion ? `<p class="ps" style="color:var(--ink-muted)">Vorschlag: ${esc(i.suggestion)}</p>` : ''}</div>`;
+  }
+
   function devplanHtml(l){
     if(l.devplan === undefined) return '';
     const dp = l.devplan || {};

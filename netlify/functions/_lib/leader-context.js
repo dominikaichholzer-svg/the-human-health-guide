@@ -112,6 +112,10 @@ async function buildLeaderContext(leader, todayStr) {
     lines.push(`Ihr Entwicklungsplan ${cur.month} (${cur.status === 'proposed' ? 'Vorschlag, noch nicht bestätigt' : 'bestätigt'}): Schwerpunkt "${cur.focus}". Ziel: ${cur.goal}. Schritte: ${cur.steps.map((s) => `${s.done ? '[erledigt] ' : '[offen] '}${s.text}`).join('; ')}.${cur.coachFeedback ? ` Dominiks Feedback dazu: ${cur.coachFeedback}` : ''} Richte deine Empfehlungen auf diesen Schwerpunkt aus.`);
   }
 
+  // Erkenntnis der Woche ("JARVIS ist aufgefallen"), die sie im Überblick sieht
+  const ins = await safe(require('./insights').currentInsight(leader.id, today), null);
+  if (ins) lines.push(`Deine Erkenntnis dieser Woche für sie (${ins.status === 'neu' ? 'offen' : ins.status}): "${ins.title}". ${ins.text} Frage: ${ins.question} Vorschlag: ${ins.suggestion}`);
+
   // Lernnotizen und offene Aufgaben (Gedächtnis zwischen den Gesprächen)
   const notes = (await safe(pgrest('learning_notes', { query: `leader_id=eq.${leader.id}&order=created_at.desc&limit=30&select=kind,text,done,created_at` }), [])) || [];
   const openTasks = notes.filter((n) => n.kind === 'task' && !n.done).slice(0, 5);

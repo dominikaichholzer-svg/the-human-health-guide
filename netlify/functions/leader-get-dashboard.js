@@ -14,6 +14,7 @@ const { leaderChallenge } = require('./_lib/challenge');
 const { monthMetrics, evaluate, publicPin } = require('./_lib/pins');
 const { planStatus } = require('./_lib/leader-context');
 const { leaderPlans } = require('./_lib/devplan');
+const { currentInsight } = require('./_lib/insights');
 
 exports.handler = async function (event) {
   if (event.httpMethod !== 'GET') {
@@ -153,6 +154,13 @@ exports.handler = async function (event) {
     let devplan = null;
     try { devplan = await leaderPlans(leader.id); } catch (e) { devplan = null; }
 
+    // "JARVIS ist aufgefallen …" (supabase/insights.sql): nur solange offen
+    let insight = null;
+    try {
+      const i = await currentInsight(leader.id);
+      insight = i && i.status === 'neu' ? i : null;
+    } catch (e) { insight = null; }
+
     return {
       statusCode: 200,
       body: JSON.stringify({
@@ -160,6 +168,7 @@ exports.handler = async function (event) {
         cockpit,
         growth,
         devplan,
+        insight,
         challenge,
         pins,
         slug: leader.slug || null,

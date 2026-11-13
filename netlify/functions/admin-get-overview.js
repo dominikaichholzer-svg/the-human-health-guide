@@ -13,6 +13,7 @@ const { logAccess } = require('./_lib/auth');
 const { monthsBack } = require('./_lib/ranks');
 const { latestProfiles } = require('./_lib/profile');
 const { leaderPlans } = require('./_lib/devplan');
+const { latestInsights } = require('./_lib/insights');
 const { computeProgress, viennaTodayStr } = require('./_lib/ranks');
 const { planWindow } = require('./_lib/plan');
 
@@ -87,6 +88,8 @@ exports.handler = async function (event) {
     try {
       profiles = await latestProfiles((leaders || []).map((l) => l.id));
     } catch (e) { profiles = null; }
+    let insights = {};
+    try { insights = await latestInsights((leaders || []).map((l) => l.id)); } catch (e) { insights = null; }
 
     // Eigene Notizen von Dominik zu seinen Leaderinnen (nur Admin)
     const adminNotesBy = {};
@@ -164,6 +167,7 @@ exports.handler = async function (event) {
         monthClose: actualsBy[leader.id] || null,
         profile: profiles ? profiles[leader.id] || null : undefined,
         devplan: await leaderPlans(leader.id).catch(() => undefined),
+        insight: insights ? insights[leader.id] || null : undefined,
         learningNotes: await pgrest('learning_notes', { query: `leader_id=eq.${leader.id}&order=created_at.desc&limit=20&select=kind,text,done,created_at` }).catch(() => undefined),
       });
     }
