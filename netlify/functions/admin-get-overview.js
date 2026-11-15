@@ -60,7 +60,7 @@ exports.handler = async function (event) {
     try {
       const rows = await pgrest('leaders', { query: 'select=*' });
       for (const r of rows || []) {
-        loginById[r.id] = { username: r.username, hasPassword: !!r.password_hash, passwordSetAt: r.password_set_at, consentAt: r.consent_at };
+        loginById[r.id] = { username: r.username, hasPassword: !!r.password_hash, passwordSetAt: r.password_set_at, consentAt: r.consent_at, onHold: !!r.on_hold };
       }
     } catch (e) { /* noch nicht eingerichtet */ }
 
@@ -162,6 +162,7 @@ exports.handler = async function (event) {
         recentDays,
         monthlyPlans,
         login: loginById[leader.id] || null,
+        onHold: !!(loginById[leader.id] && loginById[leader.id].onHold),
         team: teams ? teams.byLeader[leader.id] : null,
         // Ihre Teamführung: wer gerade Unterstützung braucht und ob sie genug coacht
         teamSupport: teams && teams.coachingReady ? { list: supportList(teams.byLeader[leader.id].members, teams.ccMonth, viennaTodayStr()).slice(0, 5), pattern: teamPattern(teams.byLeader[leader.id].members, viennaTodayStr()) } : undefined,

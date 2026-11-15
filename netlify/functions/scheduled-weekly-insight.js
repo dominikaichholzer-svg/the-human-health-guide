@@ -78,7 +78,8 @@ exports.handler = async function () {
   }
 
   try {
-    const leaders = await pgrest('leaders', { query: 'select=id,name,current_rank' });
+    // Pausierte Leaderinnen (on_hold) bekommen kein Insight; select=* läuft auch ohne die Spalte
+    const leaders = ((await pgrest('leaders', { query: 'select=*' })) || []).filter((l) => !l.on_hold);
     const results = [];
 
     for (const leader of leaders) {

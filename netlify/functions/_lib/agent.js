@@ -56,6 +56,7 @@ Wie du arbeitest:
 - Jede Leaderin hat einen monatlichen Entwicklungsplan (Schwerpunkt, Ziel, Schritte, Auswertung). Du schlägst ihn vor, sie bestätigt ihn, Dominik gibt Feedback. Er steht in team_details (entwicklungsplan).
 - Du pflegst für jede Leaderin ein Entwicklungsprofil (Stärken, Muster, Wachstumsfelder mit Gesprächsidee), das jeden Sonntagabend aktualisiert wird. Du findest es in team_details (entwicklungsprofil) und die Wachstumsfelder in coaching_hinweise. Nutze es, wenn Dominik ein Gespräch vorbereitet oder fragt, wo jemand besser werden kann.
 - Seit Phase 3 und 4 des Leader-Dashboards hast du Werkzeuge für "Mein Team" der Leaderinnen (team_details), Coaching-Hinweise (coaching_hinweise), Pins und die vier Rankings (pins_und_rankings) und die 52-Wochen-Challenge (challenge_antworten). Die Rankings sind vier getrennte Blickwinkel, rechne sie nie zu einer Gesamtpunktzahl zusammen. Die Coaching-Notizen der Leaderinnen sind vertraulich: nutze sie für Dominiks Vorbereitung, schlag nie vor, sie weiterzugeben.
+- Manche Leaderinnen hat Dominik pausiert (pausiert_nicht_erwaehnen in team_uebersicht und coaching_hinweise). Mit ihnen plant er gerade nicht. Erwähne sie nicht im Briefing, nicht bei Hinweisen und nicht, wenn sie nichts eintragen. Nur wenn Dominik ausdrücklich nach einer von ihnen fragt, gibst du Auskunft (team_details geht weiter).
 - Du triffst nie Entscheidungen über Menschen. Du sagst nicht, ob jemand "es schafft", sich lohnt oder fallen gelassen werden sollte. Du gibst Beobachtungen, Fragen und Gesprächsideen, entscheiden tut Dominik.
 - Du kannst sonst nichts verschicken, keine Termine eintragen und niemanden anschreiben. Wenn Dominik so etwas will, schreib ihm den fertigen Text, den er selbst rausschicken kann, und sag kurz, dass diese Funktion noch kommt.
 - Antworte auf Deutsch, per Du, kurz und konkret wie in einem Chat. Kein Markdown (keine Sternchen, keine Rauten, keine Tabellen), weil Telegram das als reinen Text zeigt. Aufzählungen nur mit einfachen Bindestrichen oder Zahlen. Keine Motivationsfloskeln.`;
@@ -258,9 +259,16 @@ async function leaderSignalsFor(leader, today) {
   return out;
 }
 
+// Pausierte Leaderinnen (leaders.on_hold, supabase/hold.sql) tauchen in Briefing und
+// Hinweisen nicht auf. select=* , damit es auch ohne die Spalte läuft.
+async function splitLeaders() {
+  const all = (await pgrest('leaders', { query: 'select=*&order=sort_order.asc' })) || [];
+  return { active: all.filter((l) => !l.on_hold), paused: all.filter((l) => l.on_hold).map((l) => l.name) };
+}
+
 async function coachingHinweise() {
   const today = viennaTodayStr();
-  const leaders = await pgrest('leaders', { query: 'select=id,name&order=sort_order.asc' });
+  const { active: leaders, paused } = await splitLeaders();
   let teams = null;
   try { teams = await loadTeams(leaders.map((l) => l.id), today, { coaching: true }); } catch (e) { teams = null; }
   const result = [];
@@ -297,7 +305,7 @@ async function coachingHinweise() {
       if (i && i.weekStart >= require('./insights').mondayOf(today)) r.erkenntnis_der_woche = { art: i.kind, titel: i.title, text: i.text, status: i.status };
     }
   } catch (e) { /* Erkenntnisse noch nicht eingerichtet */ }
-  return { heute: today, leaderinnen: result };
+  return { heute: today, leaderinnen: result, pausiert_nicht_erwaehnen: paused };
 }
 
 async function teamDetails({ name }) {
@@ -380,9 +388,7 @@ async function challengeAntworten({ woche }) {
 // ---------- Tool-Ausführung ----------
 
 async function teamUebersicht() {
-  const leaders = await pgrest('leaders', {
-    query: 'select=id,name,current_rank,manager_achieved_at,specialized_products&order=sort_order.asc',
-  });
+  const { active: leaders, paused } = await splitLeaders();
   const today = viennaTodayStr();
   const result = [];
   for (const leader of leaders) {
@@ -415,6 +421,7 @@ async function teamUebersicht() {
   return {
     heute: today,
     leaderinnen: result,
+    pausiert_nicht_erwaehnen: paused,
     monats_strategie: strategy[0] ? strategy[0].content : null,
   };
 }

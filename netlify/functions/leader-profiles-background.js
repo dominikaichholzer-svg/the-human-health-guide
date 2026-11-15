@@ -21,7 +21,8 @@ exports.handler = async function (event) {
   let p = {};
   try { p = JSON.parse(event.body || '{}'); } catch (e) { p = {}; }
   const q = p.leader_id && /^[0-9a-f-]{36}$/i.test(p.leader_id) ? `id=eq.${p.leader_id}&select=*` : 'select=*&order=sort_order.asc';
-  const leaders = (await pgrest('leaders', { query: q })) || [];
+  // Pausierte Leaderinnen nur, wenn Dominik sie ausdrücklich anstößt (leader_id)
+  const leaders = ((await pgrest('leaders', { query: q })) || []).filter((l) => p.leader_id || !l.on_hold);
   const client = makeClient();
   if (p.mode === 'devplans') {
     const results = await runDevplans(client, leaders, undefined, { force: !!p.force });

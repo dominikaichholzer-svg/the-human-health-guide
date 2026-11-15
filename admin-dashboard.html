@@ -426,6 +426,8 @@
       <div class="leader-card">
         <p class="lname">${l.name}</p>
         <p class="lrank">${RANK_LABELS[l.currentRank] || l.currentRank}</p>
+        <div class="prof" style="margin:8px 0 12px;"><p class="ps" style="margin:0;">${l.onHold ? '⏸ <b>Pausiert.</b> JARVIS erwähnt sie nicht im Briefing und in den Hinweisen, die wöchentlichen Auswertungen laufen nicht.' : 'Aktiv: JARVIS behält sie im Briefing im Blick.'}</p>
+          <div class="pfoot"><span></span><button type="button" data-hold="${l.id}" data-on="${l.onHold ? '0' : '1'}">${l.onHold ? 'Pause beenden' : 'Pausieren'}</button></div></div>
         <div class="progress-track"><div class="progress-fill" style="width:${barPct}%"></div></div>
         <p class="lmeta">${barLabel}</p>
         <p class="lmeta">Letzter Eintrag: ${l.lastSubmitted || '–'}</p>
@@ -473,6 +475,19 @@
     </details>`;
   }
   const TEAM_RANKS = { partner:'Partnerin', supervisor:'Supervisor', assistant_manager:'Assistant Manager', manager:'Manager', eagle_manager:'Eagle Manager' };
+  // Leaderin pausieren / wieder aktiv
+  document.getElementById('leaderGrid').addEventListener('click', async e => {
+    const b = e.target.closest('[data-hold]');
+    if(!b) return;
+    b.disabled = true;
+    try {
+      const res = await fetch('/.netlify/functions/admin-leader-hold', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: adminKey, leader_id: b.dataset.hold, on_hold: b.dataset.on === '1' }) });
+      const d = await res.json().catch(() => ({}));
+      if(!res.ok) throw new Error(d.error || 'Fehler');
+      await loadOverview();
+    } catch(err){ b.disabled = false; alert(err.message); }
+  });
+
   // Ihre Teamführung (Schritt 4): wer in ihrem Team gerade Unterstützung braucht
   function teamSupportHtml(l){
     const s = l.teamSupport;
@@ -875,11 +890,12 @@
       : `<div class="mv-goal"><div class="lbl"><span>Monatsziel ${n(g.planCc)} CC</span><b>${g.pct} %</b></div><div class="mv-bar ${g.behind ? 'behind' : ''}"><span style="width:${Math.min(100, g.pct)}%"></span></div></div>`;
     const teamSig = l.team ? l.team.members.reduce((a, m) => a + (m.signals || []).length, 0) : 0;
     const sigCount = (l.signals || []).length + teamSig;
-    const status = sigCount ? `<span class="chip chip-amber">⚠️ ${sigCount} Hinweis${sigCount === 1 ? '' : 'e'}</span>` : `<span class="chip chip-green">Alles im Plan</span>`;
+    const status = l.onHold ? `<span class="chip" style="border-color:var(--hairline); color:var(--ink-muted);">⏸ Pausiert</span>`
+      : sigCount ? `<span class="chip chip-amber">⚠️ ${sigCount} Hinweis${sigCount === 1 ? '' : 'e'}</span>` : `<span class="chip chip-green">Alles im Plan</span>`;
     // Das große Ziel: Manager (bis 30.04.2027), danach Eagle Manager
     const next = { supervisor: 'Manager', assistant_manager: 'Manager', manager: 'Eagle Manager' }[l.currentRank] || null;
     const active = l.team ? l.team.members.filter(m => m.active).length : 0;
-    return `<div class="mv-card ${selectedLeaderId === l.id ? 'active' : ''}">
+    return `<div class="mv-card ${selectedLeaderId === l.id ? 'active' : ''}" ${l.onHold ? 'style="opacity:0.55;"' : ''}>
       <div>${CROWN}</div>
       <div class="mv-name">${esc(l.name)}</div>
       <div class="mv-rank">${RANK_LABELS[l.currentRank] || l.currentRank}${next ? ' · Ziel: ' + next : ''}</div>
