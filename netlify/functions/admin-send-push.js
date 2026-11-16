@@ -1,7 +1,7 @@
 // netlify/functions/admin-send-push.js
 //
 // POST /.netlify/functions/admin-send-push
-// Body: { key, leader_id, title, body }   // leader_id === "all" -> an alle 5
+// Body: { key, leader_id, title, body }   // leader_id: UUID einer Leaderin oder "all" (muss gesetzt sein)
 //
 // Manuelles Senden einer Push-Benachrichtigung durch Dominik. Abgelaufene
 // Subscriptions (Browser hat die Benachrichtigung deaktiviert, 404/410 vom
@@ -31,10 +31,14 @@ exports.handler = async function (event) {
     return { statusCode: 400, body: JSON.stringify({ error: 'title und body sind Pflicht' }) };
   }
 
+  // Empfänger muss ausdrücklich gewählt sein: eine Leaderin oder "all"
+  const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (leader_id !== 'all' && !UUID.test(String(leader_id || ''))) {
+    return { statusCode: 400, body: JSON.stringify({ error: 'Empfänger fehlt' }) };
+  }
+
   try {
-    const query = leader_id && leader_id !== 'all'
-      ? `leader_id=eq.${leader_id}`
-      : undefined; // kein Filter = alle
+    const query = leader_id === 'all' ? undefined : `leader_id=eq.${leader_id}`;
 
     const subs = await pgrest('push_subscriptions', { query });
     const leaderRows = await pgrest('leaders', { query: 'select=*' });

@@ -952,9 +952,10 @@
 
       const select = document.getElementById('pushLeaderSelect');
       const currentSelection = select.value;
-      select.innerHTML = '<option value="all">Alle</option>' +
-        overviewData.leaders.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
-      select.value = currentSelection || 'all';
+      select.innerHTML = '<option value="">Bitte auswählen …</option>' +
+        overviewData.leaders.map(l => `<option value="${l.id}">${l.name}</option>`).join('') +
+        '<option value="all">Alle Leaderinnen</option>';
+      select.value = currentSelection || '';
 
       document.getElementById('nextMonthLabel').textContent = monthLabel(overviewData.strategy.nextMonth.target_month);
       document.getElementById('nextMonthContent').value = overviewData.strategy.nextMonth.content || '';
@@ -1013,10 +1014,15 @@
     const leaderId = document.getElementById('pushLeaderSelect').value;
     const title = document.getElementById('pushTitle').value.trim();
     const body = document.getElementById('pushBody').value.trim();
+    if(!leaderId){
+      status.textContent = 'Bitte zuerst auswählen, an wen.';
+      return;
+    }
     if(!title || !body){
       status.textContent = 'Titel und Nachricht ausfüllen.';
       return;
     }
+    if(leaderId === 'all' && !confirm('Wirklich an ALLE Leaderinnen senden?')) return;
     btn.disabled = true;
     const original = btn.textContent;
     btn.textContent = 'Wird gesendet …';
@@ -1031,6 +1037,7 @@
       if(res.ok){
         document.getElementById('pushTitle').value = '';
         document.getElementById('pushBody').value = '';
+        document.getElementById('pushLeaderSelect').value = '';
       }
     } catch(err){
       status.textContent = 'Fehler beim Senden.';
