@@ -23,7 +23,7 @@ exports.handler = async function () {
     const preview = String(c.aufgabe || c.impuls || '').replace(/\s+/g, ' ').trim();
     const body = preview.length > 110 ? preview.slice(0, 107) + '…' : preview || 'Dein neuer Impuls ist da.';
 
-    const leaders = await pgrest('leaders', { query: 'select=*' });
+    const leaders = await pgrest('leaders', { query: 'select=*&on_hold=is.false' }) /* pausierte: keine Erinnerungen */;
     const results = [];
     for (const leader of leaders || []) {
       const subs = await pgrest('push_subscriptions', { query: `leader_id=eq.${leader.id}` });

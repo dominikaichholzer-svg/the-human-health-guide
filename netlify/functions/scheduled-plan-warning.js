@@ -21,7 +21,7 @@ exports.handler = async function () {
   }
   const monthKey = today.slice(0, 7);
   try {
-    const leaders = (await pgrest('leaders', { query: 'select=*' })) || [];
+    const leaders = (await pgrest('leaders', { query: 'select=*&on_hold=is.false' }) /* pausierte: keine Erinnerungen */) || [];
     const results = [];
     for (const leader of leaders) {
       const plans = await pgrest('monthly_plans', { query: `leader_id=eq.${leader.id}&target_month=eq.${monthKey}-01&select=plan_cc` });

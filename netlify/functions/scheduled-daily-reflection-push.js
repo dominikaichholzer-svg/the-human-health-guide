@@ -46,7 +46,7 @@ exports.handler = async function () {
     const today = viennaTodayStr();
     const weekStart = mondayOf(today);
     const pw = planWindow(today);
-    const leaders = await pgrest('leaders', { query: 'select=*' });
+    const leaders = await pgrest('leaders', { query: 'select=*&on_hold=is.false' }) /* pausierte: keine Erinnerungen */;
     const results = [];
 
     for (const leader of leaders) {
