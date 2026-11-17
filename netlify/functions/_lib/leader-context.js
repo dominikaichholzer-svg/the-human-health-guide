@@ -15,7 +15,7 @@ const { memberSignals } = require('./signals');
 const { leaderChallenge } = require('./challenge');
 const { monthMetrics, evaluate } = require('./pins');
 
-const RANK_DE = { partner: 'Partnerin (noch kein Rang)', supervisor: 'Supervisor', assistant_manager: 'Assistant Manager', manager: 'Manager', eagle_manager: 'Eagle Manager' };
+const RANK_DE = { fpc: 'FPC (VIP-Kundin)', partner: 'Partnerin (noch kein Rang)', assistant_supervisor: 'Assistant Supervisor', supervisor: 'Supervisor', assistant_manager: 'Assistant Manager', manager: 'Manager', eagle_manager: 'Eagle Manager' };
 const fmt = (n) => Number(n).toLocaleString('de-AT', { maximumFractionDigits: 3 });
 const safe = async (p, fallback) => { try { return await p; } catch (e) { return fallback; } };
 

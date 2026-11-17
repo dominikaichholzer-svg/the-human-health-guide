@@ -1804,7 +1804,9 @@
   ];
   // ============ Mein Team ============
   const MEMBER_RANK_LABELS = {
+    fpc: 'FPC (VIP-Kundin)',
     partner: 'Partnerin (noch kein Rang)',
+    assistant_supervisor: 'Assistant Supervisor',
     supervisor: 'Supervisor',
     assistant_manager: 'Assistant Manager',
     manager: 'Manager',
@@ -1872,7 +1874,7 @@
       <button type="button" class="btn tm-mini-btn" data-prepare="${m.id}" data-name="${escHtml(m.name)}" style="margin-top:10px; background:transparent; border:1.5px solid var(--gold); color:var(--gold); box-shadow:none;">Gespräch mit JARVIS vorbereiten</button>
       <div class="ch-label">Entwicklungsziele</div>${goalHtml || '<p class="progress-sub" style="font-size:12.5px;">Noch kein Ziel.</p>'}
       <input type="text" class="tm-mini" data-gf="goal" placeholder="Neues Ziel, z. B. Supervisor" maxlength="300">
-      <div class="field-grid" style="gap:8px;"><select class="tm-mini" data-gf="rank"><option value="">kein Rang-Ziel</option>${Object.keys(MEMBER_RANK_LABELS).filter(r => r !== 'partner').map(r => `<option value="${r}">Rang: ${MEMBER_RANK_LABELS[r]}</option>`).join('')}</select>
+      <div class="field-grid" style="gap:8px;"><select class="tm-mini" data-gf="rank"><option value="">kein Rang-Ziel</option>${Object.keys(MEMBER_RANK_LABELS).filter(r => r !== 'partner' && r !== 'fpc').map(r => `<option value="${r}">Rang: ${MEMBER_RANK_LABELS[r]}</option>`).join('')}</select>
       <input type="date" class="tm-mini" data-gf="date" aria-label="Zieldatum"></div>
       <input type="text" class="tm-mini" data-gf="next" placeholder="Nächster konkreter Schritt" maxlength="500">
       <button type="button" class="btn tm-mini-btn" data-goaladd="${m.id}">Ziel hinzufügen</button>

@@ -10,8 +10,9 @@
 const { pgrest } = require('./supabase');
 const { THRESHOLDS, monthsBack, viennaTodayStr } = require('./ranks');
 
-const MEMBER_RANKS = ['partner', 'supervisor', 'assistant_manager', 'manager', 'eagle_manager'];
-const NEXT_RANK = { partner: 'supervisor', supervisor: 'assistant_manager', assistant_manager: 'manager', manager: 'eagle_manager' };
+// fpc = Forever Preferred Customer (VIP-Kundin), kein Partner-Rang
+const MEMBER_RANKS = ['fpc', 'partner', 'assistant_supervisor', 'supervisor', 'assistant_manager', 'manager', 'eagle_manager'];
+const NEXT_RANK = { partner: 'supervisor', assistant_supervisor: 'supervisor', supervisor: 'assistant_manager', assistant_manager: 'manager', manager: 'eagle_manager' };
 const HISTORY_MONTHS = 6;
 const STEP_KEYS = ['step_1', 'step_2', 'step_3', 'step_4', 'step_5', 'step_6', 'step_7'];
 
@@ -25,6 +26,7 @@ const round3 = (n) => Math.round(n * 1000) / 1000;
 
 function memberProgress(rank, ccByMonth, refMonthKey) {
   if (rank === 'eagle_manager') return { done: true };
+  if (rank === 'fpc') return null; // VIP-Kundin: kein Rangfortschritt
   const next = NEXT_RANK[rank] || 'supervisor';
   if (next === 'eagle_manager') return { nextRank: next, manual: true };
   const th = THRESHOLDS[next];

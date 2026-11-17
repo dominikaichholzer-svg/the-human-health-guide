@@ -474,7 +474,7 @@
       ${row('Was hilft beim Dranbleiben', i.support_needed)}
     </details>`;
   }
-  const TEAM_RANKS = { partner:'Partnerin', supervisor:'Supervisor', assistant_manager:'Assistant Manager', manager:'Manager', eagle_manager:'Eagle Manager' };
+  const TEAM_RANKS = { fpc:'FPC (VIP-Kundin)', partner:'Partnerin', assistant_supervisor:'Assistant Supervisor', supervisor:'Supervisor', assistant_manager:'Assistant Manager', manager:'Manager', eagle_manager:'Eagle Manager' };
   // Leaderin pausieren / wieder aktiv
   document.getElementById('leaderGrid').addEventListener('click', async e => {
     const b = e.target.closest('[data-hold]');

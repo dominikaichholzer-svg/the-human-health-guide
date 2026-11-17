@@ -7,7 +7,7 @@ create table if not exists team_members (
   leader_id uuid not null references leaders(id) on delete cascade,
   name text not null,
   sponsor_id uuid references team_members(id) on delete set null,
-  rank text not null default 'partner',   -- partner | supervisor | assistant_manager | manager | eagle_manager
+  rank text not null default 'partner',   -- fpc | partner | assistant_supervisor | supervisor | assistant_manager | manager | eagle_manager
   active boolean not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()

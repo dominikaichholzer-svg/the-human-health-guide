@@ -29,7 +29,7 @@ const lastNoteDate = (m) => (m.notes || []).filter((n) => !String(n.note || '').
 function supportList(members, ccMonth, today) {
   const out = [];
   for (const m of members || []) {
-    if (!m.active) continue;
+    if (!m.active || m.rank === 'fpc') continue;
     const reasons = [];
     let score = 0;
     for (const s of memberSignals(m, ccMonth, today)) { reasons.push(s.text); score += 3; }
@@ -46,7 +46,7 @@ function supportList(members, ccMonth, today) {
 }
 
 function teamPattern(members, today) {
-  const active = (members || []).filter((m) => m.active);
+  const active = (members || []).filter((m) => m.active && m.rank !== 'fpc');
   if (active.length < PATTERN_MIN_ACTIVE) return null;
   const coached = active.filter((m) => { const d = lastNoteDate(m); return d && daysBetween(d, today) <= 30; }).length;
   if (coached / active.length >= PATTERN_SHARE) return null;
