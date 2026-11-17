@@ -422,7 +422,7 @@
       : missing
         ? '<span class="flag">Noch kein Eintrag</span>'
         : '<span class="flag ok">Aktiv</span>';
-    const insightHtml = l.latestInsight
+    const aiInsightHtml = l.latestInsight
       ? `<div class="insight-box"><span class="ilabel">AI-Insight</span>${l.latestInsight.insight}</div>`
       : '';
     return `
@@ -438,7 +438,7 @@
         ${(l.signals || []).map(x => `<div class="sig">⚠️ ${esc(x.text)}</div>`).join('')}
         ${monthCloseHtml(l)}
         ${loginHtml(l)}
-        ${insightHtml}
+        ${aiInsightHtml}
         <p class="heatmap-label">5 Produkte</p>
         <input type="text" class="products-input" data-leader="${l.id}" value="${(l.specializedProducts || '').replace(/"/g, '&quot;')}" placeholder="z.B. Aloe Gel, Logic Serie, ..." style="width:100%; margin-bottom:6px; padding: 8px 10px; border: 1.5px solid var(--hairline); border-radius: 8px; font-family: var(--sans); font-size: 12.5px; background: rgba(255,255,255,0.04); color: var(--ink);">
         <button class="btn save-products-btn" data-leader="${l.id}" type="button" style="padding:8px 14px; font-size:12px; width:auto;">Speichern</button>
