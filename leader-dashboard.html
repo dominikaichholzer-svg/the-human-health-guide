@@ -2356,6 +2356,7 @@
         return;
       }
       dashboardData = await res.json();
+      syncPushSubscription();
 
       document.getElementById('brandName').textContent = dashboardData.name.toUpperCase();
       typewriterGreeting(dashboardData.name);
@@ -2844,6 +2845,25 @@
     }
   }
 
+  // Hat der Browser schon ein Abo, wird es nach dem Login nochmal gespeichert.
+  // So kommt ein Gerät wieder auf die Liste, falls es auf dem Server fehlt
+  // (früher fehlgeschlagenes Speichern, oder vom Push-Dienst entfernt).
+  async function syncPushSubscription(){
+    try {
+      if(!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+      if(Notification.permission !== 'granted') return;
+      const reg = await navigator.serviceWorker.ready;
+      const existing = await reg.pushManager.getSubscription();
+      if(!existing) return;
+      await fetch('/.netlify/functions/leader-save-push-subscription', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ token, subscription: existing.toJSON() }),
+      });
+    } catch(e){ /* still, nicht stören */ }
+  }
+
   async function enablePush(){
     const btn = document.getElementById('pushBtn');
     const text = document.getElementById('pushStatusText');
@@ -2861,11 +2881,13 @@
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
       });
-      await fetch('/.netlify/functions/leader-save-push-subscription', {
+      const saved = await fetch('/.netlify/functions/leader-save-push-subscription', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
         body: JSON.stringify({ token, subscription: subscription.toJSON() }),
       });
+      if(!saved.ok) throw new Error('save failed');
       await updatePushUi();
     } catch(err){
       text.textContent = 'Konnte Benachrichtigungen nicht aktivieren.';
