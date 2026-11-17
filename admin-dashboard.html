@@ -388,6 +388,7 @@
     return d.toISOString().slice(0, 10);
   }
   function inDrySpell(l){
+    if(l.onHold) return false; // pausiert: keine Warnung, bis sie wieder aktiv ist
     const thisMonday = mondayStr(0);
     const prevMonday = mondayStr(1);
     if(prevMonday < DRY_SPELL_START) return false;
@@ -414,7 +415,9 @@
       barLabel = `${p.ccSoFar} / ${p.ccTarget} CC`;
     }
     const missing = !l.recentWeeks || l.recentWeeks.length === 0 || !l.lastSubmitted;
-    const flagHtml = inDrySpell(l)
+    const flagHtml = l.onHold
+      ? '<span class="flag">⏸ Pausiert</span>'
+      : inDrySpell(l)
       ? '<span class="flag">⚠️ 2 Wochen nichts eingetragen</span>'
       : missing
         ? '<span class="flag">Noch kein Eintrag</span>'
