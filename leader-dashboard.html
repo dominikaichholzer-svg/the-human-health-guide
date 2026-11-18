@@ -223,6 +223,38 @@
   .pin-chip .pe{ line-height:0; }
   .pin-chip .pl{ font-size:11.5px; line-height:1.3; margin-top:3px; }
   .pin-chip .pm{ font-size:10px; color: var(--ink-muted); margin-top:2px; }
+  /* Incentive (z. B. Athen) */
+  .inc-card{ padding:20px 20px 16px; border-color: rgba(212,175,106,0.35); background: linear-gradient(160deg, rgba(212,175,106,0.10) 0%, var(--bg-raised) 55%); }
+  .inc-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+  .inc-eyebrow{ font-size:11px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color: var(--gold); }
+  .inc-title{ font-size:20px; font-weight:700; margin:3px 0 2px; line-height:1.2; }
+  .inc-sub{ font-size:12.5px; color: var(--ink-muted); }
+  .inc-days{ flex:none; text-align:center; background: rgba(255,255,255,0.04); border:1px solid var(--hairline); border-radius:10px; padding:6px 10px; }
+  .inc-days b{ display:block; font-size:20px; line-height:1.1; font-variant-numeric: tabular-nums; }
+  .inc-days span{ font-size:10.5px; color: var(--ink-muted); text-transform:uppercase; letter-spacing:0.06em; }
+  .inc-tabs{ display:flex; gap:6px; margin:14px 0 12px; flex-wrap:wrap; }
+  .inc-tab{ border:1px solid var(--hairline); background: rgba(255,255,255,0.03); color: var(--ink-muted); border-radius:999px; padding:6px 12px; font-size:12.5px; font-weight:600; cursor:pointer; font-family: var(--sans); }
+  .inc-tab.active{ border-color: var(--gold); color: var(--ink); background: var(--gold-dim); }
+  .inc-tab.done{ color: var(--green-light); }
+  .inc-row{ margin:10px 0; }
+  .inc-row-top{ display:flex; justify-content:space-between; gap:8px; font-size:13.5px; margin-bottom:5px; }
+  .inc-row-top b{ font-variant-numeric: tabular-nums; }
+  .inc-row.ok .inc-row-top{ color: var(--green-light); }
+  .inc-bar{ height:7px; border-radius:4px; background: rgba(255,255,255,0.07); overflow:hidden; }
+  .inc-bar span{ display:block; height:100%; border-radius:4px; background: linear-gradient(90deg, var(--gold), var(--gold-light)); }
+  .inc-row.ok .inc-bar span{ background: linear-gradient(90deg, var(--green), var(--green-light)); }
+  .inc-names{ font-size:11.5px; color: var(--ink-muted); margin-top:4px; }
+  .inc-months{ display:flex; gap:6px; flex-wrap:wrap; }
+  .inc-m{ font-size:12px; border-radius:8px; padding:4px 9px; border:1px solid var(--hairline); color: var(--ink-muted); }
+  .inc-m.ok{ color: var(--green-light); border-color: rgba(34,197,94,0.35); background: var(--green-dim); }
+  .inc-m.open{ color: var(--amber); border-color: rgba(245,165,36,0.4); }
+  .inc-m.missed{ color: var(--error); border-color: rgba(226,104,90,0.4); }
+  .inc-missing{ margin-top:12px; padding:11px 13px; border-radius:10px; background: rgba(255,255,255,0.04); border-left:3px solid var(--gold); font-size:13.5px; line-height:1.5; }
+  .inc-missing.ok{ border-left-color: var(--green); color: var(--green-light); }
+  .inc-missing.lost{ border-left-color: var(--error); }
+  .inc-more{ margin-top:10px; font-size:12.5px; color: var(--ink-muted); }
+  .inc-more summary{ cursor:pointer; color: var(--gold); }
+  .inc-more p{ margin:8px 0 0; line-height:1.5; }
   .pin-prog{ display:flex; align-items:center; gap:8px; font-size:12.5px; margin:6px 0; color: var(--ink-muted); }
   .pin-prog.ok{ color: var(--ink); }
   .pin-prog .bar{ flex:0 0 70px; height:5px; border-radius:3px; background: rgba(255,255,255,0.06); overflow:hidden; }
@@ -566,6 +598,8 @@
         <div class="ck-stat"><div class="ck-l">Präsentationen</div><div class="ck-num" id="ckPres">–</div></div>
       </div>
     </section>
+
+    <div id="incentiveCards"></div>
 
     <section class="card ins-card" id="insightCard" hidden>
       <div class="ins-eyebrow">✦ JARVIS ist aufgefallen …</div>
@@ -1359,6 +1393,74 @@
       await loadDashboard();
       if(nowDone) celebrate('Wochenaufgabe erledigt');
     }
+  });
+
+  // ============ Incentives (z. B. Athen) ============
+  const INC_M = ['Jän','Feb','März','Apr','Mai','Juni','Juli','Aug','Sep','Okt','Nov','Dez'];
+  const incSel = {}; // gewähltes Level je Incentive (bleibt beim Neuladen)
+  let incData = [];
+  const incDate = (d) => new Date(d + 'T00:00:00').toLocaleDateString('de-AT', { day:'numeric', month:'long' });
+  function incMissing(lv){
+    if(lv.locked) return { cls:'', text:'Wird freigeschaltet, sobald du Level 1 oder Level 2 erreicht hast.' };
+    if(lv.reached) return { cls:'ok', text: lv.ended ? `✓ ${escHtml(lv.name)} erreicht!` : `✓ ${escHtml(lv.name)} ist geschafft, halte die Aktivität bis zum Schluss.` };
+    if(lv.missedActive) return { cls:'lost', text:'Ein Monat lag unter dem Aktiv-Ziel. Sprich mit Dominik, ob dieses Level noch geht.' };
+    const parts = [];
+    lv.goals.forEach(g => {
+      if(g.ok) return;
+      if(g.key === 'new_cc') parts.push(`<b>${fmtCc(Math.max(0, g.target - g.value))} Neugeschäft-CC</b>`);
+      else if(g.key === 'new_as') parts.push(`<b>${g.target - g.value} neue AS</b>`);
+      else if(g.key === 'new_s') parts.push(`<b>${g.target - g.value} neue Supervisor</b>`);
+      else if(g.key === 'active'){
+        const open = g.months.filter(m => m.state !== 'ok');
+        parts.push(`<b>${escHtml(g.label.replace('Monate mit ', ''))}</b> im ${open.map(m => INC_M[Number(m.month.slice(5)) - 1]).join(', ')}`);
+      }
+    });
+    if(lv.ended) return { cls:'lost', text:'Zeitraum vorbei. Nicht ganz erreicht, aber jeder Schritt zählt für dein Team.' };
+    return { cls:'', text:'Es fehlt noch: ' + parts.join(' · ') };
+  }
+  function incCardHtml(inc){
+    const i = incSel[inc.id] != null ? incSel[inc.id] : inc.focus;
+    const lv = inc.levels[i];
+    const days = !inc.started ? inc.daysToStart : lv.daysLeft;
+    const daysLbl = !inc.started ? 'bis Start' : (lv.ended ? 'vorbei' : 'Tage übrig');
+    let html = `<div class="inc-head"><div><div class="inc-eyebrow">🏆 Incentive</div><div class="inc-title">${escHtml(inc.title)}</div>
+      ${inc.subtitle ? `<div class="inc-sub">${escHtml(inc.subtitle)}</div>` : ''}</div>
+      <div class="inc-days"><b>${lv.ended && inc.started ? '–' : days}</b><span>${daysLbl}</span></div></div>`;
+    html += `<div class="inc-tabs">${inc.levels.map((l, k) => `<button type="button" class="inc-tab ${k === i ? 'active' : ''} ${l.reached ? 'done' : ''}" data-inc="${inc.id}" data-lv="${k}">${l.reached ? '✓ ' : l.locked ? '🔒 ' : ''}${escHtml(l.name)}</button>`).join('')}</div>`;
+    if(!inc.started){
+      html += `<p class="progress-sub" style="font-size:13.5px;">Startet am <b>${incDate(inc.start)}</b>. Ab dann zählt jede neue Partnerin.</p>`;
+    }
+    html += `<div class="inc-sub" style="margin-bottom:4px;">Zeitraum: ${incDate(lv.from)} bis ${incDate(lv.to)}</div>`;
+    lv.goals.forEach(g => {
+      if(g.key === 'active'){
+        html += `<div class="inc-row ${g.ok ? 'ok' : ''}"><div class="inc-row-top"><span>${g.ok ? '✓ ' : ''}${escHtml(g.label)}</span><b>${g.value}/${g.target}</b></div>
+          <div class="inc-months">${g.months.map(m => `<span class="inc-m ${m.state}" title="${m.cc != null ? fmtCc(m.cc) + ' CC' : 'noch kein CC-Stand'}">${m.state === 'ok' ? '✓ ' : m.state === 'missed' ? '✗ ' : ''}${INC_M[Number(m.month.slice(5)) - 1]}${m.cc != null && m.state !== 'ok' ? ' · ' + fmtCc(m.cc) : ''}</span>`).join('')}</div></div>`;
+        return;
+      }
+      const pct = g.target ? Math.min(100, Math.round(g.value / g.target * 100)) : 0;
+      html += `<div class="inc-row ${g.ok ? 'ok' : ''}"><div class="inc-row-top"><span>${g.ok ? '✓ ' : ''}${escHtml(g.label)}</span><b>${fmtCc(g.value)}/${fmtCc(g.target)}</b></div>
+        <div class="inc-bar"><span style="width:${pct}%"></span></div>
+        ${g.names && g.names.length ? `<div class="inc-names">${g.names.map(escHtml).join(', ')}</div>` : ''}</div>`;
+    });
+    const ms = incMissing(lv);
+    html += `<div class="inc-missing ${ms.cls}">${ms.text}</div>`;
+    html += `<details class="inc-more"><summary>Belohnung und so wird gezählt</summary>
+      ${lv.reward ? `<p><b>Belohnung ${escHtml(lv.name)}:</b> ${escHtml(lv.reward)}</p>` : ''}
+      <p>Gezählt wird aus <b>Mein Team</b>: Partnerinnen mit Startdatum ab ${incDate(inc.start)} (VIP-Kundinnen zählen nicht), ihre eingetragenen Monats-CC und ihr Rang. „Aktiv“ ist dein CC-Stand aus der Wochenreflexion. Halte Mein Team aktuell, dann stimmt der Stand. Im Zweifel gilt FLP360.</p>
+      <p>Neu dabei in diesem Zeitraum: <b>${lv.newMembers}</b> ${lv.newMembers === 1 ? 'Partnerin' : 'Partnerinnen'}.</p></details>`;
+    return html;
+  }
+  function renderIncentives(list){
+    incData = list || [];
+    document.getElementById('incentiveCards').innerHTML = incData.map(inc => `<section class="card inc-card" data-inccard="${inc.id}">${incCardHtml(inc)}</section>`).join('');
+  }
+  document.getElementById('incentiveCards').addEventListener('click', e => {
+    const b = e.target.closest('[data-inc]');
+    if(!b) return;
+    const inc = incData.find(x => x.id === b.dataset.inc);
+    if(!inc) return;
+    incSel[inc.id] = Number(b.dataset.lv);
+    document.querySelector(`[data-inccard="${inc.id}"]`).innerHTML = incCardHtml(inc);
   });
 
   // ============ Leadership-Pins ============
@@ -2375,6 +2477,7 @@
       renderNugget();
       renderCockpit(dashboardData);
       renderInsight(dashboardData.insight);
+      renderIncentives(dashboardData.incentives);
       loadNotes();
       renderDevplan(dashboardData.devplan, dashboardData.growth);
       renderChallenge(dashboardData.challenge);

@@ -15,6 +15,7 @@ const { monthMetrics, evaluate, publicPin } = require('./_lib/pins');
 const { planStatus } = require('./_lib/leader-context');
 const { leaderPlans } = require('./_lib/devplan');
 const { currentInsight } = require('./_lib/insights');
+const { leaderIncentives } = require('./_lib/incentive');
 
 exports.handler = async function (event) {
   if (event.httpMethod !== 'GET') {
@@ -141,6 +142,10 @@ exports.handler = async function (event) {
       };
     } catch (e) { cockpit = null; }
 
+    // Incentives (supabase/incentives.sql): Stand aus Mein Team und Wochen-CC
+    let incentives = [];
+    try { incentives = await leaderIncentives(leader.id, viennaTodayStr()); } catch (e) { incentives = []; }
+
     // JARVIS-Entwicklungsprofil: nur die Sicht für die Leaderin (ohne Dominiks Teil)
     let growth = null;
     try {
@@ -166,6 +171,7 @@ exports.handler = async function (event) {
       body: JSON.stringify({
         name: leader.name,
         cockpit,
+        incentives,
         growth,
         devplan,
         insight,
