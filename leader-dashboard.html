@@ -1398,6 +1398,7 @@
   // ============ Incentives (z. B. Athen) ============
   const INC_M = ['Jän','Feb','März','Apr','Mai','Juni','Juli','Aug','Sep','Okt','Nov','Dez'];
   const incSel = {}; // gewähltes Level je Incentive (bleibt beim Neuladen)
+  const incOpen = {}; // Eintragen-Bereich offen lassen beim Level-Wechsel
   let incData = [];
   const incDate = (d) => new Date(d + 'T00:00:00').toLocaleDateString('de-AT', { day:'numeric', month:'long' });
   function incMissing(lv){
@@ -1438,12 +1439,26 @@
         return;
       }
       const pct = g.target ? Math.min(100, Math.round(g.value / g.target * 100)) : 0;
-      html += `<div class="inc-row ${g.ok ? 'ok' : ''}"><div class="inc-row-top"><span>${g.ok ? '✓ ' : ''}${escHtml(g.label)}</span><b>${fmtCc(g.value)}/${fmtCc(g.target)}</b></div>
+      html += `<div class="inc-row ${g.ok ? 'ok' : ''}"><div class="inc-row-top"><span>${g.ok ? '✓ ' : ''}${escHtml(g.label)}${g.manual ? ' <small style="color:var(--ink-muted);">(eingetragen)</small>' : ''}</span><b>${fmtCc(g.value)}/${fmtCc(g.target)}</b></div>
         <div class="inc-bar"><span style="width:${pct}%"></span></div>
         ${g.names && g.names.length ? `<div class="inc-names">${g.names.map(escHtml).join(', ')}</div>` : ''}</div>`;
     });
     const ms = incMissing(lv);
     html += `<div class="inc-missing ${ms.cls}">${ms.text}</div>`;
+    // Eigener Stand aus FLP360: Felder, die in diesem Zeitraum (Haupt-Level oder Bonus) vorkommen
+    if(inc.started && !lv.ended){
+      const same = inc.levels.filter(l => l.period === lv.period);
+      const has = (k) => same.some(l => l.goals.some(g => g.key === k));
+      const e = lv.entry || {};
+      const v = (x) => x == null ? '' : String(x).replace('.', ',');
+      const f = (k, lbl, dec) => has(k) ? `<div class="field" style="margin-bottom:8px;"><label>${lbl}</label><input data-incf="${k}" inputmode="${dec ? 'decimal' : 'numeric'}" value="${v(e[k])}" placeholder="leer = automatisch"></div>` : '';
+      const pLbl = lv.period === 'bonus' ? ' (Feb und März)' : '';
+      html += `<details class="inc-more inc-entry" ${incOpen[inc.id] ? 'open' : ''}><summary>✎ Stand aus FLP360 eintragen${lv.entry ? ` · zuletzt ${incDate(lv.entry.updated)}` : ''}</summary>
+        <p style="margin-bottom:10px;">Trag ein, was FLP360 dir zeigt${pLbl}. Deine Zahl gilt dann statt der automatischen. Feld leer lassen = wieder automatisch aus Mein Team.</p>
+        ${f('new_cc', 'Neugeschäft-CC' + pLbl, true)}${f('new_as', 'Neue Assistant Supervisor' + pLbl)}${f('new_s', (lv.period === 'bonus' ? 'Weitere Supervisor' : 'Neue Supervisor') + pLbl)}
+        <button type="button" class="btn" data-incsave="${inc.id}" data-period="${lv.period}" style="padding:11px; font-size:14px;">Speichern</button>
+        <p class="progress-sub" data-incstatus="${inc.id}" style="text-align:center;"></p></details>`;
+    }
     html += `<details class="inc-more"><summary>Belohnung und so wird gezählt</summary>
       ${lv.reward ? `<p><b>Belohnung ${escHtml(lv.name)}:</b> ${escHtml(lv.reward)}</p>` : ''}
       <p>Gezählt wird aus <b>Mein Team</b>: Partnerinnen mit Startdatum ab ${incDate(inc.start)} (VIP-Kundinnen zählen nicht), ihre eingetragenen Monats-CC und ihr Rang. „Aktiv“ ist dein CC-Stand aus der Wochenreflexion. Halte Mein Team aktuell, dann stimmt der Stand. Im Zweifel gilt FLP360.</p>
@@ -1454,7 +1469,35 @@
     incData = list || [];
     document.getElementById('incentiveCards').innerHTML = incData.map(inc => `<section class="card inc-card" data-inccard="${inc.id}">${incCardHtml(inc)}</section>`).join('');
   }
-  document.getElementById('incentiveCards').addEventListener('click', e => {
+  document.getElementById('incentiveCards').addEventListener('toggle', e => {
+    if(e.target.classList && e.target.classList.contains('inc-entry')){
+      const card = e.target.closest('[data-inccard]');
+      if(card) incOpen[card.dataset.inccard] = e.target.open;
+    }
+  }, true);
+  document.getElementById('incentiveCards').addEventListener('click', async e => {
+    const sv = e.target.closest('[data-incsave]');
+    if(sv){
+      const box = sv.closest('.inc-entry');
+      const body = { incentive_id: sv.dataset.incsave, period: sv.dataset.period };
+      box.querySelectorAll('[data-incf]').forEach(i => { body[i.dataset.incf] = i.value.trim(); });
+      const st = box.querySelector('[data-incstatus]');
+      sv.disabled = true;
+      try {
+        const res = await fetch('/.netlify/functions/leader-incentive', {
+          method: 'POST', credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(token ? { token, ...body } : body),
+        });
+        const d = await res.json().catch(() => ({}));
+        if(!res.ok){ st.textContent = d.error || 'Speichern hat nicht geklappt.'; return; }
+        incOpen[body.incentive_id] = false;
+        await loadDashboard();
+        celebrate('Incentive-Stand gespeichert');
+      } catch(err){ st.textContent = 'Keine Verbindung. Bitte nochmal versuchen.'; }
+      finally { sv.disabled = false; }
+      return;
+    }
     const b = e.target.closest('[data-inc]');
     if(!b) return;
     const inc = incData.find(x => x.id === b.dataset.inc);

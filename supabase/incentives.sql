@@ -31,3 +31,18 @@ select 'Athen Incentive', 'European Incentive Runde 2 · 2.–3. Juli 2027', '20
    "reward":"2 × 250 € Reisekostenerstattung. Nur wenn Level 1 oder 2 erreicht ist."}
 ]'::jsonb
 where not exists (select 1 from incentives where title = 'Athen Incentive');
+
+-- Ergänzung: Leaderinnen tragen ihren Stand aus FLP360 selbst ein.
+-- period = 'main' (Haupt-Level) oder 'bonus'. Eingetragene Werte gehen vor der Automatik.
+create table if not exists incentive_entries (
+  id bigserial primary key,
+  incentive_id uuid not null references incentives(id) on delete cascade,
+  leader_id uuid not null references leaders(id) on delete cascade,
+  period text not null default 'main',
+  new_cc numeric(10,3),
+  new_as int,
+  new_s int,
+  updated_at timestamptz not null default now(),
+  unique (incentive_id, leader_id, period)
+);
+alter table incentive_entries enable row level security;

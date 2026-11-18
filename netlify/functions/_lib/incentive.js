@@ -55,7 +55,13 @@ async function loadLeaderData(leaderId) {
     const k = String(w.week_start).slice(0, 7);
     ownCc[k] = Math.max(ownCc[k] || 0, Number(w.cc_stand));
   }
-  return { members, cc, ownCc };
+  // Selbst eingetragener Stand aus FLP360 (geht vor der Automatik). Fehlt die Tabelle, ohne.
+  const entries = {};
+  try {
+    const rows = (await pgrest('incentive_entries', { query: `leader_id=eq.${leaderId}&select=incentive_id,period,new_cc,new_as,new_s,updated_at` })) || [];
+    rows.forEach((r) => { entries[`${r.incentive_id}|${r.period}`] = r; });
+  } catch (e) { /* noch nicht angelegt */ }
+  return { members, cc, ownCc, entries };
 }
 
 function evalLevel(level, inc, data, today, reachedMain) {
@@ -72,9 +78,14 @@ function evalLevel(level, inc, data, today, reachedMain) {
   const asList = fresh.filter((m) => rankIdx(m.rank) >= rankIdx('assistant_supervisor'));
   const sList = fresh.filter((m) => rankIdx(m.rank) >= rankIdx('supervisor'));
 
-  // Bonus: AS/S kommen zusätzlich zu denen des erreichten Haupt-Levels
-  const baseAs = level.bonus && reachedMain ? Number(reachedMain.new_as) || 0 : 0;
-  const baseS = level.bonus && reachedMain ? Number(reachedMain.new_s) || 0 : 0;
+  const period = level.bonus ? 'bonus' : 'main';
+  const entry = (data.entries || {})[`${inc.id}|${period}`] || null;
+  const has = (k) => entry && entry[k] != null;
+
+  // Bonus automatisch: AS/S kommen zusätzlich zu denen des erreichten Haupt-Levels.
+  // Selbst eingetragen zählt sie beim Bonus nur die weiteren aus Feb/März.
+  const baseAs = level.bonus && reachedMain && !has('new_as') ? Number(reachedMain.new_as) || 0 : 0;
+  const baseS = level.bonus && reachedMain && !has('new_s') ? Number(reachedMain.new_s) || 0 : 0;
   const curMonth = today.slice(0, 7);
   const activeTarget = Number(level.active_cc) || 0;
   const activeMonths = months.map((k) => {
@@ -85,9 +96,13 @@ function evalLevel(level, inc, data, today, reachedMain) {
   });
 
   const goals = [];
-  if (Number(level.new_cc)) goals.push({ key: 'new_cc', label: 'Neugeschäft-CC', value: newCc, target: Number(level.new_cc) });
-  if (Number(level.new_as)) goals.push({ key: 'new_as', label: 'neue Assistant Supervisor', value: asList.length, target: baseAs + Number(level.new_as), names: asList.map((m) => m.name) });
-  if (Number(level.new_s)) goals.push({ key: 'new_s', label: level.bonus ? 'neue Supervisor (gesamt)' : 'neue Supervisor', value: sList.length, target: baseS + Number(level.new_s), names: sList.map((m) => m.name) });
+  if (Number(level.new_cc)) goals.push({ key: 'new_cc', label: 'Neugeschäft-CC', value: has('new_cc') ? Number(entry.new_cc) : newCc, target: Number(level.new_cc), manual: has('new_cc') });
+  if (Number(level.new_as)) goals.push(has('new_as')
+    ? { key: 'new_as', label: 'neue Assistant Supervisor', value: Number(entry.new_as), target: baseAs + Number(level.new_as), manual: true }
+    : { key: 'new_as', label: 'neue Assistant Supervisor', value: asList.length, target: baseAs + Number(level.new_as), names: asList.map((m) => m.name) });
+  if (Number(level.new_s)) goals.push(has('new_s')
+    ? { key: 'new_s', label: level.bonus ? 'weitere Supervisor' : 'neue Supervisor', value: Number(entry.new_s), target: baseS + Number(level.new_s), manual: true }
+    : { key: 'new_s', label: level.bonus ? 'neue Supervisor (gesamt)' : 'neue Supervisor', value: sList.length, target: baseS + Number(level.new_s), names: sList.map((m) => m.name) });
   if (activeTarget) {
     const okCount = activeMonths.filter((m) => m.state === 'ok').length;
     goals.push({ key: 'active', label: `Monate mit ${activeTarget} CC aktiv`, value: okCount, target: months.length, months: activeMonths });
@@ -106,6 +121,8 @@ function evalLevel(level, inc, data, today, reachedMain) {
     reached: goals.length > 0 && goals.every((g) => g.ok),
     missedActive: missed,
     newMembers: fresh.length,
+    period,
+    entry: entry ? { new_cc: entry.new_cc, new_as: entry.new_as, new_s: entry.new_s, updated: String(entry.updated_at).slice(0, 10) } : null,
     goals,
   };
 }
