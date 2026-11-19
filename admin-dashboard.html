@@ -73,6 +73,11 @@
   .mv-cc-n small{ font-size:14px; font-weight:600; color: var(--ink-muted); }
   .mv-cc-d{ font-size:11px; color: var(--ink-muted); }
   .mv-goal{ margin:12px 0 10px; text-align:left; }
+  .mv-incs{ text-align:left; margin:0 0 10px; padding-top:8px; border-top:1px dashed var(--hairline); }
+  .mv-inc{ margin:6px 0 8px; }
+  .mv-inc .lbl{ display:flex; justify-content:space-between; gap:6px; font-size:11.5px; color: var(--ink-muted); margin-bottom:4px; }
+  .mv-inc .lbl b{ color: var(--gold-light); } .mv-inc .lbl b.ok{ color: var(--green-light); }
+  .mv-inc-t{ font-size:11px; color: var(--ink-muted); margin-top:4px; line-height:1.35; }
   .mv-goal .lbl{ display:flex; justify-content:space-between; font-size:11.5px; color: var(--ink-muted); margin-bottom:5px; }
   .mv-goal .lbl b{ color: var(--ink); font-weight:700; }
   .mv-bar{ height:6px; border-radius:4px; background: rgba(255,255,255,0.07); overflow:hidden; }
@@ -636,6 +641,7 @@
       if(!res.ok){ document.getElementById('incAdminList').innerHTML = `<p class="card-sub" style="color:var(--error);">${incEsc(d.error || 'Fehler beim Laden.')}</p>`; return; }
       incAdmin = d;
       renderIncAdmin();
+      if(overviewData) renderMasterView();
     } catch(e){}
   }
   function incLeaderStatus(p){
@@ -1038,6 +1044,22 @@
     const behind = cc < planCc * (now.getDate() / dim) * 0.85;
     return { ...base, planCc, pct: Math.round(cc / planCc * 100), behind };
   }
+  // Stand der laufenden Incentives (z. B. Athen) pro Leaderin
+  function mvIncHtml(l){
+    if(!incAdmin || !incAdmin.incentives) return '';
+    const rows = incAdmin.incentives.filter(i => i.active && (i.leaders || []).length).map(i => {
+      const e = i.leaders.find(x => x.id === l.id);
+      if(!e || !e.progress) return '';
+      const st = incLeaderStatus(e.progress);
+      const lv = e.progress.levels[e.progress.focus];
+      const goals = lv ? lv.goals.filter(g => g.key !== 'active' && g.key !== 'manager' && g.target) : [];
+      const pct = goals.length ? Math.round(goals.reduce((a, g) => a + Math.min(1, g.value / g.target), 0) / goals.length * 100) : 0;
+      return `<div class="mv-inc"><div class="lbl"><span>${incEsc(i.title)}${i.admin_only ? ' 🔒' : ''}</span><b class="${st.ok ? 'ok' : ''}">${st.ok && (!lv || lv.reached || lv.locked) ? '✓' : pct + ' %'}</b></div>
+        <div class="mv-bar"><span style="width:${st.ok && (!lv || lv.reached || lv.locked) ? 100 : pct}%; background:linear-gradient(90deg, var(--gold), var(--gold-light));"></span></div>
+        <div class="mv-inc-t">${incEsc(st.text)}</div></div>`;
+    }).join('');
+    return rows ? `<div class="mv-incs">${rows}</div>` : '';
+  }
   function mvCardHtml(l){
     const n = (v) => Number(v).toLocaleString('de-AT', { maximumFractionDigits: 3 });
     const g = monthGoal(l);
@@ -1061,6 +1083,7 @@
       <div class="mv-rank">${RANK_LABELS[l.currentRank] || l.currentRank}${next ? ' · Ziel: ' + next : ''}</div>
       ${ccNow}
       ${goal}
+      ${mvIncHtml(l)}
       <div>${status}</div>
       <div class="mv-sep"></div>
       <div class="mv-team"><b>Eigenes Team</b>${active} aktive Partnerin${active === 1 ? '' : 'nen'}</div>
