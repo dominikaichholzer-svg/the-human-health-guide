@@ -402,6 +402,8 @@
 
   /* Vision-Popup beim Öffnen */
   .vision-modal{ position:fixed; inset:0; z-index:60; display:flex; align-items:center; justify-content:center; padding:20px; background: rgba(0,0,0,0.78); opacity:0; pointer-events:none; transition: opacity 0.3s ease; }
+  .rem-select{ width:100%; background: rgba(255,255,255,0.04); border: 1.5px solid var(--hairline); border-radius: 10px; padding: 12px 13px; color: var(--ink); font-family: var(--sans); font-size: 16px; }
+  .rem-select option{ background: #141416; color: var(--ink); }
   .vision-modal.open{ opacity:1; pointer-events:auto; }
   .vision-modal-box{ width:100%; max-width:440px; max-height: calc(100vh - 40px); overflow-y:auto; background: var(--bg-raised); border:1px solid var(--hairline); border-radius: var(--radius); box-shadow: var(--shadow-lg); padding: 22px 20px 20px; text-align:center; }
   .vision-modal-box h2{ font-family: var(--serif); font-weight:400; font-size:22px; line-height:1.3; margin: 6px 0 16px; }
@@ -465,6 +467,19 @@
       <img id="visionModalImg" alt="Deine Vision">
       <p class="quote-text" id="visionModalQuote"></p>
       <button type="button" class="btn" id="visionModalClose">Weiter zu meinem Dashboard</button>
+    </div>
+  </div>
+
+  <div class="vision-modal" id="reminderModal" role="dialog" aria-modal="true" aria-labelledby="reminderTitle">
+    <div class="vision-modal-box" style="text-align:left;">
+      <div class="eyebrow">DEINE ERINNERUNGEN</div>
+      <h2 id="reminderTitle" style="text-align:left;">Wann sollen wir dich erinnern?</h2>
+      <p class="progress-sub" style="margin-bottom:16px;">Such dir Zeiten aus, die in deinen Alltag passen. Du kannst sie unter „Erinnerungen“ jederzeit ändern.</p>
+      <div class="field"><label for="remDaily">Tagesreflexion, jeden Tag um</label><select id="remDaily" class="rem-select"></select></div>
+      <div class="field"><label for="remWeekly">Wochenreflexion, jeden Sonntag um</label><select id="remWeekly" class="rem-select"></select></div>
+      <p class="progress-sub" style="margin:4px 0 16px;">Nicht geschafft? Kein Problem: Dann erinnern wir dich am nächsten Morgen um 8:00, bis du es nachgetragen hast.</p>
+      <button type="button" class="btn" id="remSave">Speichern</button>
+      <p class="progress-sub" id="remStatus" style="text-align:center; margin-top:8px;"></p>
     </div>
   </div>
 
@@ -992,6 +1007,7 @@
       <h2 class="card-title">Erinnerungen</h2>
       <p class="progress-sub" style="margin-bottom:12px;" id="pushStatusText">Aktiviere Benachrichtigungen, damit du nichts verpasst.</p>
       <button class="btn" id="pushBtn" type="button">Benachrichtigungen aktivieren</button>
+      <div id="remInfo" class="progress-sub" style="margin-top:14px;" hidden></div>
     </section>
 
     </div>
@@ -1393,6 +1409,56 @@
       await loadDashboard();
       if(nowDone) celebrate('Wochenaufgabe erledigt');
     }
+  });
+
+  // ============ Erinnerungszeiten ============
+  let remData = null;
+  (function fillRemSelects(){
+    const opts = [];
+    for(let h = 6; h <= 23; h++) for(const m of ['00','15','30','45']) opts.push(`${String(h).padStart(2,'0')}:${m}`);
+    ['remDaily','remWeekly'].forEach(id => { document.getElementById(id).innerHTML = opts.map(t => `<option value="${t}">${t} Uhr</option>`).join(''); });
+  })();
+  function openReminderModal(){
+    if(!remData) return;
+    document.getElementById('remDaily').value = remData.daily;
+    document.getElementById('remWeekly').value = remData.weekly;
+    document.getElementById('remStatus').textContent = '';
+    document.getElementById('reminderModal').classList.add('open');
+  }
+  // Erst zeigen, wenn kein anderes Fenster (Willkommen, Vision) mehr offen ist
+  function showReminderWhenFree(){
+    const busy = [...document.querySelectorAll('.vision-modal.open')].some(m => m.id !== 'reminderModal');
+    if(busy){ setTimeout(showReminderWhenFree, 800); return; }
+    openReminderModal();
+  }
+  let remAsked = false;
+  function renderReminders(r){
+    remData = r || null;
+    const info = document.getElementById('remInfo');
+    if(!r){ info.hidden = true; return; }
+    info.hidden = false;
+    info.innerHTML = `Tagesreflexion: täglich <b>${r.daily} Uhr</b> · Wochenreflexion: sonntags <b>${r.weekly} Uhr</b><br>Nicht ausgefüllt? Am nächsten Morgen um 8:00 nochmal.
+      <br><button type="button" class="tm-edit-btn" id="remEdit" style="margin-top:8px;">Zeiten ändern</button>`;
+    if(!r.set && !remAsked){ remAsked = true; setTimeout(showReminderWhenFree, 600); }
+  }
+  document.getElementById('pushCard').addEventListener('click', e => { if(e.target.id === 'remEdit') openReminderModal(); });
+  document.getElementById('remSave').addEventListener('click', async function(){
+    const body = { daily_time: document.getElementById('remDaily').value, weekly_time: document.getElementById('remWeekly').value };
+    const st = document.getElementById('remStatus');
+    this.disabled = true;
+    try {
+      const res = await fetch('/.netlify/functions/leader-save-reminders', {
+        method: 'POST', credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(token ? { token, ...body } : body),
+      });
+      const d = await res.json().catch(() => ({}));
+      if(!res.ok){ st.textContent = d.error || 'Speichern hat nicht geklappt.'; return; }
+      document.getElementById('reminderModal').classList.remove('open');
+      renderReminders({ daily: body.daily_time, weekly: body.weekly_time, set: true });
+      celebrate('Erinnerungen eingestellt');
+    } catch(err){ st.textContent = 'Keine Verbindung. Bitte nochmal versuchen.'; }
+    finally { this.disabled = false; }
   });
 
   // ============ Incentives (z. B. Athen) ============
@@ -2523,6 +2589,7 @@
       renderCockpit(dashboardData);
       renderInsight(dashboardData.insight);
       renderIncentives(dashboardData.incentives);
+      renderReminders(dashboardData.reminders);
       loadNotes();
       renderDevplan(dashboardData.devplan, dashboardData.growth);
       renderChallenge(dashboardData.challenge);

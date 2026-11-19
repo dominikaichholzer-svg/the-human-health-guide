@@ -142,6 +142,13 @@ exports.handler = async function (event) {
       };
     } catch (e) { cockpit = null; }
 
+    // Erinnerungszeiten (supabase/reminders.sql). Fehlen die Spalten, Standard 19:00.
+    let reminders = { daily: '19:00', weekly: '19:00', set: true };
+    try {
+      const r = await pgrest('leaders', { query: `id=eq.${leader.id}&select=reminder_daily_time,reminder_weekly_time,reminder_set_at` });
+      if (r && r[0]) reminders = { daily: r[0].reminder_daily_time || '19:00', weekly: r[0].reminder_weekly_time || '19:00', set: !!r[0].reminder_set_at };
+    } catch (e) { /* noch nicht angelegt: Fenster nicht zeigen */ }
+
     // Incentives (supabase/incentives.sql): Stand aus Mein Team und Wochen-CC
     let incentives = [];
     try { incentives = await leaderIncentives(leader.id, viennaTodayStr()); } catch (e) { incentives = []; }
@@ -172,6 +179,7 @@ exports.handler = async function (event) {
         name: leader.name,
         cockpit,
         incentives,
+        reminders,
         growth,
         devplan,
         insight,
