@@ -1411,6 +1411,8 @@
       if(g.key === 'new_cc') parts.push(`<b>${fmtCc(Math.max(0, g.target - g.value))} Neugeschäft-CC</b>`);
       else if(g.key === 'new_as') parts.push(`<b>${g.target - g.value} neue AS</b>`);
       else if(g.key === 'new_s') parts.push(`<b>${g.target - g.value} neue Supervisor</b>`);
+      else if(g.key === 'combo_cc' || g.key === 'own_cc_total') parts.push(`<b>${fmtCc(Math.max(0, g.target - g.value))} CC</b> (${escHtml(g.label)})`);
+      else if(g.key === 'manager') parts.push('<b>Manager werden</b>');
       else if(g.key === 'active'){
         const open = g.months.filter(m => m.state !== 'ok');
         parts.push(`<b>${escHtml(g.label.replace('Monate mit ', ''))}</b> im ${open.map(m => INC_M[Number(m.month.slice(5)) - 1]).join(', ')}`);
@@ -1427,7 +1429,7 @@
     let html = `<div class="inc-head"><div><div class="inc-eyebrow">🏆 Incentive</div><div class="inc-title">${escHtml(inc.title)}</div>
       ${inc.subtitle ? `<div class="inc-sub">${escHtml(inc.subtitle)}</div>` : ''}</div>
       <div class="inc-days"><b>${lv.ended && inc.started ? '–' : days}</b><span>${daysLbl}</span></div></div>`;
-    html += `<div class="inc-tabs">${inc.levels.map((l, k) => `<button type="button" class="inc-tab ${k === i ? 'active' : ''} ${l.reached ? 'done' : ''}" data-inc="${inc.id}" data-lv="${k}">${l.reached ? '✓ ' : l.locked ? '🔒 ' : ''}${escHtml(l.name)}</button>`).join('')}</div>`;
+    html += `<div class="inc-tabs">${inc.levels.map((l, k) => l.na ? '' : `<button type="button" class="inc-tab ${k === i ? 'active' : ''} ${l.reached ? 'done' : ''}" data-inc="${inc.id}" data-lv="${k}">${l.reached ? '✓ ' : l.locked ? '🔒 ' : ''}${escHtml(l.name)}</button>`).join('')}</div>`;
     if(!inc.started){
       html += `<p class="progress-sub" style="font-size:13.5px;">Startet am <b>${incDate(inc.start)}</b>. Ab dann zählt jede neue Partnerin.</p>`;
     }

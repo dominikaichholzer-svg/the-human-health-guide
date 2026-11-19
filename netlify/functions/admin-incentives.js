@@ -22,6 +22,12 @@ function cleanLevels(levels) {
     new_as: Math.round(num(l.new_as)),
     new_s: Math.round(num(l.new_s)),
     active_cc: num(l.active_cc),
+    combo_cc: num(l.combo_cc),
+    combo_months: Math.round(num(l.combo_months)) || null,
+    own_cc_total: num(l.own_cc_total),
+    reach_manager: !!l.reach_manager,
+    direct_as: !!l.direct_as,
+    track: ['below_manager', 'manager'].includes(l.track) ? l.track : '',
     bonus: !!l.bonus,
     from: l.bonus && DATE.test(l.from || '') ? l.from : null,
     to: l.bonus && DATE.test(l.to || '') ? l.to : null,
@@ -84,6 +90,7 @@ exports.handler = async function (event) {
       end_date: i.end_date,
       levels,
       active: i.active !== false,
+      admin_only: !!i.admin_only,
       updated_at: new Date().toISOString(),
     };
     if (i.id) {

@@ -640,13 +640,16 @@
   }
   function incLeaderStatus(p){
     if(!p) return { ok:false, text:'–' };
-    const reached = p.levels.filter(l => l.reached).map(l => l.name);
+    const reached = p.levels.filter(l => l.reached && !l.na).map(l => l.name);
     const lv = p.levels[p.focus];
     const miss = lv.goals.filter(g => !g.ok).map(g => {
       if(g.key === 'new_cc') return `${(g.target - g.value).toLocaleString('de-AT', { maximumFractionDigits: 3 })} CC`;
       if(g.key === 'new_as') return `${g.target - g.value} AS`;
       if(g.key === 'new_s') return `${g.target - g.value} S`;
       if(g.key === 'active') return `aktiv ${g.value}/${g.target}`;
+      if(g.key === 'combo_cc') return `${(g.target - g.value).toLocaleString('de-AT', { maximumFractionDigits: 3 })} CC (eigene+neu)`;
+      if(g.key === 'own_cc_total') return `${(g.target - g.value).toLocaleString('de-AT', { maximumFractionDigits: 3 })} CC gesamt`;
+      if(g.key === 'manager') return 'Manager werden';
       return '';
     }).filter(Boolean);
     const pre = reached.length ? `✓ ${reached.join(', ')}` : '';
@@ -656,12 +659,12 @@
   function renderIncAdmin(){
     const list = incAdmin.incentives || [];
     document.getElementById('incAdminList').innerHTML = list.length ? list.map(i => {
-      const lv = (i.levels || []).map(l => `${incEsc(l.name)}: ${[l.new_cc ? l.new_cc + ' Neu-CC' : '', l.new_as ? l.new_as + ' AS' : '', l.new_s ? l.new_s + ' S' : '', l.active_cc ? l.active_cc + ' CC aktiv' : ''].filter(Boolean).join(', ')}`).join('<br>');
+      const lv = (i.levels || []).map(l => `${incEsc(l.name)}${l.track ? (l.track === 'manager' ? ' <small>(schon Manager)</small>' : ' <small>(noch nicht Manager)</small>') : ''}: ${[l.new_cc ? l.new_cc + ' Neu-CC' : '', l.combo_cc ? l.combo_cc + ' eigene+Neu-CC in ' + (l.combo_months || 3) + ' Mon.' : '', l.own_cc_total ? l.own_cc_total + ' CC gesamt' : '', l.new_as ? l.new_as + (l.direct_as ? ' AS persönlich' : ' AS') : '', l.new_s ? l.new_s + ' S' : '', l.reach_manager ? 'Manager werden' : '', l.active_cc ? l.active_cc + ' CC aktiv' : ''].filter(Boolean).join(', ')}`).join('<br>');
       const rows = (i.leaders || []).map(l => {
         const st = incLeaderStatus(l.progress);
         return `<div class="inc-l"><span>${incEsc(l.name)}${l.onHold ? ' <small>(pausiert)</small>' : ''}</span><span class="st ${st.ok ? 'ok' : ''}">${incEsc(st.text)}</span></div>`;
       }).join('');
-      return `<div class="inc-a"><h3>${incEsc(i.title)} ${i.active ? '' : '<span class="chip chip-red">aus</span>'}</h3>
+      return `<div class="inc-a"><h3>${incEsc(i.title)} ${i.active ? '' : '<span class="chip chip-red">aus</span>'} ${i.admin_only ? '<span class="chip chip-red">nur für dich</span>' : ''}</h3>
         <p class="card-sub" style="margin:0 0 6px;">${incD(i.start_date)} bis ${incD(i.end_date)}${i.subtitle ? ' · ' + incEsc(i.subtitle) : ''}</p>
         <p class="card-sub" style="margin:0 0 6px; font-size:12.5px;">${lv}</p>
         ${rows || '<p class="card-sub" style="margin:0;">Noch nicht gestartet.</p>'}
@@ -673,10 +676,17 @@
     return `<div class="inc-lv">
       <div class="inc-g"><div><label>Name</label><input data-f="name" value="${incEsc(l.name || '')}" placeholder="z. B. Level 1"></div>
       <div><label class="chk" style="margin-top:20px;"><input type="checkbox" data-f="bonus" ${l.bonus ? 'checked' : ''}> Bonus (braucht ein Level davor)</label></div></div>
+      <div class="inc-g"><div><label>Gilt für</label><select data-f="track" style="width:100%; padding:9px 11px; border-radius:9px; background: rgba(255,255,255,0.04); border:1.5px solid var(--hairline); color: var(--ink); margin-bottom:8px;">
+        <option value="" ${!l.track ? 'selected' : ''}>alle</option><option value="below_manager" ${l.track === 'below_manager' ? 'selected' : ''}>noch nicht Manager</option><option value="manager" ${l.track === 'manager' ? 'selected' : ''}>schon Manager</option></select></div>
+      <div><label class="chk" style="margin-top:20px;"><input type="checkbox" data-f="reach_manager" ${l.reach_manager ? 'checked' : ''}> Manager werden</label></div></div>
       <div class="inc-g4"><div><label>Neu-CC</label><input data-f="new_cc" inputmode="decimal" value="${l.new_cc || ''}"></div>
       <div><label>Neue AS</label><input data-f="new_as" inputmode="numeric" value="${l.new_as || ''}"></div>
       <div><label>Neue S</label><input data-f="new_s" inputmode="numeric" value="${l.new_s || ''}"></div>
       <div><label>CC aktiv/Monat</label><input data-f="active_cc" inputmode="decimal" value="${l.active_cc || ''}"></div></div>
+      <div class="inc-g4"><div><label>Eigene+Neu-CC</label><input data-f="combo_cc" inputmode="decimal" value="${l.combo_cc || ''}"></div>
+      <div><label>… in Monaten am Stück</label><input data-f="combo_months" inputmode="numeric" value="${l.combo_months || ''}"></div>
+      <div><label>CC gesamt (eigene)</label><input data-f="own_cc_total" inputmode="decimal" value="${l.own_cc_total || ''}"></div>
+      <div><label class="chk" style="margin-top:20px;"><input type="checkbox" data-f="direct_as" ${l.direct_as ? 'checked' : ''}> AS nur persönlich</label></div></div>
       <div class="inc-g"><div><label>Bonus von (optional)</label><input type="date" data-f="from" value="${l.from || ''}"></div>
       <div><label>Bonus bis (optional)</label><input type="date" data-f="to" value="${l.to || ''}"></div></div>
       <label>Belohnung</label><textarea data-f="reward">${incEsc(l.reward || '')}</textarea>
@@ -690,7 +700,8 @@
       <label>Untertitel (optional)</label><input id="incF_sub" value="${incEsc(inc.subtitle || '')}" placeholder="z. B. Event am 2.–3. Juli 2027">
       <div class="inc-g"><div><label>Start Qualifikation</label><input type="date" id="incF_start" value="${inc.start_date ? String(inc.start_date).slice(0,10) : ''}"></div>
       <div><label>Ende Qualifikation</label><input type="date" id="incF_end" value="${inc.end_date ? String(inc.end_date).slice(0,10) : ''}"></div></div>
-      <label class="chk" style="display:flex; gap:6px; align-items:center; text-transform:none; color:var(--ink); font-size:13px; margin-bottom:10px;"><input type="checkbox" id="incF_active" style="width:auto; margin:0;" ${inc.active !== false ? 'checked' : ''}> Aktiv (Leaderinnen sehen es)</label>
+      <label class="chk" style="display:flex; gap:6px; align-items:center; text-transform:none; color:var(--ink); font-size:13px; margin-bottom:10px;"><input type="checkbox" id="incF_active" style="width:auto; margin:0;" ${inc.active !== false ? 'checked' : ''}> Aktiv</label>
+      <label class="chk" style="display:flex; gap:6px; align-items:center; text-transform:none; color:var(--ink); font-size:13px; margin-bottom:10px;"><input type="checkbox" id="incF_admin" style="width:auto; margin:0;" ${inc.admin_only ? 'checked' : ''}> Nur für mich (Leaderinnen sehen es nicht)</label>
       <div id="incF_levels">${(inc.levels || []).map(incLevelHtml).join('')}</div>
       <button type="button" class="mini" id="incF_addLv" style="margin-bottom:12px;">+ Level hinzufügen</button>
       <div class="inc-g"><button type="button" class="btn" id="incF_save" style="padding:10px; font-size:13.5px;">Speichern</button>
@@ -737,6 +748,7 @@
       start_date: document.getElementById('incF_start').value,
       end_date: document.getElementById('incF_end').value,
       active: document.getElementById('incF_active').checked,
+      admin_only: document.getElementById('incF_admin').checked,
       levels,
     }});
     e.target.disabled = false;
