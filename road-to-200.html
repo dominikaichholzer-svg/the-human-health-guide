@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Road to 200 · Team-Zähler</title>
+<meta property="og:title" content="Road to 200">
+<meta property="og:description" content="Gemeinsam ins neue Jahr: unser Weg zu 200 Teilnehmerinnen bei der C9 Neujahrs-Challenge.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{ --bg:#0F1730; --raised:#172244; --ink:#F6F1E4; --muted:#AAB2CC; --line:#2C3866; --gold:#E9C77B; }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; color:var(--ink); font-family:'Inter',sans-serif; -webkit-font-smoothing:antialiased;
+    background: radial-gradient(1200px 520px at 50% -140px, rgba(233,199,123,0.18), transparent 70%), var(--bg); min-height:100vh; }
+  .app{ max-width:520px; margin:0 auto; padding:32px 16px 48px; }
+  .eyebrow{ font-family:'IBM Plex Mono',monospace; font-size:11.5px; letter-spacing:0.16em; text-transform:uppercase; color:var(--gold); margin-bottom:12px; }
+  h1{ font-family:'Fraunces',serif; font-weight:400; font-size:38px; line-height:1.1; margin:0 0 8px; }
+  h1 em{ font-style:italic; color:var(--gold); font-weight:500; }
+  .sub{ color:var(--muted); font-size:15px; line-height:1.55; margin:0 0 26px; }
+  .ring{ position:relative; width:250px; height:250px; margin: 0 auto 22px; }
+  .ring svg{ width:100%; height:100%; transform: rotate(-90deg); }
+  .ring .c{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
+  .ring .n{ font-family:'Fraunces',serif; font-size:72px; line-height:1; color:var(--gold); }
+  .ring .of{ font-size:14px; color:var(--muted); margin-top:6px; }
+  .stats{ display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; margin-bottom:22px; }
+  .stats div{ background:var(--raised); border:1px solid var(--line); border-radius:14px; padding:14px 8px; text-align:center; }
+  .stats b{ display:block; font-family:'Fraunces',serif; font-size:28px; font-weight:600; }
+  .stats small{ font-size:12px; color:var(--muted); }
+  .card{ background:var(--raised); border:1px solid var(--line); border-radius:16px; padding:18px; margin-bottom:14px; }
+  .card h3{ font-family:'Fraunces',serif; font-weight:600; font-size:19px; margin:0 0 8px; }
+  .card p{ margin:0; font-size:14.5px; line-height:1.6; }
+  .steps{ margin:8px 0 0; padding-left:20px; font-size:14.5px; line-height:1.7; }
+  .dates{ display:flex; justify-content:space-between; gap:10px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted); margin-top:4px; }
+  .dates b{ color:var(--ink); font-family:'Inter',sans-serif; font-size:14px; display:block; }
+  .foot{ margin-top:26px; font-size:11.5px; color:var(--muted); text-align:center; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="eyebrow">Road to 200 · Team-Zähler</div>
+  <h1>Gemeinsam <em>ins neue Jahr</em>.</h1>
+  <p class="sub">Unser Ziel: 200 Menschen starten am Samstag, 30.01., zusammen die C9 Neujahrs-Challenge. Jede Einladung zählt.</p>
+
+  <div class="ring">
+    <svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="#2C3866" stroke-width="10"/><circle id="arc" cx="60" cy="60" r="52" fill="none" stroke="#E9C77B" stroke-width="10" stroke-linecap="round" stroke-dasharray="0 400"/></svg>
+    <div class="c"><div class="n" id="num">–</div><div class="of">von 200 dabei</div></div>
+  </div>
+
+  <div class="stats">
+    <div><b id="sSurveys">–</b><small>Umfragen</small></div>
+    <div><b id="sLeft">–</b><small>fehlen noch</small></div>
+    <div><b id="sDays">–</b><small>Tage bis Bestellschluss</small></div>
+  </div>
+
+  <div class="card">
+    <h3>Was du heute tun kannst</h3>
+    <ol class="steps">
+      <li>Einen Lips verschenken oder jemanden fragen, was er 2027 verändern will.</li>
+      <li>Deinen Umfrage-Link oder Flyer in den Status stellen.</li>
+      <li>Jede Antwort am selben Tag mit einer Sprachnachricht beantworten.</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h3>Die wichtigen Daten</h3>
+    <div class="dates">
+      <span><b>31.12.</b>Dezember-Bonus</span>
+      <span><b>23.01.</b>Bestellschluss</span>
+      <span><b>30.01.</b>Gemeinsamer Start</span>
+    </div>
+  </div>
+
+  <div class="foot">Coach Oaki Team · Stand <span id="stand"></span> · lädt sich jede Minute neu</div>
+</div>
+<script>
+  async function load(){
+    try {
+      const r = await fetch('/.netlify/functions/c9-neujahr?stats=1', { cache: 'no-store' });
+      if(!r.ok) return;
+      const d = await r.json();
+      const n = d.bestellt || 0, goal = d.goal || 200;
+      document.getElementById('num').textContent = n;
+      document.getElementById('sSurveys').textContent = d.umfragen || 0;
+      document.getElementById('sLeft').textContent = Math.max(0, goal - n);
+      const C = 2 * Math.PI * 52;
+      document.getElementById('arc').setAttribute('stroke-dasharray', `${Math.min(1, n / goal) * C} ${C}`);
+      const t = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Vienna' })); t.setHours(0,0,0,0);
+      document.getElementById('sDays').textContent = Math.max(0, Math.round((new Date('2027-01-23T00:00:00') - t) / 86400000));
+      document.getElementById('stand').textContent = new Date().toLocaleTimeString('de-AT', { hour: '2-digit', minute: '2-digit' });
+    } catch(e){}
+  }
+  load();
+  setInterval(load, 60000);
+</script>
+</body>
+</html>

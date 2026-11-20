@@ -118,6 +118,26 @@
   .inc-l .st.ok{ color: var(--green-light); }
   .inc-form input, .inc-form textarea{ width:100%; padding:9px 11px; border-radius:9px; background: rgba(255,255,255,0.04); border:1.5px solid var(--hairline); color: var(--ink); font-family: var(--sans); font-size:13.5px; margin-bottom:8px; box-sizing:border-box; }
   .inc-form textarea{ min-height:56px; }
+  .r2-big{ display:flex; align-items:baseline; gap:10px; margin: 4px 0 8px; }
+  .r2-big b{ font-family: var(--serif); font-size:44px; line-height:1; color: var(--gold); }
+  .r2-big span{ color: var(--ink-muted); font-size:14px; }
+  .r2-bar{ height:12px; border-radius:8px; background: rgba(255,255,255,0.07); overflow:hidden; margin-bottom:12px; }
+  .r2-bar i{ display:block; height:100%; background: linear-gradient(90deg, var(--gold), var(--gold-light)); border-radius:8px; }
+  .r2-funnel{ display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; margin-bottom:10px; }
+  .r2-funnel div{ background: rgba(255,255,255,0.04); border:1px solid var(--hairline); border-radius:10px; padding:8px 6px; text-align:center; }
+  .r2-funnel b{ display:block; font-size:20px; }
+  .r2-funnel small{ font-size:10.5px; color: var(--ink-muted); line-height:1.25; display:block; }
+  .r2-hint{ font-size:12.5px; color: var(--ink-muted); margin: 0 0 10px; line-height:1.5; }
+  .r2-row{ display:flex; gap:6px; flex-wrap:wrap; }
+  .r2-row input, .r2-row select{ flex:1; min-width:120px; padding:9px 11px; border-radius:9px; background: rgba(255,255,255,0.04); border:1.5px solid var(--hairline); color: var(--ink); font-family: var(--sans); font-size:13px; margin-bottom:6px; }
+  .r2-p{ display:flex; justify-content:space-between; gap:8px; padding:8px 0; border-bottom:1px solid var(--hairline); font-size:13px; align-items:center; flex-wrap:wrap; }
+  .r2-p .lnk{ font-size:11.5px; color: var(--ink-muted); word-break:break-all; }
+  .r2-p .lnk a{ color: var(--gold); }
+  .r2-l{ padding:9px 0; border-bottom:1px solid var(--hairline); font-size:13px; line-height:1.45; }
+  .r2-l .top{ display:flex; justify-content:space-between; gap:8px; align-items:center; }
+  .r2-l select{ background: rgba(255,255,255,0.04); border:1px solid var(--hairline); color: var(--ink); border-radius:8px; padding:5px 6px; font-family: var(--sans); font-size:12px; }
+  .r2-l .meta{ color: var(--ink-muted); font-size:12px; }
+  .r2-l a{ color: var(--green-light); }
   .inc-form label{ display:block; font-size:11px; color: var(--ink-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:3px; }
   .inc-g{ display:grid; grid-template-columns:1fr 1fr; gap:0 10px; }
   .inc-g4{ display:grid; grid-template-columns:repeat(4, 1fr); gap:0 8px; }
@@ -273,6 +293,27 @@
       <h2 class="card-title">⚠️ Brauchen deine Aufmerksamkeit</h2>
       <p class="card-sub" style="margin-bottom:8px;">Diese Leaderinnen haben 2 Wochen hintereinander nichts eingetragen. Ein kurzer, persönlicher Anruf oder eine Sprachnachricht hilft meistens mehr als eine Erinnerung.</p>
       <div id="dryAlertList"></div>
+    </section>
+
+    <section class="card" id="r200Card" hidden>
+      <div class="mv-head" style="margin-bottom:6px;"><span class="mv-title">Road to 200</span><span class="chip chip-green">C9 · Start 30.01.</span></div>
+      <div id="r200Top"></div>
+      <details class="more-box" id="r200PartnersBox"><summary>Partnerinnen und ihre Links</summary><div id="r200Partners"></div>
+        <div class="inc-form" style="margin-top:10px;">
+          <label>Neue Partnerin (oder bestehende ändern)</label>
+          <div class="r2-row"><input id="r2Slug" placeholder="Kurzname im Link, z. B. sarah"><input id="r2Name" placeholder="Vorname"><input id="r2Wa" placeholder="WhatsApp, z. B. 4366412345678"></div>
+          <button type="button" class="btn" id="r2SaveP" style="padding:9px; font-size:13px; margin-top:4px;">Partnerin speichern</button>
+        </div>
+      </details>
+      <details class="more-box" id="r200LeadsBox"><summary id="r200LeadsSum">Anmeldungen</summary><div id="r200Leads"></div>
+        <div class="inc-form" style="margin-top:10px;">
+          <label>Teilnehmerin ohne Umfrage eintragen (zählt als bestellt)</label>
+          <div class="r2-row"><select id="r2MPartner"></select><input id="r2MName" placeholder="Name"></div>
+          <button type="button" class="btn" id="r2SaveM" style="padding:9px; font-size:13px; margin-top:4px;">Als bestellt eintragen</button>
+        </div>
+      </details>
+      <p class="card-sub" id="r200Status" style="text-align:center; margin:8px 0 0;"></p>
+      <p class="card-sub" style="margin:8px 0 0;">Team-Zähler zum Teilen (nur Summen): <a href="/road-to-200.html" target="_blank" style="color:var(--gold);">road-to-200</a></p>
     </section>
 
     <section class="card" id="masterView">
@@ -633,6 +674,73 @@
   let incAdmin = null;
   const incEsc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const incD = (d) => new Date(String(d).slice(0,10) + 'T00:00:00').toLocaleDateString('de-AT', { day:'numeric', month:'short', year:'numeric' });
+  // ============ Road to 200 (Neujahrs-Umfrage, C9-Start 30.01.) ============
+  let r200 = null;
+  const R2_STATUS = { neu: 'Neu', im_gespraech: 'Im Gespräch', bestellt: 'Bestellt ✓', kein_interesse: 'Kein Interesse' };
+  async function loadR200(){
+    try {
+      const res = await fetch('/.netlify/functions/admin-road200' + (adminKey ? '?key=' + encodeURIComponent(adminKey) : ''), { credentials: 'same-origin' });
+      const d = await res.json().catch(() => ({}));
+      document.getElementById('r200Card').hidden = false;
+      if(!res.ok){ document.getElementById('r200Top').innerHTML = `<p class="card-sub" style="color:var(--error);">${incEsc(d.error || 'Fehler beim Laden.')}</p>`; return; }
+      r200 = d;
+      renderR200();
+    } catch(e){}
+  }
+  function renderR200(){
+    const d = r200, t = d.totals;
+    const pct = Math.min(100, Math.round(t.bestellt / d.goal * 100));
+    // Tage bis Bestellschluss (23.01.) und Ziel pro Tag
+    const today = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Vienna' })); today.setHours(0,0,0,0);
+    const days = Math.max(0, Math.round((new Date('2027-01-23T00:00:00') - today) / 86400000));
+    const left = Math.max(0, d.goal - t.bestellt);
+    const quote = t.umfragen ? Math.round(t.bestellt / t.umfragen * 100) : 0;
+    document.getElementById('r200Top').innerHTML = `
+      <div class="r2-big"><b>${t.bestellt}</b><span>von ${d.goal} Teilnehmerinnen · noch ${left}</span></div>
+      <div class="r2-bar"><i style="width:${pct}%"></i></div>
+      <div class="r2-funnel">
+        <div><b>${t.umfragen}</b><small>Umfragen</small></div>
+        <div><b>${t.geschrieben}</b><small>selbst auf WhatsApp geschrieben</small></div>
+        <div><b>${t.im_gespraech}</b><small>im Gespräch</small></div>
+        <div><b>${t.bestellt}</b><small>bestellt</small></div>
+      </div>
+      <p class="r2-hint">Quote Umfrage → Bestellung: <b>${quote} %</b> · ${t.weitergeleitet}x an Freundinnen weitergeleitet · noch <b>${days} Tage</b> bis Bestellschluss (23.01.)${days ? `, das sind etwa <b>${Math.ceil(left / days * 10) / 10}</b> Teilnehmerinnen pro Tag` : ''}.</p>`;
+    const base = location.origin + '/neujahr/';
+    document.getElementById('r200Partners').innerHTML = (d.partners || []).map(p => `
+      <div class="r2-p"><div><b>${incEsc(p.name)}</b>${p.active ? '' : ' <span class="meta">(inaktiv)</span>'}<div class="lnk"><a href="${base}${incEsc(p.slug)}" target="_blank">${incEsc(base + p.slug)}</a> · <a href="/neujahr-flyer.html?p=${incEsc(p.slug)}" target="_blank">Flyer</a>${p.whatsapp ? '' : ' · <span style="color:var(--error)">WhatsApp fehlt</span>'}</div></div>
+      <div class="meta">${p.umfragen} Umfragen · ${p.im_gespraech} im Gespräch · <b style="color:var(--ink)">${p.bestellt} bestellt</b></div></div>`).join('') || '<p class="card-sub">Noch keine Partnerinnen.</p>';
+    document.getElementById('r2MPartner').innerHTML = (d.partners || []).map(p => `<option value="${incEsc(p.slug)}">${incEsc(p.name)}</option>`).join('');
+    const pname = Object.fromEntries((d.partners || []).map(p => [p.slug, p.name]));
+    document.getElementById('r200LeadsSum').textContent = `Anmeldungen (${d.leads.length})`;
+    document.getElementById('r200Leads').innerHTML = d.leads.map(l => {
+      const wa = String(l.phone || '').replace(/[^\d]/g, '').replace(/^00/, '').replace(/^0/, '43');
+      return `<div class="r2-l"><div class="top"><span><b>${incEsc(l.name)}</b> <span class="meta">über ${incEsc(pname[l.partner] || l.partner)} · ${new Date(l.created_at).toLocaleDateString('de-AT')}</span></span>
+        <select data-r2lead="${l.id}">${Object.entries(R2_STATUS).map(([k, v]) => `<option value="${k}"${k === l.status ? ' selected' : ''}>${v}</option>`).join('')}</select></div>
+        ${l.manual ? '<div class="meta">Ohne Umfrage eingetragen</div>' : `<div class="meta">${incEsc(l.ziel)}${l.start ? ' · ' + incEsc(l.start) : ''}</div>
+        <div class="meta">${wa.length > 6 ? `<a href="https://wa.me/${wa}" target="_blank">${incEsc(l.phone)}</a>` : incEsc(l.phone)}${l.wa ? ' · hat selbst geschrieben' : ' · <b style="color:var(--gold)">noch nicht geschrieben, melde dich</b>'}${l.friend ? ' · weitergeleitet' : ''}</div>`}</div>`;
+    }).join('') || '<p class="card-sub">Noch keine Anmeldungen.</p>';
+  }
+  async function r2Post(body){
+    const res = await fetch('/.netlify/functions/admin-road200', { method:'POST', credentials:'same-origin', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ key: adminKey, ...body }) });
+    const d = await res.json().catch(() => ({}));
+    document.getElementById('r200Status').textContent = res.ok ? 'Gespeichert ✓' : (d.error || 'Fehler beim Speichern');
+    if(res.ok) await loadR200();
+    return res.ok;
+  }
+  document.getElementById('r200Leads').addEventListener('change', e => {
+    const sel = e.target.closest('[data-r2lead]');
+    if(sel) r2Post({ lead_id: sel.dataset.r2lead, status: sel.value });
+  });
+  document.getElementById('r2SaveP').addEventListener('click', async () => {
+    const ok = await r2Post({ partner: { slug: document.getElementById('r2Slug').value.trim().toLowerCase(), name: document.getElementById('r2Name').value.trim(), whatsapp: document.getElementById('r2Wa').value.trim() } });
+    if(ok){ ['r2Slug','r2Name','r2Wa'].forEach(id => { document.getElementById(id).value = ''; }); document.getElementById('r200PartnersBox').open = true; }
+  });
+  document.getElementById('r2SaveM').addEventListener('click', async () => {
+    const name = document.getElementById('r2MName').value.trim();
+    if(!name){ document.getElementById('r200Status').textContent = 'Bitte einen Namen eingeben.'; return; }
+    if(await r2Post({ manual: { partner_slug: document.getElementById('r2MPartner').value, name } })){ document.getElementById('r2MName').value = ''; document.getElementById('r200LeadsBox').open = true; }
+  });
+
   async function loadIncAdmin(){
     try {
       const res = await fetch('/.netlify/functions/admin-incentives' + (adminKey ? '?key=' + encodeURIComponent(adminKey) : ''), { credentials: 'same-origin' });
@@ -1147,6 +1255,7 @@
       loadChallengeAdmin();
       loadPinsAdmin();
       loadIncAdmin();
+      loadR200();
       loadRankings();
       loadBooksAdmin();
 

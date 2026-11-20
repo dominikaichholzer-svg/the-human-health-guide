@@ -4,6 +4,7 @@
 // Eine Funktion für alle Partnerinnen, erkannt am slug aus dem Link.
 //
 // GET  ?p=<slug>                       -> { name, whatsapp }  (für die Seite)
+// GET  ?stats=1                        -> { goal, bestellt, umfragen, partnerinnen } (Team-Zähler)
 // POST { p, name, phone, email?, answers, consent }  -> { id }
 //      speichert in c9_leads und schickt Dominik eine Benachrichtigung
 // POST { id, event: "wa" | "friend" }  -> merkt, ob sie selbst auf WhatsApp
@@ -55,6 +56,16 @@ async function notify(p, lead, labels) {
 exports.handler = async function (event) {
   try {
     if (event.httpMethod === 'GET') {
+      // Öffentlicher Team-Zähler (road-to-200.html): nur Summen, keine Namen
+      if ((event.queryStringParameters || {}).stats === '1') {
+        const rows = (await pgrest('c9_leads', { query: 'select=status,consent_text&limit=5000' })) || [];
+        return json(200, {
+          goal: 200,
+          bestellt: rows.filter((r) => r.status === 'bestellt').length,
+          umfragen: rows.filter((r) => !String(r.consent_text).startsWith('Manuell')).length,
+          partnerinnen: ((await pgrest('c9_partners', { query: 'active=eq.true&select=slug' })) || []).length,
+        });
+      }
       const p = await partner((event.queryStringParameters || {}).p);
       if (!p) return json(404, { error: 'Unbekannter Link' });
       return json(200, { name: p.name, whatsapp: p.whatsapp || null });
