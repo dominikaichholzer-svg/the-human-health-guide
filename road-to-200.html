@@ -87,6 +87,7 @@
       document.getElementById('sLeft').textContent = Math.max(0, goal - n);
       const C = 2 * Math.PI * 52;
       document.getElementById('arc').setAttribute('stroke-dasharray', `${Math.min(1, n / goal) * C} ${C}`);
+      document.getElementById('arc').style.opacity = n > 0 ? 1 : 0;
       const t = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Vienna' })); t.setHours(0,0,0,0);
       document.getElementById('sDays').textContent = Math.max(0, Math.round((new Date('2027-01-23T00:00:00') - t) / 86400000));
       document.getElementById('stand').textContent = new Date().toLocaleTimeString('de-AT', { hour: '2-digit', minute: '2-digit' });
