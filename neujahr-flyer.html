@@ -18,27 +18,27 @@
   html,body{ margin:0; background:#0B1124; font-family:'Inter',sans-serif; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
   .flyer{ position:relative; width:1080px; height:1920px; overflow:hidden; color:var(--ink);
     background: radial-gradient(1400px 900px at 50% -260px, rgba(233,199,123,0.28), transparent 65%), var(--bg);
-    padding: 120px 96px 100px; display:flex; flex-direction:column; transform-origin: top left; }
+    padding: 104px 96px 84px; display:flex; flex-direction:column; transform-origin: top left; }
   .spark{ position:absolute; border-radius:50%; background: var(--gold); box-shadow: 0 0 24px var(--gold); }
   .eyebrow{ font-family:'IBM Plex Mono',monospace; font-size:34px; letter-spacing:0.18em; text-transform:uppercase; color:var(--gold); margin-bottom:40px; display:flex; align-items:center; gap:20px; }
   .eyebrow i{ width:14px; height:14px; border-radius:50%; background:var(--gold); box-shadow:0 0 16px var(--gold); }
-  h1{ font-family:'Fraunces',serif; font-weight:400; font-size:118px; line-height:1.04; margin:0 0 44px; letter-spacing:-0.01em; }
+  h1{ font-family:'Fraunces',serif; font-weight:400; font-size:106px; line-height:1.04; margin:0 0 36px; letter-spacing:-0.01em; }
   h1 em{ font-style:italic; font-weight:500; color:var(--gold); }
-  .lede{ font-size:44px; line-height:1.42; color:var(--muted); margin:0 0 56px; }
+  .lede{ font-size:40px; line-height:1.42; color:var(--muted); margin:0 0 44px; }
   .lede b{ color:var(--ink); font-weight:600; }
   .chips{ display:flex; flex-wrap:wrap; gap:18px; margin-bottom:auto; }
-  .chips span{ font-size:34px; padding:16px 28px; border:2px solid var(--line); border-radius:999px; background:rgba(255,255,255,0.04); }
-  .qrbox{ display:flex; align-items:center; gap:52px; background:var(--raised); border:2px solid var(--line); border-radius:40px; padding:44px; margin: 60px 0 44px; }
-  .qr{ width:360px; height:360px; background:#fff; border-radius:24px; padding:22px; flex-shrink:0; }
+  .chips span{ font-size:31px; padding:14px 26px; border:2px solid var(--line); border-radius:999px; background:rgba(255,255,255,0.04); }
+  .qrbox{ display:flex; align-items:center; gap:52px; background:var(--raised); border:2px solid var(--line); border-radius:40px; padding:40px; margin: 44px 0 36px; }
+  .qr{ width:340px; height:340px; background:#fff; border-radius:24px; padding:22px; flex-shrink:0; }
   .qr svg{ width:100%; height:100%; display:block; }
   .qrtext .t{ font-family:'Fraunces',serif; font-size:60px; line-height:1.1; margin-bottom:18px; }
   .qrtext .s{ font-size:32px; line-height:1.4; color:var(--muted); }
-  .qrtext .u{ font-family:'IBM Plex Mono',monospace; font-size:24px; color:var(--gold); margin-top:18px; word-break:break-all; }
+  .qrtext .u{ font-family:'IBM Plex Mono',monospace; font-size:23px; line-height:1.45; color:var(--gold); margin-top:18px; }
   .event{ border:2px dashed var(--gold); border-radius:32px; padding:34px 40px; display:flex; justify-content:space-between; align-items:center; gap:30px; }
   .event .l{ font-size:34px; line-height:1.35; }
   .event .l b{ display:block; font-family:'Fraunces',serif; font-weight:600; font-size:46px; color:var(--gold); margin-bottom:6px; }
   .event .d{ font-family:'IBM Plex Mono',monospace; font-size:30px; text-align:right; color:var(--ink); white-space:nowrap; }
-  .from{ margin-top:40px; font-size:30px; color:var(--muted); display:flex; justify-content:space-between; }
+  .from{ margin-top:32px; font-size:30px; color:var(--muted); display:flex; justify-content:space-between; }
   .from b{ color:var(--ink); }
 
   /* Anzeige am Bildschirm: auf die Fensterbreite verkleinern */
@@ -53,6 +53,7 @@
   body.a5 .lede{ font-size:40px; margin-bottom:40px; }
   body.a5 .qrbox{ margin:40px 0 34px; }
   @page{ size: A5; margin:0; }
+  @media print{ body.a5{ background:var(--bg); } body.a5 .flyer{ zoom:0.5175; } body.a5 .stage{ padding:0; display:block; } }
   .err{ color:#fff; text-align:center; padding:60px 20px; font-size:16px; }
 </style>
 </head>
@@ -111,7 +112,7 @@
     qr.addData(link);
     qr.make();
     document.getElementById('qr').innerHTML = qr.createSvgTag({ cellSize: 8, margin: 0, scalable: true });
-    document.getElementById('url').textContent = link.replace('https://', '');
+    document.getElementById('url').innerHTML = 'mein-quiz-health.netlify.app<br>/neujahr/' + slug;
     fit();
     window.addEventListener('resize', fit);
     document.body.dataset.ready = '1';
