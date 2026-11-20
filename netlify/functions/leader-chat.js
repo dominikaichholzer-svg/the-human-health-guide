@@ -4,7 +4,9 @@
 // Body: { message, history }                       normale Frage
 //       { prepare_member_id, history }             Coaching-Gespräch mit einer eigenen Partnerin vorbereiten
 //       { ask: "plan", history }                   Ideen, wenn sie hinter dem Monatsplan liegt (aus der Push-Warnung)
-//   history: letzte Nachrichten dieser Sitzung (nicht gespeichert)
+//       { clear_memory: true }                    JARVIS' Gedächtnis (frühere Chats) löschen
+//   history: letzte Nachrichten dieser Sitzung. Frühere Sitzungen kennt JARVIS
+//   über _lib/chat-memory.js (chat_jobs, letzte 30 Tage).
 //
 // Ab Schritt 2 (Lernbegleiter) entsteht die Antwort im Hintergrund, weil
 // JARVIS dafür in Schulungen nachschlagen kann (länger als 10 Sekunden):
@@ -17,6 +19,7 @@ const { requireLeader } = require('./_lib/auth');
 const { makeClient } = require('./_lib/agent');
 const { agentSecret } = require('./_lib/telegram');
 const { resolveMessage, answer } = require('./_lib/leader-chat-core');
+const { clearMemory } = require('./_lib/chat-memory');
 
 const reply = (code, obj) => ({ statusCode: code, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(obj) });
 
@@ -34,6 +37,13 @@ exports.handler = async function (event) {
     const auth = await requireLeader(event, payload);
     if (!auth.ok) return auth.response;
     const leader = auth.leader;
+
+    // Gedächtnis löschen (Knopf im Chatfenster)
+    if (payload.clear_memory) {
+      await clearMemory(leader.id);
+      return reply(200, { ok: true });
+    }
+
     const r = await resolveMessage(leader, payload);
     if (r.error) return reply(r.status, { error: r.error });
 

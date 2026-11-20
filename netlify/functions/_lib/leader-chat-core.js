@@ -11,6 +11,7 @@ const { PANEL_WISDOM } = require('./panel-wisdom');
 const { buildLeaderContext } = require('./leader-context');
 const { viennaTodayStr } = require('./ranks');
 const books = require('./books');
+const { memoryText } = require('./chat-memory');
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -115,7 +116,7 @@ function cleanHistory(history) {
     .map((m) => ({ role: m.role, content: m.content.slice(0, 6000) }));
 }
 
-async function systemFor(leader, docs) {
+async function systemFor(leader, docs, memory) {
   const today = viennaTodayStr();
   let contextText = '';
   try {
@@ -129,7 +130,7 @@ async function systemFor(leader, docs) {
   const lib = docs && docs.length
     ? `\n\nFreigegebene Unterlagen für sie (für unterlage_fragen):\n${docs.map((d) => `[${d.id}] ${d.title}: ${String(d.summary || '').slice(0, 220)}`).join('\n')}`
     : '';
-  return SYSTEM_PROMPT + seasonal + '\n\n' + GUARDRAILS + (docs ? '\n\n' + LEARNING : '') + '\n\n' + PANEL_WISDOM + `\n\nDu sprichst gerade mit ${leader.name} (Rang: ${leader.current_rank}).\n\nIhre Dashboard-Daten:\n${contextText}` + lib;
+  return SYSTEM_PROMPT + seasonal + '\n\n' + GUARDRAILS + (docs ? '\n\n' + LEARNING : '') + '\n\n' + PANEL_WISDOM + `\n\nDu sprichst gerade mit ${leader.name} (Rang: ${leader.current_rank}).\n\nIhre Dashboard-Daten:\n${contextText}` + lib + (memory || '');
 }
 
 async function runTool(client, leader, docs, block) {
@@ -158,7 +159,9 @@ async function runTool(client, leader, docs, block) {
 async function answer(client, leader, message, history, opts) {
   const o = opts || {};
   const docs = o.tools ? await allowedDocs(leader) : null;
-  const system = await systemFor(leader, docs);
+  // Gedächtnis: frühere Gespräche (o.jobId = der Auftrag, der gerade läuft)
+  const memory = await memoryText(leader.id, history, o.jobId);
+  const system = await systemFor(leader, docs, memory);
   const messages = [...cleanHistory(history), { role: 'user', content: message }];
   const useTools = !!(o.tools && docs);
   for (let round = 0; round < 6; round++) {

@@ -14,6 +14,7 @@
 const { pgrest } = require('./supabase');
 const { viennaTodayStr, monthsBack, monthlyTotals } = require('./ranks');
 const { weekNoFor } = require('./challenge');
+const { recentChats } = require('./chat-memory');
 
 const MODEL = 'claude-sonnet-5-5';
 const WEEKS_BACK = 4;
@@ -50,9 +51,10 @@ const PROFILE_SCHEMA = {
       additionalProperties: false,
     },
     chat_hinweise: { type: 'string', description: 'Für JARVIS im Chat der Leaderin: wie er sie am besten unterstützt. Ohne Dominiks Notizen.' },
+    chat_themen: { type: 'array', items: { type: 'string' }, description: 'Für Dominik: 0 bis 3 Themen, zu denen sie JARVIS im Chat um Hilfe gebeten hat, zusammengefasst ohne wörtliche Zitate. Leer, wenn sie nicht gechattet hat.' },
     datenlage: { type: 'string', enum: ['gut', 'duenn', 'keine'] },
   },
-  required: ['zusammenfassung', 'staerken', 'muster', 'wachstumsfelder', 'veraenderung', 'fuer_leaderin', 'chat_hinweise', 'datenlage'],
+  required: ['zusammenfassung', 'staerken', 'muster', 'wachstumsfelder', 'veraenderung', 'fuer_leaderin', 'chat_hinweise', 'chat_themen', 'datenlage'],
   additionalProperties: false,
 };
 
@@ -64,6 +66,7 @@ Regeln:
 - Wachstumsfelder sind konkret und machbar (z. B. "Nachfassen nach dem Erstkontakt", nicht "mehr Disziplin").
 - fuer_leaderin ist für die Leaderin selbst: warm, ermutigend, Du-Form, kein Vergleich mit anderen, nichts aus Dominiks Notizen, keine Muster, die verletzen könnten.
 - chat_hinweise sind für dich selbst im Chat mit ihr: wie du sie am besten unterstützt (z. B. "braucht konkrete Formulierungen fürs Nachfassen"). Nichts aus Dominiks Notizen.
+- Ihre Fragen an dich im Chat zeigen, wo sie gerade Unterstützung sucht. Nutze sie für chat_hinweise und, wenn sie sich wiederholen, für Muster oder Wachstumsfelder. In chat_themen fasst du die Themen für Dominik zusammen, ohne ihre Nachrichten wörtlich zu zitieren und ohne Privates, das nichts mit dem Business zu tun hat.
 - Deutsch, kurz und klar, keine Bindestriche als Satzverbinder.`;
 
 // Daten der letzten Wochen einer Leaderin, kompakt als Text
@@ -71,7 +74,7 @@ async function gatherInput(leader, todayStr) {
   const today = todayStr || viennaTodayStr();
   const since = new Date(Date.parse(today + 'T00:00:00Z') - WEEKS_BACK * 7 * 86400000).toISOString().slice(0, 10);
   const safe = async (p) => { try { return (await p) || []; } catch (e) { return []; } };
-  const [days, weeks, plans, actuals, chal, notes, team, prev] = await Promise.all([
+  const [days, weeks, plans, actuals, chal, notes, team, prev, chats] = await Promise.all([
     safe(pgrest('daily_reflections', { query: `leader_id=eq.${leader.id}&entry_date=gte.${since}&order=entry_date.asc&select=*` })),
     safe(pgrest('weekly_entries', { query: `leader_id=eq.${leader.id}&week_start=gte.${monthsBack(today, 2)[0]}-01&order=week_start.asc&select=*` })),
     safe(pgrest('monthly_plans', { query: `leader_id=eq.${leader.id}&target_month=gte.${monthsBack(today, 2)[0]}-01&select=target_month,plan_cc,sponsoring_cc,eigen_cc,kunden_cc,kunden_text` })),
@@ -80,6 +83,7 @@ async function gatherInput(leader, todayStr) {
     safe(pgrest('coaching_notes', { query: `leader_id=eq.${leader.id}&author=eq.admin&order=created_at.desc&limit=5&select=note,created_at` })),
     safe(pgrest('team_members', { query: `leader_id=eq.${leader.id}&active=eq.true&select=id` })),
     safe(pgrest('leader_profiles', { query: `leader_id=eq.${leader.id}&order=created_at.desc&limit=1&select=data,created_at` })),
+    safe(recentChats(leader.id, WEEKS_BACK * 7, 40)),
   ]);
   const totals = monthlyTotals(weeks);
   const lines = [];
@@ -102,12 +106,16 @@ async function gatherInput(leader, todayStr) {
     lines.push('Leadership-Challenge:');
     for (const c of chal) lines.push(`- Woche ${c.week_no}: Aufgabe ${c.task_done ? 'erledigt' : 'offen'}${c.answer ? `, Antwort: ${cut(c.answer, 250)}` : ''}`);
   }
+  if (chats.length) {
+    lines.push(`Ihre Fragen an JARVIS im Chat (${chats.length}, neueste zuerst):`);
+    for (const c of chats.slice(0, 25)) lines.push(`- ${String(c.created_at).slice(0, 10)}: ${cut(c.shown_message, 200)}`);
+  }
   if (notes.length) {
     lines.push('Dominiks eigene Notizen (vertraulich, NIE in fuer_leaderin oder chat_hinweise übernehmen):');
     for (const n of notes) lines.push(`- ${String(n.created_at).slice(0, 10)}: ${cut(n.note, 300)}`);
   }
   const previous = prev[0] ? { seit: String(prev[0].created_at).slice(0, 10), profil: prev[0].data } : null;
-  return { text: lines.join('\n'), previous, hasData: days.length + weeks.length + chal.length > 0 };
+  return { text: lines.join('\n'), previous, hasData: days.length + weeks.length + chal.length + chats.length > 0 };
 }
 
 // Erstellt und speichert ein neues Profil. client = makeClient() aus _lib/agent

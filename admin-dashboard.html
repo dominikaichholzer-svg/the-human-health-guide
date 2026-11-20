@@ -951,6 +951,7 @@
       ${p.staerken && p.staerken.length ? `<div class="pl">Stärken</div><ul>${list(p.staerken)}</ul>` : ''}
       ${p.muster && p.muster.length ? `<div class="pl">Muster</div><ul>${list(p.muster)}</ul>` : ''}
       ${p.wachstumsfelder && p.wachstumsfelder.length ? `<div class="pl">Wachstumsfelder</div>${p.wachstumsfelder.map(w => `<div class="gf"><b>${esc(w.feld)}</b><br>${esc(w.beobachtung)}<i>Gesprächsidee: ${esc(w.gespraechsidee)}</i></div>`).join('')}` : ''}
+      ${p.chat_themen && p.chat_themen.length ? `<div class="pl">Themen im JARVIS-Chat</div><ul>${list(p.chat_themen)}</ul>` : ''}
       ${p.veraenderung ? `<div class="pl">Seit dem letzten Profil</div><p class="ps">${esc(p.veraenderung)}</p>` : ''}
       ${p.fuer_leaderin ? `<div class="pl">Das sieht ${esc(l.name)}</div><p class="ps" style="color:var(--ink-muted)">${esc((p.fuer_leaderin.staerken || []).join(' · '))}<br><b style="color:var(--ink)">Nächster Schritt:</b> ${esc(p.fuer_leaderin.naechster_schritt)}</p>` : ''}
       <div class="pfoot"><span>Stand ${p.stand ? p.stand.split('-').reverse().join('.') : ''}${p.datenlage && p.datenlage !== 'gut' ? ' · wenig Daten' : ''}</span>${btn}</div></div>`;

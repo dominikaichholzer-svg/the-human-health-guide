@@ -346,6 +346,8 @@
   .radio-group{ display:flex; flex-direction:column; gap:6px; margin-bottom:14px; }
   .radio-option{ display:flex; align-items:center; gap:8px; font-size:13.5px; cursor:pointer; color: var(--ink-muted); }
 
+  .chat-memory-note{ font-size:12.5px; color:var(--ink-muted, #6b6b6b); margin:12px 0 0; line-height:1.45; }
+  .chat-memory-note button{ background:none; border:none; padding:0; font:inherit; color:inherit; text-decoration:underline; cursor:pointer; }
   .chat-window{ display:flex; flex-direction:column; gap:12px; max-height: 50vh; overflow-y:auto; padding-right:4px; margin-bottom:16px; }
   .chat-msg{ max-width: 85%; padding: 11px 14px; border-radius: 14px; font-size: 13.5px; line-height:1.55; }
   .chat-msg.user{ align-self:flex-end; background: linear-gradient(180deg, var(--gold-light), var(--gold)); color: var(--on-gold); border-bottom-right-radius:4px; }
@@ -938,6 +940,7 @@
         <textarea id="chatInput" placeholder="z.B. Wie spreche ich jemanden an, der schon abgesagt hat?"></textarea>
         <button class="btn" id="chatSendBtn" type="button">Senden</button>
       </div>
+      <p class="chat-memory-note">🧠 JARVIS merkt sich eure Gespräche der letzten 30 Tage, damit er daran anknüpfen kann. Im Coaching-Profil sieht Dominik nur die Themen, nicht deine Nachrichten. <button type="button" id="chatClearBtn">Gedächtnis löschen</button></p>
     </section>
 
     <section class="card" id="notesCard">
@@ -2455,6 +2458,27 @@
     }
   }
   document.getElementById('chatSendBtn').addEventListener('click', () => sendChatMessage());
+  // Gedächtnis löschen: frühere Gespräche und die laufende Sitzung vergessen
+  document.getElementById('chatClearBtn').addEventListener('click', async function(){
+    if(!confirm('Soll JARVIS alle bisherigen Gespräche mit dir vergessen? Deine Lernnotizen bleiben erhalten.')) return;
+    const b = this;
+    b.disabled = true;
+    try {
+      const res = await fetch('/.netlify/functions/leader-chat', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...(token ? { token } : {}), clear_memory: true }),
+      });
+      if(!res.ok) throw new Error();
+      chatHistory = [];
+      document.getElementById('chatWindow').innerHTML = '';
+      b.textContent = '✓ Gedächtnis gelöscht';
+    } catch(e){
+      b.textContent = 'Löschen hat nicht geklappt, versuch es nochmal';
+      b.disabled = false;
+    }
+  });
   document.getElementById('chatInput').addEventListener('keydown', function(e){
     if(e.key === 'Enter' && !e.shiftKey){
       e.preventDefault();

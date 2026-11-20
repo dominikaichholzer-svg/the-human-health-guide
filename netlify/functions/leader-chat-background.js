@@ -25,7 +25,7 @@ exports.handler = async function (event) {
     if (!leader) throw new Error('Leaderin nicht gefunden');
     const text = job.request && job.request.type === 'focus'
       ? JSON.stringify(await focusFor(makeClient(), leader, job.request.member_id))
-      : await answer(makeClient(), leader, job.request.message, job.request.history, { tools: true });
+      : await answer(makeClient(), leader, job.request.message, job.request.history, { tools: true, jobId: job.id });
     await pgrest('chat_jobs', { method: 'PATCH', query: `id=eq.${job.id}`, body: { status: 'done', reply: text, finished_at: new Date().toISOString() } });
     return { statusCode: 200, body: 'ok' };
   } catch (err) {
