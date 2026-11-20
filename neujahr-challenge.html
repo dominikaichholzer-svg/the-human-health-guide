@@ -246,7 +246,7 @@
 
   // Auswertung: Ziel bestimmt Titel und Schritte, Hindernis und Alltag ergänzen
   const GOALS = {
-    abnehmen: { title: 'Dein Ziel: dich in deinem Körper <em>wieder wohlfühlen</em>.', short: 'ein paar Kilo loswerden',
+    abnehmen: { title: 'Dein Ziel: dich in deinem Körper <em>wieder wohlfühlen</em>.', short: 'ein paar Kilo loswerden', single: 'mich wieder wohlfühlen und ein paar Kilo loswerden',
       lede: 'Nachhaltig klappt das selten mit Verzicht, sondern mit ein paar Gewohnheiten, die dich satt und zufrieden machen.',
       tips: ['Eiweiß zum Frühstück: Es hält deutlich länger satt als ein süßes Frühstück.', 'Zwischen den Mahlzeiten etwa 4 Stunden Pause, ohne Naschen. Dein Verdauungssystem freut sich über Ruhe.', 'Trink in den Pausen, beim Essen selbst nur wenig.'] },
     energie: { title: 'Dein Ziel: <em>mehr Energie</em> im Alltag.', short: 'mehr Energie haben',
@@ -347,7 +347,7 @@
       for(const x of goals){ if(tips.length < 3 && x.tips[r]) tips.push(x.tips[r]); }
     }
     const shorts = goals.map(x => x.short);
-    const shortAll = shorts.length > 1 ? shorts.slice(0, -1).join(', ') + ' und ' + shorts[shorts.length - 1] : shorts[0];
+    const shortAll = shorts.length > 1 ? shorts.slice(0, -1).join(', ') + ' und ' + shorts[shorts.length - 1] : (g.single || g.short);
     $('resEyebrow').textContent = `Deine Auswertung, ${name}`;
     $('resTitle').innerHTML = g.title;
     $('resLede').textContent = goals.length > 1 ? `${g.lede} Die Schritte unten decken auch deine anderen Ziele ab.` : g.lede;
@@ -360,7 +360,12 @@
     const label = start === 'infos' ? 'Schick mir die Infos zur Challenge' : start === 'freundin' ? 'Ich will mit einer Freundin dabei sein' : 'Ich will bei der Challenge dabei sein';
     $('waLabel').textContent = label;
     const pn = partner ? partner.name : '';
-    const text = `Hallo ${pn}, ich bin ${name} und habe gerade deine Neujahrs-Umfrage gemacht. Mein Ziel für 2027: ${shortAll}. ${start === 'infos' ? 'Schick mir gern die Infos zur C9-Challenge am 30.01.' : 'Ich hätte Lust, bei der C9-Challenge am 30.01. dabei zu sein. Wie geht das?'}`;
+    // Vorbereitete Nachricht (Dominiks Vorlage), sie kann sie vor dem Senden ändern
+    const text = `Hallo ${pn}, ich bin ${name} und habe gerade deine Neujahrs-Umfrage gemacht.\n`
+      + `${goals.length > 1 ? 'Meine Ziele für 2027 sind' : 'Mein Ziel für 2027 ist'}: ${shortAll}.\n`
+      + `Ich hätte gerne mehr Infos zum Ablauf etc.\n`
+      + `Ich freue mich auf deine Rückmeldung.\n`
+      + `Liebe Grüße`;
     const num = waNumber();
     if(num){
       $('waBtn').href = `https://wa.me/${num}?text=${encodeURIComponent(text)}`;
