@@ -11,7 +11,7 @@
 //   "offline_events_eingeladen": 4,
 //   "kontakte_gesamt": 20,
 //   "nachgefasst": 6,
-//   "reflexion_1": "...", "reflexion_2": "...", "reflexion_3": "...",
+//   "reflexion_1..3": optional, nur noch für alte Einträge (siehe unten)
 //   "gesundheit_supplemente": true, "gesundheit_sport": false, "gesundheit_ernaehrung": true
 // }
 //
@@ -84,15 +84,18 @@ exports.handler = async function (event) {
       offline_events_eingeladen: numOrNull(payload.offline_events_eingeladen),
       kontakte_gesamt: numOrNull(payload.kontakte_gesamt),
       nachgefasst: numOrNull(payload.nachgefasst),
-      reflexion_1: payload.reflexion_1 || null,
-      reflexion_2: payload.reflexion_2 || null,
-      reflexion_3: payload.reflexion_3 || null,
       gesundheit_supplemente: payload.gesundheit_supplemente === true,
       gesundheit_sport: payload.gesundheit_sport === true,
       gesundheit_ernaehrung: payload.gesundheit_ernaehrung === true,
       call_montag: payload.call_montag === true,
       call_dienstag: payload.call_dienstag === true,
     };
+
+    // Seit Nov 2026 ersetzt das JARVIS-Wochen-Coaching die schriftliche
+    // Wochenreflexion. Alte Antworten bleiben erhalten: nur speichern, wenn mitgeschickt.
+    ['reflexion_1', 'reflexion_2', 'reflexion_3'].forEach((k) => {
+      if (payload[k] !== undefined) row[k] = payload[k] || null;
+    });
 
     const save = (body) =>
       pgrest('weekly_entries', {

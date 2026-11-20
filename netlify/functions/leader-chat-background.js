@@ -5,12 +5,15 @@
 // speichern). Aufruf nur mit dem internen Geheimnis aus leader-chat.js.
 // Aufträge vom Typ "focus" (aus leader-focus.js): Coaching-Schwerpunkt für eine
 // Partnerin, reply ist dann JSON.
+// Aufträge vom Typ "day" (aus leader-submit-day.js): kurze Rückmeldung zum
+// Tagesabschluss (_lib/day-feedback.js), reply ist JSON { nachricht, frage } oder null.
 
 const { pgrest } = require('./_lib/supabase');
 const { agentSecret } = require('./_lib/telegram');
 const { makeClient } = require('./_lib/agent');
 const { answer } = require('./_lib/leader-chat-core');
 const { focusFor } = require('./_lib/support');
+const { dayFeedback } = require('./_lib/day-feedback');
 
 exports.handler = async function (event) {
   if ((event.headers || {})['x-agent-secret'] !== agentSecret()) return { statusCode: 403, body: 'Kein Zugriff' };
@@ -23,8 +26,11 @@ exports.handler = async function (event) {
     const leaders = await pgrest('leaders', { query: `id=eq.${job.leader_id}&select=*` });
     const leader = leaders && leaders[0];
     if (!leader) throw new Error('Leaderin nicht gefunden');
-    const text = job.request && job.request.type === 'focus'
+    const type = job.request && job.request.type;
+    const text = type === 'focus'
       ? JSON.stringify(await focusFor(makeClient(), leader, job.request.member_id))
+      : type === 'day'
+      ? JSON.stringify(await dayFeedback(makeClient(), leader, job.request.entry_date))
       : await answer(makeClient(), leader, job.request.message, job.request.history, { tools: true, jobId: job.id });
     await pgrest('chat_jobs', { method: 'PATCH', query: `id=eq.${job.id}`, body: { status: 'done', reply: text, finished_at: new Date().toISOString() } });
     return { statusCode: 200, body: 'ok' };

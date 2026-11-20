@@ -120,6 +120,46 @@
   .day-row:last-child{ border-bottom:none; }
   .day-row .dd{ font-family: var(--mono); font-size:12px; color: var(--ink-muted); }
   .streak{ font-size:13px; color: var(--gold); margin: -4px 0 14px; }
+  /* Tagesabschluss neu: Gefühl 1 bis 10, Zahlen optional, Rückmeldung von JARVIS */
+  .feel-val{ color: var(--gold); font-weight:700; letter-spacing:0; }
+  .feel-row{ display:grid; grid-template-columns: repeat(10, 1fr); gap:5px; }
+  .feel-row button{ padding: 10px 0; border:1.5px solid var(--hairline); border-radius:9px; background: rgba(255,255,255,0.04); color: var(--ink); font-family: var(--sans); font-size:14px; font-weight:600; cursor:pointer; min-width:0; }
+  .feel-row button.active{ border-color: var(--gold); background: var(--gold-dim); color: var(--gold); box-shadow: 0 0 0 3px var(--gold-dim); }
+  .feel-scale{ display:flex; justify-content:space-between; font-size:11.5px; color: var(--ink-muted); margin-top:5px; }
+  .day-nums{ margin: 4px 0 16px; border:1px solid var(--hairline); border-radius:10px; padding: 10px 12px; }
+  .day-nums summary{ cursor:pointer; font-size:13.5px; color: var(--ink); }
+  .day-nums summary span{ color: var(--ink-muted); }
+  .day-nums[open] summary{ margin-bottom:12px; }
+  .day-nums .field-grid{ grid-template-columns: 1fr 1fr !important; gap:10px; }
+  .day-nums .field{ margin-bottom:8px; }
+  .day-sunday{ font-size:13.5px; margin: -2px 0 12px; }
+  .day-jarvis{ margin-top:14px; padding: 13px 15px; border-radius:12px; border:1px solid var(--gold-dim); background: rgba(255,255,255,0.03); font-size:14px; line-height:1.55; }
+  .day-jarvis .dj-label{ display:block; font-family: var(--mono); font-size:10.5px; letter-spacing:0.08em; color: var(--gold); margin-bottom:5px; }
+  .day-jarvis .dj-q{ margin-top:10px; font-weight:600; }
+  .day-jarvis textarea{ width:100%; margin-top:8px; background: rgba(255,255,255,0.04); border: 1.5px solid var(--hairline); border-radius: 10px; padding: 10px 12px; color: var(--ink); font-family: var(--sans); font-size:14px; min-height:56px; }
+  .day-jarvis .dj-actions{ display:flex; gap:10px; align-items:center; margin-top:8px; font-size:12.5px; color: var(--ink-muted); }
+  .day-jarvis .dj-actions button{ background:none; border:1px solid var(--gold); color: var(--gold); border-radius:999px; padding:6px 14px; font-family: var(--sans); font-size:12.5px; cursor:pointer; }
+  .day-detail{ padding: 0 0 10px; font-size:13.5px; line-height:1.55; color: var(--ink-muted); border-bottom:1px solid var(--hairline); }
+  .day-detail b{ color: var(--ink); font-weight:600; }
+  .day-row.has-detail{ cursor:pointer; }
+  .day-row.has-detail .dd::after{ content:' ▾'; }
+  /* JARVIS-Wochen-Coaching */
+  .wc-card{ border-color: var(--gold-dim); }
+  .wc-eyebrow{ font-family: var(--mono); font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color: var(--gold); margin-bottom:6px; }
+  .wc-take{ font-family: var(--serif); font-size:20px; line-height:1.35; color: var(--ink); margin: 2px 0 14px; }
+  .wc-h{ font-family: var(--mono); font-size:10.5px; letter-spacing:0.06em; text-transform:uppercase; color: var(--ink-muted); margin: 14px 0 6px; }
+  .wc-list{ margin:0; padding-left:18px; font-size:14px; line-height:1.6; }
+  .wc-impuls{ font-size:14.5px; line-height:1.65; padding: 12px 14px; border-left: 3px solid var(--gold); background: rgba(255,255,255,0.03); border-radius: 0 10px 10px 0; }
+  .wc-focus{ display:grid; gap:8px; }
+  .wc-focus div{ padding: 10px 12px; border:1px solid var(--hairline); border-radius:10px; font-size:14px; line-height:1.45; }
+  .wc-focus b{ display:block; color: var(--ink); }
+  .wc-focus span{ color: var(--ink-muted); font-size:13px; }
+  .wc-more{ background:none; border:none; color: var(--gold); font-family: var(--sans); font-size:13.5px; padding:0; margin-top:12px; cursor:pointer; }
+  .wc-note{ font-size:12px; color: var(--ink-muted); margin-top:12px; }
+  .wc-arch{ border-bottom:1px solid var(--hairline); padding: 10px 0; }
+  .wc-arch:last-child{ border-bottom:none; }
+  .wc-arch summary{ cursor:pointer; font-size:14px; }
+  .wc-arch summary .dd{ font-family: var(--mono); font-size:12px; color: var(--ink-muted); margin-right:8px; }
 
   /* Feier beim Speichern */
   #celebrateCanvas{ position:fixed; inset:0; width:100%; height:100%; pointer-events:none; z-index:9998; }
@@ -477,8 +517,8 @@
       <div class="eyebrow">DEINE ERINNERUNGEN</div>
       <h2 id="reminderTitle" style="text-align:left;">Wann sollen wir dich erinnern?</h2>
       <p class="progress-sub" style="margin-bottom:16px;">Such dir Zeiten aus, die in deinen Alltag passen. Du kannst sie unter „Erinnerungen“ jederzeit ändern.</p>
-      <div class="field"><label for="remDaily">Tagesreflexion, jeden Tag um</label><select id="remDaily" class="rem-select"></select></div>
-      <div class="field"><label for="remWeekly">Wochenreflexion, jeden Sonntag um</label><select id="remWeekly" class="rem-select"></select></div>
+      <div class="field"><label for="remDaily">Tagesabschluss, Montag bis Samstag um</label><select id="remDaily" class="rem-select"></select></div>
+      <div class="field"><label for="remWeekly">Wochenzahlen, jeden Sonntag um</label><select id="remWeekly" class="rem-select"></select></div>
       <p class="progress-sub" style="margin:4px 0 16px;">Nicht geschafft? Kein Problem: Dann erinnern wir dich am nächsten Morgen um 8:00, bis du es nachgetragen hast.</p>
       <button type="button" class="btn" id="remSave">Speichern</button>
       <p class="progress-sub" id="remStatus" style="text-align:center; margin-top:8px;"></p>
@@ -623,6 +663,10 @@
       <div id="insightContent"></div>
     </section>
 
+    <section class="card wc-card" id="coachingCard" hidden>
+      <div id="coachingContent"></div>
+    </section>
+
     <div class="badges-row" id="badgesRow"></div>
 
     <section class="card warn-card" id="durststreckeCard" hidden>
@@ -719,65 +763,68 @@
 
     <div class="mode-switch" role="tablist" aria-label="Reflexion wählen">
       <button type="button" class="mode-btn active" data-mode="daily">🌙 Täglich</button>
-      <button type="button" class="mode-btn" data-mode="weekly">📝 Wöchentlich</button>
+      <button type="button" class="mode-btn" data-mode="weekly">📊 Wochenzahlen</button>
     </div>
 
     <section class="card" id="dailyCard">
       <h2 class="card-title">Dein Tagesabschluss</h2>
-      <p class="progress-sub" style="font-size:13.5px; margin-bottom:12px;">2 Minuten am Abend. Jeden Tag um 19:00 erinnert dich dein Handy daran, wenn du Benachrichtigungen aktiviert hast (Menü, Mehr).</p>
+      <p class="progress-sub" style="font-size:13.5px; margin-bottom:12px;">2 Minuten, Montag bis Samstag. Freiwillig: ein ausgelassener Tag ist kein Problem. Am Sonntagabend schreibt dir JARVIS daraus dein Wochen-Coaching.</p>
       <div class="streak" id="dayStreak" hidden></div>
+      <p class="progress-sub day-sunday" id="daySunday" hidden>☀️ Heute ist Sonntag, dein freier Tag. Wenn du magst, trag den Samstag nach. Heute Abend kommt dein Wochen-Coaching.</p>
       <div class="day-toggle" id="dayToggle">
         <button type="button" class="active" data-day="today">Heute</button>
         <button type="button" data-day="yesterday">Gestern nachtragen</button>
       </div>
       <form id="dayForm">
         <div class="field">
-          <label for="day_kontakte">Wie viele neue Kontakte hast du heute gemacht?</label>
-          <input type="number" step="1" min="0" inputmode="numeric" id="day_kontakte" placeholder="Ziel: 10">
+          <label for="day_bewegt">Was hast du heute für dein Business bewegt?</label>
+          <textarea id="day_bewegt" rows="2" placeholder="Auch kleine Schritte zählen"></textarea>
         </div>
         <div class="field">
-          <label for="day_verkaeufe">Wie viel Verkauf hast du heute gemacht? (in CC)</label>
-          <input type="number" step="0.001" min="0" inputmode="decimal" id="day_verkaeufe" placeholder="z. B. 1,903 (auch 0 zählt)">
+          <label for="day_gut">Was war heute dein schönster Erfolg?</label>
+          <textarea id="day_gut" rows="2"></textarea>
         </div>
-        <div class="field-grid">
-          <div class="field">
-            <label for="day_gespraeche">Echte Gespräche heute</label>
-            <input type="number" step="1" min="0" inputmode="numeric" id="day_gespraeche" placeholder="z. B. 3">
+        <div class="field">
+          <label for="day_schwer">Was ist dir heute schwergefallen oder hat dich herausgefordert?</label>
+          <textarea id="day_schwer" rows="2"></textarea>
+        </div>
+        <div class="field">
+          <label>Wie fühlst du dich gerade? <span class="feel-val" id="feelVal"></span></label>
+          <div class="feel-row" id="feelRow">
+            <button type="button" data-feel="1">1</button><button type="button" data-feel="2">2</button><button type="button" data-feel="3">3</button><button type="button" data-feel="4">4</button><button type="button" data-feel="5">5</button><button type="button" data-feel="6">6</button><button type="button" data-feel="7">7</button><button type="button" data-feel="8">8</button><button type="button" data-feel="9">9</button><button type="button" data-feel="10">10</button>
           </div>
-          <div class="field">
-            <label for="day_kunden">Neue Kundinnen heute</label>
-            <input type="number" step="1" min="0" inputmode="numeric" id="day_kunden" placeholder="z. B. 1">
+          <div class="feel-scale"><span>schwer</span><span>richtig gut</span></div>
+        </div>
+        <details class="day-nums" id="dayNums">
+          <summary>Zahlen von heute <span>(optional)</span></summary>
+          <div class="field-grid">
+            <div class="field">
+              <label for="day_kontakte">Neue Kontakte</label>
+              <input type="number" step="1" min="0" inputmode="numeric" id="day_kontakte" placeholder="Ziel: 10">
+            </div>
+            <div class="field">
+              <label for="day_verkaeufe">Verkauf in CC</label>
+              <input type="number" step="0.001" min="0" inputmode="decimal" id="day_verkaeufe" placeholder="z. B. 1,903">
+            </div>
+            <div class="field">
+              <label for="day_gespraeche">Echte Gespräche</label>
+              <input type="number" step="1" min="0" inputmode="numeric" id="day_gespraeche" placeholder="z. B. 3">
+            </div>
+            <div class="field">
+              <label for="day_kunden">Neue Kundinnen</label>
+              <input type="number" step="1" min="0" inputmode="numeric" id="day_kunden" placeholder="z. B. 1">
+            </div>
           </div>
-        </div>
-        <div class="field">
-          <label>Wie fühlst du dich nach diesem Tag?</label>
-          <div class="mood-row" id="moodRow">
-            <button type="button" class="mood-btn" data-mood="1" aria-label="Sehr schlecht">😞</button>
-            <button type="button" class="mood-btn" data-mood="2" aria-label="Eher schlecht">😕</button>
-            <button type="button" class="mood-btn" data-mood="3" aria-label="Okay">😐</button>
-            <button type="button" class="mood-btn" data-mood="4" aria-label="Gut">🙂</button>
-            <button type="button" class="mood-btn" data-mood="5" aria-label="Sehr gut">😄</button>
-          </div>
-        </div>
-        <div class="field">
-          <label for="day_gut">Was ist heute richtig gut gelaufen?</label>
-          <textarea id="day_gut"></textarea>
-        </div>
-        <div class="field">
-          <label for="day_schwer">Was war heute schwierig oder hat dich gebremst?</label>
-          <textarea id="day_schwer"></textarea>
-        </div>
-        <div class="field">
-          <label for="day_morgen">Was ist dein wichtigster Schritt für morgen?</label>
-          <textarea id="day_morgen"></textarea>
-        </div>
+        </details>
         <button type="submit" class="btn" id="daySubmitBtn">Tagesabschluss speichern</button>
         <p class="progress-sub" id="daySaveStatus" style="text-align:center; margin-top:10px;"></p>
       </form>
+      <div class="day-jarvis" id="dayJarvis" hidden></div>
     </section>
 
     <section class="card" id="weeklyCard" hidden>
-      <h2 class="card-title">Diese Woche eintragen</h2>
+      <h2 class="card-title">Deine Wochenzahlen</h2>
+      <p class="progress-sub" style="font-size:13.5px; margin-bottom:12px;">Nur noch die Zahlen aus FLP360, etwa 2 Minuten. Die Wochenreflexion schreibst du nicht mehr selbst: Am Sonntagabend macht JARVIS daraus dein Wochen-Coaching.</p>
       <form id="weekForm">
         <div class="field" id="challengeQField" hidden>
           <label for="challenge_answer" id="challengeQLabel">Reflexionsfrage der Challenge</label>
@@ -828,19 +875,6 @@
           <label for="nachgefasst">Wie viele hast du diese Woche nachgefasst?</label>
           <input type="number" step="1" min="0" id="nachgefasst" name="nachgefasst">
         </div>
-        <div class="field">
-          <label for="reflexion_1">Was hat diese Woche am meisten Energie gekostet?</label>
-          <textarea id="reflexion_1" name="reflexion_1"></textarea>
-        </div>
-        <div class="field">
-          <label for="reflexion_2">Was hat diese Woche richtig gut funktioniert?</label>
-          <textarea id="reflexion_2" name="reflexion_2"></textarea>
-        </div>
-        <div class="field">
-          <label for="reflexion_3">Wo würdest du dir von Dominik am meisten Unterstützung wünschen?</label>
-          <textarea id="reflexion_3" name="reflexion_3"></textarea>
-        </div>
-
         <button type="submit" class="btn" id="submitBtn">Speichern</button>
         <p class="progress-sub" id="saveStatus" style="text-align:center; margin-top:10px;"></p>
       </form>
@@ -952,14 +986,19 @@
 
     <div class="tab-panel" data-tab="history" hidden>
 
-    <section class="card">
-      <h2 class="card-title">Letzte Wochen</h2>
-      <div class="weeks-list" id="weeksList"></div>
+    <section class="card" id="coachingArchiveCard">
+      <h2 class="card-title">Deine Wochen-Coachings</h2>
+      <div id="coachingArchive"></div>
     </section>
 
     <section class="card">
-      <h2 class="card-title">Letzte Tage</h2>
+      <h2 class="card-title">Deine Tagesabschlüsse</h2>
       <div id="daysList"></div>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Letzte Wochen</h2>
+      <div class="weeks-list" id="weeksList"></div>
     </section>
 
     </div>
@@ -1378,7 +1417,7 @@
       if(c.frage){
         const answered = !!(ch.progress && ch.progress.answer);
         html += `<div class="ch-label">Reflexionsfrage</div><p class="ch-text">${nl2br(c.frage)}</p>
-          <button type="button" class="tm-edit-btn" id="chAnswerBtn" style="margin-top:8px;">${answered ? '✓ Beantwortet, ansehen oder ändern' : 'In der Wochenreflexion beantworten →'}</button>`;
+          <button type="button" class="tm-edit-btn" id="chAnswerBtn" style="margin-top:8px;">${answered ? '✓ Beantwortet, ansehen oder ändern' : 'Bei den Wochenzahlen beantworten →'}</button>`;
         qField.hidden = false;
         document.getElementById('challengeQLabel').textContent = 'Challenge-Frage: ' + c.frage;
         const ta = document.getElementById('challenge_answer');
@@ -1440,7 +1479,7 @@
     const info = document.getElementById('remInfo');
     if(!r){ info.hidden = true; return; }
     info.hidden = false;
-    info.innerHTML = `Tagesreflexion: täglich <b>${r.daily} Uhr</b> · Wochenreflexion: sonntags <b>${r.weekly} Uhr</b><br>Nicht ausgefüllt? Am nächsten Morgen um 8:00 nochmal.
+    info.innerHTML = `Tagesabschluss: Mo bis Sa <b>${r.daily} Uhr</b> · Wochenzahlen: sonntags <b>${r.weekly} Uhr</b><br>Nicht ausgefüllt? Am nächsten Morgen um 8:00 nochmal.
       <br><button type="button" class="tm-edit-btn" id="remEdit" style="margin-top:8px;">Zeiten ändern</button>`;
     if(!r.set && !remAsked){ remAsked = true; setTimeout(showReminderWhenFree, 600); }
   }
@@ -1532,7 +1571,7 @@
     }
     html += `<details class="inc-more"><summary>Belohnung und so wird gezählt</summary>
       ${lv.reward ? `<p><b>Belohnung ${escHtml(lv.name)}:</b> ${escHtml(lv.reward)}</p>` : ''}
-      <p>Gezählt wird aus <b>Mein Team</b>: Partnerinnen mit Startdatum ab ${incDate(inc.start)} (VIP-Kundinnen zählen nicht), ihre eingetragenen Monats-CC und ihr Rang. „Aktiv“ ist dein CC-Stand aus der Wochenreflexion. Halte Mein Team aktuell, dann stimmt der Stand. Im Zweifel gilt FLP360.</p>
+      <p>Gezählt wird aus <b>Mein Team</b>: Partnerinnen mit Startdatum ab ${incDate(inc.start)} (VIP-Kundinnen zählen nicht), ihre eingetragenen Monats-CC und ihr Rang. „Aktiv“ ist dein CC-Stand aus den Wochenzahlen. Halte Mein Team aktuell, dann stimmt der Stand. Im Zweifel gilt FLP360.</p>
       <p>Neu dabei in diesem Zeitraum: <b>${lv.newMembers}</b> ${lv.newMembers === 1 ? 'Partnerin' : 'Partnerinnen'}.</p></details>`;
     return html;
   }
@@ -1826,7 +1865,7 @@
       block.innerHTML = `<div class="ck-label">Dein Monatsziel · ${monthLabel}</div>
         <div class="ck-goal"><span class="ck-big">${fmtCc(cc)} <small>/ ${fmtCc(c.planCc)} CC</small></span><span class="ck-pct">${pct} %</span></div>
         <div class="ck-bar"><span style="width:0%"></span></div>${statusHtml}
-        ${c.ccSoFar == null ? '<div class="ck-status">Dein CC-Stand kommt aus der Wochenreflexion.</div>' : ''}`;
+        ${c.ccSoFar == null ? '<div class="ck-status">Dein CC-Stand kommt aus deinen Wochenzahlen.</div>' : ''}`;
       requestAnimationFrame(() => { block.querySelector('.ck-bar span').style.width = Math.min(100, pct) + '%'; });
     }
     document.getElementById('ckContacts').textContent = c ? c.contacts : '–';
@@ -2559,7 +2598,7 @@
     prefillFromDays(currentWeekMonday);
     const current = (weeks || []).find(w => w.week_start === currentWeekMonday);
     if(!current) return;
-    ['cc_stand','kontakte_gesamt','geschaeftspraesentationen_versendet','produkte_verschenkt','offline_events_eingeladen','naechstes_event_mitgebracht','nachgefasst','reflexion_1','reflexion_2','reflexion_3'].forEach(key => {
+    ['cc_stand','kontakte_gesamt','geschaeftspraesentationen_versendet','produkte_verschenkt','offline_events_eingeladen','naechstes_event_mitgebracht','nachgefasst'].forEach(key => {
       const input = document.getElementById(key);
       if(input && current[key] != null) input.value = current[key];
     });
@@ -2625,7 +2664,9 @@
       renderProducts(dashboardData.specializedProducts);
       prefillForm(dashboardData.recentWeeks, dashboardData.currentWeekMonday);
       renderDays();
+      setupSunday();
       prefillDay();
+      renderCoaching(dashboardData.weeklyCoaching);
       setupPlan();
       loadTeam();
 
@@ -2656,9 +2697,6 @@
       offline_events_eingeladen: document.getElementById('offline_events_eingeladen').value,
       naechstes_event_mitgebracht: document.getElementById('naechstes_event_mitgebracht').value,
       nachgefasst: document.getElementById('nachgefasst').value,
-      reflexion_1: document.getElementById('reflexion_1').value,
-      reflexion_2: document.getElementById('reflexion_2').value,
-      reflexion_3: document.getElementById('reflexion_3').value,
       gesundheit_supplemente: document.getElementById('gesundheit_supplemente').checked,
       gesundheit_sport: document.getElementById('gesundheit_sport').checked,
       gesundheit_ernaehrung: document.getElementById('gesundheit_ernaehrung').checked,
@@ -2673,7 +2711,7 @@
         body: JSON.stringify(payload),
       });
       if(res.ok){
-        // Antwort auf die Challenge-Frage gehört zur selben Wochenreflexion
+        // Antwort auf die Challenge-Frage wird mit den Wochenzahlen gespeichert
         const ch = dashboardData.challenge;
         const ta = document.getElementById('challenge_answer');
         if(ch && ch.content && ch.content.frage && !document.getElementById('challengeQField').hidden && ta.dataset.touched){
@@ -2681,7 +2719,7 @@
         }
         status.textContent = 'Gespeichert ✓';
         await loadDashboard();
-        celebrate('Wochenreflexion gespeichert');
+        celebrate('Wochenzahlen gespeichert');
       } else {
         status.textContent = 'Fehler beim Speichern, bitte nochmal versuchen.';
       }
@@ -2720,11 +2758,14 @@
     return dayTarget === 'yesterday' ? shiftDate(dashboardData.today, -1) : dashboardData.today;
   }
 
-  function setMood(v){
+  // Gefühl 1 bis 10 (alte Einträge haben nur stimmung 1 bis 5)
+  function setFeel(v){
     dayMood = v;
-    document.querySelectorAll('.mood-btn').forEach(b => b.classList.toggle('active', Number(b.dataset.mood) === v));
+    document.querySelectorAll('#feelRow button').forEach(b => b.classList.toggle('active', Number(b.dataset.feel) === v));
+    document.getElementById('feelVal').textContent = v ? v + '/10' : '';
   }
-  document.querySelectorAll('.mood-btn').forEach(b => b.addEventListener('click', () => setMood(Number(b.dataset.mood))));
+  document.querySelectorAll('#feelRow button').forEach(b => b.addEventListener('click', () => setFeel(Number(b.dataset.feel))));
+  const feelOf = (d) => d.gefuehl != null ? Number(d.gefuehl) : (d.stimmung ? Number(d.stimmung) * 2 : null);
 
   function prefillDay(){
     const date = targetDate();
@@ -2733,10 +2774,88 @@
     document.getElementById('day_verkaeufe').value = entry && entry.verkaeufe_heute != null ? entry.verkaeufe_heute : '';
     document.getElementById('day_gespraeche').value = entry && entry.gespraeche_heute != null ? entry.gespraeche_heute : '';
     document.getElementById('day_kunden').value = entry && entry.neue_kunden_heute != null ? entry.neue_kunden_heute : '';
+    document.getElementById('day_bewegt').value = entry && entry.bewegt ? entry.bewegt : '';
     document.getElementById('day_gut').value = entry && entry.gut ? entry.gut : '';
     document.getElementById('day_schwer').value = entry && entry.schwer ? entry.schwer : '';
-    document.getElementById('day_morgen').value = entry && entry.morgen ? entry.morgen : '';
-    setMood(entry && entry.stimmung ? entry.stimmung : null);
+    setFeel(entry ? feelOf(entry) : null);
+    // Zahlen aufklappen, wenn schon welche drinstehen
+    document.getElementById('dayNums').open = !!(entry && [entry.kontakte_heute, entry.verkaeufe_heute, entry.gespraeche_heute, entry.neue_kunden_heute].some(v => v != null));
+    // Rückmeldung von JARVIS zu diesem Tag, falls schon da
+    renderDayJarvis(entry, date);
+  }
+
+  // Sonntag: freier Tag, Hinweis zeigen und Samstag zum Nachtragen anbieten
+  function setupSunday(){
+    const isSun = !!(dashboardData && dashboardData.today) && new Date(dashboardData.today + 'T00:00:00Z').getUTCDay() === 0;
+    document.getElementById('daySunday').hidden = !isSun;
+    if(isSun){
+      const sat = shiftDate(dashboardData.today, -1);
+      const satMissing = !(dashboardData.recentDays || []).some(d => d.entry_date === sat);
+      const todayDone = (dashboardData.recentDays || []).some(d => d.entry_date === dashboardData.today);
+      if(satMissing && !todayDone && dayTarget === 'today'){
+        dayTarget = 'yesterday';
+        document.querySelectorAll('#dayToggle button').forEach(x => x.classList.toggle('active', x.dataset.day === 'yesterday'));
+      }
+    }
+  }
+
+  // JARVIS' kurze Rückmeldung (und eventuell eine Rückfrage) unter dem Formular
+  function renderDayJarvis(entry, date){
+    const box = document.getElementById('dayJarvis');
+    if(!entry || !entry.jarvis_notiz){ box.hidden = true; box.innerHTML = ''; return; }
+    box.hidden = false;
+    box.innerHTML = `<span class="dj-label">JARVIS</span>${escHtml(entry.jarvis_notiz)}`
+      + (entry.jarvis_frage ? `<div class="dj-q">${escHtml(entry.jarvis_frage)}</div>
+        <textarea id="djAnswer" placeholder="Wenn du magst, ein, zwei Sätze. Ganz freiwillig.">${escHtml(entry.frage_antwort || '')}</textarea>
+        <div class="dj-actions"><button type="button" id="djSave" data-date="${escHtml(date)}">Antwort speichern</button><span id="djStatus">${entry.frage_antwort ? '✓ gespeichert' : ''}</span></div>` : '');
+  }
+  document.getElementById('dayJarvis').addEventListener('click', async e => {
+    const b = e.target.closest('#djSave');
+    if(!b) return;
+    const st = document.getElementById('djStatus');
+    b.disabled = true;
+    try {
+      const res = await fetch('/.netlify/functions/leader-submit-day', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, entry_date: b.dataset.date, only_answer: true, frage_antwort: document.getElementById('djAnswer').value }),
+      });
+      st.textContent = res.ok ? '✓ gespeichert, fließt in dein Wochen-Coaching ein' : 'Fehler, bitte nochmal';
+      if(res.ok){
+        const e2 = (dashboardData.recentDays || []).find(d => d.entry_date === b.dataset.date);
+        if(e2) e2.frage_antwort = document.getElementById('djAnswer').value;
+      }
+    } catch(err){ st.textContent = 'Fehler, bitte nochmal'; }
+    b.disabled = false;
+  });
+
+  // Nach dem Speichern: auf JARVIS' Rückmeldung warten (läuft im Hintergrund)
+  async function waitDayFeedback(jobId, date){
+    const box = document.getElementById('dayJarvis');
+    box.hidden = false;
+    box.innerHTML = '<span class="dj-label">JARVIS</span>liest deinen Tag …';
+    const started = Date.now();
+    while(Date.now() - started < 60000){
+      await new Promise(r => setTimeout(r, 1500));
+      try {
+        const pr = await fetch('/.netlify/functions/leader-chat-poll?id=' + encodeURIComponent(jobId) + (token ? '&token=' + encodeURIComponent(token) : ''), { credentials: 'same-origin' });
+        const pd = await pr.json();
+        if(pd.status === 'done'){
+          let fb = null;
+          try { fb = JSON.parse(pd.reply); } catch(e){ fb = null; }
+          if(!fb || !fb.nachricht){ box.hidden = true; return; }
+          const e2 = (dashboardData.recentDays || []).find(d => d.entry_date === date);
+          const entry = e2 || { entry_date: date };
+          entry.jarvis_notiz = fb.nachricht;
+          if(entry.jarvis_frage !== (fb.frage || null)) entry.frage_antwort = null;
+          entry.jarvis_frage = fb.frage || null;
+          if(targetDate() === date) renderDayJarvis(entry, date);
+          return;
+        }
+        if(pd.status === 'error'){ box.hidden = true; return; }
+      } catch(e){}
+    }
+    box.hidden = true;
   }
 
   document.querySelectorAll('#dayToggle button').forEach(b => b.addEventListener('click', () => {
@@ -2749,8 +2868,22 @@
   function renderDays(){
     const days = (dashboardData && dashboardData.recentDays) || [];
     const list = document.getElementById('daysList');
+    // Verlauf: Zeile antippen klappt die Antworten auf
     list.innerHTML = days.length
-      ? days.slice(0, 10).map(d => `<div class="day-row"><span class="dd">${escHtml(fmtDate(d.entry_date))}</span><span>${d.stimmung ? MOODS[d.stimmung] : ''}</span><span>${d.kontakte_heute != null ? d.kontakte_heute + ' Kontakte' : '–'}${d.verkaeufe_heute != null ? ' · ' + fmtCc(d.verkaeufe_heute) + ' CC' : ''}</span></div>`).join('')
+      ? days.slice(0, 30).map((d, i) => {
+          const f = feelOf(d);
+          const parts = [
+            d.bewegt && `<b>Bewegt:</b> ${escHtml(d.bewegt)}`,
+            d.gut && `<b>Schönster Erfolg:</b> ${escHtml(d.gut)}`,
+            d.schwer && `<b>Schwergefallen:</b> ${escHtml(d.schwer)}`,
+            d.morgen && `<b>Plan für morgen:</b> ${escHtml(d.morgen)}`,
+            d.jarvis_notiz && `<b>JARVIS:</b> ${escHtml(d.jarvis_notiz)}`,
+            d.jarvis_frage && d.frage_antwort && `<b>Deine Antwort:</b> ${escHtml(d.frage_antwort)}`,
+          ].filter(Boolean);
+          const nums = [d.kontakte_heute != null && d.kontakte_heute + ' Kontakte', d.verkaeufe_heute != null && fmtCc(d.verkaeufe_heute) + ' CC'].filter(Boolean).join(' · ');
+          return `<div class="day-row${parts.length ? ' has-detail' : ''}" data-day-i="${i}"><span class="dd">${escHtml(fmtDate(d.entry_date))}</span><span>${f ? f + '/10' : ''}</span><span>${nums || '–'}</span></div>`
+            + (parts.length ? `<div class="day-detail" data-day-d="${i}" hidden>${parts.join('<br>')}</div>` : '');
+        }).join('')
       : '<p class="progress-sub">Noch keine Tagesabschlüsse.</p>';
 
     // Serie: wie viele Tage in Folge (heute noch offen zählt nicht als Bruch)
@@ -2758,11 +2891,90 @@
     let cursor = dashboardData.today;
     if(!have.has(cursor)) cursor = shiftDate(cursor, -1);
     let streak = 0;
-    while(have.has(cursor)){ streak++; cursor = shiftDate(cursor, -1); }
+    // Sonntag ist frei: ein fehlender Sonntag unterbricht die Serie nicht
+    const isSun = (iso) => new Date(iso + 'T00:00:00Z').getUTCDay() === 0;
+    while(have.has(cursor) || (isSun(cursor) && streak > 0)){
+      if(have.has(cursor)) streak++;
+      cursor = shiftDate(cursor, -1);
+    }
     const el = document.getElementById('dayStreak');
     el.hidden = streak < 2;
     el.textContent = `🔥 ${streak} Tage in Folge`;
   }
+
+  document.getElementById('daysList').addEventListener('click', e => {
+    const row = e.target.closest('.day-row.has-detail');
+    if(!row) return;
+    const det = document.querySelector(`[data-day-d="${row.dataset.dayI}"]`);
+    if(det) det.hidden = !det.hidden;
+  });
+
+  // ============ JARVIS-Wochen-Coaching ============
+  let coachingPoll = null;
+  let coachingPolls = 0;   // höchstens ca. 2 Minuten nachfragen
+  const fmtWeek = (ws) => {
+    const a = new Date(ws + 'T00:00:00Z'), b = new Date(ws + 'T00:00:00Z');
+    b.setUTCDate(b.getUTCDate() + 6);
+    const f = (d) => d.toLocaleDateString('de-AT', { day: 'numeric', month: 'long', timeZone: 'UTC' });
+    return a.getUTCMonth() === b.getUTCMonth() ? `${a.getUTCDate()}. bis ${f(b)}` : `${f(a)} bis ${f(b)}`;
+  };
+  function coachingBody(c, full){
+    const list = (arr) => `<ul class="wc-list">${arr.map(x => `<li>${escHtml(x)}</li>`).join('')}</ul>`;
+    const focus = c.fokus && c.fokus.length
+      ? `<div class="wc-h">Dein Fokus für diese Woche</div><div class="wc-focus">${c.fokus.map((f, i) => `<div><b>${i + 1}. ${escHtml(f.titel)}</b><span>${escHtml(f.warum)}</span></div>`).join('')}</div>` : '';
+    const more = `
+      ${c.erfolge.length ? `<div class="wc-h">Deine Erfolge</div>${list(c.erfolge)}` : ''}
+      ${c.entwicklung.length ? `<div class="wc-h">Wo du gewachsen bist</div>${list(c.entwicklung)}` : ''}
+      ${c.muster.length ? `<div class="wc-h">Was mir auffällt</div>${list(c.muster)}` : ''}
+      ${c.impuls ? `<div class="wc-h">Mein Impuls für dich</div><div class="wc-impuls">${escHtml(c.impuls)}</div>` : ''}`;
+    return `<div class="wc-take">${escHtml(c.dasNimmstDuMit || '')}</div>${focus}`
+      + (full ? more : `<div class="wc-full" hidden>${more}</div><button type="button" class="wc-more">Ganzes Coaching lesen ▾</button>`)
+      + `<p class="wc-note">Aus ${c.daysCount || 0} Tagesabschluss${c.daysCount === 1 ? '' : 'en'}${c.datenlage === 'duenn' ? '. Je mehr Tage du einträgst, desto persönlicher wird es.' : '.'}</p>`;
+  }
+  function renderCoaching(wc){
+    const card = document.getElementById('coachingCard');
+    const box = document.getElementById('coachingContent');
+    const arch = document.getElementById('coachingArchive');
+    if(coachingPoll){ clearTimeout(coachingPoll); coachingPoll = null; }
+    if(!wc){ card.hidden = true; arch.innerHTML = '<p class="progress-sub">Noch keine Wochen-Coachings.</p>'; return; }
+    const list = wc.list || [];
+    const latest = list[0];
+    // Überblick: das Coaching der letzten fertigen Woche, eine Woche lang
+    const fresh = latest && latest.weekStart >= shiftDate(wc.week, -7);
+    if(wc.status === 'pending' && !(latest && latest.weekStart === wc.week)){
+      card.hidden = false;
+      box.innerHTML = `<div class="wc-eyebrow">✦ JARVIS · Woche vom ${escHtml(fmtWeek(wc.week))}</div><p class="progress-sub" style="font-size:14px;">JARVIS schreibt gerade dein Wochen-Coaching aus deinen Tagesabschlüssen. Das dauert etwa eine Minute …</p>`;
+      if(coachingPolls++ < 15) coachingPoll = setTimeout(refreshCoaching, 8000);
+    } else if(fresh){
+      card.hidden = false;
+      box.innerHTML = `<div class="wc-eyebrow">✦ Dein Wochen-Coaching · ${escHtml(fmtWeek(latest.weekStart))}</div>${coachingBody(latest, false)}`;
+      if(!latest.seen){
+        fetch('/.netlify/functions/leader-coaching', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...(token ? { token } : {}), seen: latest.weekStart }) }).catch(() => {});
+        latest.seen = true;
+      }
+    } else {
+      card.hidden = true;
+    }
+    arch.innerHTML = list.length
+      ? list.map((c, i) => `<details class="wc-arch"><summary><span class="dd">${escHtml(fmtWeek(c.weekStart))}</span>${escHtml(c.dasNimmstDuMit || '')}</summary><div style="margin-top:10px;">${coachingBody(c, true)}</div></details>`).join('')
+      : '<p class="progress-sub">Noch keine Wochen-Coachings. Das erste schreibt JARVIS am Sonntagabend aus deinen Tagesabschlüssen.</p>';
+  }
+  async function refreshCoaching(){
+    try {
+      const res = await fetch('/.netlify/functions/leader-coaching' + (token ? `?token=${encodeURIComponent(token)}` : ''), { credentials: 'same-origin' });
+      if(!res.ok) return;
+      const wc = await res.json();
+      if(dashboardData) dashboardData.weeklyCoaching = wc;
+      renderCoaching(wc);
+    } catch(e){}
+  }
+  document.getElementById('coachingContent').addEventListener('click', e => {
+    const b = e.target.closest('.wc-more');
+    if(!b) return;
+    const full = document.querySelector('#coachingContent .wc-full');
+    full.hidden = !full.hidden;
+    b.textContent = full.hidden ? 'Ganzes Coaching lesen ▾' : 'Weniger anzeigen ▴';
+  });
 
   document.getElementById('dayForm').addEventListener('submit', async function(e){
     e.preventDefault();
@@ -2783,17 +2995,20 @@
           verkaeufe_heute: document.getElementById('day_verkaeufe').value,
           gespraeche_heute: document.getElementById('day_gespraeche').value,
           neue_kunden_heute: document.getElementById('day_kunden').value,
-          stimmung: dayMood,
+          gefuehl: dayMood,
+          bewegt: document.getElementById('day_bewegt').value,
           gut: document.getElementById('day_gut').value,
           schwer: document.getElementById('day_schwer').value,
-          morgen: document.getElementById('day_morgen').value,
         }),
       });
       if(res.ok){
-        status.textContent = 'Gespeichert ✓ Gute Nacht und bis morgen.';
+        let saved = {};
+        try { saved = await res.json(); } catch(e){ saved = {}; }
+        status.textContent = 'Gespeichert ✓ Schön, dass du dir die Zeit genommen hast.';
         await loadDashboard();
         const st = Number(document.getElementById('dayStreak').textContent.replace(/\D/g, '')) || 0;
         celebrate(st >= 2 ? `🔥 ${st} Tage in Folge` : 'Tagesabschluss gespeichert');
+        if(saved.jobId) waitDayFeedback(saved.jobId, entryDate);
       } else {
         status.textContent = 'Fehler beim Speichern, bitte nochmal versuchen.';
       }

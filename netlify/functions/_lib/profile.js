@@ -74,7 +74,7 @@ async function gatherInput(leader, todayStr) {
   const today = todayStr || viennaTodayStr();
   const since = new Date(Date.parse(today + 'T00:00:00Z') - WEEKS_BACK * 7 * 86400000).toISOString().slice(0, 10);
   const safe = async (p) => { try { return (await p) || []; } catch (e) { return []; } };
-  const [days, weeks, plans, actuals, chal, notes, team, prev, chats] = await Promise.all([
+  const [days, weeks, plans, actuals, chal, notes, team, prev, chats, coachings] = await Promise.all([
     safe(pgrest('daily_reflections', { query: `leader_id=eq.${leader.id}&entry_date=gte.${since}&order=entry_date.asc&select=*` })),
     safe(pgrest('weekly_entries', { query: `leader_id=eq.${leader.id}&week_start=gte.${monthsBack(today, 2)[0]}-01&order=week_start.asc&select=*` })),
     safe(pgrest('monthly_plans', { query: `leader_id=eq.${leader.id}&target_month=gte.${monthsBack(today, 2)[0]}-01&select=target_month,plan_cc,sponsoring_cc,eigen_cc,kunden_cc,kunden_text` })),
@@ -84,6 +84,7 @@ async function gatherInput(leader, todayStr) {
     safe(pgrest('team_members', { query: `leader_id=eq.${leader.id}&active=eq.true&select=id` })),
     safe(pgrest('leader_profiles', { query: `leader_id=eq.${leader.id}&order=created_at.desc&limit=1&select=data,created_at` })),
     safe(recentChats(leader.id, WEEKS_BACK * 7, 40)),
+    safe(pgrest('weekly_coachings', { query: `leader_id=eq.${leader.id}&status=eq.done&order=week_start.desc&limit=2&select=week_start,data` })),
   ]);
   const totals = monthlyTotals(weeks);
   const lines = [];
@@ -100,11 +101,20 @@ async function gatherInput(leader, todayStr) {
   }
   lines.push(`Tagesabschlüsse (${days.length} in ${WEEKS_BACK} Wochen):`);
   for (const d of days.slice(-20)) {
-    lines.push(`- ${d.entry_date}: ${d.kontakte_heute ?? '–'} Kontakte, ${d.gespraeche_heute ?? '–'} Gespräche, ${d.neue_kunden_heute ?? '–'} neue Kundinnen, ${d.verkaeufe_heute ?? '–'} CC, Stimmung ${d.stimmung ?? '–'}/5. Gut: ${cut(d.gut, 120) || '–'}. Schwer: ${cut(d.schwer, 120) || '–'}. Morgen: ${cut(d.morgen, 100) || '–'}.`);
+    lines.push(`- ${d.entry_date}: ${d.kontakte_heute ?? '–'} Kontakte, ${d.gespraeche_heute ?? '–'} Gespräche, ${d.neue_kunden_heute ?? '–'} neue Kundinnen, ${d.verkaeufe_heute ?? '–'} CC, ${d.gefuehl != null ? `Gefühl ${d.gefuehl}/10` : `Stimmung ${d.stimmung ?? '–'}/5`}. Bewegt: ${cut(d.bewegt, 120) || '–'}. Schönster Erfolg: ${cut(d.gut, 120) || '–'}. Schwer: ${cut(d.schwer, 120) || '–'}.${d.morgen ? ` Morgen: ${cut(d.morgen, 100)}.` : ''}`);
   }
   if (chal.length) {
     lines.push('Leadership-Challenge:');
     for (const c of chal) lines.push(`- Woche ${c.week_no}: Aufgabe ${c.task_done ? 'erledigt' : 'offen'}${c.answer ? `, Antwort: ${cut(c.answer, 250)}` : ''}`);
+  }
+  if (coachings.length) {
+    lines.push('Deine Wochen-Coachings an sie (neueste zuerst):');
+    for (const c of coachings) {
+      const d = c.data || {};
+      lines.push(`- Woche ab ${c.week_start}: "${cut(d.das_nimmst_du_mit, 250)}" Fokus: ${(d.fokus || []).map((f) => f.titel).join('; ') || '–'}.`);
+    }
+    const m = coachings[0].data && coachings[0].data.gedaechtnis;
+    if (m) lines.push(`Dein Langzeit-Gedächtnis aus dem Coaching: ${JSON.stringify(m).slice(0, 1500)}`);
   }
   if (chats.length) {
     lines.push(`Ihre Fragen an JARVIS im Chat (${chats.length}, neueste zuerst):`);
@@ -115,7 +125,7 @@ async function gatherInput(leader, todayStr) {
     for (const n of notes) lines.push(`- ${String(n.created_at).slice(0, 10)}: ${cut(n.note, 300)}`);
   }
   const previous = prev[0] ? { seit: String(prev[0].created_at).slice(0, 10), profil: prev[0].data } : null;
-  return { text: lines.join('\n'), previous, hasData: days.length + weeks.length + chal.length + chats.length > 0 };
+  return { text: lines.join('\n'), previous, hasData: days.length + weeks.length + chal.length + chats.length + coachings.length > 0 };
 }
 
 // Erstellt und speichert ein neues Profil. client = makeClient() aus _lib/agent

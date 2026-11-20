@@ -6,6 +6,8 @@
 // Vorschlag und Monatsauswertung, nur wo fällig (force = Vorschlag neu erstellen).
 // Mit { mode: "insights", leader_id?, force? } nur die Erkenntnis der Woche ("JARVIS ist aufgefallen").
 // Ohne mode: Profile und danach die Erkenntnisse der kommenden Woche.
+// Ohne leader_id (Sonntagslauf) vorher das Wochen-Coaching (_lib/weekly-coaching.js).
+// Mit { mode: "coaching" } nur das Wochen-Coaching.
 // Aufruf nur mit dem internen Geheimnis (x-agent-secret), von
 // scheduled-leader-profiles.js (Sonntag 20:00) oder admin-profile-refresh.js.
 
@@ -15,6 +17,28 @@ const { makeClient } = require('./_lib/agent');
 const { updateProfile } = require('./_lib/profile');
 const { runDevplans } = require('./_lib/devplan');
 const { runInsights } = require('./_lib/insights');
+const { targetWeek, hasDays, claim, generateCoaching } = require('./_lib/weekly-coaching');
+const { sendPush } = require('./_lib/webpush');
+const { dashboardUrl } = require('./_lib/pushlinks');
+
+// Push: das Wochen-Coaching ist da
+async function notifyCoaching(leader) {
+  let subs = [];
+  try { subs = (await pgrest('push_subscriptions', { query: `leader_id=eq.${leader.id}` })) || []; } catch (e) { return; }
+  for (const sub of subs) {
+    try {
+      await sendPush({ endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } }, {
+        title: 'Dein Wochen-Coaching ist da ✨',
+        body: 'JARVIS hat auf deine Woche geschaut. Was du mitnehmen kannst, steht im Überblick.',
+        url: dashboardUrl(leader, 'overview'),
+      });
+    } catch (err) {
+      if (err.statusCode === 404 || err.statusCode === 410) {
+        try { await pgrest('push_subscriptions', { method: 'DELETE', query: `id=eq.${sub.id}` }); } catch (e) { /* egal */ }
+      }
+    }
+  }
+}
 
 exports.handler = async function (event) {
   if ((event.headers || {})['x-agent-secret'] !== agentSecret()) return { statusCode: 403, body: 'Kein Zugriff' };
@@ -32,6 +56,27 @@ exports.handler = async function (event) {
     const results = await runInsights(client, leaders, undefined, { force: !!p.force });
     return { statusCode: 200, body: JSON.stringify({ results }) };
   }
+  // Sonntagslauf (ohne leader_id): zuerst das Wochen-Coaching aus den
+  // Tagesabschlüssen, damit das Profil danach schon darauf aufbauen kann.
+  const coachings = [];
+  if (!p.leader_id || p.mode === 'coaching') {
+    const week = targetWeek();
+    for (const leader of leaders) {
+      try {
+        if (!(await hasDays(leader.id, week))) { coachings.push({ leader: leader.name, skipped: 'keine Tagesabschlüsse' }); continue; }
+        if (!(await claim(leader.id, week))) { coachings.push({ leader: leader.name, skipped: 'schon vorhanden' }); continue; }
+        const data = await generateCoaching(client, leader, week);
+        if (data) await notifyCoaching(leader);
+        coachings.push({ leader: leader.name, ok: !!data });
+      } catch (err) {
+        console.error('Wochen-Coaching', leader.name, err.message);
+        try { await pgrest('weekly_coachings', { method: 'PATCH', query: `leader_id=eq.${leader.id}&week_start=eq.${week}&status=eq.pending`, body: { status: 'error' } }); } catch (e) { /* egal */ }
+        coachings.push({ leader: leader.name, ok: false, error: err.message });
+      }
+    }
+    if (p.mode === 'coaching') return { statusCode: 200, body: JSON.stringify({ coachings }) };
+  }
+
   const results = [];
   for (const leader of leaders) {
     try {
@@ -45,5 +90,5 @@ exports.handler = async function (event) {
   // Danach die Erkenntnis der kommenden Woche (höchstens eine je Leaderin)
   let insights = [];
   try { insights = await runInsights(client, leaders); } catch (err) { console.error('Erkenntnisse', err.message); }
-  return { statusCode: 200, body: JSON.stringify({ results, insights }) };
+  return { statusCode: 200, body: JSON.stringify({ coachings, results, insights }) };
 };

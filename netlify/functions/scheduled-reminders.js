@@ -3,10 +3,11 @@
 // Läuft alle 15 Minuten (netlify.toml) und schickt die Erinnerungen zur
 // Uhrzeit, die jede Leaderin selbst gewählt hat (supabase/reminders.sql):
 //
-// - täglich zur gewählten Zeit: Tagesreflexion von heute fehlt
-// - sonntags zur gewählten Zeit: Wochenreflexion dieser Woche fehlt
-// - jeden Morgen 08:00: gestern keine Tagesreflexion und/oder Wochenreflexion
-//   der letzten Woche fehlt noch -> automatisch, jeden Tag, bis sie drin ist
+// - Mo bis Sa zur gewählten Zeit: Tagesabschluss von heute fehlt
+// - sonntags zur gewählten Zeit: Wochenzahlen dieser Woche fehlen
+// - jeden Morgen 08:00: gestern kein Tagesabschluss (außer Sonntag) und/oder Wochenzahlen
+//   der letzten Woche fehlen noch -> automatisch, jeden Tag, bis sie drin sind
+// Tagesabschluss nur Montag bis Samstag (Sonntag ist frei, abends kommt das Wochen-Coaching).
 // - ab dem 25. zur täglichen Zeit: Monatsplanung fehlt (hat Vorrang)
 // Pausierte Leaderinnen und wer keinen Push aktiviert hat, bekommt nichts.
 // reminder_log verhindert, dass etwas doppelt kommt.
@@ -94,15 +95,17 @@ exports.handler = async function () {
 
       // Morgens 08:00: Nachholen von gestern / letzter Woche
       if (slot === MORNING) {
-        const dayMissing = !(await exists('daily_reflections', `leader_id=eq.${leader.id}&entry_date=eq.${yesterday}`));
+        // Sonntag ist frei: montags wird kein Tagesabschluss nachgefordert
+        const yesterdaySunday = new Date(yesterday + 'T00:00:00Z').getUTCDay() === 0;
+        const dayMissing = !yesterdaySunday && !(await exists('daily_reflections', `leader_id=eq.${leader.id}&entry_date=eq.${yesterday}`));
         const weekMissing = !(await exists('weekly_entries', `leader_id=eq.${leader.id}&week_start=eq.${lastWeekStart}`));
         let payload = null;
         if (dayMissing && weekMissing) {
-          payload = { title: 'Guten Morgen ☀️ Kurz nachtragen', body: 'Deine Tagesreflexion von gestern und die Wochenreflexion fehlen noch. Zusammen etwa 5 Minuten.', url: dashboardUrl(leader, 'entry', 'weekly') };
+          payload = { title: 'Guten Morgen ☀️ Kurz nachtragen', body: 'Dein Tagesabschluss von gestern und die Wochenzahlen fehlen noch. Zusammen etwa 4 Minuten.', url: dashboardUrl(leader, 'entry', 'weekly') };
         } else if (weekMissing) {
-          payload = { title: 'Guten Morgen ☀️ Deine Wochenreflexion', body: 'Die Wochenreflexion der letzten Woche fehlt noch. Trag sie gleich ein, dann ist sie erledigt.', url: dashboardUrl(leader, 'entry', 'weekly') };
+          payload = { title: 'Guten Morgen ☀️ Deine Wochenzahlen', body: 'Die Zahlen der letzten Woche fehlen noch. Etwa 2 Minuten, dann ist es erledigt.', url: dashboardUrl(leader, 'entry', 'weekly') };
         } else if (dayMissing) {
-          payload = { title: 'Guten Morgen ☀️ Kurz nachtragen', body: 'Die Tagesreflexion von gestern fehlt noch. Unter „Gestern nachtragen“ geht es in 2 Minuten.', url: dashboardUrl(leader, 'entry', 'daily') };
+          payload = { title: 'Guten Morgen ☀️ Kurz nachtragen', body: 'Magst du deinen Tagesabschluss von gestern nachtragen? Unter „Gestern nachtragen“ geht es in 2 Minuten.', url: dashboardUrl(leader, 'entry', 'daily') };
         }
         if (payload && (await claim(leader.id, 'morning', today))) {
           results.push({ leader: leader.name, morning: true, sent: await pushAll(subs, payload) });
@@ -125,11 +128,12 @@ exports.handler = async function () {
         }
       }
 
-      const dailyNow = slot === dailyTime && !(await exists('daily_reflections', `leader_id=eq.${leader.id}&entry_date=eq.${today}`));
+      // Tagesabschluss nur Montag bis Samstag
+      const dailyNow = !isSunday && slot === dailyTime && !(await exists('daily_reflections', `leader_id=eq.${leader.id}&entry_date=eq.${today}`));
       const weeklyNow = isSunday && slot === weeklyTime && !(await exists('weekly_entries', `leader_id=eq.${leader.id}&week_start=eq.${weekStart}`));
       if (dailyNow && weeklyNow) {
         if ((await claim(leader.id, 'daily', today)) && (await claim(leader.id, 'weekly', today))) {
-          results.push({ leader: leader.name, both: true, sent: await pushAll(subs, { title: 'Dein Tagesabschluss 🌙', body: 'Tages- und Wochenreflexion warten auf dich. Zusammen etwa 5 Minuten.', url: dashboardUrl(leader, 'entry', 'daily') }) });
+          results.push({ leader: leader.name, both: true, sent: await pushAll(subs, { title: 'Dein Tagesabschluss 🌙', body: 'Tagesabschluss und Wochenzahlen warten auf dich. Zusammen etwa 4 Minuten.', url: dashboardUrl(leader, 'entry', 'daily') }) });
         }
       } else if (dailyNow) {
         if (await claim(leader.id, 'daily', today)) {
@@ -137,7 +141,7 @@ exports.handler = async function () {
         }
       } else if (weeklyNow) {
         if (await claim(leader.id, 'weekly', today)) {
-          results.push({ leader: leader.name, weekly: true, sent: await pushAll(subs, { title: 'Deine Wochenreflexion 📝', body: 'Die Woche ist vorbei. Trag deine Zahlen ein und schau zurück.', url: dashboardUrl(leader, 'entry', 'weekly') }) });
+          results.push({ leader: leader.name, weekly: true, sent: await pushAll(subs, { title: 'Deine Wochenzahlen 📊', body: 'Die Woche ist vorbei. Trag kurz deine Zahlen ein, dein Wochen-Coaching von JARVIS kommt heute Abend.', url: dashboardUrl(leader, 'entry', 'weekly') }) });
         }
       }
     }

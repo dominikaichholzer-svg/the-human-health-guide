@@ -172,6 +172,8 @@ exports.handler = async function (event) {
         profile: profiles ? profiles[leader.id] || null : undefined,
         devplan: await leaderPlans(leader.id).catch(() => undefined),
         insight: insights ? insights[leader.id] || null : undefined,
+        // Letztes JARVIS-Wochen-Coaching (supabase/weekly-coaching.sql)
+        coaching: await pgrest('weekly_coachings', { query: `leader_id=eq.${leader.id}&status=eq.done&order=week_start.desc&limit=1&select=week_start,data,days_count` }).then((r) => (r && r[0]) || null).catch(() => undefined),
         learningNotes: await pgrest('learning_notes', { query: `leader_id=eq.${leader.id}&order=created_at.desc&limit=20&select=kind,text,done,created_at` }).catch(() => undefined),
       });
     }

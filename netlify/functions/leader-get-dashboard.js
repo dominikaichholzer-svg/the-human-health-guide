@@ -16,6 +16,7 @@ const { planStatus } = require('./_lib/leader-context');
 const { leaderPlans } = require('./_lib/devplan');
 const { currentInsight } = require('./_lib/insights');
 const { leaderIncentives } = require('./_lib/incentive');
+const { ensureCoaching, listCoachings } = require('./_lib/weekly-coaching');
 
 exports.handler = async function (event) {
   if (event.httpMethod !== 'GET') {
@@ -45,7 +46,7 @@ exports.handler = async function (event) {
     let recentDays = [];
     try {
       recentDays = await pgrest('daily_reflections', {
-        query: `leader_id=eq.${leader.id}&order=entry_date.desc&limit=14&select=*`,
+        query: `leader_id=eq.${leader.id}&order=entry_date.desc&limit=30&select=*`,
       });
     } catch (e) { recentDays = []; }
 
@@ -149,6 +150,15 @@ exports.handler = async function (event) {
       if (r && r[0]) reminders = { daily: r[0].reminder_daily_time || '19:00', weekly: r[0].reminder_weekly_time || '19:00', set: !!r[0].reminder_set_at };
     } catch (e) { /* noch nicht angelegt: Fenster nicht zeigen */ }
 
+    // JARVIS-Wochen-Coaching (supabase/weekly-coaching.sql). Fehlt das der
+    // letzten fertigen Woche, wird es hier im Hintergrund angestoßen
+    // (Absicherung, falls der Sonntagslauf ausgefallen ist).
+    let weeklyCoaching = null;
+    try {
+      const st = await ensureCoaching(leader, viennaTodayStr());
+      weeklyCoaching = { week: st.week, status: st.status, list: await listCoachings(leader.id, 12) };
+    } catch (e) { weeklyCoaching = null; }
+
     // Incentives (supabase/incentives.sql): Stand aus Mein Team und Wochen-CC
     let incentives = [];
     try { incentives = await leaderIncentives(leader.id, viennaTodayStr()); } catch (e) { incentives = []; }
@@ -180,6 +190,7 @@ exports.handler = async function (event) {
         cockpit,
         incentives,
         reminders,
+        weeklyCoaching,
         growth,
         devplan,
         insight,

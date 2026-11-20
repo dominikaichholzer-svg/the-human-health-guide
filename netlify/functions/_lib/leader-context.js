@@ -73,7 +73,7 @@ async function buildLeaderContext(leader, todayStr) {
     const v = days.reduce((a, d) => a + (Number(d.verkaeufe_heute) || 0), 0);
     const g = days.reduce((a, d) => a + (Number(d.gespraeche_heute) || 0), 0);
     const nk = days.reduce((a, d) => a + (Number(d.neue_kunden_heute) || 0), 0);
-    lines.push(`Tagesabschlüsse diesen Monat: ${days.length}, zusammen ${k} neue Kontakte, ${g} Gespräche, ${nk} neue Kundinnen und ${fmt(v)} CC Verkäufe. Letzter: ${days[0].entry_date}${days[0].schwer ? `, schwierig war: "${String(days[0].schwer).slice(0, 200)}"` : ''}${days[0].morgen ? `, Plan für morgen: "${String(days[0].morgen).slice(0, 200)}"` : ''}.`);
+    lines.push(`Tagesabschlüsse diesen Monat: ${days.length}, zusammen ${k} neue Kontakte, ${g} Gespräche, ${nk} neue Kundinnen und ${fmt(v)} CC Verkäufe. Letzter: ${days[0].entry_date}${days[0].gefuehl != null ? `, Gefühl ${days[0].gefuehl}/10` : ''}${days[0].bewegt ? `, bewegt: "${String(days[0].bewegt).slice(0, 200)}"` : ''}${days[0].gut ? `, schönster Erfolg: "${String(days[0].gut).slice(0, 200)}"` : ''}${days[0].schwer ? `, schwierig war: "${String(days[0].schwer).slice(0, 200)}"` : ''}${days[0].morgen ? `, Plan für morgen: "${String(days[0].morgen).slice(0, 200)}"` : ''}.`);
   } else {
     lines.push('Diesen Monat noch kein Tagesabschluss.');
   }
@@ -102,6 +102,15 @@ async function buildLeaderContext(leader, todayStr) {
     const d = prof[0].data;
     if (d.fuer_leaderin) lines.push(`Ihr Entwicklungsprofil (Stand ${String(prof[0].created_at).slice(0, 10)}): Stärken: ${(d.fuer_leaderin.staerken || []).join('; ')}. Nächster Wachstumsschritt: ${d.fuer_leaderin.naechster_schritt}.`);
     if (d.chat_hinweise) lines.push(`So unterstützt du sie am besten: ${d.chat_hinweise}`);
+  }
+
+  // Letztes Wochen-Coaching und JARVIS' Langzeit-Gedächtnis zu ihr (supabase/weekly-coaching.sql)
+  const wc = (await safe(pgrest('weekly_coachings', { query: `leader_id=eq.${leader.id}&status=eq.done&order=week_start.desc&limit=1&select=week_start,data` }), [])) || [];
+  if (wc[0] && wc[0].data) {
+    const c = wc[0].data;
+    lines.push(`Dein letztes Wochen-Coaching für sie (Woche ab ${wc[0].week_start}): "${c.das_nimmst_du_mit || ''}" Fokus: ${(c.fokus || []).map((f) => f.titel).join('; ') || '–'}. Knüpf daran an, wenn es passt.`);
+    const m = c.gedaechtnis;
+    if (m) lines.push(`Was du langfristig über sie weißt: Stärken ${(m.staerken || []).join('; ') || '–'}. Wiederkehrende Herausforderungen ${(m.wiederkehrende_herausforderungen || []).join('; ') || '–'}. Motivation: ${m.motivation_verlauf || '–'}. Was ihr hilft: ${m.hilfreiche_unterstuetzung || '–'}. Ihre Ziele: ${(m.ziele || []).join('; ') || '–'}.`);
   }
 
   // Persönlicher Entwicklungsplan. Dominiks Feedback zum Plan ist für sie bestimmt und darf rein,

@@ -474,7 +474,7 @@
         <button class="btn save-products-btn" data-leader="${l.id}" type="button" style="padding:8px 14px; font-size:12px; width:auto;">Speichern</button>
         ${heatmapHtml(l.visitsByDay)}
         ${intakeHtml(l.intake)}
-        ${insightHtml(l)}${devplanHtml(l)}${notesHtml(l)}${profileHtml(l)}${teamSupportHtml(l)}${teamHtml(l.team)}${adminNotesHtml(l)}${plansHtml(l.monthlyPlans)}${weeksHtml(l.recentWeeks)}${daysHtml(l.recentDays)}
+        ${insightHtml(l)}${devplanHtml(l)}${notesHtml(l)}${coachingHtml(l)}${profileHtml(l)}${teamSupportHtml(l)}${teamHtml(l.team)}${adminNotesHtml(l)}${plansHtml(l.monthlyPlans)}${weeksHtml(l.recentWeeks)}${daysHtml(l.recentDays)}
       </div>
     `;
   }
@@ -940,6 +940,22 @@
   });
 
   // JARVIS-Entwicklungsprofil (wöchentlich, baut auf dem letzten auf)
+  // Letztes JARVIS-Wochen-Coaching (das, was die Leaderin im Überblick sieht)
+  function coachingHtml(l){
+    const c = l.coaching;
+    if(!c || !c.data) return '';
+    const d = c.data;
+    const li = (a) => (a || []).map(x => `<li>${esc(x)}</li>`).join('');
+    const m = d.gedaechtnis || {};
+    return `<details class="more-box"><summary>Wochen-Coaching ${esc(String(c.week_start).split('-').reverse().join('.'))} · ${esc(c.days_count || 0)} Tage</summary>
+      <p class="lmeta"><b>Das nimmt sie mit:</b> ${esc(d.das_nimmst_du_mit || '')}</p>
+      ${(d.fokus || []).length ? `<p class="lmeta"><b>Fokus:</b> ${(d.fokus || []).map(f => esc(f.titel)).join(' · ')}</p>` : ''}
+      ${(d.erfolge || []).length ? `<p class="lmeta"><b>Erfolge</b></p><ul class="lmeta">${li(d.erfolge)}</ul>` : ''}
+      ${(d.muster || []).length ? `<p class="lmeta"><b>Muster</b></p><ul class="lmeta">${li(d.muster)}</ul>` : ''}
+      ${d.impuls ? `<p class="lmeta"><b>Impuls:</b> ${esc(d.impuls)}</p>` : ''}
+      <p class="lmeta"><b>JARVIS' Langzeit-Gedächtnis:</b> Stärken ${esc((m.staerken || []).join('; ') || '–')} · Wiederkehrend ${esc((m.wiederkehrende_herausforderungen || []).join('; ') || '–')} · Motivation ${esc(m.motivation_verlauf || '–')} · Was hilft ${esc(m.hilfreiche_unterstuetzung || '–')} · Stagniert ${esc((m.stagnation || []).join('; ') || '–')}</p>
+    </details>`;
+  }
   function profileHtml(l){
     if(l.profile === undefined) return '';
     const p = l.profile;
@@ -1008,10 +1024,12 @@
     const MOODS = { 1:'😞', 2:'😕', 3:'😐', 4:'🙂', 5:'😄' };
     return `<details class="more-box"><summary>Tagesabschlüsse (letzte ${days.length})</summary>${days.map(d => `
       <div class="week-entry">
-        <p class="lmeta"><b>${esc(d.entry_date)}</b> ${d.stimmung ? MOODS[d.stimmung] : ''} · Kontakte ${esc(d.kontakte_heute ?? '–')} · Verkäufe ${d.verkaeufe_heute != null ? esc(Number(d.verkaeufe_heute).toLocaleString('de-AT', { maximumFractionDigits: 3 })) + ' CC' : '–'}</p>
-        ${d.gut ? `<p class="lmeta"><b>Gut gelaufen:</b> ${esc(d.gut)}</p>` : ''}
+        <p class="lmeta"><b>${esc(d.entry_date)}</b> ${d.gefuehl != null ? esc(d.gefuehl) + '/10' : d.stimmung ? MOODS[d.stimmung] : ''} · Kontakte ${esc(d.kontakte_heute ?? '–')} · Verkäufe ${d.verkaeufe_heute != null ? esc(Number(d.verkaeufe_heute).toLocaleString('de-AT', { maximumFractionDigits: 3 })) + ' CC' : '–'}</p>
+        ${d.bewegt ? `<p class="lmeta"><b>Bewegt:</b> ${esc(d.bewegt)}</p>` : ''}
+        ${d.gut ? `<p class="lmeta"><b>Schönster Erfolg:</b> ${esc(d.gut)}</p>` : ''}
         ${d.schwer ? `<p class="lmeta"><b>Schwierig:</b> ${esc(d.schwer)}</p>` : ''}
         ${d.morgen ? `<p class="lmeta"><b>Nächster Schritt:</b> ${esc(d.morgen)}</p>` : ''}
+        ${d.jarvis_frage && d.frage_antwort ? `<p class="lmeta"><b>JARVIS fragte:</b> ${esc(d.jarvis_frage)} <b>Antwort:</b> ${esc(d.frage_antwort)}</p>` : ''}
       </div>`).join('')}</details>`;
   }
   function weeksHtml(weeks){
