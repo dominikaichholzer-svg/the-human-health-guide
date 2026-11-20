@@ -48,10 +48,21 @@
   body.export .stage{ padding:0; display:block; }
 
   /* A5 zum Drucken: gleiche Gestaltung, kompakter */
-  body.a5 .flyer{ width:1080px; height:1528px; padding:96px 90px 80px; }
-  body.a5 h1{ font-size:100px; margin-bottom:34px; }
-  body.a5 .lede{ font-size:40px; margin-bottom:40px; }
-  body.a5 .qrbox{ margin:40px 0 34px; }
+  body.a5 .flyer{ width:1080px; height:1528px; padding:80px 90px 64px; }
+  body.a5 .eyebrow{ font-size:28px; margin-bottom:28px; }
+  body.a5 h1{ font-size:86px; margin-bottom:26px; }
+  body.a5 .lede{ font-size:34px; margin-bottom:30px; }
+  body.a5 .chips{ gap:14px; }
+  body.a5 .chips span{ font-size:26px; padding:11px 20px; }
+  body.a5 .qrbox{ margin:32px 0 26px; padding:32px; gap:40px; }
+  body.a5 .qr{ width:280px; height:280px; padding:18px; }
+  body.a5 .qrtext .t{ font-size:50px; }
+  body.a5 .qrtext .s{ font-size:28px; }
+  body.a5 .event{ padding:26px 34px; }
+  body.a5 .event .l{ font-size:30px; }
+  body.a5 .event .l b{ font-size:40px; }
+  body.a5 .event .d{ font-size:28px; }
+  body.a5 .from{ margin-top:22px; font-size:26px; }
   @page{ size: A5; margin:0; }
   @media print{ body.a5{ background:var(--bg); } body.a5 .flyer{ zoom:0.5175; } body.a5 .stage{ padding:0; display:block; } }
   .err{ color:#fff; text-align:center; padding:60px 20px; font-size:16px; }
