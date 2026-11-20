@@ -88,9 +88,13 @@ exports.handler = async function (event) {
     const labels = {};
     for (const k of Object.keys(ALLOWED)) {
       const v = a[k] && a[k].value;
-      if (!ALLOWED[k].includes(v)) return json(400, { error: 'Bitte beantworte alle Fragen.' });
-      answers[k] = v;
-      labels[k] = clean(a[k].label, 120);
+      // Ziel: Mehrfachauswahl (Liste), alle anderen Fragen: eine Antwort
+      const ok = k === 'ziel'
+        ? Array.isArray(v) && v.length > 0 && v.length <= ALLOWED.ziel.length && v.every((x) => ALLOWED.ziel.includes(x))
+        : ALLOWED[k].includes(v);
+      if (!ok) return json(400, { error: 'Bitte beantworte alle Fragen.' });
+      answers[k] = k === 'ziel' ? [...new Set(v)] : v;
+      labels[k] = clean(a[k].label, k === 'ziel' ? 400 : 120);
     }
     answers.labels = labels;
 

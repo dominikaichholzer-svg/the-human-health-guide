@@ -68,6 +68,9 @@
   .opt{ display:flex; align-items:center; gap:12px; text-align:left; width:100%; padding: 15px 16px; background: var(--bg-raised); color: var(--ink); border: 1.5px solid var(--hairline); border-radius: 12px; font-family: var(--sans); font-size: 15px; line-height:1.35; cursor:pointer; transition: border-color .15s ease, background .15s ease; }
   .opt:hover{ background: var(--bg-hover); }
   .opt.selected{ border-color: var(--gold); background: var(--gold-dim); }
+  .qhint{ margin: -12px 0 16px; font-size: 13.5px; color: var(--ink-muted); }
+  .opt.multi::after{ content:''; margin-left:auto; width:20px; height:20px; border-radius:6px; border:1.5px solid var(--hairline); flex-shrink:0; }
+  .opt.multi.selected::after{ content:'✓'; border-color: var(--gold); background: var(--gold); color:#1A1406; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; }
   .opt .ic{ font-size: 21px; width: 28px; text-align:center; flex-shrink:0; }
 
   .field{ margin-bottom: 14px; }
@@ -129,7 +132,9 @@
   <section class="screen" id="screen-question">
     <div class="qnum" id="qnum"></div>
     <h2 class="qtitle" id="qtitle"></h2>
+    <p class="qhint" id="qhint" hidden></p>
     <div class="options" id="options"></div>
+    <button class="btn" type="button" id="nextBtn" hidden style="margin-top:16px;">Weiter</button>
     <button class="back" type="button" id="backBtn">← zurück</button>
   </section>
 
@@ -170,7 +175,7 @@
     <div class="card challenge">
       <div class="date">Start: Samstag, 30.01.</div>
       <h3>Die C9 Neujahrs-Challenge</h3>
-      <p>9 Tage mit klarem Tagesplan: Aloe Vera Drink, Shake und Ergänzungen, dazu einfache Mahlzeiten. Viele nutzen die 9 Tage als Neustart für neue Gewohnheiten. Wir machen es gemeinsam, damit du nicht allein bist.</p>
+      <p>9 Tage mit klarem Tagesplan. Wir haben schon über 500 Menschen dabei begleitet, und viele haben die 9 Tage als Neustart für neue Gewohnheiten genutzt. Wir machen es gemeinsam, damit du nicht allein bist.</p>
       <p class="muted" style="margin-top:10px;">Kostenlos dazu für alle Teilnehmerinnen und Teilnehmer:</p>
       <ul class="incl">
         <li>Persönliche Begleitung durch <span class="pname">mich</span> während der 9 Tage</li>
@@ -178,7 +183,7 @@
         <li>Rezeptbuch mit einfachen Ideen für die Challenge</li>
         <li>Gewinnspiel für alle, die mitmachen</li>
       </ul>
-      <div class="bonus"><b>Dezember-Bonus:</b> Wer bis 31.12. dabei ist, bekommt zusätzlich ein Starter-Set mit 3 Fiber- und 3 Argi-Sticks geschenkt.</div>
+      <div class="bonus"><b>Dezember-Bonus:</b> Wer bis 31.12. dabei ist, bekommt zusätzlich ein Starter-Set geschenkt: 3 Joker für die 9 Tage, die dir das Durchhalten leichter machen und dich bis zum Ziel unterstützen.</div>
       <p class="small" style="margin-top:10px;">Preis und alle Details bekommst du persönlich von <span class="pname">mir</span>. Bei Schwangerschaft, Stillzeit, Medikamenten oder Erkrankungen bitte vorher ärztlich abklären.</p>
     </div>
 
@@ -210,7 +215,7 @@
   let leadId = null;
 
   const questions = [
-    { id: 'ziel', title: 'Was willst du 2027 am meisten verändern?', options: [
+    { id: 'ziel', multi: true, title: 'Was willst du 2027 verändern?', hint: 'Mehrere Antworten möglich', options: [
       { value: 'abnehmen', ic: '⚖️', label: 'Ein paar Kilo loswerden und mich wieder wohlfühlen' },
       { value: 'energie',  ic: '⚡', label: 'Mehr Energie, weniger müde sein' },
       { value: 'bauch',    ic: '🌿', label: 'Ein leichteres Bauchgefühl, weniger Blähbauch' },
@@ -241,7 +246,7 @@
 
   // Auswertung: Ziel bestimmt Titel und Schritte, Hindernis und Alltag ergänzen
   const GOALS = {
-    abnehmen: { title: 'Dein Ziel: dich in deinem Körper <em>wieder wohlfühlen</em>.', short: 'mich wieder wohlfühlen und ein paar Kilo loswerden',
+    abnehmen: { title: 'Dein Ziel: dich in deinem Körper <em>wieder wohlfühlen</em>.', short: 'ein paar Kilo loswerden',
       lede: 'Nachhaltig klappt das selten mit Verzicht, sondern mit ein paar Gewohnheiten, die dich satt und zufrieden machen.',
       tips: ['Eiweiß zum Frühstück: Es hält deutlich länger satt als ein süßes Frühstück.', 'Zwischen den Mahlzeiten etwa 4 Stunden Pause, ohne Naschen. Dein Verdauungssystem freut sich über Ruhe.', 'Trink in den Pausen, beim Essen selbst nur wenig.'] },
     energie: { title: 'Dein Ziel: <em>mehr Energie</em> im Alltag.', short: 'mehr Energie haben',
@@ -250,7 +255,7 @@
     bauch: { title: 'Dein Ziel: ein <em>leichteres Bauchgefühl</em>.', short: 'ein leichteres Bauchgefühl',
       lede: 'Der Bauch reagiert stark darauf, wie und wann wir essen. Kleine Veränderungen machen hier oft einen spürbaren Unterschied.',
       tips: ['Öfter warm und gekocht essen statt kalt und roh, gerade im Winter.', 'Iss in Ruhe und ohne Handy. Stress am Tisch schlägt auf den Bauch.', 'Mehr Ballaststoffe, zum Beispiel Haferflocken mit Leinsamen. Empfohlen sind etwa 30 g am Tag, die meisten essen deutlich weniger.'] },
-    essen: { title: 'Dein Ziel: <em>gesünder essen</em>, ohne dass es sich nach Verzicht anfühlt.', short: 'gesünder essen und den Heißhunger in den Griff bekommen',
+    essen: { title: 'Dein Ziel: <em>gesünder essen</em>, ohne dass es sich nach Verzicht anfühlt.', short: 'gesünder essen ohne Heißhunger',
       lede: 'Gesund essen scheitert selten am Wissen, sondern am Alltag. Ein einfacher Plan schlägt jede Willenskraft.',
       tips: ['Leg dir 3 einfache Standard-Mahlzeiten zurecht, auf die du immer zurückgreifen kannst.', 'Heißhunger kommt oft, wenn tagsüber Eiweiß und Ballaststoffe fehlen. Fang dort an.', 'Zucker Schritt für Schritt reduzieren statt von heute auf morgen.'] },
     bewegung: { title: 'Dein Ziel: <em>Bewegung, die bleibt</em>.', short: 'mehr Bewegung, die auch bleibt',
@@ -286,12 +291,17 @@
     const q = questions[state.i];
     $('qnum').textContent = `Frage ${state.i + 1} von ${questions.length}`;
     $('qtitle').textContent = q.title;
+    $('qhint').textContent = q.hint || '';
+    $('qhint').hidden = !q.hint;
     $('progressLabel').textContent = `Frage ${state.i + 1} von ${questions.length}`;
     const pct = Math.round(state.i / questions.length * 100);
     $('progressPct').textContent = pct + ' %';
     $('progressFill').style.width = pct + '%';
     const cur = state.answers[q.id];
-    $('options').innerHTML = q.options.map(o => `<button type="button" class="opt${cur && cur.value === o.value ? ' selected' : ''}" data-v="${o.value}"><span class="ic">${o.ic}</span><span>${esc(o.label)}</span></button>`).join('');
+    const isSel = (v) => !!cur && (q.multi ? cur.value.includes(v) : cur.value === v);
+    $('options').innerHTML = q.options.map(o => `<button type="button" class="opt${isSel(o.value) ? ' selected' : ''}${q.multi ? ' multi' : ''}" data-v="${o.value}"><span class="ic">${o.ic}</span><span>${esc(o.label)}</span></button>`).join('');
+    $('nextBtn').hidden = !q.multi;
+    $('nextBtn').disabled = !(cur && cur.value.length);
     $('backBtn').style.visibility = state.i === 0 ? 'hidden' : 'visible';
   }
 
@@ -300,13 +310,26 @@
     if(!b) return;
     const q = questions[state.i];
     const o = q.options.find(x => x.value === b.dataset.v);
+    if(q.multi){
+      // Mehrfachauswahl: Reihenfolge des Antippens merken (erstes = Hauptziel)
+      const cur = state.answers[q.id] || { value: [], label: '' };
+      const i = cur.value.indexOf(o.value);
+      if(i >= 0) cur.value.splice(i, 1); else cur.value.push(o.value);
+      cur.label = cur.value.map(v => q.options.find(x => x.value === v).label).join('; ');
+      state.answers[q.id] = cur;
+      b.classList.toggle('selected', i < 0);
+      $('nextBtn').disabled = !cur.value.length;
+      return;
+    }
     state.answers[q.id] = { value: o.value, label: o.label };
     b.classList.add('selected');
-    setTimeout(() => {
-      if(state.i < questions.length - 1){ state.i++; renderQuestion(); }
-      else { $('progressFill').style.width = '100%'; show('contact'); setTimeout(() => $('fname').focus(), 350); }
-    }, 220);
+    setTimeout(nextQuestion, 220);
   });
+  function nextQuestion(){
+    if(state.i < questions.length - 1){ state.i++; renderQuestion(); }
+    else { $('progressFill').style.width = '100%'; show('contact'); setTimeout(() => $('fname').focus(), 350); }
+  }
+  $('nextBtn').addEventListener('click', nextQuestion);
   $('backBtn').addEventListener('click', () => { if(state.i > 0){ state.i--; renderQuestion(); } });
   $('backToQ').addEventListener('click', () => { state.i = questions.length - 1; renderQuestion(); show('question'); });
   $('startBtn').addEventListener('click', () => { state.i = 0; renderQuestion(); show('question'); });
@@ -315,11 +338,20 @@
 
   function renderResult(name){
     const a = state.answers;
-    const g = GOALS[a.ziel.value];
+    // Mehrere Ziele: das zuerst gewählte bestimmt den Titel, die 3 Schritte
+    // kommen abwechselnd aus allen gewählten Zielen
+    const goals = a.ziel.value.map(v => GOALS[v]);
+    const g = goals[0];
+    const tips = [];
+    for(let r = 0; tips.length < 3 && r < 3; r++){
+      for(const x of goals){ if(tips.length < 3 && x.tips[r]) tips.push(x.tips[r]); }
+    }
+    const shorts = goals.map(x => x.short);
+    const shortAll = shorts.length > 1 ? shorts.slice(0, -1).join(', ') + ' und ' + shorts[shorts.length - 1] : shorts[0];
     $('resEyebrow').textContent = `Deine Auswertung, ${name}`;
     $('resTitle').innerHTML = g.title;
-    $('resLede').textContent = g.lede;
-    $('resTips').innerHTML = g.tips.map(t => `<li>${esc(t)}</li>`).join('');
+    $('resLede').textContent = goals.length > 1 ? `${g.lede} Die Schritte unten decken auch deine anderen Ziele ab.` : g.lede;
+    $('resTips').innerHTML = tips.map(t => `<li>${esc(t)}</li>`).join('');
     $('resLever').innerHTML = LEVERS[a.alltag.value];
     $('resObstacle').textContent = OBSTACLES[a.hindernis.value];
 
@@ -328,7 +360,7 @@
     const label = start === 'infos' ? 'Schick mir die Infos zur Challenge' : start === 'freundin' ? 'Ich will mit einer Freundin dabei sein' : 'Ich will bei der Challenge dabei sein';
     $('waLabel').textContent = label;
     const pn = partner ? partner.name : '';
-    const text = `Hallo ${pn}, ich bin ${name} und habe gerade deine Neujahrs-Umfrage gemacht. Mein Ziel für 2027: ${g.short}. ${start === 'infos' ? 'Schick mir gern die Infos zur C9-Challenge am 30.01.' : 'Ich hätte Lust, bei der C9-Challenge am 30.01. dabei zu sein. Wie geht das?'}`;
+    const text = `Hallo ${pn}, ich bin ${name} und habe gerade deine Neujahrs-Umfrage gemacht. Mein Ziel für 2027: ${shortAll}. ${start === 'infos' ? 'Schick mir gern die Infos zur C9-Challenge am 30.01.' : 'Ich hätte Lust, bei der C9-Challenge am 30.01. dabei zu sein. Wie geht das?'}`;
     const num = waNumber();
     if(num){
       $('waBtn').href = `https://wa.me/${num}?text=${encodeURIComponent(text)}`;
