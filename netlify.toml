@@ -84,3 +84,9 @@
   to = "/404.html"
   status = 404
   force = true
+
+# Road to 200: Neujahrs-Umfrage, eine Seite für alle Partnerinnen (/neujahr/<slug>)
+[[redirects]]
+  from = "/neujahr/*"
+  to = "/neujahr-challenge.html"
+  status = 200

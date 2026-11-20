@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dein Neustart 2027 · C9 Neujahrs-Challenge</title>
+<meta name="description" content="4 kurze Fragen, deine persönliche Auswertung und ein gemeinsamer Start am 30.01.">
+<meta property="og:title" content="Dein Neustart 2027">
+<meta property="og:description" content="4 kurze Fragen, 1 Minute. Finde heraus, wo dein größter Hebel fürs neue Jahr liegt.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0F1730;
+    --bg-raised: #172244;
+    --bg-hover: #1E2B54;
+    --ink: #F6F1E4;
+    --ink-muted: #AAB2CC;
+    --hairline: #2C3866;
+    --gold: #E9C77B;
+    --gold-dim: rgba(233,199,123,0.14);
+    --wa: #25D366;
+    --error: #F08A7E;
+    --radius: 14px;
+    --serif: 'Fraunces', serif;
+    --sans: 'Inter', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; background: var(--bg); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+  body{ min-height:100vh; display:flex; justify-content:center; padding: 28px 16px 56px;
+    background: radial-gradient(1200px 500px at 50% -120px, rgba(233,199,123,0.16), transparent 70%), var(--bg); }
+  .app{ width:100%; max-width: 480px; }
+
+  .brandbar{ display:flex; justify-content:space-between; align-items:flex-start; padding-bottom: 18px; border-bottom: 1px solid var(--hairline); margin-bottom: 26px; }
+  .brandbar .name, .brandbar .tag{ font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; }
+  .brandbar .tag{ color: var(--ink-muted); text-align:right; }
+  .dot{ display:inline-block; width:6px; height:6px; border-radius:50%; background: var(--gold); margin-right:8px; box-shadow: 0 0 10px var(--gold); }
+
+  .progress-wrap{ margin-bottom: 24px; display:none; }
+  .progress-meta{ display:flex; justify-content:space-between; font-family: var(--mono); font-size: 11px; color: var(--ink-muted); letter-spacing:0.06em; margin-bottom:9px; }
+  .progress-track{ height: 6px; border-radius: 6px; background: var(--hairline); overflow:hidden; }
+  .progress-fill{ height:100%; border-radius:6px; background: var(--gold); width:0%; transition: width 0.4s cubic-bezier(.4,0,.2,1); }
+
+  .screen{ display:none; }
+  .screen.active{ display:block; animation: fadeIn 0.35s ease; }
+  @keyframes fadeIn{ from{ opacity:0; transform: translateY(6px); } to{ opacity:1; transform:none; } }
+  @media (prefers-reduced-motion: reduce){ .screen.active{ animation:none; } .progress-fill{ transition:none; } }
+
+  .eyebrow{ font-family: var(--mono); font-size: 11px; letter-spacing:0.14em; text-transform:uppercase; color: var(--gold); margin-bottom: 12px; }
+  h1.hero{ font-family: var(--serif); font-weight: 400; font-size: 34px; line-height: 1.14; margin: 0 0 16px; }
+  h1.hero em{ font-style: italic; font-weight:500; color: var(--gold); }
+  .lede{ color: var(--ink-muted); font-size: 15.5px; line-height:1.6; margin: 0 0 24px; }
+  .facts{ display:flex; gap:8px; margin: 0 0 26px; flex-wrap:wrap; }
+  .facts span{ font-size:12.5px; color: var(--ink); border:1px solid var(--hairline); border-radius:999px; padding:6px 11px; background: rgba(255,255,255,0.03); }
+
+  .btn{ display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding: 17px 22px; background: var(--gold); color: #1A1406; border:none; border-radius: var(--radius); font-family: var(--sans); font-weight: 700; font-size: 16px; cursor:pointer; text-decoration:none; transition: transform .15s ease, filter .15s ease; }
+  .btn:hover{ transform: translateY(-1px); filter: brightness(1.05); }
+  .btn:disabled{ opacity:0.6; cursor:default; transform:none; }
+  .btn-wa{ background: var(--wa); color:#06200F; }
+  .btn-outline{ display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding: 13px 18px; background: transparent; color: var(--gold); border: 1.5px solid var(--gold); border-radius: var(--radius); font-family: var(--sans); font-weight: 700; font-size: 14.5px; cursor:pointer; text-decoration:none; }
+  .back{ background:none; border:none; color: var(--ink-muted); font-family: var(--sans); font-size:13.5px; cursor:pointer; padding: 14px 0 0; }
+
+  .qnum{ font-family: var(--mono); font-size: 11px; letter-spacing:0.14em; text-transform:uppercase; color: var(--gold); margin-bottom: 10px; }
+  .qtitle{ font-family: var(--serif); font-weight: 400; font-size: 26px; line-height:1.22; margin: 0 0 20px; }
+  .options{ display:grid; gap:10px; }
+  .opt{ display:flex; align-items:center; gap:12px; text-align:left; width:100%; padding: 15px 16px; background: var(--bg-raised); color: var(--ink); border: 1.5px solid var(--hairline); border-radius: 12px; font-family: var(--sans); font-size: 15px; line-height:1.35; cursor:pointer; transition: border-color .15s ease, background .15s ease; }
+  .opt:hover{ background: var(--bg-hover); }
+  .opt.selected{ border-color: var(--gold); background: var(--gold-dim); }
+  .opt .ic{ font-size: 21px; width: 28px; text-align:center; flex-shrink:0; }
+
+  .field{ margin-bottom: 14px; }
+  .field label{ display:block; font-family: var(--mono); font-size: 10.5px; letter-spacing:0.08em; text-transform:uppercase; color: var(--ink-muted); margin-bottom: 7px; }
+  .field input{ width:100%; padding: 14px 14px; background: var(--bg-raised); color: var(--ink); border: 1.5px solid var(--hairline); border-radius: 11px; font-family: var(--sans); font-size: 16px; }
+  .field input:focus{ outline:none; border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-dim); }
+  .consent{ display:flex; gap:10px; align-items:flex-start; font-size: 12.5px; line-height:1.5; color: var(--ink-muted); margin: 4px 0 18px; cursor:pointer; }
+  .consent input{ margin-top:3px; width:18px; height:18px; accent-color: var(--gold); flex-shrink:0; }
+  .err{ color: var(--error); font-size: 13.5px; min-height: 18px; margin: -6px 0 12px; }
+  .hp{ position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden; }
+
+  .card{ background: var(--bg-raised); border:1px solid var(--hairline); border-radius: 16px; padding: 18px 18px; margin-bottom: 14px; }
+  .card h3{ font-family: var(--serif); font-weight: 600; font-size: 19px; margin: 0 0 8px; line-height:1.3; }
+  .card p{ margin: 0 0 8px; font-size: 14.5px; line-height: 1.6; color: var(--ink); }
+  .card p.muted{ color: var(--ink-muted); }
+  .tips{ margin: 6px 0 0; padding: 0; list-style:none; counter-reset: t; }
+  .tips li{ position:relative; padding: 9px 0 9px 36px; font-size: 14.5px; line-height:1.55; border-top: 1px dashed var(--hairline); counter-increment: t; }
+  .tips li:first-child{ border-top:none; }
+  .tips li::before{ content: counter(t); position:absolute; left:0; top:9px; width:24px; height:24px; border-radius:50%; border:1.5px solid var(--gold); color: var(--gold); font-family: var(--serif); font-style:italic; font-size:13px; display:flex; align-items:center; justify-content:center; }
+  .lever{ border-left: 3px solid var(--gold); padding: 10px 14px; background: rgba(255,255,255,0.03); border-radius: 0 10px 10px 0; font-size: 14.5px; line-height:1.55; margin-top: 10px; }
+
+  .challenge{ border-color: var(--gold); background: linear-gradient(180deg, rgba(233,199,123,0.10), rgba(233,199,123,0.02)); }
+  .challenge .date{ font-family: var(--mono); font-size: 11px; letter-spacing:0.12em; text-transform:uppercase; color: var(--gold); margin-bottom: 6px; }
+  .incl{ list-style:none; padding:0; margin: 10px 0 12px; }
+  .incl li{ font-size: 14.5px; line-height:1.5; padding: 5px 0 5px 26px; position:relative; }
+  .incl li::before{ content:'✓'; position:absolute; left:2px; color: var(--gold); font-weight:700; }
+  .bonus{ border:1px dashed var(--gold); border-radius: 12px; padding: 11px 13px; font-size: 14px; line-height:1.5; margin: 6px 0 4px; }
+  .bonus b{ color: var(--gold); }
+  .cta-wrap{ display:grid; gap:10px; margin: 18px 0 14px; }
+  .small{ font-size: 12px; line-height:1.55; color: var(--ink-muted); }
+  .legal{ margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--hairline); font-size: 11.5px; line-height:1.55; color: var(--ink-muted); }
+  .legal .brand{ margin-top: 6px; font-family: var(--mono); letter-spacing:0.06em; }
+  .unknown{ text-align:center; padding: 40px 0; color: var(--ink-muted); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="brandbar">
+    <div class="name"><span class="dot"></span><span id="brandName">Neustart 2027</span></div>
+    <div class="tag">C9 Neujahrs-<br>Challenge</div>
+  </div>
+
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-meta"><span id="progressLabel">Frage 1 von 4</span><span id="progressPct">0 %</span></div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+
+  <!-- Start -->
+  <section class="screen active" id="screen-intro">
+    <div class="eyebrow">Dein Neustart 2027</div>
+    <h1 class="hero">Was willst du im neuen Jahr <em>wirklich</em> verändern?</h1>
+    <p class="lede">4 kurze Fragen, etwa eine Minute. Danach bekommst du deine persönliche Auswertung: wo dein größter Hebel liegt und womit du am leichtesten anfängst.</p>
+    <div class="facts"><span>⏱ 1 Minute</span><span>✨ sofortige Auswertung</span><span>🤝 von <b id="introPartner">uns</b></span></div>
+    <button class="btn" type="button" id="startBtn">Los geht's</button>
+  </section>
+
+  <!-- Fragen -->
+  <section class="screen" id="screen-question">
+    <div class="qnum" id="qnum"></div>
+    <h2 class="qtitle" id="qtitle"></h2>
+    <div class="options" id="options"></div>
+    <button class="back" type="button" id="backBtn">← zurück</button>
+  </section>
+
+  <!-- Kontakt -->
+  <section class="screen" id="screen-contact">
+    <div class="eyebrow">Fast geschafft</div>
+    <h1 class="hero">Deine Auswertung ist <em>fertig</em>.</h1>
+    <p class="lede">Wie heißt du, und wo erreicht dich <span class="pname">ich</span>, falls du Fragen hast? Deine Auswertung siehst du gleich hier auf der nächsten Seite.</p>
+    <form id="contactForm" novalidate>
+      <div class="field"><label for="fname">Vorname</label><input id="fname" type="text" autocomplete="given-name" placeholder="z. B. Lisa"></div>
+      <div class="field"><label for="fphone">Handynummer (WhatsApp)</label><input id="fphone" type="tel" autocomplete="tel" inputmode="tel" placeholder="z. B. 0664 1234567"></div>
+      <div class="field"><label for="femail">E-Mail <span style="text-transform:none; letter-spacing:0;">(optional)</span></label><input id="femail" type="email" autocomplete="email" placeholder="dein@beispiel.at"></div>
+      <div class="hp" aria-hidden="true"><label for="fweb">Website</label><input id="fweb" type="text" tabindex="-1" autocomplete="off"></div>
+      <label class="consent"><input type="checkbox" id="fconsent"><span id="consentText"></span></label>
+      <div class="err" id="formErr"></div>
+      <button class="btn" type="submit" id="submitBtn">Auswertung ansehen</button>
+    </form>
+    <button class="back" type="button" id="backToQ">← zurück zu den Fragen</button>
+  </section>
+
+  <!-- Auswertung -->
+  <section class="screen" id="screen-result">
+    <div class="eyebrow" id="resEyebrow">Deine Auswertung</div>
+    <h1 class="hero" id="resTitle"></h1>
+    <p class="lede" id="resLede"></p>
+
+    <div class="card">
+      <h3>Deine 3 ersten Schritte</h3>
+      <ol class="tips" id="resTips"></ol>
+      <div class="lever" id="resLever"></div>
+    </div>
+
+    <div class="card">
+      <h3 id="obstTitle">Was dich bisher aufgehalten hat</h3>
+      <p id="resObstacle"></p>
+    </div>
+
+    <div class="card challenge">
+      <div class="date">Start: Samstag, 30.01.</div>
+      <h3>Die C9 Neujahrs-Challenge</h3>
+      <p>9 Tage mit klarem Tagesplan: Aloe Vera Drink, Shake und Ergänzungen, dazu einfache Mahlzeiten. Viele nutzen die 9 Tage als Neustart für neue Gewohnheiten. Wir machen es gemeinsam, damit du nicht allein bist.</p>
+      <p class="muted" style="margin-top:10px;">Kostenlos dazu für alle Teilnehmerinnen und Teilnehmer:</p>
+      <ul class="incl">
+        <li>Persönliche Begleitung durch <span class="pname">mich</span> während der 9 Tage</li>
+        <li>WhatsApp-Gruppe mit allen, die gemeinsam starten</li>
+        <li>Rezeptbuch mit einfachen Ideen für die Challenge</li>
+        <li>Gewinnspiel für alle, die mitmachen</li>
+      </ul>
+      <div class="bonus"><b>Dezember-Bonus:</b> Wer bis 31.12. dabei ist, bekommt zusätzlich ein Starter-Set mit 3 Fiber- und 3 Argi-Sticks geschenkt.</div>
+      <p class="small" style="margin-top:10px;">Preis und alle Details bekommst du persönlich von <span class="pname">mir</span>. Bei Schwangerschaft, Stillzeit, Medikamenten oder Erkrankungen bitte vorher ärztlich abklären.</p>
+    </div>
+
+    <div class="cta-wrap">
+      <a class="btn btn-wa" id="waBtn" href="#" target="_blank" rel="noopener">💬 <span id="waLabel">Ich will dabei sein</span></a>
+      <button class="btn-outline" type="button" id="friendBtn">👯 Mit einer Freundin starten: Umfrage weiterleiten</button>
+    </div>
+    <p class="small" id="waNote"></p>
+  </section>
+
+  <section class="screen" id="screen-unknown">
+    <div class="unknown">Dieser Link ist leider nicht (mehr) aktiv. Frag die Person, von der du ihn hast, nach dem richtigen Link.</div>
+  </section>
+
+  <footer class="legal">
+    Deine Angaben werden nur genutzt, damit <span class="pname">ich</span> dich zu deiner Auswertung und zur Challenge kontaktieren kann. Sie werden nicht weitergegeben. Widerruf jederzeit mit einer kurzen Nachricht.
+    <div class="brand">© 2027 Coach Oaki Team · unabhängige Forever-Partner</div>
+  </footer>
+</div>
+
+<script>
+  // ============================================================
+  // Road to 200: eine Seite für alle Partnerinnen.
+  // Link: /neujahr/<slug>  (oder neujahr-challenge.html?p=<slug>)
+  // Name und WhatsApp-Nummer kommen aus c9_partners (Supabase).
+  // ============================================================
+  const slug = (location.pathname.match(/\/neujahr\/([a-z0-9-]+)/) || [])[1] || new URLSearchParams(location.search).get('p') || '';
+  let partner = null;
+  let leadId = null;
+
+  const questions = [
+    { id: 'ziel', title: 'Was willst du 2027 am meisten verändern?', options: [
+      { value: 'abnehmen', ic: '⚖️', label: 'Ein paar Kilo loswerden und mich wieder wohlfühlen' },
+      { value: 'energie',  ic: '⚡', label: 'Mehr Energie, weniger müde sein' },
+      { value: 'bauch',    ic: '🌿', label: 'Ein leichteres Bauchgefühl, weniger Blähbauch' },
+      { value: 'essen',    ic: '🥗', label: 'Gesünder essen und Heißhunger in den Griff bekommen' },
+      { value: 'bewegung', ic: '🏃‍♀️', label: 'Mehr Sport und Bewegung, die auch bleibt' },
+    ]},
+    { id: 'hindernis', title: 'Was hat dich bisher am meisten aufgehalten?', options: [
+      { value: 'heisshunger', ic: '🍫', label: 'Heißhunger, vor allem am Abend' },
+      { value: 'zeit',        ic: '⏰', label: 'Zu wenig Zeit, zu viel Stress' },
+      { value: 'allein',      ic: '🙈', label: 'Allein höre ich nach ein, zwei Wochen wieder auf' },
+      { value: 'anfang',      ic: '🤔', label: 'Ich weiß nicht, wo ich anfangen soll' },
+      { value: 'muede',       ic: '😴', label: 'Mir fehlt schlicht die Energie dafür' },
+    ]},
+    { id: 'alltag', title: 'Welcher Moment in deinem Alltag ist am schwierigsten?', options: [
+      { value: 'fruehstueck', ic: '☕', label: 'Morgens: Frühstück fällt oft aus' },
+      { value: 'nachmittag',  ic: '📉', label: 'Das Tief am Nachmittag' },
+      { value: 'abends',      ic: '🛋️', label: 'Abends auf der Couch' },
+      { value: 'wasser',      ic: '💧', label: 'Ich trinke über den Tag viel zu wenig' },
+      { value: 'passt',       ic: '🙂', label: 'Eigentlich läuft mein Alltag ganz gut' },
+    ]},
+    { id: 'start', title: 'Wie würdest du am liebsten ins neue Jahr starten?', options: [
+      { value: 'gruppe',   ic: '👥', label: 'Gemeinsam mit einer Gruppe und Begleitung' },
+      { value: 'freundin', ic: '👯', label: 'Zusammen mit einer Freundin' },
+      { value: 'allein',   ic: '🧘‍♀️', label: 'Für mich, in meinem Tempo' },
+      { value: 'infos',    ic: '📩', label: 'Erst mal nur Infos, dann entscheide ich' },
+    ]},
+  ];
+
+  // Auswertung: Ziel bestimmt Titel und Schritte, Hindernis und Alltag ergänzen
+  const GOALS = {
+    abnehmen: { title: 'Dein Ziel: dich in deinem Körper <em>wieder wohlfühlen</em>.', short: 'mich wieder wohlfühlen und ein paar Kilo loswerden',
+      lede: 'Nachhaltig klappt das selten mit Verzicht, sondern mit ein paar Gewohnheiten, die dich satt und zufrieden machen.',
+      tips: ['Eiweiß zum Frühstück: Es hält deutlich länger satt als ein süßes Frühstück.', 'Zwischen den Mahlzeiten etwa 4 Stunden Pause, ohne Naschen. Dein Verdauungssystem freut sich über Ruhe.', 'Trink in den Pausen, beim Essen selbst nur wenig.'] },
+    energie: { title: 'Dein Ziel: <em>mehr Energie</em> im Alltag.', short: 'mehr Energie haben',
+      lede: 'Müdigkeit hat oft ganz alltägliche Gründe: unregelmäßiges Essen, zu wenig Trinken, wenig Licht und Bewegung im Winter.',
+      tips: ['Iss regelmäßig und bau in jede Mahlzeit etwas Eiweiß ein.', '10 Minuten an der frischen Luft nach dem Mittagessen statt dem dritten Kaffee.', 'Lass beim nächsten Blutbild deinen Vitamin-D-Wert mitchecken, gerade im Winter.'] },
+    bauch: { title: 'Dein Ziel: ein <em>leichteres Bauchgefühl</em>.', short: 'ein leichteres Bauchgefühl',
+      lede: 'Der Bauch reagiert stark darauf, wie und wann wir essen. Kleine Veränderungen machen hier oft einen spürbaren Unterschied.',
+      tips: ['Öfter warm und gekocht essen statt kalt und roh, gerade im Winter.', 'Iss in Ruhe und ohne Handy. Stress am Tisch schlägt auf den Bauch.', 'Mehr Ballaststoffe, zum Beispiel Haferflocken mit Leinsamen. Empfohlen sind etwa 30 g am Tag, die meisten essen deutlich weniger.'] },
+    essen: { title: 'Dein Ziel: <em>gesünder essen</em>, ohne dass es sich nach Verzicht anfühlt.', short: 'gesünder essen und den Heißhunger in den Griff bekommen',
+      lede: 'Gesund essen scheitert selten am Wissen, sondern am Alltag. Ein einfacher Plan schlägt jede Willenskraft.',
+      tips: ['Leg dir 3 einfache Standard-Mahlzeiten zurecht, auf die du immer zurückgreifen kannst.', 'Heißhunger kommt oft, wenn tagsüber Eiweiß und Ballaststoffe fehlen. Fang dort an.', 'Zucker Schritt für Schritt reduzieren statt von heute auf morgen.'] },
+    bewegung: { title: 'Dein Ziel: <em>Bewegung, die bleibt</em>.', short: 'mehr Bewegung, die auch bleibt',
+      lede: 'Die meisten Sportvorsätze scheitern nicht an der Motivation im Januar, sondern an zu großen Plänen.',
+      tips: ['Klein anfangen: 10 Minuten jeden Tag bringen mehr als eine Stunde einmal im Monat.', 'Trag dir Bewegung als fixen Termin in den Kalender ein.', 'Such dir jemanden, mit dem du dich verabredest. Das macht verbindlich.'] },
+  };
+  const OBSTACLES = {
+    heisshunger: 'Heißhunger ist kein Zeichen fehlender Disziplin. Oft fehlt dem Körper tagsüber einfach etwas Sättigendes. Wer gut frühstückt und mittags genug isst, hat abends meistens weniger Kampf.',
+    zeit: 'Wenig Zeit heißt nicht, dass es nicht geht. Du brauchst einfache Lösungen statt perfekter Pläne. Ein Shake am Morgen ist in zwei Minuten fertig.',
+    allein: 'Allein durchhalten ist schwer, das geht fast allen so. Genau deshalb starten wir gemeinsam: mit Gruppe, Begleitung und Menschen, die das Gleiche vorhaben.',
+    anfang: 'Zu viele Möglichkeiten lähmen. Ein klarer Plan für die nächsten 9 Tage nimmt dir die Entscheidungen ab, und du weißt jeden Tag genau, was zu tun ist.',
+    muede: 'Wer müde ist, braucht zuerst Energie und dann Sport. Fang bei Essen, Trinken und Schlaf an, die Bewegung fällt dir danach leichter.',
+  };
+  const LEVERS = {
+    fruehstueck: '<b>Dein größter Hebel:</b> ein Frühstück, das in 2 Minuten fertig ist und lange satt hält.',
+    nachmittag: '<b>Dein größter Hebel:</b> das Nachmittagstief abfangen, bevor es zur Süßigkeit wird: Wasser, kurz raus, eine eiweißreiche Kleinigkeit.',
+    abends: '<b>Dein größter Hebel:</b> der Abend. Ein fixes Ritual, etwa ein warmer Tee statt Naschen, macht viel aus.',
+    wasser: '<b>Dein größter Hebel:</b> Trinken. Stell dir eine Flasche sichtbar auf den Tisch und trink sie bis Mittag leer.',
+    passt: '<b>Schön:</b> Dein Alltag ist schon eine gute Basis. Jetzt geht es um den nächsten Schritt.',
+  };
+
+  const state = { i: 0, answers: {} };
+  const $ = (id) => document.getElementById(id);
+  const esc = (t) => String(t == null ? '' : t).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  function show(name){
+    document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === 'screen-' + name));
+    $('progressWrap').style.display = name === 'question' ? 'block' : 'none';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function renderQuestion(){
+    const q = questions[state.i];
+    $('qnum').textContent = `Frage ${state.i + 1} von ${questions.length}`;
+    $('qtitle').textContent = q.title;
+    $('progressLabel').textContent = `Frage ${state.i + 1} von ${questions.length}`;
+    const pct = Math.round(state.i / questions.length * 100);
+    $('progressPct').textContent = pct + ' %';
+    $('progressFill').style.width = pct + '%';
+    const cur = state.answers[q.id];
+    $('options').innerHTML = q.options.map(o => `<button type="button" class="opt${cur && cur.value === o.value ? ' selected' : ''}" data-v="${o.value}"><span class="ic">${o.ic}</span><span>${esc(o.label)}</span></button>`).join('');
+    $('backBtn').style.visibility = state.i === 0 ? 'hidden' : 'visible';
+  }
+
+  $('options').addEventListener('click', e => {
+    const b = e.target.closest('.opt');
+    if(!b) return;
+    const q = questions[state.i];
+    const o = q.options.find(x => x.value === b.dataset.v);
+    state.answers[q.id] = { value: o.value, label: o.label };
+    b.classList.add('selected');
+    setTimeout(() => {
+      if(state.i < questions.length - 1){ state.i++; renderQuestion(); }
+      else { $('progressFill').style.width = '100%'; show('contact'); setTimeout(() => $('fname').focus(), 350); }
+    }, 220);
+  });
+  $('backBtn').addEventListener('click', () => { if(state.i > 0){ state.i--; renderQuestion(); } });
+  $('backToQ').addEventListener('click', () => { state.i = questions.length - 1; renderQuestion(); show('question'); });
+  $('startBtn').addEventListener('click', () => { state.i = 0; renderQuestion(); show('question'); });
+
+  function waNumber(){ return partner && partner.whatsapp ? String(partner.whatsapp).replace(/[^\d]/g, '') : ''; }
+
+  function renderResult(name){
+    const a = state.answers;
+    const g = GOALS[a.ziel.value];
+    $('resEyebrow').textContent = `Deine Auswertung, ${name}`;
+    $('resTitle').innerHTML = g.title;
+    $('resLede').textContent = g.lede;
+    $('resTips').innerHTML = g.tips.map(t => `<li>${esc(t)}</li>`).join('');
+    $('resLever').innerHTML = LEVERS[a.alltag.value];
+    $('resObstacle').textContent = OBSTACLES[a.hindernis.value];
+
+    // WhatsApp: Sie schreibt selbst, mit vorbereitetem Text
+    const start = a.start.value;
+    const label = start === 'infos' ? 'Schick mir die Infos zur Challenge' : start === 'freundin' ? 'Ich will mit einer Freundin dabei sein' : 'Ich will bei der Challenge dabei sein';
+    $('waLabel').textContent = label;
+    const pn = partner ? partner.name : '';
+    const text = `Hallo ${pn}, ich bin ${name} und habe gerade deine Neujahrs-Umfrage gemacht. Mein Ziel für 2027: ${g.short}. ${start === 'infos' ? 'Schick mir gern die Infos zur C9-Challenge am 30.01.' : 'Ich hätte Lust, bei der C9-Challenge am 30.01. dabei zu sein. Wie geht das?'}`;
+    const num = waNumber();
+    if(num){
+      $('waBtn').href = `https://wa.me/${num}?text=${encodeURIComponent(text)}`;
+      $('waBtn').hidden = false;
+      $('waNote').textContent = `Der Knopf öffnet WhatsApp mit einer vorbereiteten Nachricht an ${pn}. Du kannst sie vor dem Senden noch ändern.`;
+    } else {
+      $('waBtn').hidden = true;
+      $('waNote').textContent = `${pn || 'Ich'} meldet sich in Kürze persönlich bei dir.`;
+    }
+    if(start === 'freundin'){ $('friendBtn').parentNode.insertBefore($('friendBtn'), $('waBtn')); }
+  }
+
+  $('waBtn').addEventListener('click', () => { track('wa'); });
+  $('friendBtn').addEventListener('click', async () => {
+    const url = location.origin + '/neujahr/' + slug;
+    const msg = `Ich hab gerade diese kurze Neujahrs-Umfrage gemacht, dauert eine Minute. Magst du auch? Dann starten wir am 30.01. gemeinsam: ${url}`;
+    track('friend');
+    if(navigator.share){
+      try { await navigator.share({ title: 'Dein Neustart 2027', text: msg }); return; } catch(e){ if(e && e.name === 'AbortError') return; }
+    }
+    window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank', 'noopener');
+  });
+  function track(ev){
+    if(!leadId) return;
+    fetch('/.netlify/functions/c9-neujahr', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: leadId, event: ev }), keepalive: true }).catch(() => {});
+  }
+
+  $('contactForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const name = $('fname').value.trim();
+    const phone = $('fphone').value.trim();
+    const email = $('femail').value.trim();
+    const err = $('formErr');
+    err.textContent = '';
+    if(!name){ err.textContent = 'Bitte gib deinen Vornamen ein.'; $('fname').focus(); return; }
+    if(phone.replace(/[^\d]/g, '').length < 7){ err.textContent = 'Bitte gib deine Handynummer ein.'; $('fphone').focus(); return; }
+    if(email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ err.textContent = 'Die E-Mail-Adresse stimmt nicht ganz.'; $('femail').focus(); return; }
+    if(!$('fconsent').checked){ err.textContent = 'Bitte bestätige noch kurz die Einwilligung.'; return; }
+    const btn = $('submitBtn');
+    btn.disabled = true; btn.textContent = 'Einen Moment …';
+    try {
+      const res = await fetch('/.netlify/functions/c9-neujahr', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ p: slug, name, phone, email, answers: state.answers, consent: true, website: $('fweb').value }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if(!res.ok){ err.textContent = data.error || 'Das hat gerade nicht geklappt. Versuch es bitte nochmal.'; return; }
+      leadId = data.id || null;
+      renderResult(name);
+      show('result');
+    } catch(ex){
+      err.textContent = 'Keine Verbindung. Versuch es bitte nochmal.';
+    } finally {
+      btn.disabled = false; btn.textContent = 'Auswertung ansehen';
+    }
+  });
+
+  function applyPartner(){
+    const n = partner.name;
+    $('introPartner').textContent = n;
+    document.querySelectorAll('.pname').forEach(el => { el.textContent = n; });
+    $('consentText').textContent = `Ich bin einverstanden, dass mich ${n} zu meiner Auswertung und zur C9-Neujahrs-Challenge per WhatsApp, Telefon oder E-Mail kontaktiert. Ich kann das jederzeit mit einer kurzen Nachricht widerrufen.`;
+  }
+
+  (async function boot(){
+    if(!slug){ show('unknown'); return; }
+    try {
+      const res = await fetch('/.netlify/functions/c9-neujahr?p=' + encodeURIComponent(slug));
+      if(!res.ok){ show('unknown'); return; }
+      partner = await res.json();
+      applyPartner();
+    } catch(e){ show('unknown'); }
+  })();
+</script>
+</body>
+</html>
