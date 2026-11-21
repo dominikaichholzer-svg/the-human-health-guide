@@ -5,6 +5,7 @@
 // POST { lead_id, status }              -> Status ändern (neu, im_gespraech, bestellt, kein_interesse)
 // POST { manual: { partner_slug, name } } -> Teilnehmerin ohne Umfrage als "bestellt" eintragen
 // POST { partner: { slug, name, whatsapp, active } } -> Partnerin anlegen oder ändern (Link /neujahr/<slug>)
+// POST { group_link }                  -> Link zur WhatsApp-Gruppe für "Ich bin dabei" (/dabei/<slug>)
 // Tabellen: supabase/neujahr-challenge.sql
 
 const { pgrest } = require('./_lib/supabase');
@@ -30,10 +31,11 @@ exports.handler = async function (event) {
     if (event.httpMethod === 'GET') {
       const [partners, leads] = await Promise.all([
         pgrest('c9_partners', { query: 'select=slug,name,whatsapp,active,created_at&order=created_at.asc' }),
-        pgrest('c9_leads', { query: 'select=id,partner_slug,name,phone,email,answers,status,wa_clicked_at,friend_shared_at,ordered_at,created_at,consent_text&order=created_at.desc&limit=2000' }),
+        pgrest('c9_leads', { query: 'select=*&order=created_at.desc&limit=2000' }),
       ]);
       const count = (arr) => ({
-        umfragen: arr.filter((l) => !l.consent_text.startsWith('Manuell')).length,
+        umfragen: arr.filter((l) => l.answers && l.answers.ziel).length,
+        selbst_eingetragen: arr.filter((l) => l.confirmed_at).length,
         geschrieben: arr.filter((l) => l.wa_clicked_at).length,
         weitergeleitet: arr.filter((l) => l.friend_shared_at).length,
         im_gespraech: arr.filter((l) => l.status === 'im_gespraech').length,
@@ -41,8 +43,14 @@ exports.handler = async function (event) {
         kein_interesse: arr.filter((l) => l.status === 'kein_interesse').length,
       });
       const list = leads || [];
+      let groupLink = null;
+      try {
+        const st = await pgrest('c9_settings', { query: 'key=eq.group_link&select=value' });
+        groupLink = st && st[0] ? st[0].value : null;
+      } catch (e) { groupLink = undefined; } // Tabelle fehlt noch
       return json(200, {
         goal: GOAL,
+        groupLink,
         totals: count(list),
         partners: (partners || []).map((p) => ({ ...p, ...count(list.filter((l) => l.partner_slug === p.slug)) })),
         leads: list.slice(0, 300).map((l) => ({
@@ -50,7 +58,7 @@ exports.handler = async function (event) {
           ziel: (l.answers && l.answers.labels && l.answers.labels.ziel) || '',
           start: (l.answers && l.answers.labels && l.answers.labels.start) || '',
           status: l.status, wa: !!l.wa_clicked_at, friend: !!l.friend_shared_at,
-          manual: l.consent_text.startsWith('Manuell'), created_at: l.created_at,
+          manual: l.consent_text.startsWith('Manuell'), confirmed: !!l.confirmed_at, survey: !!(l.answers && l.answers.ziel), created_at: l.created_at,
         })),
       });
     }
@@ -73,6 +81,12 @@ exports.handler = async function (event) {
         method: 'POST',
         body: [{ partner_slug: slug, name, phone: 'manuell', answers: {}, status: 'bestellt', ordered_at: new Date().toISOString(), consent_text: 'Manuell eingetragen: Bestellung ohne Umfrage' }],
       });
+      return json(200, { ok: true });
+    }
+    if (p.group_link !== undefined) {
+      const link = clean(p.group_link, 300);
+      if (link && !/^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]+/.test(link)) return json(400, { error: 'Bitte den Einladungslink der WhatsApp-Gruppe einfügen (https://chat.whatsapp.com/…)' });
+      await pgrest('c9_settings', { method: 'POST', query: 'on_conflict=key', prefer: 'resolution=merge-duplicates', body: [{ key: 'group_link', value: link || null, updated_at: new Date().toISOString() }] });
       return json(200, { ok: true });
     }
     if (p.partner) {

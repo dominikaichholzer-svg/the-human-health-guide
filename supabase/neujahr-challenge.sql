@@ -33,3 +33,14 @@ alter table c9_leads enable row level security;
 insert into c9_partners (slug, name, whatsapp)
 values ('dominik', 'Dominik', null)
 on conflict (slug) do nothing;
+
+-- Ergänzung (21.11.2026): Teilnehmerinnen tragen sich nach der Bestellung selbst ein
+-- (/dabei/<slug>) und bekommen dafür den Link zur WhatsApp-Gruppe.
+alter table c9_leads add column if not exists confirmed_at timestamptz;   -- selbst als bestellt eingetragen
+create table if not exists c9_settings (
+  key text primary key,
+  value text,
+  updated_at timestamptz not null default now()
+);
+alter table c9_settings enable row level security;
+insert into c9_settings (key, value) values ('group_link', null) on conflict (key) do nothing;

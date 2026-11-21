@@ -4,6 +4,7 @@
 // Eine Funktion für alle Partnerinnen, erkannt am slug aus dem Link.
 //
 // GET  ?p=<slug>                       -> { name, whatsapp }  (für die Seite)
+// POST { dabei: true, p, name, phone, consent } -> "Ich bin dabei": als bestellt eintragen, { groupLink }
 // GET  ?stats=1                        -> { goal, bestellt, umfragen, partnerinnen } (Team-Zähler)
 // POST { p, name, phone, email?, answers, consent }  -> { id }
 //      speichert in c9_leads und schickt Dominik eine Benachrichtigung
@@ -25,6 +26,11 @@ const ALLOWED = {
 };
 
 const json = (status, obj) => ({ statusCode: status, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }, body: JSON.stringify(obj) });
+// Kam die Anmeldung über die Umfrage (nicht manuell oder über "Ich bin dabei")?
+const isSurvey = (l) => !!(l.answers && l.answers.ziel);
+// Handynummern vergleichen: nur Ziffern, die letzten 9 (egal ob 0664, +43 664 oder 0043 664)
+const phoneKey = (v) => String(v || '').replace(/[^\d]/g, '').slice(-9);
+const DABEI_TEXT = 'Ich habe das C9 über den Link von {name} bestellt und bin einverstanden, dass {name} mich für die Challenge per WhatsApp kontaktiert und in die Challenge-Gruppe aufnimmt.';
 const clean = (v, n) => String(v == null ? '' : v).replace(/[\u0000-\u001f]/g, ' ').trim().slice(0, n);
 
 async function partner(slug) {
@@ -53,16 +59,34 @@ async function notify(p, lead, labels) {
   } catch (e) { /* Benachrichtigung darf das Speichern nicht verhindern */ }
 }
 
+async function notifyDabei(p, name, phone) {
+  const key = process.env.RESEND_API_KEY;
+  const to = process.env.NOTIFY_EMAIL_DOMINIK || process.env.NOTIFY_EMAIL || 'dominikaichholzer@gmail.com';
+  if (!key) return;
+  const esc = (t) => String(t || '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  try {
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
+      body: JSON.stringify({
+        from: 'Road to 200 <onboarding@resend.dev>', to: [to],
+        subject: `🎉 Neue Teilnehmerin: ${name} (${p.name})`,
+        html: `<p><b>${esc(name)}</b> hat sich als Teilnehmerin der C9-Neujahrs-Challenge eingetragen (über ${esc(p.name)}).</p><p>Handy: ${esc(phone)}</p><p>Sie zählt jetzt im Road-to-200-Zähler. Bestellung bei Bedarf in FLP360 gegenprüfen.</p>`,
+      }),
+    });
+  } catch (e) { /* egal */ }
+}
+
 exports.handler = async function (event) {
   try {
     if (event.httpMethod === 'GET') {
       // Öffentlicher Team-Zähler (road-to-200.html): nur Summen, keine Namen
       if ((event.queryStringParameters || {}).stats === '1') {
-        const rows = (await pgrest('c9_leads', { query: 'select=status,consent_text&limit=5000' })) || [];
+        const rows = (await pgrest('c9_leads', { query: 'select=status,answers&limit=5000' })) || [];
         return json(200, {
           goal: 200,
           bestellt: rows.filter((r) => r.status === 'bestellt').length,
-          umfragen: rows.filter((r) => !String(r.consent_text).startsWith('Manuell')).length,
+          umfragen: rows.filter(isSurvey).length,
           partnerinnen: ((await pgrest('c9_partners', { query: 'active=eq.true&select=slug' })) || []).length,
         });
       }
@@ -84,6 +108,41 @@ exports.handler = async function (event) {
     }
 
     if (b.website) return json(200, { id: null }); // Spam-Falle (verstecktes Feld)
+
+    // "Ich bin dabei" (/dabei/<slug>): nach der Bestellung selbst eintragen,
+    // zählt als bestellt und gibt den Link zur WhatsApp-Gruppe zurück
+    if (b.dabei) {
+      const pd = await partner(b.p);
+      if (!pd) return json(404, { error: 'Unbekannter Link' });
+      const name = clean(b.name, 80);
+      const phone = clean(b.phone, 40);
+      if (!name) return json(400, { error: 'Bitte gib deinen Namen ein.' });
+      if (phone.replace(/[^\d]/g, '').length < 7) return json(400, { error: 'Bitte gib deine Handynummer ein.' });
+      if (b.consent !== true) return json(400, { error: 'Bitte bestätige kurz die Bestellung und die Einwilligung.' });
+      const now = new Date().toISOString();
+      const key = phoneKey(phone);
+      // Schon über die Umfrage da? Dann diesen Eintrag auf bestellt setzen statt doppelt zählen
+      const mine = (await pgrest('c9_leads', { query: `partner_slug=eq.${pd.slug}&select=id,phone,status,confirmed_at&order=created_at.desc&limit=2000` })) || [];
+      const hit = mine.find((l) => phoneKey(l.phone) === key);
+      let isNew = false;
+      if (hit) {
+        if (!hit.confirmed_at || hit.status !== 'bestellt') {
+          await pgrest('c9_leads', { method: 'PATCH', query: `id=eq.${hit.id}`, body: { status: 'bestellt', ordered_at: now, confirmed_at: now } });
+          isNew = hit.status !== 'bestellt';
+        }
+      } else {
+        await pgrest('c9_leads', { method: 'POST', body: [{ partner_slug: pd.slug, name, phone, answers: {}, status: 'bestellt', ordered_at: now, confirmed_at: now, consent_text: DABEI_TEXT.replace(/\{name\}/g, pd.name) }] });
+        isNew = true;
+      }
+      if (isNew) await notifyDabei(pd, name, phone);
+      let groupLink = null;
+      try {
+        const st = await pgrest('c9_settings', { query: 'key=eq.group_link&select=value' });
+        groupLink = st && st[0] && st[0].value ? st[0].value : null;
+      } catch (e) { groupLink = null; }
+      return json(200, { ok: true, groupLink, partner: pd.name });
+    }
+
     const p = await partner(b.p);
     if (!p) return json(404, { error: 'Unbekannter Link' });
     const name = clean(b.name, 80);

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Ich bin dabei · C9 Neujahrs-Challenge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0F1730;
+    --bg-raised: #172244;
+    --bg-hover: #1E2B54;
+    --ink: #F6F1E4;
+    --ink-muted: #AAB2CC;
+    --hairline: #2C3866;
+    --gold: #E9C77B;
+    --gold-dim: rgba(233,199,123,0.14);
+    --wa: #25D366;
+    --error: #F08A7E;
+    --radius: 14px;
+    --serif: 'Fraunces', serif;
+    --sans: 'Inter', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; background: var(--bg); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+  body{ min-height:100vh; display:flex; justify-content:center; padding: 28px 16px 56px;
+    background: radial-gradient(1200px 500px at 50% -120px, rgba(233,199,123,0.16), transparent 70%), var(--bg); }
+  .app{ width:100%; max-width: 480px; }
+
+  .brandbar{ display:flex; justify-content:space-between; align-items:flex-start; padding-bottom: 18px; border-bottom: 1px solid var(--hairline); margin-bottom: 26px; }
+  .brandbar .name, .brandbar .tag{ font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; }
+  .brandbar .tag{ color: var(--ink-muted); text-align:right; }
+  .dot{ display:inline-block; width:6px; height:6px; border-radius:50%; background: var(--gold); margin-right:8px; box-shadow: 0 0 10px var(--gold); }
+
+  .progress-wrap{ margin-bottom: 24px; display:none; }
+  .progress-meta{ display:flex; justify-content:space-between; font-family: var(--mono); font-size: 11px; color: var(--ink-muted); letter-spacing:0.06em; margin-bottom:9px; }
+  .progress-track{ height: 6px; border-radius: 6px; background: var(--hairline); overflow:hidden; }
+  .progress-fill{ height:100%; border-radius:6px; background: var(--gold); width:0%; transition: width 0.4s cubic-bezier(.4,0,.2,1); }
+
+  .screen{ display:none; }
+  .screen.active{ display:block; animation: fadeIn 0.35s ease; }
+  @keyframes fadeIn{ from{ opacity:0; transform: translateY(6px); } to{ opacity:1; transform:none; } }
+  @media (prefers-reduced-motion: reduce){ .screen.active{ animation:none; } .progress-fill{ transition:none; } }
+
+  .eyebrow{ font-family: var(--mono); font-size: 11px; letter-spacing:0.14em; text-transform:uppercase; color: var(--gold); margin-bottom: 12px; }
+  h1.hero{ font-family: var(--serif); font-weight: 400; font-size: 34px; line-height: 1.14; margin: 0 0 16px; }
+  h1.hero em{ font-style: italic; font-weight:500; color: var(--gold); }
+  .lede{ color: var(--ink-muted); font-size: 15.5px; line-height:1.6; margin: 0 0 24px; }
+  .facts{ display:flex; gap:8px; margin: 0 0 26px; flex-wrap:wrap; }
+  .facts span{ font-size:12.5px; color: var(--ink); border:1px solid var(--hairline); border-radius:999px; padding:6px 11px; background: rgba(255,255,255,0.03); }
+
+  .btn{ display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding: 17px 22px; background: var(--gold); color: #1A1406; border:none; border-radius: var(--radius); font-family: var(--sans); font-weight: 700; font-size: 16px; cursor:pointer; text-decoration:none; transition: transform .15s ease, filter .15s ease; }
+  .btn:hover{ transform: translateY(-1px); filter: brightness(1.05); }
+  .btn:disabled{ opacity:0.6; cursor:default; transform:none; }
+  .btn-wa{ background: var(--wa); color:#06200F; }
+  .btn-outline{ display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding: 13px 18px; background: transparent; color: var(--gold); border: 1.5px solid var(--gold); border-radius: var(--radius); font-family: var(--sans); font-weight: 700; font-size: 14.5px; cursor:pointer; text-decoration:none; }
+  .back{ background:none; border:none; color: var(--ink-muted); font-family: var(--sans); font-size:13.5px; cursor:pointer; padding: 14px 0 0; }
+
+  .qnum{ font-family: var(--mono); font-size: 11px; letter-spacing:0.14em; text-transform:uppercase; color: var(--gold); margin-bottom: 10px; }
+  .qtitle{ font-family: var(--serif); font-weight: 400; font-size: 26px; line-height:1.22; margin: 0 0 20px; }
+  .options{ display:grid; gap:10px; }
+  .opt{ display:flex; align-items:center; gap:12px; text-align:left; width:100%; padding: 15px 16px; background: var(--bg-raised); color: var(--ink); border: 1.5px solid var(--hairline); border-radius: 12px; font-family: var(--sans); font-size: 15px; line-height:1.35; cursor:pointer; transition: border-color .15s ease, background .15s ease; }
+  .opt:hover{ background: var(--bg-hover); }
+  .opt.selected{ border-color: var(--gold); background: var(--gold-dim); }
+  .qhint{ margin: -12px 0 16px; font-size: 13.5px; color: var(--ink-muted); }
+  .opt.multi::after{ content:''; margin-left:auto; width:20px; height:20px; border-radius:6px; border:1.5px solid var(--hairline); flex-shrink:0; }
+  .opt.multi.selected::after{ content:'✓'; border-color: var(--gold); background: var(--gold); color:#1A1406; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+  .opt .ic{ font-size: 21px; width: 28px; text-align:center; flex-shrink:0; }
+
+  .field{ margin-bottom: 14px; }
+  .field label{ display:block; font-family: var(--mono); font-size: 10.5px; letter-spacing:0.08em; text-transform:uppercase; color: var(--ink-muted); margin-bottom: 7px; }
+  .field input{ width:100%; padding: 14px 14px; background: var(--bg-raised); color: var(--ink); border: 1.5px solid var(--hairline); border-radius: 11px; font-family: var(--sans); font-size: 16px; }
+  .field input:focus{ outline:none; border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-dim); }
+  .consent{ display:flex; gap:10px; align-items:flex-start; font-size: 12.5px; line-height:1.5; color: var(--ink-muted); margin: 4px 0 18px; cursor:pointer; }
+  .consent input{ margin-top:3px; width:18px; height:18px; accent-color: var(--gold); flex-shrink:0; }
+  .err{ color: var(--error); font-size: 13.5px; min-height: 18px; margin: -6px 0 12px; }
+  .hp{ position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden; }
+
+  .card{ background: var(--bg-raised); border:1px solid var(--hairline); border-radius: 16px; padding: 18px 18px; margin-bottom: 14px; }
+  .card h3{ font-family: var(--serif); font-weight: 600; font-size: 19px; margin: 0 0 8px; line-height:1.3; }
+  .card p{ margin: 0 0 8px; font-size: 14.5px; line-height: 1.6; color: var(--ink); }
+  .card p.muted{ color: var(--ink-muted); }
+  .tips{ margin: 6px 0 0; padding: 0; list-style:none; counter-reset: t; }
+  .tips li{ position:relative; padding: 9px 0 9px 36px; font-size: 14.5px; line-height:1.55; border-top: 1px dashed var(--hairline); counter-increment: t; }
+  .tips li:first-child{ border-top:none; }
+  .tips li::before{ content: counter(t); position:absolute; left:0; top:9px; width:24px; height:24px; border-radius:50%; border:1.5px solid var(--gold); color: var(--gold); font-family: var(--serif); font-style:italic; font-size:13px; display:flex; align-items:center; justify-content:center; }
+  .lever{ border-left: 3px solid var(--gold); padding: 10px 14px; background: rgba(255,255,255,0.03); border-radius: 0 10px 10px 0; font-size: 14.5px; line-height:1.55; margin-top: 10px; }
+
+  .challenge{ border-color: var(--gold); background: linear-gradient(180deg, rgba(233,199,123,0.10), rgba(233,199,123,0.02)); }
+  .challenge .date{ font-family: var(--mono); font-size: 11px; letter-spacing:0.12em; text-transform:uppercase; color: var(--gold); margin-bottom: 6px; }
+  .incl{ list-style:none; padding:0; margin: 10px 0 12px; }
+  .incl li{ font-size: 14.5px; line-height:1.5; padding: 5px 0 5px 26px; position:relative; }
+  .incl li::before{ content:'✓'; position:absolute; left:2px; color: var(--gold); font-weight:700; }
+  .bonus{ border:1px dashed var(--gold); border-radius: 12px; padding: 11px 13px; font-size: 14px; line-height:1.5; margin: 6px 0 4px; }
+  .bonus b{ color: var(--gold); }
+  .cta-wrap{ display:grid; gap:10px; margin: 18px 0 14px; }
+  .small{ font-size: 12px; line-height:1.55; color: var(--ink-muted); }
+  .legal{ margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--hairline); font-size: 11.5px; line-height:1.55; color: var(--ink-muted); }
+  .legal .brand{ margin-top: 6px; font-family: var(--mono); letter-spacing:0.06em; }
+  .unknown{ text-align:center; padding: 40px 0; color: var(--ink-muted); }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="brandbar">
+    <div class="name"><span class="dot"></span>Neustart 2027</div>
+    <div class="tag">C9 Neujahrs-<br>Challenge</div>
+  </div>
+
+  <section class="screen active" id="screen-form">
+    <div class="eyebrow">Start: Samstag, 30.01.</div>
+    <h1 class="hero">Schön, dass du <em>dabei</em> bist!</h1>
+    <p class="lede">Du hast dein C9 über den Link von <span class="pname">deiner Begleitung</span> bestellt? Dann trag dich kurz ein. Danach bekommst du sofort den Link zu unserer WhatsApp-Gruppe.</p>
+    <div class="card">
+      <h3>Das bekommst du geschenkt dazu</h3>
+      <ul class="incl">
+        <li>Persönliche Begleitung durch <span class="pname">deine Begleitung</span> während der 9 Tage</li>
+        <li>WhatsApp-Gruppe mit allen, die gemeinsam starten</li>
+        <li>Rezeptbuch mit einfachen Ideen für die Challenge</li>
+        <li>Gewinnspiel für alle, die mitmachen (alle Infos in der Gruppe)</li>
+      </ul>
+    </div>
+    <form id="form" novalidate>
+      <div class="field"><label for="fname">Vor- und Nachname</label><input id="fname" type="text" autocomplete="name" placeholder="z. B. Lisa Huber"></div>
+      <div class="field"><label for="fphone">Handynummer (WhatsApp)</label><input id="fphone" type="tel" autocomplete="tel" inputmode="tel" placeholder="z. B. 0664 1234567"></div>
+      <div class="hp" aria-hidden="true"><label for="fweb">Website</label><input id="fweb" type="text" tabindex="-1" autocomplete="off"></div>
+      <label class="consent"><input type="checkbox" id="fconsent"><span id="consentText"></span></label>
+      <div class="err" id="err"></div>
+      <button class="btn" type="submit" id="btn">Ich bin dabei 🎉</button>
+    </form>
+  </section>
+
+  <section class="screen" id="screen-done">
+    <div class="eyebrow">Willkommen in der Challenge</div>
+    <h1 class="hero">Du bist <em>dabei</em>, <span id="doneName"></span>!</h1>
+    <p class="lede" id="doneLede"></p>
+    <div class="cta-wrap" id="groupWrap" hidden>
+      <a class="btn btn-wa" id="groupBtn" href="#" target="_blank" rel="noopener">💬 WhatsApp-Gruppe beitreten</a>
+    </div>
+    <div class="card">
+      <h3>So bereitest du dich vor</h3>
+      <ol class="tips">
+        <li>Schau nach, ob dein Paket vollständig angekommen ist. Fehlt etwas, sag <span class="pname">deiner Begleitung</span> gleich Bescheid.</li>
+        <li>Trag dir Samstag, 30.01., als Starttag in den Kalender ein und plane die ersten zwei Tage eher ruhig.</li>
+        <li>Wenn du viel Kaffee trinkst: Reduzier ihn schon ein paar Tage vorher langsam, dann fällt der Start leichter.</li>
+      </ol>
+    </div>
+    <p class="small">Bei Schwangerschaft, Stillzeit, Medikamenten oder Erkrankungen bitte vorher ärztlich abklären.</p>
+  </section>
+
+  <section class="screen" id="screen-unknown">
+    <div class="unknown">Dieser Link ist leider nicht (mehr) aktiv. Frag die Person, von der du ihn hast, nach dem richtigen Link.</div>
+  </section>
+
+  <footer class="legal">
+    Deine Angaben werden nur für die Challenge genutzt und nicht weitergegeben. Widerruf jederzeit mit einer kurzen Nachricht.
+    <div class="brand">© 2027 Coach Oaki Team · unabhängige Forever-Partner</div>
+  </footer>
+</div>
+<script>
+  // "Ich bin dabei": Link /dabei/<slug> (oder neujahr-dabei.html?p=<slug>)
+  const slug = (location.pathname.match(/\/dabei\/([a-z0-9-]+)/) || [])[1] || new URLSearchParams(location.search).get('p') || '';
+  const $ = (id) => document.getElementById(id);
+  let partner = null;
+  function show(name){
+    document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === 'screen-' + name));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  $('form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const name = $('fname').value.trim(), phone = $('fphone').value.trim(), err = $('err');
+    err.textContent = '';
+    if(!name){ err.textContent = 'Bitte gib deinen Namen ein.'; $('fname').focus(); return; }
+    if(phone.replace(/[^\d]/g, '').length < 7){ err.textContent = 'Bitte gib deine Handynummer ein.'; $('fphone').focus(); return; }
+    if(!$('fconsent').checked){ err.textContent = 'Bitte bestätige noch kurz das Häkchen.'; return; }
+    const btn = $('btn');
+    btn.disabled = true; btn.textContent = 'Einen Moment …';
+    try {
+      const res = await fetch('/.netlify/functions/c9-neujahr', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dabei: true, p: slug, name, phone, consent: true, website: $('fweb').value }) });
+      const d = await res.json().catch(() => ({}));
+      if(!res.ok){ err.textContent = d.error || 'Das hat gerade nicht geklappt. Versuch es bitte nochmal.'; return; }
+      $('doneName').textContent = name.split(' ')[0];
+      if(d.groupLink){
+        $('groupBtn').href = d.groupLink;
+        $('groupWrap').hidden = false;
+        $('doneLede').textContent = 'Tritt jetzt der WhatsApp-Gruppe bei. Dort bekommst du das Rezeptbuch, alle Infos zum Start und zum Gewinnspiel.';
+      } else {
+        $('doneLede').textContent = `${partner ? partner.name : 'Deine Begleitung'} nimmt dich in den nächsten Tagen in die WhatsApp-Gruppe auf. Dort bekommst du das Rezeptbuch, alle Infos zum Start und zum Gewinnspiel.`;
+      }
+      show('done');
+    } catch(ex){ err.textContent = 'Keine Verbindung. Versuch es bitte nochmal.'; }
+    finally { btn.disabled = false; btn.textContent = 'Ich bin dabei 🎉'; }
+  });
+  (async function(){
+    if(!slug){ show('unknown'); return; }
+    try {
+      const r = await fetch('/.netlify/functions/c9-neujahr?p=' + encodeURIComponent(slug));
+      if(!r.ok){ show('unknown'); return; }
+      partner = await r.json();
+      document.querySelectorAll('.pname').forEach(el => { el.textContent = partner.name; });
+      $('consentText').textContent = `Ich habe das C9 über den Link von ${partner.name} bestellt und bin einverstanden, dass ${partner.name} mich für die Challenge per WhatsApp kontaktiert und in die Challenge-Gruppe aufnimmt.`;
+    } catch(e){ show('unknown'); }
+  })();
+</script>
+</body>
+</html>

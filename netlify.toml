@@ -90,3 +90,9 @@
   from = "/neujahr/*"
   to = "/neujahr-challenge.html"
   status = 200
+
+# Road to 200: "Ich bin dabei" nach der Bestellung (/dabei/<slug>)
+[[redirects]]
+  from = "/dabei/*"
+  to = "/neujahr-dabei.html"
+  status = 200

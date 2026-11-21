@@ -298,6 +298,11 @@
     <section class="card" id="r200Card" hidden>
       <div class="mv-head" style="margin-bottom:6px;"><span class="mv-title">Road to 200</span><span class="chip chip-green">C9 · Start 30.01.</span></div>
       <div id="r200Top"></div>
+      <details class="more-box" id="r200GroupBox"><summary id="r200GroupSum">WhatsApp-Gruppe für „Ich bin dabei“</summary>
+        <p class="r2-hint" style="margin-top:8px;">Nach der Bestellung trägt sich die Kundin über den „Ich bin dabei“-Link ihrer Partnerin selbst ein. Sie zählt dann automatisch als bestellt und sieht sofort diesen Gruppenlink. Ohne Link steht dort: „Wir nehmen dich in die Gruppe auf.“</p>
+        <div class="inc-form"><div class="r2-row"><input id="r2Group" placeholder="https://chat.whatsapp.com/…"></div>
+        <button type="button" class="btn" id="r2SaveG" style="padding:9px; font-size:13px; margin-top:4px;">Gruppenlink speichern</button></div>
+      </details>
       <details class="more-box" id="r200PartnersBox"><summary>Partnerinnen und ihre Links</summary><div id="r200Partners"></div>
         <div class="inc-form" style="margin-top:10px;">
           <label>Neue Partnerin (oder bestehende ändern)</label>
@@ -704,11 +709,14 @@
         <div><b>${t.im_gespraech}</b><small>im Gespräch</small></div>
         <div><b>${t.bestellt}</b><small>bestellt</small></div>
       </div>
-      <p class="r2-hint">Quote Umfrage → Bestellung: <b>${quote} %</b> · ${t.weitergeleitet}x an Freundinnen weitergeleitet · noch <b>${days} Tage</b> bis Bestellschluss (23.01.)${days ? `, das sind etwa <b>${Math.ceil(left / days * 10) / 10}</b> Teilnehmerinnen pro Tag` : ''}.</p>`;
+      <p class="r2-hint">${t.selbst_eingetragen || 0} davon haben sich selbst über „Ich bin dabei“ eingetragen. Quote Umfrage → Bestellung: <b>${quote} %</b> · ${t.weitergeleitet}x an Freundinnen weitergeleitet · noch <b>${days} Tage</b> bis Bestellschluss (23.01.)${days ? `, das sind etwa <b>${Math.ceil(left / days * 10) / 10}</b> Teilnehmerinnen pro Tag` : ''}.</p>`;
     const base = location.origin + '/neujahr/';
     document.getElementById('r200Partners').innerHTML = (d.partners || []).map(p => `
-      <div class="r2-p"><div><b>${incEsc(p.name)}</b>${p.active ? '' : ' <span class="meta">(inaktiv)</span>'}<div class="lnk"><a href="${base}${incEsc(p.slug)}" target="_blank">${incEsc(base + p.slug)}</a> · <a href="/neujahr-flyer.html?p=${incEsc(p.slug)}" target="_blank">Flyer</a>${p.whatsapp ? '' : ' · <span style="color:var(--error)">WhatsApp fehlt</span>'}</div></div>
+      <div class="r2-p"><div><b>${incEsc(p.name)}</b>${p.active ? '' : ' <span class="meta">(inaktiv)</span>'}<div class="lnk"><a href="${base}${incEsc(p.slug)}" target="_blank">${incEsc(base + p.slug)}</a> · <a href="/neujahr-flyer.html?p=${incEsc(p.slug)}" target="_blank">Flyer</a> · Nach der Bestellung: <a href="${location.origin}/dabei/${incEsc(p.slug)}" target="_blank">${incEsc(location.origin + '/dabei/' + p.slug)}</a>${p.whatsapp ? '' : ' · <span style="color:var(--error)">WhatsApp fehlt</span>'}</div></div>
       <div class="meta">${p.umfragen} Umfragen · ${p.im_gespraech} im Gespräch · <b style="color:var(--ink)">${p.bestellt} bestellt</b></div></div>`).join('') || '<p class="card-sub">Noch keine Partnerinnen.</p>';
+    const gi = document.getElementById('r2Group');
+    if(document.activeElement !== gi) gi.value = d.groupLink || '';
+    document.getElementById('r200GroupSum').textContent = d.groupLink === undefined ? 'WhatsApp-Gruppe (SQL-Ergänzung fehlt noch)' : d.groupLink ? 'WhatsApp-Gruppe ✓ hinterlegt' : 'WhatsApp-Gruppe für „Ich bin dabei“ (noch kein Link)';
     document.getElementById('r2MPartner').innerHTML = (d.partners || []).map(p => `<option value="${incEsc(p.slug)}">${incEsc(p.name)}</option>`).join('');
     const pname = Object.fromEntries((d.partners || []).map(p => [p.slug, p.name]));
     document.getElementById('r200LeadsSum').textContent = `Anmeldungen (${d.leads.length})`;
@@ -716,7 +724,8 @@
       const wa = String(l.phone || '').replace(/[^\d]/g, '').replace(/^00/, '').replace(/^0/, '43');
       return `<div class="r2-l"><div class="top"><span><b>${incEsc(l.name)}</b> <span class="meta">über ${incEsc(pname[l.partner] || l.partner)} · ${new Date(l.created_at).toLocaleDateString('de-AT')}</span></span>
         <select data-r2lead="${l.id}">${Object.entries(R2_STATUS).map(([k, v]) => `<option value="${k}"${k === l.status ? ' selected' : ''}>${v}</option>`).join('')}</select></div>
-        ${l.manual ? '<div class="meta">Ohne Umfrage eingetragen</div>' : `<div class="meta">${incEsc(l.ziel)}${l.start ? ' · ' + incEsc(l.start) : ''}</div>
+        ${l.confirmed ? '<div class="meta" style="color:var(--green-light)">✓ selbst als bestellt eingetragen</div>' : ''}
+        ${l.manual ? '<div class="meta">Ohne Umfrage eingetragen</div>' : !l.survey ? `<div class="meta">${incEsc(l.phone)}</div>` : `<div class="meta">${incEsc(l.ziel)}${l.start ? ' · ' + incEsc(l.start) : ''}</div>
         <div class="meta">${wa.length > 6 ? `<a href="https://wa.me/${wa}" target="_blank">${incEsc(l.phone)}</a>` : incEsc(l.phone)}${l.wa ? ' · hat selbst geschrieben' : ' · <b style="color:var(--gold)">noch nicht geschrieben, melde dich</b>'}${l.friend ? ' · weitergeleitet' : ''}</div>`}</div>`;
     }).join('') || '<p class="card-sub">Noch keine Anmeldungen.</p>';
   }
@@ -735,6 +744,7 @@
     const ok = await r2Post({ partner: { slug: document.getElementById('r2Slug').value.trim().toLowerCase(), name: document.getElementById('r2Name').value.trim(), whatsapp: document.getElementById('r2Wa').value.trim() } });
     if(ok){ ['r2Slug','r2Name','r2Wa'].forEach(id => { document.getElementById(id).value = ''; }); document.getElementById('r200PartnersBox').open = true; }
   });
+  document.getElementById('r2SaveG').addEventListener('click', () => r2Post({ group_link: document.getElementById('r2Group').value.trim() }));
   document.getElementById('r2SaveM').addEventListener('click', async () => {
     const name = document.getElementById('r2MName').value.trim();
     if(!name){ document.getElementById('r200Status').textContent = 'Bitte einen Namen eingeben.'; return; }
