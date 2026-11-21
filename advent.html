@@ -164,10 +164,10 @@
     { t:'geschenk', title:'Ein Geschenk von {name}: Rezepte für die Feiertage', body:`<p>Für die Zeit zwischen Keksen und Festtagsbraten: einfache, warme Rezepte, die satt machen und leicht sind.</p>`, link:{ href:'/rezepte.html', label:'Zu den Rezepten' } },
     { t:'neustart', title:'Was willst du 2027 verändern?', body:`<p>Ab heute schaust du mit {name} aufs neue Jahr. Mach die kurze Neujahrs-Umfrage von {name}: 4 Fragen, eine Minute, und du bekommst sofort deine persönliche Auswertung.</p>`, survey:true },
     { t:'tipp', title:'Dein Bauch und die Feiertage', body:`<p>Zwischen Keksen, Punsch und Festessen hat der Bauch viel zu tun. Was hilft:</p><ul><li>Öfter warm und gekocht essen statt kalt</li><li>In Ruhe essen, nicht nebenbei</li><li>Zwischen den Mahlzeiten Pausen lassen</li></ul>` },
-    { t:'tipp', title:'Heißhunger an Feiertagen', body:`<p>Wer morgens nur Kaffee trinkt, kämpft abends mit dem Keksteller. Ein Frühstück mit Eiweiß, zum Beispiel Joghurt, Eier oder ein Shake, hält deutlich länger satt.</p><p>Probier es die nächsten drei Tage und beobachte, was am Nachmittag passiert.</p>` },
+    { t:'quiz', title:'Was wünschst du dir 2027?', q:'Was möchtest du im neuen Jahr am liebsten für dich verändern?', opts:['Ein paar Kilo loswerden und mich wieder wohlfühlen','Mehr Energie, weniger müde sein','Ein leichteres Bauchgefühl','Gesünder essen, weniger Heißhunger','Mehr Bewegung, die auch bleibt'], right:null, explain:'Danke dir! Hier gibt es kein Richtig oder Falsch. Schick deine Antwort an {name}: Sie ist ein Los, und {name} hat einen passenden Tipp für dich.' },
     { t:'tipp', title:'Die 10-Minuten-Regel', body:`<p>Nach dem Essen zehn Minuten raus: einmal um den Block, frische Luft, Tageslicht. Kein Sportprogramm, einfach gehen.</p><p>Gerade an Feiertagen ist das die einfachste Gewohnheit, die man ins neue Jahr mitnehmen kann.</p>` },
-    { t:'quiz', title:'Ballaststoffe', q:'Wie viele Gramm Ballaststoffe am Tag werden für Erwachsene empfohlen?', opts:['Etwa 10 Gramm','Etwa 30 Gramm','Etwa 60 Gramm'], right:1, explain:'Empfohlen sind etwa 30 Gramm am Tag. Die meisten essen deutlich weniger. Haferflocken, Leinsamen, Gemüse und Hülsenfrüchte helfen.' },
-    { t:'gewinn', title:'Endspurt für die Geschenkbox', body:`<p>Noch vier Tage! Im Lostopf wartet die <b>Geschenkbox von {name}</b>, gepackt mit Lieblingsprodukten für die Feiertage.</p><p>Hast du schon alle Lose? Die Quiz-Türchen 3, 9 und 19, die Foto-Türchen 6 und 13 und am 22. dein Wunsch für 2027. Am 27.12. lost {name} aus.</p>` },
+    { t:'quiz', title:'Was hat dich bisher aufgehalten?', q:'Was stand dir bei guten Vorsätzen bisher am meisten im Weg?', opts:['Heißhunger, vor allem am Abend','Zu wenig Zeit, zu viel Stress','Allein höre ich nach ein paar Wochen wieder auf','Ich weiß nicht, wo ich anfangen soll','Mir fehlt die Energie dafür'], right:null, explain:'Damit bist du nicht allein, das geht fast allen so. Schick deine Antwort an {name}: Sie ist ein Los, und {name} erzählt dir gern, wie andere das gelöst haben.' },
+    { t:'gewinn', title:'Endspurt für die Geschenkbox', body:`<p>Noch vier Tage! Im Lostopf wartet die <b>Geschenkbox von {name}</b>, gepackt mit Lieblingsprodukten für die Feiertage.</p><p>Hast du schon alle Lose? Die Quiz-Türchen 3, 9, 17 und 19, die Foto-Türchen 6 und 13 und am 22. dein Wunsch für 2027. Am 27.12. lost {name} aus.</p>` },
     { t:'rabatt', pct:10, product:'Forever Aloe Vera Gel zum Trinken', title:'Für einen frischen Start in den Tag', body:`<p>Das Aloe Vera Gel zum Trinken, pur oder mit Frucht, als kleines Morgenritual. Ein Glas am Morgen, mehr braucht es nicht.</p>` },
     { t:'wunsch', title:'Dein Wunsch für 2027', body:`<p>Was wünschst du dir für das neue Jahr, ganz für dich? Mehr Ruhe, mehr Energie, mehr Zeit mit Menschen, die dir guttun?</p><p>Schreib deinen Wunsch an {name}. Wer ihn aufschreibt, nimmt ihn ernster. Und er ist ein Los im Gewinnspiel.</p>` },
     { t:'rabatt', pct:15, product:'das C9-Programm', note:'Die bis zu 15 % auf das C9 gibt es über den Link von {name}, den Bonus mit den 3 Jokern nur bis 31.12. Bestellschluss für den gemeinsamen Start ist der 23.01.', title:'Gemeinsam ins neue Jahr', body:`<p>Am Samstag, 30.01., startet {name} mit einer ganzen Gruppe die C9 Neujahrs-Challenge: 9 Tage mit klarem Tagesplan, WhatsApp-Gruppe, persönlicher Begleitung und Rezeptbuch, alles geschenkt dazu.</p><p>Wer bis 31.12. dabei ist, bekommt zusätzlich ein Starter-Set mit 3 Jokern für die 9 Tage.</p>`, survey:true },
@@ -261,8 +261,10 @@
         if(!b || $('quizOpts').dataset.done) return;
         $('quizOpts').dataset.done = '1';
         const pick = Number(b.dataset.opt);
-        $('quizOpts').querySelectorAll('button').forEach((x, i) => { if(i === d.right) x.classList.add('right'); else if(i === pick) x.classList.add('wrong'); });
-        $('quizAfter').innerHTML = `<p>${pick === d.right ? '<b>Richtig!</b> ' : '<b>Fast.</b> '}${esc(d.explain)}</p>
+        // Ohne richtige Antwort (Wunsch-Quiz): nur die eigene Wahl markieren
+        const open = d.right == null;
+        $('quizOpts').querySelectorAll('button').forEach((x, i) => { if(open ? i === pick : i === d.right) x.classList.add('right'); else if(i === pick) x.classList.add('wrong'); });
+        $('quizAfter').innerHTML = `<p>${open ? '' : pick === d.right ? '<b>Richtig!</b> ' : '<b>Fast.</b> '}${fill(esc(d.explain))}</p>
           <div class="actions"><a class="btn wa" data-track="quiz" data-day="${day}" target="_blank" rel="noopener" href="${waLink(`Hallo ${partner.name}, meine Antwort zum Quiz in Türchen ${day}: ${d.opts[pick]}`)}">🎟️ Antwort an ${esc(partner.name)} schicken (1 Los)</a></div>`;
       });
     }
@@ -292,13 +294,13 @@
     $('modal').classList.add('open'); document.body.style.overflow = 'hidden';
   }
   $('howBtn').addEventListener('click', () => showSheet(`<h2>So kommst du in den Lostopf</h2>
-    <ol class="how"><li><b>Quiz:</b> In den Türchen 3, 9 und 19 beantwortest du eine kleine Frage und schickst deine Antwort an ${esc(partner.name)}.</li>
+    <ol class="how"><li><b>Quiz:</b> In den Türchen 3, 9, 17 und 19 beantwortest du eine kleine Frage und schickst deine Antwort an ${esc(partner.name)}.</li>
     <li><b>Fotos:</b> In den Türchen 6 und 13 schickst du ein Foto an ${esc(partner.name)}.</li>
     <li><b>Wunsch:</b> In Türchen 22 schickst du deinen Wunsch für 2027.</li></ol>
-    <p>Jede Einsendung ist ein Los, also bis zu 6 Lose. Richtig oder falsch ist beim Quiz egal. Mitmachen bis 24.12., am 27.12. lost ${esc(partner.name)} die Geschenkbox aus. Teilnahme kostenlos und ohne Kauf.</p>`));
+    <p>Jede Einsendung ist ein Los, also bis zu 7 Lose. Richtig oder falsch ist beim Quiz egal. Mitmachen bis 24.12., am 27.12. lost ${esc(partner.name)} die Geschenkbox aus. Teilnahme kostenlos und ohne Kauf.</p>`));
   $('termsBtn').addEventListener('click', () => showSheet(`<h2>Teilnahmebedingungen</h2>
     <p><b>Veranstaltet</b> wird das Gewinnspiel von der Person, die dir diesen Kalender geschickt hat (${esc(partner.name)}), als unabhängige Forever-Partnerin oder unabhängiger Forever-Partner. Das Gewinnspiel steht in keiner Verbindung zu Meta, WhatsApp oder Forever Living Products.</p>
-    <p><b>Teilnahme:</b> kostenlos und unabhängig von einem Kauf. Teilnehmen dürfen Personen ab 18 Jahren mit Wohnsitz in Österreich, Deutschland oder der Schweiz. Ein Los gibt es für jede per WhatsApp an ${esc(partner.name)} geschickte Quiz-Antwort (Türchen 3, 9, 19), jedes eigene Foto (Türchen 6, 13) und den Wunsch für 2027 (Türchen 22), höchstens 6 Lose pro Person. Einsendeschluss: 24.12.${YEAR}, 23:59 Uhr.</p>
+    <p><b>Teilnahme:</b> kostenlos und unabhängig von einem Kauf. Teilnehmen dürfen Personen ab 18 Jahren mit Wohnsitz in Österreich, Deutschland oder der Schweiz. Ein Los gibt es für jede per WhatsApp an ${esc(partner.name)} geschickte Quiz-Antwort (Türchen 3, 9, 17, 19), jedes eigene Foto (Türchen 6, 13) und den Wunsch für 2027 (Türchen 22), höchstens 7 Lose pro Person. Einsendeschluss: 24.12.${YEAR}, 23:59 Uhr.</p>
     <p><b>Gewinn und Auslosung:</b> Die Auslosung findet am 27.12.${YEAR} unter allen Losen bei ${esc(partner.name)} statt. Zu gewinnen ist ${esc(PRIZE)} von ${esc(partner.name)}. Die Gewinnerin oder der Gewinner wird per WhatsApp benachrichtigt. Eine Barauszahlung ist nicht möglich.</p>
     <p><b>Fotos:</b> Bitte nur eigene Fotos schicken, auf denen keine anderen Personen ohne deren Einverständnis zu sehen sind. Fotos werden nur mit deiner ausdrücklichen Zustimmung veröffentlicht.</p>
     <p><b>Daten:</b> Deine Nachricht und Telefonnummer werden nur zur Durchführung des Gewinnspiels genutzt und danach gelöscht, wenn du nichts anderes möchtest.</p>`));
@@ -340,6 +342,9 @@
     setupStart();
     renderGrid();
     track('besuch');
+    // Direktlink auf ein Türchen: /advent/<slug>?tuer=6
+    const tn = Number(new URLSearchParams(location.search).get('tuer'));
+    if(tn >= 1 && tn <= 24 && isOpenable(tn)) openDoor(tn);
   })();
 </script>
 </body>
