@@ -5,6 +5,7 @@
 //
 // GET  ?p=<slug>                       -> { name, whatsapp }  (für die Seite)
 // POST { dabei: true, p, name, phone, consent } -> "Ich bin dabei": als bestellt eintragen, { groupLink }
+// POST { advent: true, p, ev, day? }  -> anonymes Ereignis aus dem Adventskalender zählen
 // GET  ?stats=1                        -> { goal, bestellt, umfragen, partnerinnen } (Team-Zähler)
 // POST { p, name, phone, email?, answers, consent }  -> { id }
 //      speichert in c9_leads und schickt Dominik eine Benachrichtigung
@@ -108,6 +109,16 @@ exports.handler = async function (event) {
     }
 
     if (b.website) return json(200, { id: null }); // Spam-Falle (verstecktes Feld)
+
+    // Adventskalender: anonyme Zahlen (keine Personendaten), siehe advent.html
+    if (b.advent) {
+      const EV = ['besuch', 'tuerchen', 'dabei', 'quiz', 'foto', 'wunsch', 'angebot', 'beratung', 'umfrage'];
+      const ev = String(b.ev || '');
+      const day = b.day == null ? null : Number(b.day);
+      if (!SLUG.test(b.p || '') || !EV.includes(ev) || (day !== null && !(Number.isInteger(day) && day >= 1 && day <= 24))) return json(400, { error: 'Ungültig' });
+      try { await pgrest('advent_events', { method: 'POST', body: [{ partner_slug: b.p, event: ev, day }] }); } catch (e) { /* unbekannte Partnerin oder Tabelle fehlt: still ignorieren */ }
+      return json(200, { ok: true });
+    }
 
     // "Ich bin dabei" (/dabei/<slug>): nach der Bestellung selbst eintragen,
     // zählt als bestellt und gibt den Link zur WhatsApp-Gruppe zurück

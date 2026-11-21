@@ -120,7 +120,7 @@
   <div class="grid" id="grid"></div>
 
   <div class="legal">
-    #werbung · Coach Oaki Team, unabhängige Forever-Partner. Produktangaben laut Forever Living Products. Nahrungsergänzungsmittel ersetzen keine ausgewogene, abwechslungsreiche Ernährung und gesunde Lebensweise. Angebote gelten nur am jeweiligen Tag und nur bei der Person, die dir diesen Kalender geschickt hat, höchstens 15 %. Gewinnspiel: Teilnahme kostenlos und ohne Kauf, <button type="button" id="termsBtn">Teilnahmebedingungen</button>. Der Kalender speichert nur in deinem Browser, welche Türchen du schon geöffnet hast, keine persönlichen Daten.
+    #werbung · Coach Oaki Team, unabhängige Forever-Partner. Produktangaben laut Forever Living Products. Nahrungsergänzungsmittel ersetzen keine ausgewogene, abwechslungsreiche Ernährung und gesunde Lebensweise. Angebote gelten nur am jeweiligen Tag und nur bei der Person, die dir diesen Kalender geschickt hat, höchstens 15 %. Gewinnspiel: Teilnahme kostenlos und ohne Kauf, <button type="button" id="termsBtn">Teilnahmebedingungen</button>. Der Kalender speichert nur in deinem Browser, welche Türchen du schon geöffnet hast. Gezählt wird anonym, wie oft Türchen geöffnet und Knöpfe angetippt werden, ohne Name, Nummer oder Geräte-Kennung.
   </div>
 </div>
 
@@ -195,6 +195,21 @@
     try { localStorage.setItem(KEY, JSON.stringify(opened)); } catch(e){}
   }
 
+  // Anonyme Zahlen für die Partnerin (keine Personendaten). Jedes Ereignis
+  // meldet ein Browser höchstens einmal, den Besuch einmal pro Tag.
+  const SENT = 'advent2026-sent-' + slug;
+  function track(ev, day){
+    if(preview || !slug) return;
+    const k = ev === 'besuch' ? 'besuch:' + today : ev + ':' + (day || '');
+    let sent = [];
+    try { sent = JSON.parse(localStorage.getItem(SENT) || '[]'); } catch(e){ sent = []; }
+    if(sent.includes(k)) return;
+    sent.push(k);
+    try { localStorage.setItem(SENT, JSON.stringify(sent)); } catch(e){}
+    fetch('/.netlify/functions/c9-neujahr', { method: 'POST', headers: { 'Content-Type': 'application/json' }, keepalive: true,
+      body: JSON.stringify({ advent: true, p: slug, ev, day: day || null }) }).catch(() => {});
+  }
+
   function waLink(text){
     const num = partner.whatsapp ? String(partner.whatsapp).replace(/[^\d]/g, '') : '';
     return num ? `https://wa.me/${num}?text=${encodeURIComponent(text)}` : `https://wa.me/?text=${encodeURIComponent(text)}`;
@@ -216,6 +231,7 @@
   function openDoor(day){
     const d = DOORS[day - 1];
     markOpened(day);
+    track('tuerchen', day);
     renderGrid();
     const head = `<div class="top"><span class="eyebrow" style="margin:0;">Türchen ${day} · ${d.t === 'rabatt' ? 'Angebot −' + d.pct + ' %' : LABEL[d.t]}</span><button class="x" type="button" data-close aria-label="Schließen">×</button></div><h2>${fill(esc(d.title))}</h2>`;
     let html = head;
@@ -227,13 +243,13 @@
     }
     const acts = [];
     if(d.t === 'rabatt'){
-      acts.push(`<a class="btn wa" target="_blank" rel="noopener" href="${waLink(`Hallo ${partner.name}, ich hab Türchen ${day} im Adventskalender geöffnet und hätte gern das Angebot: −${d.pct} % auf ${d.product}.`)}">💬 Angebot bei ${esc(partner.name)} sichern</a>`);
+      acts.push(`<a class="btn wa" data-track="angebot" data-day="${day}" target="_blank" rel="noopener" href="${waLink(`Hallo ${partner.name}, ich hab Türchen ${day} im Adventskalender geöffnet und hätte gern das Angebot: −${d.pct} % auf ${d.product}.`)}">💬 Angebot bei ${esc(partner.name)} sichern</a>`);
       html += `<p class="note">${d.note ? fill(esc(d.note)) : `Nur heute, am ${day}.12., und nur bei ${esc(partner.name)}. ${esc(partner.name)} schickt dir den passenden Bestell-Link.`}</p>`;
     }
-    if(d.t === 'foto') acts.push(`<a class="btn wa" target="_blank" rel="noopener" href="${waLink(`Hallo ${partner.name}, hier ist mein Foto zu Türchen ${day} für das Gewinnspiel:`)}">📸 Foto an ${esc(partner.name)} schicken</a>`);
-    if(d.t === 'wunsch') acts.push(`<a class="btn wa" target="_blank" rel="noopener" href="${waLink(`Hallo ${partner.name}, mein Wunsch für 2027 (Türchen ${day}): `)}">✨ Wunsch an ${esc(partner.name)} schicken</a>`);
-    if(d.t === 'beratung') acts.push(`<a class="btn wa" target="_blank" rel="noopener" href="${waLink(`Hallo ${partner.name}, ich hätte gern die Pflege-Beratung aus Türchen ${day}. Bei meiner Haut beschäftigt mich gerade: `)}">💬 Beratung bei ${esc(partner.name)} anfragen</a>`);
-    if(d.survey && slug) acts.push(`<a class="btn${d.t === 'rabatt' ? ' ghost' : ''}" href="/neujahr/${esc(slug)}" target="_blank" rel="noopener">✨ Zur Neujahrs-Umfrage</a>`);
+    if(d.t === 'foto') acts.push(`<a class="btn wa" data-track="foto" data-day="${day}" target="_blank" rel="noopener" href="${waLink(`Hallo ${partner.name}, hier ist mein Foto zu Türchen ${day} für das Gewinnspiel:`)}">📸 Foto an ${esc(partner.name)} schicken</a>`);
+    if(d.t === 'wunsch') acts.push(`<a class="btn wa" data-track="wunsch" data-day="${day}" target="_blank" rel="noopener" href="${waLink(`Hallo ${partner.name}, mein Wunsch für 2027 (Türchen ${day}): `)}">✨ Wunsch an ${esc(partner.name)} schicken</a>`);
+    if(d.t === 'beratung') acts.push(`<a class="btn wa" data-track="beratung" data-day="${day}" target="_blank" rel="noopener" href="${waLink(`Hallo ${partner.name}, ich hätte gern die Pflege-Beratung aus Türchen ${day}. Bei meiner Haut beschäftigt mich gerade: `)}">💬 Beratung bei ${esc(partner.name)} anfragen</a>`);
+    if(d.survey && slug) acts.push(`<a class="btn${d.t === 'rabatt' ? ' ghost' : ''}" data-track="umfrage" data-day="${day}" href="/neujahr/${esc(slug)}" target="_blank" rel="noopener">✨ Zur Neujahrs-Umfrage</a>`);
     if(d.link) acts.push(`<a class="btn" href="${d.link.href}" target="_blank" rel="noopener">${esc(d.link.label)}</a>`);
     if(acts.length) html += `<div class="actions">${acts.join('')}</div>`;
     $('sheet').innerHTML = html;
@@ -247,10 +263,15 @@
         const pick = Number(b.dataset.opt);
         $('quizOpts').querySelectorAll('button').forEach((x, i) => { if(i === d.right) x.classList.add('right'); else if(i === pick) x.classList.add('wrong'); });
         $('quizAfter').innerHTML = `<p>${pick === d.right ? '<b>Richtig!</b> ' : '<b>Fast.</b> '}${esc(d.explain)}</p>
-          <div class="actions"><a class="btn wa" target="_blank" rel="noopener" href="${waLink(`Hallo ${partner.name}, meine Antwort zum Quiz in Türchen ${day}: ${d.opts[pick]}`)}">🎟️ Antwort an ${esc(partner.name)} schicken (1 Los)</a></div>`;
+          <div class="actions"><a class="btn wa" data-track="quiz" data-day="${day}" target="_blank" rel="noopener" href="${waLink(`Hallo ${partner.name}, meine Antwort zum Quiz in Türchen ${day}: ${d.opts[pick]}`)}">🎟️ Antwort an ${esc(partner.name)} schicken (1 Los)</a></div>`;
       });
     }
   }
+  $('sheet').addEventListener('click', e => {
+    const a = e.target.closest('[data-track]');
+    if(a) track(a.dataset.track, Number(a.dataset.day) || null);
+  });
+  $('joinBtn').addEventListener('click', () => track('dabei'));
   function closeDoor(){ $('modal').classList.remove('open'); document.body.style.overflow = ''; }
   $('modal').addEventListener('click', e => { if(e.target === $('modal') || e.target.closest('[data-close]')) closeDoor(); });
   document.addEventListener('keydown', e => { if(e.key === 'Escape') closeDoor(); });
@@ -318,6 +339,7 @@
     document.querySelectorAll('.pname').forEach(el => { el.textContent = partner.name; });
     setupStart();
     renderGrid();
+    track('besuch');
   })();
 </script>
 </body>

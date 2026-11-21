@@ -48,8 +48,22 @@ exports.handler = async function (event) {
         const st = await pgrest('c9_settings', { query: 'key=eq.group_link&select=value' });
         groupLink = st && st[0] ? st[0].value : null;
       } catch (e) { groupLink = undefined; } // Tabelle fehlt noch
+      // Adventskalender: anonyme Zahlen je Partnerin und Türchen
+      let advent = null;
+      try {
+        const ev = (await pgrest('advent_events', { query: 'select=partner_slug,event,day&limit=50000' })) || [];
+        const by = {};
+        const doors = Array.from({ length: 24 }, () => 0);
+        for (const e of ev) {
+          const k = by[e.partner_slug] || (by[e.partner_slug] = { besuch: 0, tuerchen: 0, dabei: 0, quiz: 0, foto: 0, wunsch: 0, angebot: 0, beratung: 0, umfrage: 0 });
+          k[e.event] = (k[e.event] || 0) + 1;
+          if (e.event === 'tuerchen' && e.day) doors[e.day - 1]++;
+        }
+        advent = { byPartner: by, doors, total: ev.length };
+      } catch (e) { advent = undefined; } // Tabelle fehlt noch
       return json(200, {
         goal: GOAL,
+        advent,
         groupLink,
         totals: count(list),
         partners: (partners || []).map((p) => ({ ...p, ...count(list.filter((l) => l.partner_slug === p.slug)) })),

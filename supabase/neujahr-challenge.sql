@@ -44,3 +44,16 @@ create table if not exists c9_settings (
 );
 alter table c9_settings enable row level security;
 insert into c9_settings (key, value) values ('group_link', null) on conflict (key) do nothing;
+
+-- Ergänzung (21.11.2026): Adventskalender (/advent/<slug>), anonyme Zahlen.
+-- Keine Namen, keine Nummern, keine Geräte-Kennung: nur Partnerin, Ereignis, Türchen, Zeitpunkt.
+-- Jeder Browser meldet jedes Ereignis höchstens einmal (Merker im Browser).
+create table if not exists advent_events (
+  id bigserial primary key,
+  partner_slug text not null references c9_partners(slug) on delete cascade,
+  event text not null check (event in ('besuch', 'tuerchen', 'dabei', 'quiz', 'foto', 'wunsch', 'angebot', 'beratung', 'umfrage')),
+  day int check (day between 1 and 24),
+  created_at timestamptz not null default now()
+);
+create index if not exists advent_events_partner_idx on advent_events (partner_slug, event);
+alter table advent_events enable row level security;

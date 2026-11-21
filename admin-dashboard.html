@@ -138,6 +138,16 @@
   .r2-l select{ background: rgba(255,255,255,0.04); border:1px solid var(--hairline); color: var(--ink); border-radius:8px; padding:5px 6px; font-family: var(--sans); font-size:12px; }
   .r2-l .meta{ color: var(--ink-muted); font-size:12px; }
   .r2-l a{ color: var(--green-light); }
+  .r2-tbl{ width:100%; border-collapse:collapse; font-size:12px; margin-top:8px; }
+  .r2-tbl th, .r2-tbl td{ padding:6px 4px; border-bottom:1px solid var(--hairline); text-align:right; white-space:nowrap; }
+  .r2-tbl th:first-child, .r2-tbl td:first-child{ text-align:left; }
+  .r2-tbl th{ color: var(--ink-muted); font-weight:600; font-size:11px; }
+  .r2-scroll{ overflow-x:auto; max-width:100%; }
+  #r200Card{ min-width:0; max-width:100%; } #r200Card details{ min-width:0; }
+  .r2-doors{ display:grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap:4px; margin-top:10px; }
+  .r2-doors div{ min-width:0; }
+  .r2-doors div{ background: rgba(255,255,255,0.04); border:1px solid var(--hairline); border-radius:8px; padding:5px 2px; text-align:center; font-size:11px; color: var(--ink-muted); }
+  .r2-doors b{ display:block; color: var(--ink); font-size:13px; }
   .inc-form label{ display:block; font-size:11px; color: var(--ink-muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:3px; }
   .inc-g{ display:grid; grid-template-columns:1fr 1fr; gap:0 10px; }
   .inc-g4{ display:grid; grid-template-columns:repeat(4, 1fr); gap:0 8px; }
@@ -317,6 +327,7 @@
           <button type="button" class="btn" id="r2SaveM" style="padding:9px; font-size:13px; margin-top:4px;">Als bestellt eintragen</button>
         </div>
       </details>
+      <details class="more-box" id="r200AdventBox"><summary id="r200AdventSum">Adventskalender (anonyme Zahlen)</summary><div id="r200Advent"></div></details>
       <p class="card-sub" id="r200Status" style="text-align:center; margin:8px 0 0;"></p>
       <p class="card-sub" style="margin:8px 0 0;">Team-Zähler zum Teilen (nur Summen): <a href="/road-to-200.html" target="_blank" style="color:var(--gold);">road-to-200</a></p>
     </section>
@@ -719,6 +730,7 @@
     document.getElementById('r200GroupSum').textContent = d.groupLink === undefined ? 'WhatsApp-Gruppe (SQL-Ergänzung fehlt noch)' : d.groupLink ? 'WhatsApp-Gruppe ✓ hinterlegt' : 'WhatsApp-Gruppe für „Ich bin dabei“ (noch kein Link)';
     document.getElementById('r2MPartner').innerHTML = (d.partners || []).map(p => `<option value="${incEsc(p.slug)}">${incEsc(p.name)}</option>`).join('');
     const pname = Object.fromEntries((d.partners || []).map(p => [p.slug, p.name]));
+    renderR200Advent(d.advent, d.partners || []);
     document.getElementById('r200LeadsSum').textContent = `Anmeldungen (${d.leads.length})`;
     document.getElementById('r200Leads').innerHTML = d.leads.map(l => {
       const wa = String(l.phone || '').replace(/[^\d]/g, '').replace(/^00/, '').replace(/^0/, '43');
@@ -728,6 +740,23 @@
         ${l.manual ? '<div class="meta">Ohne Umfrage eingetragen</div>' : !l.survey ? `<div class="meta">${incEsc(l.phone)}</div>` : `<div class="meta">${incEsc(l.ziel)}${l.start ? ' · ' + incEsc(l.start) : ''}</div>
         <div class="meta">${wa.length > 6 ? `<a href="https://wa.me/${wa}" target="_blank">${incEsc(l.phone)}</a>` : incEsc(l.phone)}${l.wa ? ' · hat selbst geschrieben' : ' · <b style="color:var(--gold)">noch nicht geschrieben, melde dich</b>'}${l.friend ? ' · weitergeleitet' : ''}</div>`}</div>`;
     }).join('') || '<p class="card-sub">Noch keine Anmeldungen.</p>';
+  }
+  // Adventskalender: anonyme Zahlen je Partnerin und Türchen (ohne Namen)
+  function renderR200Advent(a, partners){
+    const box = document.getElementById('r200Advent');
+    if(a === undefined){ document.getElementById('r200AdventSum').textContent = 'Adventskalender (SQL-Ergänzung fehlt noch)'; box.innerHTML = ''; return; }
+    if(!a){ box.innerHTML = ''; return; }
+    const cols = [['besuch','Besuche'],['tuerchen','Türchen'],['dabei','Ich bin dabei'],['quiz','Quiz'],['foto','Fotos'],['wunsch','Wünsche'],['angebot','Angebote'],['beratung','Beratung'],['umfrage','Umfrage']];
+    const sum = {};
+    cols.forEach(([k]) => { sum[k] = partners.reduce((x, p) => x + ((a.byPartner[p.slug] || {})[k] || 0), 0); });
+    document.getElementById('r200AdventSum').textContent = `Adventskalender: ${sum.besuch} Besuche, ${sum.tuerchen} Türchen geöffnet`;
+    const row = (name, v) => `<tr><td>${name}</td>${cols.map(([k]) => `<td>${v[k] || 0}</td>`).join('')}</tr>`;
+    box.innerHTML = `<p class="r2-hint" style="margin-top:8px;">Anonym gezählt: jeder Browser höchstens einmal pro Türchen und Knopf, Besuche einmal pro Tag. Wer mitmacht, sieht die Partnerin mit Namen in WhatsApp (Ich bin dabei, Quiz, Fotos, Wünsche, Angebote).</p>
+      <div class="r2-scroll"><table class="r2-tbl"><tr><th>Partnerin</th>${cols.map(([, l]) => `<th>${l}</th>`).join('')}</tr>
+      ${partners.map(p => row(incEsc(p.name), a.byPartner[p.slug] || {})).join('')}
+      ${partners.length > 1 ? row('<b>Gesamt</b>', sum) : ''}</table></div>
+      <div class="r2-doors">${a.doors.map((n, i) => `<div><b>${n}</b>T${i + 1}</div>`).join('')}</div>
+      <p class="r2-hint" style="margin-top:6px;">Wie oft jedes Türchen geöffnet wurde (alle Partnerinnen zusammen).</p>`;
   }
   async function r2Post(body){
     const res = await fetch('/.netlify/functions/admin-road200', { method:'POST', credentials:'same-origin', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ key: adminKey, ...body }) });
