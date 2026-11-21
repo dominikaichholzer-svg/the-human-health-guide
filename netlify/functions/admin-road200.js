@@ -30,7 +30,7 @@ exports.handler = async function (event) {
   try {
     if (event.httpMethod === 'GET') {
       const [partners, leads] = await Promise.all([
-        pgrest('c9_partners', { query: 'select=slug,name,whatsapp,active,created_at&order=created_at.asc' }),
+        pgrest('c9_partners', { query: 'select=*&order=created_at.asc' }),
         pgrest('c9_leads', { query: 'select=*&order=created_at.desc&limit=2000' }),
       ]);
       const count = (arr) => ({
@@ -109,12 +109,25 @@ exports.handler = async function (event) {
       const wa = clean(p.partner.whatsapp, 20).replace(/[^\d]/g, '').replace(/^00/, '');
       if (!SLUG.test(slug) || !name) return json(400, { error: 'Kurzname (nur a-z, 0-9, -) und Vorname angeben' });
       if (wa && wa.length < 9) return json(400, { error: 'WhatsApp-Nummer mit Ländervorwahl, z. B. 4366412345678' });
-      await pgrest('c9_partners', {
-        method: 'POST',
-        query: 'on_conflict=slug',
-        prefer: 'resolution=merge-duplicates',
-        body: [{ slug, name, whatsapp: wa || null, active: p.partner.active !== false }],
-      });
+      const row = { slug, name, whatsapp: wa || null, active: p.partner.active !== false };
+      // Shop-Link und Instagram (supabase/neujahr-challenge.sql, Ergänzung): nur wenn mitgeschickt
+      if (p.partner.shop_link !== undefined) {
+        const shop = clean(p.partner.shop_link, 300);
+        if (shop && !/^https:\/\/[^\s]+$/.test(shop)) return json(400, { error: 'Shop-Link bitte vollständig mit https:// einfügen' });
+        row.shop_link = shop || null;
+      }
+      if (p.partner.instagram !== undefined) {
+        // erlaubt: @name, name oder https://instagram.com/name
+        const ig = clean(p.partner.instagram, 100).replace(/^https?:\/\/(www\.)?instagram\.com\//i, '').replace(/^@/, '').replace(/[/?].*$/, '');
+        if (ig && !/^[A-Za-z0-9._]{1,30}$/.test(ig)) return json(400, { error: 'Instagram-Name prüfen, z. B. @deinname' });
+        row.instagram = ig || null;
+      }
+      try {
+        await pgrest('c9_partners', { method: 'POST', query: 'on_conflict=slug', prefer: 'resolution=merge-duplicates', body: [row] });
+      } catch (err) {
+        if (err.data && err.data.code === 'PGRST204') return json(400, { error: 'Für Shop-Link und Instagram fehlt noch die SQL-Ergänzung.' });
+        throw err;
+      }
       return json(200, { ok: true });
     }
     return json(400, { error: 'Unbekannte Aktion' });

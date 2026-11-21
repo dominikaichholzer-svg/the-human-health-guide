@@ -5,68 +5,114 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Adventskalender · 24 Tage Zeit für dich</title>
 <meta name="description" content="24 Türchen mit Ritualen, Pflege-Tipps, Quiz und einem Gewinnspiel. Jeden Tag 5 Minuten für dich.">
-<meta property="og:title" content="Dein Adventskalender 2026">
-<meta property="og:description" content="24 Tage, jeden Tag 5 Minuten für dich: Rituale, Pflege-Tipps, Quiz und ein Gewinnspiel.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Coach Oaki Team">
+<meta property="og:title" content="Dein Adventskalender · 24 Tage Zeit für dich">
+<meta property="og:description" content="Jeden Tag ein Türchen und fünf Minuten nur für dich. Mit Gewinnspiel um eine Geschenkbox. Vom 1. bis 24. Dezember.">
+<meta property="og:image" content="https://mein-quiz-health.netlify.app/og/advent.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Adventskalender mit Türchen als kleine Geschenke">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0B2620">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0F1730; --raised:#172244; --hover:#1E2B54; --ink:#F6F1E4; --muted:#AAB2CC; --line:#2C3866;
-    --gold:#E9C77B; --gold-dim:rgba(233,199,123,0.14); --wa:#25D366; --red:#E98B7B;
+    --bg:#0B2620; --bg2:#123A2F; --raised:#11342A; --hover:#174235; --ink:#F7F0E1; --muted:#B9CBBF; --line:#2A5446;
+    --gold:#E8C26A; --gold-dim:rgba(232,194,106,0.16); --red:#C8453B; --red2:#A8322A; --cream:#F7F0E1; --wa:#25D366;
     --serif:'Fraunces',serif; --sans:'Inter',sans-serif; --mono:'IBM Plex Mono',monospace;
   }
   *{ box-sizing:border-box; }
   html,body{ margin:0; color:var(--ink); font-family:var(--sans); -webkit-font-smoothing:antialiased; background:var(--bg); }
-  body{ min-height:100vh; background: radial-gradient(1200px 560px at 50% -160px, rgba(233,199,123,0.20), transparent 70%), var(--bg); }
-  .sky{ position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:0; }
-  .sky i{ position:absolute; width:3px; height:3px; border-radius:50%; background:#fff; opacity:.5; animation: tw 4s ease-in-out infinite; }
-  @keyframes tw{ 50%{ opacity:.12; } }
-  @media (prefers-reduced-motion: reduce){ .sky i{ animation:none; } }
-  .app{ position:relative; z-index:1; max-width:720px; margin:0 auto; padding:28px 16px 48px; }
+  body{ min-height:100vh; background:
+      radial-gradient(900px 420px at 50% -80px, rgba(232,194,106,0.22), transparent 70%),
+      radial-gradient(700px 500px at 110% 30%, rgba(200,69,59,0.16), transparent 70%),
+      linear-gradient(180deg, var(--bg2), var(--bg) 60%); }
 
+  /* Schnee */
+  .sky{ position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:0; }
+  .sky i{ position:absolute; top:-10px; border-radius:50%; background:#fff; opacity:.7; animation: fall linear infinite; }
+  @keyframes fall{ to{ transform: translate3d(30px, 105vh, 0); } }
+  @media (prefers-reduced-motion: reduce){ .sky i{ animation:none; opacity:.25; } }
+
+  /* Lichterkette oben */
+  .lights{ position:relative; z-index:1; height:30px; margin: 0 auto; max-width:720px; }
+  .lights svg{ display:block; width:100%; height:30px; }
+  .lights .b{ animation: glow 2.4s ease-in-out infinite; }
+  .lights .b:nth-child(3n){ animation-delay:.8s; } .lights .b:nth-child(3n+1){ animation-delay:1.6s; }
+  @keyframes glow{ 50%{ opacity:.45; } }
+  @media (prefers-reduced-motion: reduce){ .lights .b{ animation:none; } }
+
+  .app{ position:relative; z-index:1; max-width:720px; margin:0 auto; padding:14px 16px 48px; }
   .eyebrow{ font-family:var(--mono); font-size:11.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--gold); margin-bottom:12px; }
-  h1{ font-family:var(--serif); font-weight:400; font-size:40px; line-height:1.08; margin:0 0 6px; }
+  h1{ font-family:var(--serif); font-weight:400; font-size:42px; line-height:1.06; margin:0 0 6px; }
   h1 em{ font-style:italic; font-weight:500; color:var(--gold); }
+  .sub{ font-family:var(--serif); font-size:21px; color:var(--cream); opacity:.85; }
   .lede{ color:var(--muted); font-size:15.5px; line-height:1.6; margin:12px 0 20px; max-width:560px; }
 
-  .from{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; background:var(--raised); border:1px solid var(--line); border-radius:16px; padding:14px 16px; margin-bottom:14px; }
+  .from{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; background:rgba(247,240,225,0.06); border:1px solid var(--line); border-radius:16px; padding:14px 16px; margin-bottom:14px; }
   .from small{ display:block; font-size:12px; color:var(--muted); }
-  .from b{ font-family:var(--serif); font-size:20px; font-weight:600; }
-  .pill{ display:inline-flex; align-items:center; gap:6px; padding:9px 14px; border-radius:999px; border:1.5px solid var(--line); color:var(--ink); text-decoration:none; font-size:13.5px; font-weight:600; background:rgba(255,255,255,.03); cursor:pointer; font-family:var(--sans); }
-  .pill.wa{ border-color:var(--wa); color:#7BE3A3; }
+  .from b{ font-family:var(--serif); font-size:21px; font-weight:600; }
+  .pill{ display:inline-flex; align-items:center; gap:6px; padding:9px 14px; border-radius:999px; border:1.5px solid var(--line); color:var(--ink); text-decoration:none; font-size:13.5px; font-weight:600; background:rgba(255,255,255,.04); cursor:pointer; font-family:var(--sans); }
+  .pill.wa{ border-color:var(--wa); color:#8FE8B1; }
+  .pill.shop{ border-color:var(--gold); color:var(--gold); }
 
   .banner{ border-radius:16px; padding:16px 18px; margin-bottom:14px; border:1px solid var(--line); background:var(--raised); }
   .banner h3{ font-family:var(--serif); font-weight:600; font-size:19px; margin:0 0 6px; }
   .banner p{ margin:0 0 10px; font-size:14.5px; line-height:1.55; color:var(--ink); }
-  .banner p.m{ color:var(--muted); }
-  .banner.gold{ border-color:var(--gold); background: linear-gradient(180deg, rgba(233,199,123,0.12), rgba(233,199,123,0.03)); }
   .banner .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-  .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:12px 18px; border-radius:12px; border:none; background:var(--gold); color:#1A1406; font-family:var(--sans); font-weight:700; font-size:14.5px; cursor:pointer; text-decoration:none; }
+  .banner.red{ border:none; background: linear-gradient(135deg, var(--red), var(--red2)); box-shadow: 0 10px 30px rgba(168,50,42,.35); position:relative; overflow:hidden; }
+  .banner.red{ padding-right:52px; }
+  .banner.red::before{ content:''; position:absolute; top:0; bottom:0; right:18px; width:14px; background: linear-gradient(90deg, #D9AE52, var(--gold), #D9AE52); opacity:.9; }
+  .banner.red > *{ position:relative; }
+  .banner.red .pill{ background:rgba(255,255,255,.12); border-color:rgba(255,255,255,.35); color:#fff; }
+  .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:12px 18px; border-radius:12px; border:none; background:var(--gold); color:#2A1D05; font-family:var(--sans); font-weight:700; font-size:14.5px; cursor:pointer; text-decoration:none; }
   .btn.wa{ background:var(--wa); color:#06200F; }
   .btn.ghost{ background:transparent; color:var(--gold); border:1.5px solid var(--gold); }
-  .count{ font-family:var(--mono); font-size:12px; letter-spacing:.08em; color:var(--gold); border:1px solid var(--gold); border-radius:999px; padding:5px 10px; }
+  .count{ font-family:var(--mono); font-size:12px; letter-spacing:.08em; color:#fff; border:1px solid rgba(255,255,255,.5); border-radius:999px; padding:5px 10px; }
 
-  .grid{ display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; margin: 18px 0 20px; }
+  /* Türchen als kleine Geschenke */
+  .grid{ display:grid; grid-template-columns: repeat(4, 1fr); gap:12px; margin: 18px 0 20px; }
   @media (max-width: 560px){ .grid{ grid-template-columns: repeat(3, 1fr); } }
-  .door{ position:relative; aspect-ratio: 1 / 1.08; border-radius:14px; border:1.5px solid var(--line); background: linear-gradient(160deg, #1B2750, #141D3C); color:var(--ink); cursor:pointer; padding:10px; text-align:left; display:flex; flex-direction:column; justify-content:space-between; font-family:var(--sans); transition: transform .15s ease, border-color .15s ease; }
-  .door:hover{ transform: translateY(-2px); }
-  .door .n{ font-family:var(--serif); font-size:34px; line-height:1; }
-  .door .t{ font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--gold); }
-  .door .d{ font-size:11px; color:var(--muted); }
-  .door.locked{ opacity:.55; cursor:default; }
+  .door{ position:relative; aspect-ratio: 1 / 1.08; border-radius:14px; border:none; color:var(--cream); cursor:pointer; padding:10px; text-align:left; display:flex; flex-direction:column; justify-content:space-between; font-family:var(--sans); overflow:hidden;
+    background:
+      linear-gradient(90deg, transparent 66%, rgba(232,194,106,.95) 66%, rgba(232,194,106,.95) 76%, transparent 76%),
+      linear-gradient(180deg, transparent 22%, rgba(232,194,106,.95) 22%, rgba(232,194,106,.95) 31%, transparent 31%),
+      linear-gradient(160deg, #D4503F, var(--red2));
+    box-shadow: 0 6px 16px rgba(0,0,0,.28), inset 0 0 0 1px rgba(255,255,255,.08);
+    transition: transform .15s ease, box-shadow .15s ease; }
+  .door:nth-child(3n+2){ background:
+      linear-gradient(90deg, transparent 66%, rgba(232,194,106,.95) 66%, rgba(232,194,106,.95) 76%, transparent 76%),
+      linear-gradient(180deg, transparent 22%, rgba(232,194,106,.95) 22%, rgba(232,194,106,.95) 31%, transparent 31%),
+      linear-gradient(160deg, #1E5A45, #123D30); }
+  .door:nth-child(3n){ background:
+      linear-gradient(90deg, transparent 66%, rgba(200,69,59,.95) 66%, rgba(200,69,59,.95) 76%, transparent 76%),
+      linear-gradient(180deg, transparent 22%, rgba(200,69,59,.95) 22%, rgba(200,69,59,.95) 31%, transparent 31%),
+      linear-gradient(160deg, #F3E6C8, #E2CFA3); color:#3A1E12; }
+  .door:hover{ transform: translateY(-3px) rotate(-1deg); }
+  .door .n{ font-family:var(--serif); font-size:34px; line-height:1; text-shadow: 0 1px 2px rgba(0,0,0,.25); }
+  .door:nth-child(3n) .n{ text-shadow:none; }
+  .door .t{ font-family:var(--mono); font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; background:rgba(0,0,0,.28); color:#fff; align-self:flex-start; padding:3px 6px; border-radius:6px; }
+  .door:nth-child(3n) .t{ background:rgba(58,30,18,.12); color:#3A1E12; }
+  .door .d{ font-size:11px; opacity:.85; }
+  .door.locked{ cursor:default; filter: saturate(.55) brightness(.8); }
   .door.locked:hover{ transform:none; }
-  .door.locked .n::after{ content:' 🔒'; font-size:13px; vertical-align:middle; }
-  .door.today{ border-color:var(--gold); box-shadow: 0 0 0 3px var(--gold-dim), 0 0 26px rgba(233,199,123,0.25); }
-  .door.opened{ background: linear-gradient(160deg, rgba(233,199,123,0.18), rgba(233,199,123,0.06)); border-color: rgba(233,199,123,0.5); }
-  .door.opened .d::after{ content:' · geöffnet'; }
-  .door.type-rabatt .t{ color:#F2B4A6; }
+  .door.locked .n::after{ content:' 🔒'; font-size:12px; vertical-align:middle; }
+  .door.today{ box-shadow: 0 0 0 3px var(--gold), 0 0 28px rgba(232,194,106,.55); animation: wiggle 2.8s ease-in-out infinite; }
+  @keyframes wiggle{ 0%,88%,100%{ transform:none; } 92%{ transform: rotate(-3deg); } 96%{ transform: rotate(3deg); } }
+  @media (prefers-reduced-motion: reduce){ .door.today{ animation:none; } }
+  .door.opened{ background: linear-gradient(160deg, #FBF5E8, #EFE3C6) !important; color:#1F3A2F; }
+  .door.opened .n{ text-shadow:none; color:#1F3A2F; }
+  .door.opened .t{ background:rgba(31,58,47,.1); color:#1F3A2F; }
+  .door.opened .d::after{ content:' · geöffnet ✓'; }
 
   /* Türchen geöffnet */
-  .modal{ position:fixed; inset:0; z-index:10; background:rgba(5,9,22,.72); display:none; align-items:flex-end; justify-content:center; padding:0; }
+  .modal{ position:fixed; inset:0; z-index:10; background:rgba(4,14,11,.74); display:none; align-items:flex-end; justify-content:center; padding:0; }
   .modal.open{ display:flex; }
   @media (min-width: 600px){ .modal{ align-items:center; padding:20px; } }
-  .sheet{ width:100%; max-width:560px; max-height:90vh; overflow:auto; background:var(--bg); border:1px solid var(--line); border-radius:22px 22px 0 0; padding:22px 20px 26px; animation: up .3s ease; }
+  .sheet{ width:100%; max-width:560px; max-height:90vh; overflow:auto; background: linear-gradient(180deg, #14402F, var(--bg)); border:1px solid var(--line); border-top:4px solid var(--red); border-radius:22px 22px 0 0; padding:22px 20px 26px; animation: up .3s ease; }
   @media (min-width: 600px){ .sheet{ border-radius:22px; } }
   @keyframes up{ from{ transform: translateY(30px); opacity:0; } to{ transform:none; opacity:1; } }
   .sheet .top{ display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
@@ -74,12 +120,12 @@
   .sheet h2{ font-family:var(--serif); font-weight:400; font-size:28px; line-height:1.15; margin:4px 0 12px; }
   .sheet p{ font-size:15px; line-height:1.65; margin:0 0 12px; }
   .sheet ul, .sheet ol{ margin:0 0 12px; padding-left:20px; font-size:15px; line-height:1.65; }
-  .sheet .tool{ border-left:3px solid var(--gold); background:rgba(255,255,255,.03); border-radius:0 10px 10px 0; padding:10px 14px; font-size:14px; line-height:1.55; margin:6px 0 14px; color:var(--ink); }
+  .sheet .tool{ border-left:3px solid var(--gold); background:rgba(255,255,255,.04); border-radius:0 10px 10px 0; padding:10px 14px; font-size:14px; line-height:1.55; margin:6px 0 14px; color:var(--ink); }
   .sheet .tool b{ color:var(--gold); }
   .opts{ display:grid; gap:8px; margin:6px 0 12px; }
   .opts button{ text-align:left; padding:13px 14px; border-radius:12px; border:1.5px solid var(--line); background:var(--raised); color:var(--ink); font-family:var(--sans); font-size:14.5px; cursor:pointer; }
-  .opts button.right{ border-color:#5BC489; background:rgba(91,196,137,.12); }
-  .opts button.wrong{ border-color:var(--red); background:rgba(233,139,123,.10); }
+  .opts button.right{ border-color:#5BC489; background:rgba(91,196,137,.14); }
+  .opts button.wrong{ border-color:#E98B7B; background:rgba(233,139,123,.12); }
   .note{ font-size:12px; color:var(--muted); line-height:1.5; margin-top:10px; }
   .actions{ display:grid; gap:10px; margin-top:16px; }
 
@@ -92,15 +138,18 @@
 </head>
 <body>
 <div class="sky" id="sky"></div>
+<div class="lights" aria-hidden="true"><svg viewBox="0 0 720 30" preserveAspectRatio="none"><path d="M0 6 Q 60 24 120 8 T 240 8 T 360 8 T 480 8 T 600 8 T 720 8" fill="none" stroke="#2A5446" stroke-width="1.5"/></svg></div>
 <div class="app" id="app">
   <div class="eyebrow">1. bis 24. Dezember 2026</div>
   <h1>Dein <em>Adventskalender</em></h1>
-  <div style="font-family:var(--serif); font-size:20px; color:var(--muted);">24 Tage Zeit für dich</div>
+  <div class="sub">24 Tage Zeit für dich 🎄</div>
   <p class="lede">Jeden Tag ein Türchen und fünf Minuten nur für dich: ein Ritual, ein Pflege-Tipp, ein kleines Quiz oder ein Angebot. In der zweiten Hälfte schaust du mit <span class="pname">…</span> aufs neue Jahr.</p>
 
   <div class="from">
     <div><small>Dein Kalender von</small><b class="pname">…</b></div>
     <div style="display:flex; gap:8px; flex-wrap:wrap;">
+      <a class="pill" id="igPill" href="#" target="_blank" rel="noopener" hidden>📸 Instagram</a>
+      <a class="pill shop" id="shopPill" href="#" target="_blank" rel="noopener" hidden>🛍️ Online-Shop</a>
       <a class="pill wa" id="waPill" href="#" target="_blank" rel="noopener">💬 WhatsApp</a>
     </div>
   </div>
@@ -111,7 +160,7 @@
     <div class="row"><a class="btn wa" id="joinBtn" href="#" target="_blank" rel="noopener">💬 „Ich bin dabei“ an <span class="pname">…</span></a></div>
   </div>
 
-  <div class="banner gold">
+  <div class="banner red">
     <div class="row" style="justify-content:space-between; margin-bottom:6px;"><h3 style="margin:0;">🎁 Das Gewinnspiel</h3><span class="count" id="drawCount"></span></div>
     <p><b>Zu gewinnen: eine Geschenkbox von <span class="pname">…</span></b>, gepackt mit Lieblingsprodukten für die Feiertage. Jede Quiz-Antwort, jedes Foto und dein Wunsch für 2027 sind ein Los. Mitmachen bis 24.12., die Auslosung ist am 27.12. <span id="prizeLine"></span></p>
     <div class="row"><button class="pill" type="button" id="howBtn">Wie komme ich in den Lostopf?</button></div>
@@ -327,8 +376,20 @@
   // Sterne
   (function(){
     let s = '';
-    for(let i = 0; i < 40; i++) s += `<i style="left:${Math.random()*100}%; top:${Math.random()*100}%; animation-delay:${(Math.random()*4).toFixed(1)}s; opacity:${(0.2 + Math.random()*0.5).toFixed(2)}"></i>`;
+    // Schneeflocken: verteilt, unterschiedlich groß und schnell
+    for(let i = 0; i < 46; i++){
+      const sz = (2 + Math.random() * 4).toFixed(1), dur = (9 + Math.random() * 10).toFixed(1);
+      s += `<i style="left:${(Math.random()*100).toFixed(1)}%; width:${sz}px; height:${sz}px; animation-duration:${dur}s; animation-delay:-${(Math.random()*dur).toFixed(1)}s; opacity:${(0.35 + Math.random()*0.5).toFixed(2)}"></i>`;
+    }
     $('sky').innerHTML = s;
+    // Lichterkette: Birnchen entlang der Linie
+    const COLORS = ['#E8C26A', '#C8453B', '#7BC79A', '#F7F0E1'];
+    let bulbs = '';
+    for(let x = 20, k = 0; x < 720; x += 40, k++){
+      const y = 8 + 7 * Math.abs(Math.sin((x / 120) * Math.PI)) + 4;
+      bulbs += `<circle class="b" cx="${x}" cy="${y.toFixed(1)}" r="4.5" fill="${COLORS[k % 4]}"/>`;
+    }
+    document.querySelector('.lights svg').insertAdjacentHTML('beforeend', bulbs);
   })();
 
   (async function boot(){
@@ -339,6 +400,9 @@
       partner = await r.json();
     } catch(e){}
     document.querySelectorAll('.pname').forEach(el => { el.textContent = partner.name; });
+    // Instagram und Online-Shop der Partnerin (im Admin hinterlegt)
+    if(partner.instagram){ $('igPill').href = 'https://instagram.com/' + encodeURIComponent(partner.instagram); $('igPill').hidden = false; }
+    if(partner.shop && /^https:\/\//.test(partner.shop)){ $('shopPill').href = partner.shop; $('shopPill').hidden = false; }
     setupStart();
     renderGrid();
     track('besuch');

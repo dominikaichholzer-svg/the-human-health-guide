@@ -57,3 +57,7 @@ create table if not exists advent_events (
 );
 create index if not exists advent_events_partner_idx on advent_events (partner_slug, event);
 alter table advent_events enable row level security;
+
+-- Ergänzung (21.11.2026): Shop-Link und Instagram pro Partnerin (im Adventskalender oben verlinkt)
+alter table c9_partners add column if not exists shop_link text;
+alter table c9_partners add column if not exists instagram text;

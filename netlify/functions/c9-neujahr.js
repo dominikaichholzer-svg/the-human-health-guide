@@ -36,7 +36,8 @@ const clean = (v, n) => String(v == null ? '' : v).replace(/[\u0000-\u001f]/g, '
 
 async function partner(slug) {
   if (!SLUG.test(slug || '')) return null;
-  const rows = await pgrest('c9_partners', { query: `slug=eq.${slug}&active=eq.true&select=slug,name,whatsapp` });
+  // select=* liefert auch shop_link/instagram, sobald die Spalten angelegt sind
+  const rows = await pgrest('c9_partners', { query: `slug=eq.${slug}&active=eq.true&select=*` });
   return rows && rows[0] ? rows[0] : null;
 }
 
@@ -93,7 +94,7 @@ exports.handler = async function (event) {
       }
       const p = await partner((event.queryStringParameters || {}).p);
       if (!p) return json(404, { error: 'Unbekannter Link' });
-      return json(200, { name: p.name, whatsapp: p.whatsapp || null });
+      return json(200, { name: p.name, whatsapp: p.whatsapp || null, shop: p.shop_link || null, instagram: p.instagram || null });
     }
     if (event.httpMethod !== 'POST') return json(405, { error: 'Method Not Allowed' });
 
