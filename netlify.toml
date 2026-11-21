@@ -96,3 +96,9 @@
   from = "/dabei/*"
   to = "/neujahr-dabei.html"
   status = 200
+
+# Adventskalender, eine Seite für alle Partnerinnen (/advent/<slug>)
+[[redirects]]
+  from = "/advent/*"
+  to = "/advent.html"
+  status = 200

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adventskalender · 24 Tage Zeit für dich</title>
+<meta name="description" content="24 Türchen mit Ritualen, Pflege-Tipps, Quiz und einem Gewinnspiel. Jeden Tag 5 Minuten für dich.">
+<meta property="og:title" content="Dein Adventskalender 2026">
+<meta property="og:description" content="24 Tage, jeden Tag 5 Minuten für dich: Rituale, Pflege-Tipps, Quiz und ein Gewinnspiel.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0F1730; --raised:#172244; --hover:#1E2B54; --ink:#F6F1E4; --muted:#AAB2CC; --line:#2C3866;
+    --gold:#E9C77B; --gold-dim:rgba(233,199,123,0.14); --wa:#25D366; --red:#E98B7B;
+    --serif:'Fraunces',serif; --sans:'Inter',sans-serif; --mono:'IBM Plex Mono',monospace;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; color:var(--ink); font-family:var(--sans); -webkit-font-smoothing:antialiased; background:var(--bg); }
+  body{ min-height:100vh; background: radial-gradient(1200px 560px at 50% -160px, rgba(233,199,123,0.20), transparent 70%), var(--bg); }
+  .sky{ position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:0; }
+  .sky i{ position:absolute; width:3px; height:3px; border-radius:50%; background:#fff; opacity:.5; animation: tw 4s ease-in-out infinite; }
+  @keyframes tw{ 50%{ opacity:.12; } }
+  @media (prefers-reduced-motion: reduce){ .sky i{ animation:none; } }
+  .app{ position:relative; z-index:1; max-width:720px; margin:0 auto; padding:28px 16px 48px; }
+
+  .eyebrow{ font-family:var(--mono); font-size:11.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--gold); margin-bottom:12px; }
+  h1{ font-family:var(--serif); font-weight:400; font-size:40px; line-height:1.08; margin:0 0 6px; }
+  h1 em{ font-style:italic; font-weight:500; color:var(--gold); }
+  .lede{ color:var(--muted); font-size:15.5px; line-height:1.6; margin:12px 0 20px; max-width:560px; }
+
+  .from{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; background:var(--raised); border:1px solid var(--line); border-radius:16px; padding:14px 16px; margin-bottom:14px; }
+  .from small{ display:block; font-size:12px; color:var(--muted); }
+  .from b{ font-family:var(--serif); font-size:20px; font-weight:600; }
+  .pill{ display:inline-flex; align-items:center; gap:6px; padding:9px 14px; border-radius:999px; border:1.5px solid var(--line); color:var(--ink); text-decoration:none; font-size:13.5px; font-weight:600; background:rgba(255,255,255,.03); cursor:pointer; font-family:var(--sans); }
+  .pill.wa{ border-color:var(--wa); color:#7BE3A3; }
+
+  .banner{ border-radius:16px; padding:16px 18px; margin-bottom:14px; border:1px solid var(--line); background:var(--raised); }
+  .banner h3{ font-family:var(--serif); font-weight:600; font-size:19px; margin:0 0 6px; }
+  .banner p{ margin:0 0 10px; font-size:14.5px; line-height:1.55; color:var(--ink); }
+  .banner p.m{ color:var(--muted); }
+  .banner.gold{ border-color:var(--gold); background: linear-gradient(180deg, rgba(233,199,123,0.12), rgba(233,199,123,0.03)); }
+  .banner .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:12px 18px; border-radius:12px; border:none; background:var(--gold); color:#1A1406; font-family:var(--sans); font-weight:700; font-size:14.5px; cursor:pointer; text-decoration:none; }
+  .btn.wa{ background:var(--wa); color:#06200F; }
+  .btn.ghost{ background:transparent; color:var(--gold); border:1.5px solid var(--gold); }
+  .count{ font-family:var(--mono); font-size:12px; letter-spacing:.08em; color:var(--gold); border:1px solid var(--gold); border-radius:999px; padding:5px 10px; }
+
+  .grid{ display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; margin: 18px 0 20px; }
+  @media (max-width: 560px){ .grid{ grid-template-columns: repeat(3, 1fr); } }
+  .door{ position:relative; aspect-ratio: 1 / 1.08; border-radius:14px; border:1.5px solid var(--line); background: linear-gradient(160deg, #1B2750, #141D3C); color:var(--ink); cursor:pointer; padding:10px; text-align:left; display:flex; flex-direction:column; justify-content:space-between; font-family:var(--sans); transition: transform .15s ease, border-color .15s ease; }
+  .door:hover{ transform: translateY(-2px); }
+  .door .n{ font-family:var(--serif); font-size:34px; line-height:1; }
+  .door .t{ font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--gold); }
+  .door .d{ font-size:11px; color:var(--muted); }
+  .door.locked{ opacity:.55; cursor:default; }
+  .door.locked:hover{ transform:none; }
+  .door.locked .n::after{ content:' 🔒'; font-size:13px; vertical-align:middle; }
+  .door.today{ border-color:var(--gold); box-shadow: 0 0 0 3px var(--gold-dim), 0 0 26px rgba(233,199,123,0.25); }
+  .door.opened{ background: linear-gradient(160deg, rgba(233,199,123,0.18), rgba(233,199,123,0.06)); border-color: rgba(233,199,123,0.5); }
+  .door.opened .d::after{ content:' · geöffnet'; }
+  .door.type-rabatt .t{ color:#F2B4A6; }
+
+  /* Türchen geöffnet */
+  .modal{ position:fixed; inset:0; z-index:10; background:rgba(5,9,22,.72); display:none; align-items:flex-end; justify-content:center; padding:0; }
+  .modal.open{ display:flex; }
+  @media (min-width: 600px){ .modal{ align-items:center; padding:20px; } }
+  .sheet{ width:100%; max-width:560px; max-height:90vh; overflow:auto; background:var(--bg); border:1px solid var(--line); border-radius:22px 22px 0 0; padding:22px 20px 26px; animation: up .3s ease; }
+  @media (min-width: 600px){ .sheet{ border-radius:22px; } }
+  @keyframes up{ from{ transform: translateY(30px); opacity:0; } to{ transform:none; opacity:1; } }
+  .sheet .top{ display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+  .sheet .x{ background:none; border:none; color:var(--muted); font-size:26px; cursor:pointer; line-height:1; }
+  .sheet h2{ font-family:var(--serif); font-weight:400; font-size:28px; line-height:1.15; margin:4px 0 12px; }
+  .sheet p{ font-size:15px; line-height:1.65; margin:0 0 12px; }
+  .sheet ul, .sheet ol{ margin:0 0 12px; padding-left:20px; font-size:15px; line-height:1.65; }
+  .sheet .tool{ border-left:3px solid var(--gold); background:rgba(255,255,255,.03); border-radius:0 10px 10px 0; padding:10px 14px; font-size:14px; line-height:1.55; margin:6px 0 14px; color:var(--ink); }
+  .sheet .tool b{ color:var(--gold); }
+  .opts{ display:grid; gap:8px; margin:6px 0 12px; }
+  .opts button{ text-align:left; padding:13px 14px; border-radius:12px; border:1.5px solid var(--line); background:var(--raised); color:var(--ink); font-family:var(--sans); font-size:14.5px; cursor:pointer; }
+  .opts button.right{ border-color:#5BC489; background:rgba(91,196,137,.12); }
+  .opts button.wrong{ border-color:var(--red); background:rgba(233,139,123,.10); }
+  .note{ font-size:12px; color:var(--muted); line-height:1.5; margin-top:10px; }
+  .actions{ display:grid; gap:10px; margin-top:16px; }
+
+  .how{ font-size:14px; line-height:1.6; color:var(--ink); }
+  .how li{ margin-bottom:4px; }
+  .legal{ margin-top:26px; padding-top:16px; border-top:1px solid var(--line); font-size:11.5px; line-height:1.6; color:var(--muted); }
+  .legal a, .legal button{ color:var(--gold); background:none; border:none; padding:0; font:inherit; cursor:pointer; text-decoration:underline; }
+  .unknown{ text-align:center; padding:60px 10px; color:var(--muted); }
+</style>
+</head>
+<body>
+<div class="sky" id="sky"></div>
+<div class="app" id="app">
+  <div class="eyebrow">1. bis 24. Dezember 2026</div>
+  <h1>Dein <em>Adventskalender</em></h1>
+  <div style="font-family:var(--serif); font-size:20px; color:var(--muted);">24 Tage Zeit für dich</div>
+  <p class="lede">Jeden Tag ein Türchen und fünf Minuten nur für dich: ein Ritual, ein Pflege-Tipp, ein kleines Quiz oder ein Angebot. In der zweiten Hälfte schauen wir gemeinsam aufs neue Jahr.</p>
+
+  <div class="from">
+    <div><small>Dein Kalender von</small><b class="pname">…</b></div>
+    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+      <a class="pill wa" id="waPill" href="#" target="_blank" rel="noopener">💬 WhatsApp</a>
+    </div>
+  </div>
+
+  <div class="banner" id="startBanner" hidden>
+    <h3 id="startTitle"></h3>
+    <p id="startText"></p>
+    <div class="row"><a class="btn wa" id="joinBtn" href="#" target="_blank" rel="noopener">💬 „Ich bin dabei“ an <span class="pname">…</span></a></div>
+  </div>
+
+  <div class="banner gold">
+    <div class="row" style="justify-content:space-between; margin-bottom:6px;"><h3 style="margin:0;">🎁 Das Gewinnspiel</h3><span class="count" id="drawCount"></span></div>
+    <p>Jede Quiz-Antwort, jedes Foto und dein Wunsch für 2027 sind ein Los. Mitmachen bis 24.12., die Auslosung ist am 27.12. <span id="prizeLine">Was im Lostopf steckt, verraten wir am 20. Dezember.</span></p>
+    <div class="row"><button class="pill" type="button" id="howBtn">Wie komme ich in den Lostopf?</button></div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="legal">
+    #werbung · Coach Oaki Team, unabhängige Forever-Partner. Produktangaben laut Forever Living Products. Nahrungsergänzungsmittel ersetzen keine ausgewogene, abwechslungsreiche Ernährung und gesunde Lebensweise. Angebote gelten nur am jeweiligen Tag und nur bei der Person, die dir diesen Kalender geschickt hat, höchstens 15 %. Gewinnspiel: Teilnahme kostenlos und ohne Kauf, <button type="button" id="termsBtn">Teilnahmebedingungen</button>. Der Kalender speichert nur in deinem Browser, welche Türchen du schon geöffnet hast, keine persönlichen Daten.
+  </div>
+</div>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true">
+  <div class="sheet" id="sheet"></div>
+</div>
+
+<script>
+  // ============================================================
+  // Adventskalender, eine Seite für alle Partnerinnen: /advent/<slug>
+  // Name und WhatsApp kommen aus c9_partners (wie bei der Neujahrs-Umfrage).
+  // Türchen öffnen sich ab dem jeweiligen Tag (Wiener Zeit).
+  // ?vorschau=1 öffnet alle Türchen (zum Korrekturlesen).
+  // ============================================================
+  const PRIZE = ''; // z. B. 'ein Forever-Pflegeset im Wert von 60 €' (erscheint ab 20.12.)
+  const YEAR = 2026;
+  const slug = (location.pathname.match(/\/advent\/([a-z0-9-]+)/) || [])[1] || new URLSearchParams(location.search).get('p') || '';
+  const preview = new URLSearchParams(location.search).get('vorschau') === '1';
+  let partner = { name: 'deiner Begleitung', whatsapp: '' };
+  const $ = (id) => document.getElementById(id);
+  const esc = (t) => String(t == null ? '' : t).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  // Typen: tipp, ritual, quiz, foto, rabatt, beratung, geschenk, neustart, gewinn, wunsch, danke
+  const LABEL = { tipp:'Tipp', ritual:'Ritual', quiz:'Quiz', foto:'Foto', rabatt:'Angebot', beratung:'Beratung', geschenk:'Geschenk', neustart:'Neustart', gewinn:'Gewinn', wunsch:'Wunsch', danke:'Danke' };
+
+  // Inhalte der 24 Türchen. {name} = Name der Partnerin.
+  const DOORS = [
+    { t:'ritual', title:'Dein 5-Minuten-Morgen', body:`<p>Bevor das Handy dich hat: ein Glas lauwarmes Wasser, drei tiefe Atemzüge am offenen Fenster und ein Gedanke an etwas, auf das du dich heute freust.</p><p>Fünf Minuten, die den ganzen Tag ruhiger machen. Probier es die nächsten 24 Tage, das ist unser gemeinsamer Start.</p>` },
+    { t:'rabatt', pct:10, product:'Aloe Lips', title:'Kleines Geschenk, große Freude', body:`<p>Der Lippenpflegestift mit Aloe Vera, Jojobaöl und Bienenwachs passt in jede Jackentasche und in jeden Adventskalender.</p><p>Als Mitbringsel, Wichtelgeschenk oder einfach für dich, wenn die Kälte an den Lippen zieht.</p>` },
+    { t:'quiz', title:'Wie gut kennst du Aloe Vera?', q:'Woraus wird das Forever Aloe Vera Gel zum Trinken gewonnen?', opts:['Aus dem ganzen Blatt mit Schale','Aus dem Gel im Inneren des Blattes','Aus getrocknetem Aloe-Pulver'], right:1, explain:'Forever verwendet das Gel aus dem Inneren des Blattes. Die Blätter werden von Hand geerntet und das Gel herausgelöst.' },
+    { t:'tipp', title:'Winterhaut: Hände und Lippen', body:`<p>Heizungsluft und Kälte trocknen die Haut aus. Ein einfacher Trick für die Nacht: Hände großzügig eincremen und dünne Baumwollhandschuhe drüberziehen. Am Morgen fühlen sie sich ganz anders an.</p>`, tool:'Gut geeignet ist eine reichhaltige Creme, zum Beispiel die <b>Aloe Propolis Creme</b> mit Aloe Vera, Propolis und Kamille.' },
+    { t:'rabatt', pct:10, product:'Aloe Propolis Creme', title:'Pflege für kalte Tage', body:`<p>Die reichhaltige Creme mit Aloe Vera, Propolis und Kamille für Hände, Ellbogen und alle Stellen, die im Winter spannen.</p>` },
+    { t:'foto', title:'Nikolaus: dein gemütlichster Moment', body:`<p>Heute zeigst du uns dein schönstes Winter-Ritual: die Tasse Tee am Fenster, die Kuscheldecke, der Spaziergang im Schnee.</p><p>Schick ein Foto an {name}, das ist ein Los im Gewinnspiel.</p>` },
+    { t:'beratung', title:'Deine persönliche Pflege-Beratung', body:`<p>Trockene Haut, unreine Haut, Mischhaut oder einfach keine Ahnung, was zu dir passt? {name} nimmt sich 10 Minuten für dich, ganz unverbindlich.</p><p>Schreib einfach, was dich an deiner Haut gerade beschäftigt.</p>` },
+    { t:'tipp', title:'Geschenke, die wirklich ankommen', body:`<p>Die schönsten Geschenke sind die, die man selbst benutzt: Lippenpflege, eine gute Handcreme, ein Duschgel, das nach Urlaub riecht.</p><ul><li>Für die Kollegin: Aloe Lips mit einer kleinen Karte</li><li>Für die Mama: ein Pflegeset für die Hände</li><li>Für den Partner: etwas für nach dem Rasieren</li></ul><p>{name} stellt dir gern ein Set zusammen.</p>` },
+    { t:'quiz', title:'Trinken im Winter', q:'Wie viel sollten Erwachsene laut Ernährungsempfehlung ungefähr am Tag trinken?', opts:['Etwa 0,5 Liter','Etwa 1,5 Liter','Etwa 4 Liter'], right:1, explain:'Die Empfehlung liegt bei etwa 1,5 Litern am Tag, am besten Wasser oder ungesüßter Tee. Im Winter vergessen wir es besonders oft.' },
+    { t:'ritual', title:'Das warme Fußbad', body:`<p>Eine Schüssel warmes Wasser, eine Handvoll Salz, zehn Minuten Zeit. Danach die Füße eincremen und warme Socken an.</p><p>Ein kleines Ritual, das sich nach Wellness anfühlt und nichts kostet außer zehn Minuten.</p>` },
+    { t:'tipp', title:'Besser schlafen im Advent', body:`<ul><li>30 Minuten vor dem Schlafen das Handy weglegen</li><li>Das Schlafzimmer eher kühl halten, etwa 18 Grad</li><li>Zur gleichen Zeit ins Bett, auch am Wochenende</li></ul><p>Klingt simpel, macht aber im stressigen Dezember einen spürbaren Unterschied.</p>` },
+    { t:'rabatt', pct:15, product:'ein Pflegeset deiner Wahl', title:'Halbzeit-Angebot', body:`<p>Zwölf Türchen geschafft! Heute gibt es das größte Angebot der ersten Hälfte: auf ein Pflegeset deiner Wahl, für dich oder als Geschenk.</p>` },
+    { t:'foto', title:'Zeig uns deinen Weihnachtsbaum', body:`<p>Ob prachtvoll geschmückt, minimalistisch oder noch im Netz vor der Tür: Wir wollen ihn sehen!</p><p>Schick ein Foto an {name}, das ist ein Los im Gewinnspiel.</p>` },
+    { t:'geschenk', title:'Ein Geschenk für dich: unsere Rezepte', body:`<p>Für die Zeit zwischen Keksen und Festtagsbraten: einfache, warme Rezepte, die satt machen und leicht sind.</p>`, link:{ href:'/rezepte.html', label:'Zu den Rezepten' } },
+    { t:'neustart', title:'Was willst du 2027 verändern?', body:`<p>Ab heute schauen wir gemeinsam aufs neue Jahr. Mach die kurze Neujahrs-Umfrage: 4 Fragen, eine Minute, und du bekommst sofort deine persönliche Auswertung.</p>`, survey:true },
+    { t:'tipp', title:'Dein Bauch und die Feiertage', body:`<p>Zwischen Keksen, Punsch und Festessen hat der Bauch viel zu tun. Was hilft:</p><ul><li>Öfter warm und gekocht essen statt kalt</li><li>In Ruhe essen, nicht nebenbei</li><li>Zwischen den Mahlzeiten Pausen lassen</li></ul>` },
+    { t:'tipp', title:'Heißhunger an Feiertagen', body:`<p>Wer morgens nur Kaffee trinkt, kämpft abends mit dem Keksteller. Ein Frühstück mit Eiweiß, zum Beispiel Joghurt, Eier oder ein Shake, hält deutlich länger satt.</p><p>Probier es die nächsten drei Tage und beobachte, was am Nachmittag passiert.</p>` },
+    { t:'tipp', title:'Die 10-Minuten-Regel', body:`<p>Nach dem Essen zehn Minuten raus: einmal um den Block, frische Luft, Tageslicht. Kein Sportprogramm, einfach gehen.</p><p>Gerade an Feiertagen ist das die einfachste Gewohnheit, die man ins neue Jahr mitnehmen kann.</p>` },
+    { t:'quiz', title:'Ballaststoffe', q:'Wie viele Gramm Ballaststoffe am Tag werden für Erwachsene empfohlen?', opts:['Etwa 10 Gramm','Etwa 30 Gramm','Etwa 60 Gramm'], right:1, explain:'Empfohlen sind etwa 30 Gramm am Tag. Die meisten essen deutlich weniger. Haferflocken, Leinsamen, Gemüse und Hülsenfrüchte helfen.' },
+    { t:'gewinn', title:'Das steckt im Lostopf', body:`<p>{prize}</p><p>Noch bis 24.12. kannst du Lose sammeln: mit den Quiz-Antworten, deinen Fotos und deinem Wunsch für 2027. Am 27.12. wird ausgelost.</p>` },
+    { t:'rabatt', pct:10, product:'Forever Aloe Vera Gel zum Trinken', title:'Für einen frischen Start in den Tag', body:`<p>Das Aloe Vera Gel zum Trinken, pur oder mit Frucht, als kleines Morgenritual. Ein Glas am Morgen, mehr braucht es nicht.</p>` },
+    { t:'wunsch', title:'Dein Wunsch für 2027', body:`<p>Was wünschst du dir für das neue Jahr, ganz für dich? Mehr Ruhe, mehr Energie, mehr Zeit mit Menschen, die dir guttun?</p><p>Schreib deinen Wunsch an {name}. Wer ihn aufschreibt, nimmt ihn ernster. Und er ist ein Los im Gewinnspiel.</p>` },
+    { t:'rabatt', pct:15, product:'das C9-Programm', title:'Gemeinsam ins neue Jahr', body:`<p>Am Samstag, 30.01., starten wir gemeinsam die C9 Neujahrs-Challenge: 9 Tage mit klarem Tagesplan, WhatsApp-Gruppe, persönlicher Begleitung und Rezeptbuch, alles geschenkt dazu.</p><p>Wer bis 31.12. dabei ist, bekommt zusätzlich ein Starter-Set mit 3 Jokern für die 9 Tage.</p>`, survey:true },
+    { t:'danke', title:'Danke, dass du dabei warst', body:`<p>24 Türchen, 24 Mal fünf Minuten für dich. Wir hoffen, ein paar Rituale bleiben.</p><p>Frohe Weihnachten von {name} und dem ganzen Team. Am 27.12. wird das Gewinnspiel ausgelost, und am 30.01. sehen wir uns hoffentlich bei der Neujahrs-Challenge.</p>` },
+  ];
+
+  // ---------- Datum (Wiener Zeit) ----------
+  function viennaToday(){
+    const p = new Intl.DateTimeFormat('en-CA', { timeZone:'Europe/Vienna', year:'numeric', month:'2-digit', day:'2-digit' }).format(new Date());
+    return p; // YYYY-MM-DD
+  }
+  const today = viennaToday();
+  const isoOf = (day) => `${YEAR}-12-${String(day).padStart(2, '0')}`;
+  const WD = ['So','Mo','Di','Mi','Do','Fr','Sa'];
+  const wdOf = (day) => WD[new Date(isoOf(day) + 'T12:00:00Z').getUTCDay()];
+  const isOpenable = (day) => preview || today >= isoOf(day);
+  const daysUntil = (iso) => Math.round((Date.parse(iso + 'T00:00:00Z') - Date.parse(today + 'T00:00:00Z')) / 86400000);
+
+  // ---------- Merken, was schon offen war (nur im Browser) ----------
+  const KEY = 'advent2026-' + slug;
+  let opened = [];
+  try { opened = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch(e){ opened = []; }
+  function markOpened(day){
+    if(!opened.includes(day)) opened.push(day);
+    try { localStorage.setItem(KEY, JSON.stringify(opened)); } catch(e){}
+  }
+
+  function waLink(text){
+    const num = partner.whatsapp ? String(partner.whatsapp).replace(/[^\d]/g, '') : '';
+    return num ? `https://wa.me/${num}?text=${encodeURIComponent(text)}` : `https://wa.me/?text=${encodeURIComponent(text)}`;
+  }
+  const fill = (html) => html.replace(/\{name\}/g, esc(partner.name)).replace(/\{prize\}/g, PRIZE ? `Im Lostopf: <b>${esc(PRIZE)}</b>.` : 'Den Preis verrät dir {name} heute persönlich.').replace(/\{name\}/g, esc(partner.name));
+
+  function renderGrid(){
+    $('grid').innerHTML = DOORS.map((d, i) => {
+      const day = i + 1, iso = isoOf(day);
+      const cls = ['door', 'type-' + d.t];
+      if(!isOpenable(day)) cls.push('locked');
+      if(iso === today) cls.push('today');
+      if(opened.includes(day)) cls.push('opened');
+      const tag = d.t === 'rabatt' ? `−${d.pct} %` : LABEL[d.t];
+      return `<button type="button" class="${cls.join(' ')}" data-day="${day}" aria-label="Türchen ${day}"><span class="t">${tag}</span><span class="n">${day}</span><span class="d">${wdOf(day)} ${day}.12.</span></button>`;
+    }).join('');
+  }
+
+  function openDoor(day){
+    const d = DOORS[day - 1];
+    markOpened(day);
+    renderGrid();
+    const head = `<div class="top"><span class="eyebrow" style="margin:0;">Türchen ${day} · ${d.t === 'rabatt' ? 'Angebot −' + d.pct + ' %' : LABEL[d.t]}</span><button class="x" type="button" data-close aria-label="Schließen">×</button></div><h2>${esc(d.title)}</h2>`;
+    let html = head;
+    if(d.t === 'quiz'){
+      html += `<p>${esc(d.q)}</p><div class="opts" id="quizOpts">${d.opts.map((o, i) => `<button type="button" data-opt="${i}">${esc(o)}</button>`).join('')}</div><div id="quizAfter"></div>`;
+    } else {
+      html += fill(d.body || '');
+      if(d.tool) html += `<div class="tool">${d.tool}</div>`;
+    }
+    const acts = [];
+    if(d.t === 'rabatt'){
+      acts.push(`<a class="btn wa" target="_blank" rel="noopener" href="${waLink(`Hallo ${partner.name}, ich hab Türchen ${day} im Adventskalender geöffnet und hätte gern das Angebot: −${d.pct} % auf ${d.product}.`)}">💬 Angebot bei ${esc(partner.name)} sichern</a>`);
+      html += `<p class="note">Nur heute, am ${day}.12., und nur bei ${esc(partner.name)}. ${esc(partner.name)} schickt dir den passenden Bestell-Link.</p>`;
+    }
+    if(d.t === 'foto') acts.push(`<a class="btn wa" target="_blank" rel="noopener" href="${waLink(`Hallo ${partner.name}, hier ist mein Foto zu Türchen ${day} für das Gewinnspiel:`)}">📸 Foto an ${esc(partner.name)} schicken</a>`);
+    if(d.t === 'wunsch') acts.push(`<a class="btn wa" target="_blank" rel="noopener" href="${waLink(`Hallo ${partner.name}, mein Wunsch für 2027 (Türchen ${day}): `)}">✨ Wunsch an ${esc(partner.name)} schicken</a>`);
+    if(d.t === 'beratung') acts.push(`<a class="btn wa" target="_blank" rel="noopener" href="${waLink(`Hallo ${partner.name}, ich hätte gern die Pflege-Beratung aus Türchen ${day}. Bei meiner Haut beschäftigt mich gerade: `)}">💬 Beratung bei ${esc(partner.name)} anfragen</a>`);
+    if(d.survey && slug) acts.push(`<a class="btn${d.t === 'rabatt' ? ' ghost' : ''}" href="/neujahr/${esc(slug)}" target="_blank" rel="noopener">✨ Zur Neujahrs-Umfrage</a>`);
+    if(d.link) acts.push(`<a class="btn" href="${d.link.href}" target="_blank" rel="noopener">${esc(d.link.label)}</a>`);
+    if(acts.length) html += `<div class="actions">${acts.join('')}</div>`;
+    $('sheet').innerHTML = html;
+    $('modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    if(d.t === 'quiz'){
+      $('quizOpts').addEventListener('click', e => {
+        const b = e.target.closest('[data-opt]');
+        if(!b || $('quizOpts').dataset.done) return;
+        $('quizOpts').dataset.done = '1';
+        const pick = Number(b.dataset.opt);
+        $('quizOpts').querySelectorAll('button').forEach((x, i) => { if(i === d.right) x.classList.add('right'); else if(i === pick) x.classList.add('wrong'); });
+        $('quizAfter').innerHTML = `<p>${pick === d.right ? '<b>Richtig!</b> ' : '<b>Fast.</b> '}${esc(d.explain)}</p>
+          <div class="actions"><a class="btn wa" target="_blank" rel="noopener" href="${waLink(`Hallo ${partner.name}, meine Antwort zum Quiz in Türchen ${day}: ${d.opts[pick]}`)}">🎟️ Antwort an ${esc(partner.name)} schicken (1 Los)</a></div>`;
+      });
+    }
+  }
+  function closeDoor(){ $('modal').classList.remove('open'); document.body.style.overflow = ''; }
+  $('modal').addEventListener('click', e => { if(e.target === $('modal') || e.target.closest('[data-close]')) closeDoor(); });
+  document.addEventListener('keydown', e => { if(e.key === 'Escape') closeDoor(); });
+  $('grid').addEventListener('click', e => {
+    const b = e.target.closest('.door');
+    if(!b) return;
+    const day = Number(b.dataset.day);
+    if(!isOpenable(day)){
+      const n = daysUntil(isoOf(day));
+      b.animate([{ transform:'translateX(0)' },{ transform:'translateX(-4px)' },{ transform:'translateX(4px)' },{ transform:'translateX(0)' }], { duration: 260 });
+      return void (b.title = n === 1 ? 'Morgen geht es auf' : `Noch ${n} Tage`);
+    }
+    openDoor(day);
+  });
+
+  function showSheet(html){
+    $('sheet').innerHTML = `<div class="top"><span class="eyebrow" style="margin:0;">Gewinnspiel</span><button class="x" type="button" data-close aria-label="Schließen">×</button></div>` + html;
+    $('modal').classList.add('open'); document.body.style.overflow = 'hidden';
+  }
+  $('howBtn').addEventListener('click', () => showSheet(`<h2>So kommst du in den Lostopf</h2>
+    <ol class="how"><li><b>Quiz:</b> In den Türchen 3, 9 und 19 beantwortest du eine kleine Frage und schickst deine Antwort an ${esc(partner.name)}.</li>
+    <li><b>Fotos:</b> In den Türchen 6 und 13 schickst du ein Foto an ${esc(partner.name)}.</li>
+    <li><b>Wunsch:</b> In Türchen 22 schickst du deinen Wunsch für 2027.</li></ol>
+    <p>Jede Einsendung ist ein Los, also bis zu 6 Lose. Richtig oder falsch ist beim Quiz egal. Mitmachen bis 24.12., Auslosung am 27.12. Teilnahme kostenlos und ohne Kauf.</p>`));
+  $('termsBtn').addEventListener('click', () => showSheet(`<h2>Teilnahmebedingungen</h2>
+    <p><b>Veranstalterin</b> ist die Person, die dir diesen Kalender geschickt hat (${esc(partner.name)}), als unabhängige Forever-Partnerin. Das Gewinnspiel steht in keiner Verbindung zu Meta, WhatsApp oder Forever Living Products.</p>
+    <p><b>Teilnahme:</b> kostenlos und unabhängig von einem Kauf. Teilnehmen dürfen Personen ab 18 Jahren mit Wohnsitz in Österreich, Deutschland oder der Schweiz. Ein Los gibt es für jede per WhatsApp an die Veranstalterin geschickte Quiz-Antwort (Türchen 3, 9, 19), jedes eigene Foto (Türchen 6, 13) und den Wunsch für 2027 (Türchen 22), höchstens 6 Lose pro Person. Einsendeschluss: 24.12.${YEAR}, 23:59 Uhr.</p>
+    <p><b>Gewinn und Auslosung:</b> Die Auslosung findet am 27.12.${YEAR} unter allen Losen bei der Veranstalterin statt. Der Gewinn wird am 20.12. im Kalender bekannt gegeben. Die Gewinnerin oder der Gewinner wird per WhatsApp benachrichtigt. Eine Barauszahlung ist nicht möglich.</p>
+    <p><b>Fotos:</b> Bitte nur eigene Fotos schicken, auf denen keine anderen Personen ohne deren Einverständnis zu sehen sind. Fotos werden nur mit deiner ausdrücklichen Zustimmung veröffentlicht.</p>
+    <p><b>Daten:</b> Deine Nachricht und Telefonnummer werden nur zur Durchführung des Gewinnspiels genutzt und danach gelöscht, wenn du nichts anderes möchtest.</p>`));
+
+  function setupStart(){
+    const first = isoOf(1);
+    const join = waLink(`Hallo ${partner.name}, ich bin beim Adventskalender dabei! Schick mir gern jeden Morgen das neue Türchen.`);
+    $('joinBtn').href = join;
+    $('waPill').href = waLink(`Hallo ${partner.name}, ich hab eine Frage zum Adventskalender.`);
+    if(today < first){
+      const n = daysUntil(first);
+      $('startTitle').textContent = 'Am 1. Dezember geht das erste Türchen auf';
+      $('startText').textContent = `Noch ${n} ${n === 1 ? 'Tag' : 'Tage'}. Sag ${partner.name} kurz Bescheid, dann bekommst du jeden Morgen das neue Türchen aufs Handy. Oder speicher dir diesen Link.`;
+      $('startBanner').hidden = false;
+    } else if(today <= isoOf(24)){
+      $('startTitle').textContent = 'Kein Türchen verpassen';
+      $('startText').textContent = `Sag ${partner.name} kurz Bescheid, dann bekommst du jeden Morgen das neue Türchen aufs Handy.`;
+      $('startBanner').hidden = false;
+    }
+    const draw = daysUntil(`${YEAR}-12-27`);
+    $('drawCount').textContent = draw > 0 ? `Noch ${draw} Tage` : 'Ausgelost';
+    if(PRIZE && today >= isoOf(20)) $('prizeLine').innerHTML = `Im Lostopf: <b>${esc(PRIZE)}</b>.`;
+  }
+
+  // Sterne
+  (function(){
+    let s = '';
+    for(let i = 0; i < 40; i++) s += `<i style="left:${Math.random()*100}%; top:${Math.random()*100}%; animation-delay:${(Math.random()*4).toFixed(1)}s; opacity:${(0.2 + Math.random()*0.5).toFixed(2)}"></i>`;
+    $('sky').innerHTML = s;
+  })();
+
+  (async function boot(){
+    if(!slug){ $('app').innerHTML = '<div class="unknown">Link fehlt. Frag die Person, von der du den Kalender hast, nach dem richtigen Link.</div>'; return; }
+    try {
+      const r = await fetch('/.netlify/functions/c9-neujahr?p=' + encodeURIComponent(slug));
+      if(!r.ok){ $('app').innerHTML = '<div class="unknown">Dieser Kalender-Link ist leider nicht (mehr) aktiv. Frag die Person, von der du ihn hast, nach dem richtigen Link.</div>'; return; }
+      partner = await r.json();
+    } catch(e){}
+    document.querySelectorAll('.pname').forEach(el => { el.textContent = partner.name; });
+    setupStart();
+    renderGrid();
+  })();
+</script>
+</body>
+</html>
