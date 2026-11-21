@@ -12,90 +12,120 @@
 <style>
   /* Flyer zum Adventskalender (/advent/<slug>), eine Vorlage für alle Partnerinnen.
      ?p=<slug>               Story-Format 1080 x 1920 (WhatsApp-Status, Instagram)
-     ?p=<slug>&format=a5     Druckversion A5 */
-  :root{ --bg:#0F1730; --raised:#172244; --ink:#F6F1E4; --muted:#AAB2CC; --line:#2C3866; --gold:#E9C77B; }
+     ?p=<slug>&format=a5     Druckversion A5
+     &export=1               Originalgröße (für Bild/PDF-Export) */
+  :root{ --bg:#0B2620; --bg2:#16463A; --ink:#F7F0E1; --muted:#C9D8CD; --line:#2A5446; --gold:#E8C26A; --red:#C8453B; --red2:#9E2E27; --cream:#F7F0E1; }
   *{ box-sizing:border-box; }
-  html,body{ margin:0; background:#0B1124; font-family:'Inter',sans-serif; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
-  .flyer{ position:relative; width:1080px; height:1920px; overflow:hidden; color:var(--ink);
-    background: radial-gradient(1400px 900px at 50% -260px, rgba(233,199,123,0.28), transparent 65%), var(--bg);
-    padding: 104px 96px 84px; display:flex; flex-direction:column; transform-origin: top left; }
-  .spark{ position:absolute; border-radius:50%; background: var(--gold); box-shadow: 0 0 24px var(--gold); }
-  .eyebrow{ font-family:'IBM Plex Mono',monospace; font-size:34px; letter-spacing:0.18em; text-transform:uppercase; color:var(--gold); margin-bottom:40px; display:flex; align-items:center; gap:20px; }
-  .eyebrow i{ width:14px; height:14px; border-radius:50%; background:var(--gold); box-shadow:0 0 16px var(--gold); }
-  h1{ font-family:'Fraunces',serif; font-weight:400; font-size:106px; line-height:1.04; margin:0 0 36px; letter-spacing:-0.01em; }
+  html,body{ margin:0; background:#07190F; font-family:'Inter',sans-serif; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .flyer{ position:relative; width:1080px; height:1920px; overflow:hidden; color:var(--ink); transform-origin: top left;
+    background:
+      radial-gradient(700px 600px at 760px 640px, rgba(232,194,106,0.20), transparent 70%),
+      radial-gradient(900px 500px at 10% -80px, rgba(232,194,106,0.16), transparent 70%),
+      radial-gradient(800px 600px at 100% 110%, rgba(200,69,59,0.22), transparent 70%),
+      linear-gradient(165deg, var(--bg2), var(--bg) 70%); }
+  .snow i{ position:absolute; border-radius:50%; background:#fff; }
+  .lights{ position:absolute; left:0; top:0; width:1080px; height:90px; }
+  .ball{ position:absolute; top:0; }
+  .ball .s{ width:3px; background:var(--muted); opacity:.55; margin:0 auto; }
+  .ball .b{ width:var(--d); height:var(--d); border-radius:50%; position:relative; box-shadow:0 12px 26px rgba(0,0,0,.35);
+    background: radial-gradient(circle at 34% 30%, rgba(255,255,255,.75), transparent 26%), var(--c); }
+  .ball .b::before{ content:''; position:absolute; left:50%; top:-12px; transform:translateX(-50%); width:22px; height:14px; border-radius:4px; background:var(--gold); }
+
+  .content{ position:absolute; left:96px; right:96px; top:180px; bottom:80px; display:flex; flex-direction:column; }
+  .eyebrow{ font-family:'IBM Plex Mono',monospace; font-size:34px; letter-spacing:.18em; text-transform:uppercase; color:var(--gold); }
+  h1{ font-family:'Fraunces',serif; font-weight:400; font-size:120px; line-height:1.0; margin:26px 0 0; }
   h1 em{ font-style:italic; font-weight:500; color:var(--gold); }
-  .lede{ font-size:40px; line-height:1.42; color:var(--muted); margin:0 0 44px; }
+  .sub{ font-family:'Fraunces',serif; font-size:52px; margin-top:16px; opacity:.95; }
+  .hero{ display:flex; align-items:flex-end; justify-content:space-between; gap:20px; margin-top:20px; }
+  .lede{ font-size:38px; line-height:1.45; color:var(--muted); max-width:520px; margin:0 0 30px; }
   .lede b{ color:var(--ink); font-weight:600; }
-  .chips{ display:flex; flex-wrap:wrap; gap:18px; margin-bottom:auto; }
-  .chips span{ font-size:31px; padding:14px 26px; border:2px solid var(--line); border-radius:999px; background:rgba(255,255,255,0.04); }
-  .qrbox{ display:flex; align-items:center; gap:52px; background:var(--raised); border:2px solid var(--line); border-radius:40px; padding:40px; margin: 44px 0 36px; }
-  .qr{ width:340px; height:340px; background:#fff; border-radius:24px; padding:22px; flex-shrink:0; }
+  .gift{ position:relative; width:420px; height:433px; flex-shrink:0; }
+  .gift img{ width:100%; height:100%; display:block; }
+  .gift .tag{ position:absolute; left:304px; top:270px; width:96px; transform:rotate(14deg); text-align:center; font-family:'Fraunces',serif; font-style:italic; font-size:20px; color:var(--red2); }
+  .chips{ display:flex; flex-wrap:wrap; gap:16px; margin-top:34px; }
+  .chips span{ font-size:30px; font-weight:600; padding:14px 26px; border-radius:999px; }
+  .chips .r{ background:var(--red); color:#fff; }
+  .chips .g{ background:#1E5A45; color:var(--ink); border:2px solid #2F7458; }
+  .chips .c{ background:var(--cream); color:#3A1E12; }
+
+  /* QR als Geschenkanhänger */
+  .qrtag{ margin-top:auto; position:relative; display:flex; align-items:center; gap:46px; background:var(--cream); color:#1F3A2F; border-radius:36px; padding:42px 46px 42px 86px; box-shadow:0 18px 40px rgba(0,0,0,.35); }
+  .qrtag::before{ content:''; position:absolute; left:0; top:0; bottom:0; width:40px; border-radius:36px 0 0 36px; background: linear-gradient(90deg, var(--red), var(--red2)); }
+  .qrtag::after{ content:''; position:absolute; left:20px; top:50%; width:0; height:0; }
+  .qr{ width:320px; height:320px; background:#fff; border-radius:20px; padding:18px; flex-shrink:0; border:3px solid #E6D8B6; }
   .qr svg{ width:100%; height:100%; display:block; }
-  .qrtext .t{ font-family:'Fraunces',serif; font-size:60px; line-height:1.1; margin-bottom:18px; }
-  .qrtext .s{ font-size:32px; line-height:1.4; color:var(--muted); }
-  .qrtext .u{ font-family:'IBM Plex Mono',monospace; font-size:23px; line-height:1.45; color:var(--gold); margin-top:18px; }
-  .event{ border:2px dashed var(--gold); border-radius:32px; padding:34px 40px; display:flex; justify-content:space-between; align-items:center; gap:30px; }
-  .event .l{ font-size:34px; line-height:1.35; }
-  .event .l b{ display:block; font-family:'Fraunces',serif; font-weight:600; font-size:46px; color:var(--gold); margin-bottom:6px; }
-  .event .d{ font-family:'IBM Plex Mono',monospace; font-size:30px; text-align:right; color:var(--ink); white-space:nowrap; }
-  .from{ margin-top:32px; font-size:30px; color:var(--muted); display:flex; justify-content:space-between; }
+  .qt .t{ font-family:'Fraunces',serif; font-size:58px; line-height:1.08; color:#1F3A2F; }
+  .qt .t em{ font-style:italic; color:var(--red); }
+  .qt .s{ font-size:30px; line-height:1.4; color:#4C6358; margin-top:14px; }
+  .qt .u{ font-family:'IBM Plex Mono',monospace; font-size:23px; line-height:1.45; color:var(--red2); margin-top:16px; }
+
+  .win{ margin-top:30px; position:relative; overflow:hidden; display:flex; justify-content:space-between; align-items:center; gap:30px; border-radius:30px; padding:34px 120px 34px 44px; background: linear-gradient(135deg, var(--red), var(--red2)); box-shadow:0 14px 34px rgba(158,46,39,.4); }
+  .win::before{ content:''; position:absolute; right:40px; top:0; bottom:0; width:30px; background: linear-gradient(90deg, #C99A3E, #F2D488, #C99A3E); }
+  .win .l{ font-size:32px; line-height:1.35; color:#FFE9E3; position:relative; }
+  .win .l b{ display:block; font-family:'Fraunces',serif; font-weight:600; font-size:48px; color:#fff; margin-bottom:4px; }
+  .win .d{ font-family:'IBM Plex Mono',monospace; font-size:30px; text-align:right; color:#fff; white-space:nowrap; position:relative; }
+  .from{ margin-top:26px; display:flex; justify-content:space-between; font-size:30px; color:var(--muted); }
   .from b{ color:var(--ink); }
 
-  /* Anzeige am Bildschirm: auf die Fensterbreite verkleinern */
-  .stage{ padding: 16px; display:flex; justify-content:center; }
+  .stage{ padding:16px; display:flex; justify-content:center; }
   .wrap{ position:relative; }
-  @media print{ .stage{ padding:0; } }
   body.export .stage{ padding:0; display:block; }
 
   /* A5 zum Drucken: gleiche Gestaltung, kompakter */
-  body.a5 .flyer{ width:1080px; height:1528px; padding:80px 90px 64px; }
-  body.a5 .eyebrow{ font-size:28px; margin-bottom:28px; }
-  body.a5 h1{ font-size:96px; margin-bottom:30px; }
-  body.a5 .lede{ font-size:36px; margin-bottom:34px; }
-  body.a5 .chips{ gap:14px; }
+  body.a5 .flyer{ height:1528px; }
+  body.a5 .content{ top:130px; bottom:56px; }
+  body.a5 .eyebrow{ font-size:28px; }
+  body.a5 h1{ font-size:100px; margin-top:18px; }
+  body.a5 .sub{ font-size:44px; }
+  body.a5 .lede{ font-size:32px; margin-bottom:20px; }
+  body.a5 .gift{ width:330px; height:340px; }
+  body.a5 .gift .tag{ left:238px; top:210px; width:76px; font-size:16px; }
+  body.a5 .chips{ margin-top:22px; gap:12px; }
   body.a5 .chips span{ font-size:26px; padding:11px 20px; }
-  body.a5 .qrbox{ margin:32px 0 26px; padding:32px; gap:40px; }
-  body.a5 .qr{ width:330px; height:330px; padding:20px; }
-  body.a5 .qrtext .t{ font-size:50px; }
-  body.a5 .qrtext .s{ font-size:28px; }
-  body.a5 .event{ padding:26px 34px; }
-  body.a5 .event .l{ font-size:30px; }
-  body.a5 .event .l b{ font-size:40px; }
-  body.a5 .event .d{ font-size:28px; }
-  body.a5 .from{ margin-top:22px; font-size:26px; }
+  body.a5 .qrtag{ padding:32px 36px 32px 76px; gap:36px; }
+  body.a5 .qr{ width:270px; height:270px; }
+  body.a5 .qt .t{ font-size:50px; }
+  body.a5 .win{ margin-top:22px; padding:26px 110px 26px 36px; }
+  body.a5 .win .l b{ font-size:40px; }
+  body.a5 .win .l{ font-size:28px; }
+  body.a5 .from{ margin-top:18px; font-size:26px; }
   @page{ size: A5; margin:0; }
   @media print{ body.a5{ background:var(--bg); } body.a5 .flyer{ zoom:0.5175; } body.a5 .stage{ padding:0; display:block; } }
-  .adv-h1{ font-size:88px; }
-  body.a5 .adv-h1{ font-size:78px; }
   .err{ color:#fff; text-align:center; padding:60px 20px; font-size:16px; }
 </style>
 </head>
 <body>
 <div class="stage"><div class="wrap" id="wrap">
   <div class="flyer" id="flyer">
-    <span class="spark" style="width:10px;height:10px;top:180px;right:150px;"></span>
-    <span class="spark" style="width:6px;height:6px;top:300px;right:260px;opacity:.7"></span>
-    <span class="spark" style="width:8px;height:8px;top:110px;right:330px;opacity:.5"></span>
-    <span class="spark" style="width:7px;height:7px;top:420px;right:90px;opacity:.6"></span>
-    <span class="spark" style="width:5px;height:5px;top:60px;right:520px;opacity:.5"></span>
-    <div style="position:absolute; right:80px; top:56px; font-size:110px; line-height:1; opacity:.9; filter: drop-shadow(0 0 30px rgba(233,199,123,.35));">🎄</div>
-    <div class="eyebrow"><i></i>1. bis 24. Dezember</div>
-    <h1 class="adv-h1">Dein <em>Adventskalender</em><br>24 Tage Zeit für dich</h1>
-    <p class="lede">Jeden Tag ein Türchen und <b>fünf Minuten nur für dich</b>: Rituale, Pflege-Tipps, Quiz und Angebote. Kostenlos, ohne App und ohne Anmeldung.</p>
-    <div class="chips"><span>🕯️ Rituale</span><span>✨ Pflege-Tipps</span><span>❓ Quiz</span><span>🏷️ Angebote</span><span>🎁 Geschenkbox gewinnen</span></div>
-    <div class="qrbox">
-      <div class="qr" id="qr"></div>
-      <div class="qrtext">
-        <div class="t">Scannen und Türchen öffnen</div>
-        <div class="s">Kamera aufs Handy, QR-Code antippen, Link speichern.</div>
-        <div class="u" id="url"></div>
+    <div class="snow" id="snow"></div>
+    <svg class="lights" id="lights" viewBox="0 0 1080 90"><path d="M0 12 Q 90 60 180 20 T 360 20 T 540 20 T 720 20 T 900 20 T 1080 20" fill="none" stroke="#2A5446" stroke-width="3"/></svg>
+    <div class="ball" style="left:690px;"><div class="s" style="height:96px"></div><div class="b" style="--d:74px; --c:#C8453B"></div></div>
+    <div class="ball" style="left:930px;"><div class="s" style="height:160px"></div><div class="b" style="--d:58px; --c:#E8C26A"></div></div>
+
+    <div class="content">
+      <div class="eyebrow">1. bis 24. Dezember</div>
+      <h1>Dein <em>Advents&shy;kalender</em></h1>
+      <div class="sub">24 Tage Zeit für dich</div>
+      <div class="hero">
+        <p class="lede">Jeden Tag ein Türchen und <b>fünf Minuten nur für dich.</b> Kostenlos, ohne App und ohne Anmeldung.</p>
+        <div class="gift"><img src="/og/gift.svg" alt=""><div class="tag">für dich</div></div>
       </div>
+      <div class="chips"><span class="r">🕯️ Rituale</span><span class="g">✨ Pflege-Tipps</span><span class="c">❓ Quiz</span><span class="g">🏷️ Angebote</span></div>
+
+      <div class="qrtag">
+        <div class="qr" id="qr"></div>
+        <div class="qt">
+          <div class="t">Scannen und<br><em>Türchen öffnen</em></div>
+          <div class="s">Kamera aufs Handy, QR-Code antippen, Link speichern.</div>
+          <div class="u" id="url"></div>
+        </div>
+      </div>
+      <div class="win">
+        <div class="l"><b>🎁 Gewinne eine Geschenkbox</b>Lose mit Quiz, Fotos und deinem Wunsch</div>
+        <div class="d">Start<br>Di, 1.12.</div>
+      </div>
+      <div class="from"><span>Dein Kalender von <b id="pname">uns</b></span><span>Coach Oaki Team</span></div>
     </div>
-    <div class="event">
-      <div class="l"><b>Gewinnspiel: Geschenkbox</b>Lose mit Quiz, Fotos und deinem Wunsch</div>
-      <div class="d">Start<br>Di, 1.12.</div>
-    </div>
-    <div class="from"><span>Dein Kalender von <b id="pname">uns</b></span><span>Coach Oaki Team</span></div>
   </div>
 </div></div>
 
@@ -103,19 +133,29 @@
   const q = new URLSearchParams(location.search);
   const slug = (q.get('p') || '').toLowerCase().replace(/[^a-z0-9-]/g, '');
   const a5 = q.get('format') === 'a5';
+  const exp = q.get('export') === '1';
   if(a5) document.body.classList.add('a5');
-  if(q.get('export') === '1') document.body.classList.add('export');
+  if(exp) document.body.classList.add('export');
   const flyer = document.getElementById('flyer');
+  const W = 1080, H = a5 ? 1528 : 1920;
 
   function fit(){
-    // am Bildschirm verkleinern, beim Export (?export=1) in Originalgröße lassen
-    if(q.get('export') === '1') return;
-    const W = 1080, H = a5 ? 1528 : 1920;
+    if(exp) return;
     const s = Math.min((window.innerWidth - 32) / W, 1);
     flyer.style.transform = `scale(${s})`;
     document.getElementById('wrap').style.width = W * s + 'px';
     document.getElementById('wrap').style.height = H * s + 'px';
   }
+
+  // Schnee und Lichterkette
+  (function(){
+    let s = '';
+    for(let i = 0; i < 90; i++){ const z = (3 + Math.random() * 7).toFixed(1); s += `<i style="left:${(Math.random()*W).toFixed(0)}px; top:${(Math.random()*H).toFixed(0)}px; width:${z}px; height:${z}px; opacity:${(0.2 + Math.random()*0.55).toFixed(2)}"></i>`; }
+    document.getElementById('snow').innerHTML = s;
+    const C = ['#E8C26A', '#C8453B', '#7BC79A', '#F7F0E1']; let b = '';
+    for(let x = 30, k = 0; x < W; x += 60, k++){ const y = 16 + 20 * Math.abs(Math.sin(x / 180 * Math.PI)) + 4; b += `<circle cx="${x}" cy="${y.toFixed(1)}" r="10" fill="${C[k % 4]}"/>`; }
+    document.getElementById('lights').insertAdjacentHTML('beforeend', b);
+  })();
 
   (async function(){
     if(!slug){ document.body.innerHTML = '<p class="err">Link fehlt: ?p=name</p>'; return; }
