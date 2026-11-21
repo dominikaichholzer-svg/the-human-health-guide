@@ -94,7 +94,9 @@ exports.handler = async function (event) {
       }
       const p = await partner((event.queryStringParameters || {}).p);
       if (!p) return json(404, { error: 'Unbekannter Link' });
-      return json(200, { name: p.name, whatsapp: p.whatsapp || null, shop: p.shop_link || null, instagram: p.instagram || null });
+      // Schon gespeicherte Nummern ohne Ländervorwahl (0664…) für wa.me reparieren
+      const waNum = p.whatsapp ? String(p.whatsapp).replace(/[^\d]/g, '').replace(/^00/, '').replace(/^0/, '43') : null;
+      return json(200, { name: p.name, whatsapp: waNum, shop: p.shop_link || null, instagram: p.instagram || null });
     }
     if (event.httpMethod !== 'POST') return json(405, { error: 'Method Not Allowed' });
 

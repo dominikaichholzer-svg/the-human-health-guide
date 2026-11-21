@@ -106,7 +106,8 @@ exports.handler = async function (event) {
     if (p.partner) {
       const slug = clean(p.partner.slug, 40).toLowerCase();
       const name = clean(p.partner.name, 60);
-      const wa = clean(p.partner.whatsapp, 20).replace(/[^\d]/g, '').replace(/^00/, '');
+      // Nummer ins internationale Format: 0043… -> 43…, 0664… (ohne Ländervorwahl) -> 43664… (Österreich)
+      const wa = clean(p.partner.whatsapp, 20).replace(/[^\d]/g, '').replace(/^00/, '').replace(/^0/, '43');
       if (!SLUG.test(slug) || !name) return json(400, { error: 'Kurzname (nur a-z, 0-9, -) und Vorname angeben' });
       if (wa && wa.length < 9) return json(400, { error: 'WhatsApp-Nummer mit Ländervorwahl, z. B. 4366412345678' });
       const row = { slug, name, whatsapp: wa || null, active: p.partner.active !== false };
