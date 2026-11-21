@@ -168,11 +168,11 @@
   <section class="screen" id="screen-contact">
     <div class="eyebrow">Fast geschafft</div>
     <h1 class="hero">Deine Auswertung ist <em>fertig</em>.</h1>
-    <p class="lede">Wie heißt du, und wo erreicht dich <span class="pname">ich</span>, falls du Fragen hast? Deine Auswertung siehst du gleich hier auf der nächsten Seite.</p>
+    <p class="lede">Gib hier gerne noch deinen Namen und Kontakt ein, damit <span class="pname">ich</span> sich mit dir in Verbindung setzen kann.</p>
     <form id="contactForm" novalidate>
       <div class="field"><label for="fname">Vorname</label><input id="fname" type="text" autocomplete="given-name" placeholder="z. B. Lisa"></div>
       <div class="field"><label for="fphone">Handynummer (WhatsApp)</label><input id="fphone" type="tel" autocomplete="tel" inputmode="tel" placeholder="z. B. 0664 1234567"></div>
-      <div class="field"><label for="femail">E-Mail <span style="text-transform:none; letter-spacing:0;">(optional)</span></label><input id="femail" type="email" autocomplete="email" placeholder="dein@beispiel.at"></div>
+      <div class="field"><label for="fig">Instagram-Name <span style="text-transform:none; letter-spacing:0;">(optional)</span></label><input id="fig" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="z. B. @lisa.mueller"></div>
       <div class="hp" aria-hidden="true"><label for="fweb">Website</label><input id="fweb" type="text" tabindex="-1" autocomplete="off"></div>
       <label class="consent"><input type="checkbox" id="fconsent"><span id="consentText"></span></label>
       <div class="err" id="formErr"></div>
@@ -212,21 +212,21 @@
   let leadId = null;
 
   const questions = [
-    { id: 'ziel', multi: true, title: 'Was willst du 2027 verändern?', hint: 'Mehrere Antworten möglich', options: [
+    { id: 'ziel', multi: true, title: 'Mit welchem Gefühl möchtest du ins neue Jahr starten?', hint: 'Mehrere Antworten möglich', options: [
       { value: 'abnehmen', ic: '⚖️', label: 'Ein paar Kilo loswerden und mich wieder wohlfühlen' },
       { value: 'energie',  ic: '⚡', label: 'Mehr Energie, weniger müde sein' },
-      { value: 'bauch',    ic: '🌿', label: 'Ein leichteres Bauchgefühl, weniger Blähbauch' },
+      { value: 'haut',     ic: '✨', label: 'Strahlenderes Hautbild' },
       { value: 'essen',    ic: '🥗', label: 'Gesünder essen und Heißhunger in den Griff bekommen' },
       { value: 'bewegung', ic: '🏃‍♀️', label: 'Mehr Sport und Bewegung, die auch bleibt' },
     ]},
-    { id: 'hindernis', title: 'Was hat dich bisher am meisten aufgehalten?', options: [
+    { id: 'hindernis', multi: true, title: 'Was hat dich bisher am meisten davon abgehalten?', hint: 'Mehrere Antworten möglich', options: [
       { value: 'heisshunger', ic: '🍫', label: 'Heißhunger, vor allem am Abend' },
       { value: 'zeit',        ic: '⏰', label: 'Zu wenig Zeit, zu viel Stress' },
       { value: 'allein',      ic: '🙈', label: 'Allein höre ich nach ein, zwei Wochen wieder auf' },
       { value: 'anfang',      ic: '🤔', label: 'Ich weiß nicht, wo ich anfangen soll' },
       { value: 'muede',       ic: '😴', label: 'Mir fehlt schlicht die Energie dafür' },
     ]},
-    { id: 'alltag', title: 'Welcher Moment in deinem Alltag ist am schwierigsten?', options: [
+    { id: 'alltag', multi: true, title: 'In welchen Alltagsmomenten fällt es dir am schwersten?', hint: 'Mehrere Antworten möglich', options: [
       { value: 'fruehstueck', ic: '☕', label: 'Morgens: Frühstück fällt oft aus' },
       { value: 'nachmittag',  ic: '📉', label: 'Das Tief am Nachmittag' },
       { value: 'abends',      ic: '🛋️', label: 'Abends auf der Couch' },
@@ -234,10 +234,10 @@
       { value: 'passt',       ic: '🙂', label: 'Eigentlich läuft mein Alltag ganz gut' },
     ]},
     { id: 'start', title: 'Wie würdest du am liebsten ins neue Jahr starten?', options: [
-      { value: 'gruppe',   ic: '👥', label: 'Gemeinsam mit einer Gruppe und Begleitung' },
-      { value: 'freundin', ic: '👯', label: 'Zusammen mit einer Freundin' },
-      { value: 'allein',   ic: '🧘‍♀️', label: 'Für mich, in meinem Tempo' },
-      { value: 'infos',    ic: '📩', label: 'Erst mal nur Infos, dann entscheide ich' },
+      { value: 'gruppe',   ic: '🤝', label: 'Gemeinsam mit persönlicher Betreuung' },
+      { value: 'freundin', ic: '👯', label: 'Zusammen mit einem/r Freund/in' },
+      { value: 'allein',   ic: '🧘‍♀️', label: 'Für mich mit meinem Tempo' },
+      { value: 'fahrplan', ic: '🗺️', label: 'Mit alltagstauglichem Fahrplan' },
     ]},
   ];
 
@@ -255,6 +255,7 @@
     essen: { title: 'Dein Ziel: <em>gesünder essen</em>, ohne dass es sich nach Verzicht anfühlt.', short: 'gesünder essen ohne Heißhunger',
       lede: 'Gesund essen scheitert selten am Wissen, sondern am Alltag. Ein einfacher Plan schlägt jede Willenskraft.',
       tips: ['Leg dir 3 einfache Standard-Mahlzeiten zurecht, auf die du immer zurückgreifen kannst.', 'Heißhunger kommt oft, wenn tagsüber Eiweiß und Ballaststoffe fehlen. Fang dort an.', 'Zucker Schritt für Schritt reduzieren statt von heute auf morgen.'] },
+    haut: { title: 'Dein Ziel: ein <em>strahlenderes Hautbild</em>.', short: 'ein strahlenderes Hautbild', lede: '', tips: [] },
     bewegung: { title: 'Dein Ziel: <em>Bewegung, die bleibt</em>.', short: 'mehr Bewegung, die auch bleibt',
       lede: 'Die meisten Sportvorsätze scheitern nicht an der Motivation im Januar, sondern an zu großen Plänen.',
       tips: ['Klein anfangen: 10 Minuten jeden Tag bringen mehr als eine Stunde einmal im Monat.', 'Trag dir Bewegung als fixen Termin in den Kalender ein.', 'Such dir jemanden, mit dem du dich verabredest. Das macht verbindlich.'] },
@@ -376,10 +377,13 @@
     const g = goals[0];
     const shorts = goals.map(x => x.short);
     const shortAll = shorts.length > 1 ? shorts.slice(0, -1).join(', ') + ' und ' + shorts[shorts.length - 1] : (g.single || g.short);
+    // Hebel: der erste angetippte Alltagsmoment, "läuft gut" nur wenn sonst nichts gewählt
+    const al = [].concat(a.alltag.value);
+    const lever = al.find(v => v !== 'passt') || al[0];
     resultName = name;
     resultGoals = `${goals.length > 1 ? 'Meine Ziele für 2027 sind' : 'Mein Ziel für 2027 ist'}: ${shortAll}.`;
     $('resEyebrow').textContent = `Deine Auswertung, ${name}`;
-    $('resSummary').innerHTML = `${goals.length > 1 ? 'Deine Ziele' : 'Dein Ziel'} für 2027: <b>${esc(shortAll)}</b>. Dein größter Hebel im Alltag: <b>${esc(LEVER_SHORT[a.alltag.value] || '')}</b>.`;
+    $('resSummary').innerHTML = `${goals.length > 1 ? 'Deine Ziele' : 'Dein Ziel'} für 2027: <b>${esc(shortAll)}</b>. Dein größter Hebel im Alltag: <b>${esc(LEVER_SHORT[lever] || '')}</b>.`;
     const pn = partner ? partner.name : '';
     const videos = (partner && partner.videos) || {};
     $('picks').innerHTML = PICKS.map(p => {
@@ -420,19 +424,18 @@
     e.preventDefault();
     const name = $('fname').value.trim();
     const phone = $('fphone').value.trim();
-    const email = $('femail').value.trim();
+    const instagram = $('fig').value.trim();
     const err = $('formErr');
     err.textContent = '';
     if(!name){ err.textContent = 'Bitte gib deinen Vornamen ein.'; $('fname').focus(); return; }
     if(phone.replace(/[^\d]/g, '').length < 7){ err.textContent = 'Bitte gib deine Handynummer ein.'; $('fphone').focus(); return; }
-    if(email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ err.textContent = 'Die E-Mail-Adresse stimmt nicht ganz.'; $('femail').focus(); return; }
     if(!$('fconsent').checked){ err.textContent = 'Bitte bestätige noch kurz die Einwilligung.'; return; }
     const btn = $('submitBtn');
     btn.disabled = true; btn.textContent = 'Einen Moment …';
     try {
       const res = await fetch('/.netlify/functions/c9-neujahr', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ p: slug, name, phone, email, answers: state.answers, consent: true, website: $('fweb').value }),
+        body: JSON.stringify({ p: slug, name, phone, instagram, answers: state.answers, consent: true, website: $('fweb').value }),
       });
       const data = await res.json().catch(() => ({}));
       if(!res.ok){ err.textContent = data.error || 'Das hat gerade nicht geklappt. Versuch es bitte nochmal.'; return; }
@@ -450,7 +453,7 @@
     const n = partner.name;
     $('introPartner').textContent = n;
     document.querySelectorAll('.pname').forEach(el => { el.textContent = n; });
-    $('consentText').textContent = `Ich bin einverstanden, dass mich ${n} zu meiner Auswertung und zur C9-Neujahrs-Challenge per WhatsApp, Telefon oder E-Mail kontaktiert. Ich kann das jederzeit mit einer kurzen Nachricht widerrufen.`;
+    $('consentText').textContent = `Ich bin einverstanden, dass mich ${n} zu meiner Auswertung und zur C9-Neujahrs-Challenge per WhatsApp, Telefon oder Instagram kontaktiert. Ich kann das jederzeit mit einer kurzen Nachricht widerrufen.`;
   }
 
   (async function boot(){

@@ -73,7 +73,7 @@ exports.handler = async function (event) {
         totals: count(list),
         partners: (partners || []).map((p) => ({ ...p, ...count(list.filter((l) => l.partner_slug === p.slug)) })),
         leads: list.slice(0, 300).map((l) => ({
-          id: l.id, partner: l.partner_slug, name: l.name, phone: l.phone, email: l.email,
+          id: l.id, partner: l.partner_slug, name: l.name, phone: l.phone, email: l.email, instagram: (l.answers && l.answers.instagram) || '',
           ziel: (l.answers && l.answers.labels && l.answers.labels.ziel) || '',
           start: (l.answers && l.answers.labels && l.answers.labels.start) || '',
           status: l.status, wa: !!l.wa_clicked_at, friend: !!l.friend_shared_at,

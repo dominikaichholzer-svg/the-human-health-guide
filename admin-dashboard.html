@@ -754,7 +754,7 @@
         <select data-r2lead="${l.id}">${Object.entries(R2_STATUS).map(([k, v]) => `<option value="${k}"${k === l.status ? ' selected' : ''}>${v}</option>`).join('')}</select></div>
         ${l.confirmed ? '<div class="meta" style="color:var(--green-light)">✓ selbst als bestellt eingetragen</div>' : ''}
         ${l.manual ? '<div class="meta">Ohne Umfrage eingetragen</div>' : !l.survey ? `<div class="meta">${incEsc(l.phone)}</div>` : `<div class="meta">${incEsc(l.ziel)}${l.start ? ' · ' + incEsc(l.start) : ''}</div>
-        <div class="meta">${wa.length > 6 ? `<a href="https://wa.me/${wa}" target="_blank">${incEsc(l.phone)}</a>` : incEsc(l.phone)}${l.wa ? ' · hat selbst geschrieben' : ' · <b style="color:var(--gold)">noch nicht geschrieben, melde dich</b>'}${l.friend ? ' · weitergeleitet' : ''}</div>`}${r2Clicks(l.clicks)}</div>`;
+        <div class="meta">${wa.length > 6 ? `<a href="https://wa.me/${wa}" target="_blank">${incEsc(l.phone)}</a>` : incEsc(l.phone)}${l.wa ? ' · hat selbst geschrieben' : ' · <b style="color:var(--gold)">noch nicht geschrieben, melde dich</b>'}${l.friend ? ' · weitergeleitet' : ''}${l.instagram ? ` · <a href="https://instagram.com/${incEsc(l.instagram)}" target="_blank">IG @${incEsc(l.instagram)}</a>` : ''}</div>`}${r2Clicks(l.clicks)}</div>`;
     }).join('') || '<p class="card-sub">Noch keine Anmeldungen.</p>';
   }
   const R2_VIDS = [['c9','r2VidC9'],['beauty','r2VidBeauty'],['energie','r2VidEnergie'],['beratung','r2VidBeratung']];

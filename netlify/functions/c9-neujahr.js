@@ -7,7 +7,7 @@
 // POST { dabei: true, p, name, phone, consent } -> "Ich bin dabei": als bestellt eintragen, { groupLink }
 // POST { advent: true, p, ev, day? }  -> anonymes Ereignis aus dem Adventskalender zählen
 // GET  ?stats=1                        -> { goal, bestellt, umfragen, partnerinnen } (Team-Zähler)
-// POST { p, name, phone, email?, answers, consent }  -> { id }
+// POST { p, name, phone, instagram?, answers, consent }  -> { id }
 //      speichert in c9_leads und schickt Dominik eine Benachrichtigung
 // POST { id, event: "wa" | "friend" } bzw. { id, event: "video" | "anfrage", option: "c9" | "beauty" | "energie" | "beratung" }  -> merkt, ob sie selbst auf WhatsApp
 //      geschrieben oder an eine Freundin weitergeleitet hat (für die Quote)
@@ -19,13 +19,14 @@ const { pgrest } = require('./_lib/supabase');
 const SLUG = /^[a-z0-9-]{2,40}$/;
 const OPTIONS = ['c9', 'beauty', 'energie', 'beratung'];
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const CONSENT_TEXT = 'Ich bin einverstanden, dass mich {name} zu meiner Auswertung und zur C9-Neujahrs-Challenge per WhatsApp, Telefon oder E-Mail kontaktiert. Ich kann das jederzeit mit einer kurzen Nachricht widerrufen.';
+const CONSENT_TEXT = 'Ich bin einverstanden, dass mich {name} zu meiner Auswertung und zur C9-Neujahrs-Challenge per WhatsApp, Telefon oder Instagram kontaktiert. Ich kann das jederzeit mit einer kurzen Nachricht widerrufen.';
 const ALLOWED = {
-  ziel: ['abnehmen', 'energie', 'bauch', 'essen', 'bewegung'],
+  ziel: ['abnehmen', 'energie', 'haut', 'bauch', 'essen', 'bewegung'],
   hindernis: ['heisshunger', 'zeit', 'allein', 'anfang', 'muede'],
   alltag: ['fruehstueck', 'nachmittag', 'abends', 'wasser', 'passt'],
-  start: ['gruppe', 'freundin', 'allein', 'infos'],
+  start: ['gruppe', 'freundin', 'allein', 'fahrplan', 'infos'],
 };
+const MULTI = ['ziel', 'hindernis', 'alltag']; // Mehrfachauswahl
 
 const json = (status, obj) => ({ statusCode: status, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }, body: JSON.stringify(obj) });
 // Kam die Anmeldung über die Umfrage (nicht manuell oder über "Ich bin dabei")?
@@ -50,7 +51,7 @@ async function notify(p, lead, labels) {
   const esc = (t) => String(t || '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const wa = String(lead.phone).replace(/[^\d]/g, '').replace(/^00/, '').replace(/^0/, '43');
   const html = `<p><b>${esc(lead.name)}</b> hat die Neujahrs-Umfrage über den Link von <b>${esc(p.name)}</b> ausgefüllt.</p>
-<p>Handy: ${esc(lead.phone)} · <a href="https://wa.me/${wa}">auf WhatsApp öffnen</a>${lead.email ? `<br>E-Mail: ${esc(lead.email)}` : ''}</p>
+<p>Handy: ${esc(lead.phone)} · <a href="https://wa.me/${wa}">auf WhatsApp öffnen</a>${lead.instagram ? `<br>Instagram: <a href="https://instagram.com/${esc(lead.instagram)}">@${esc(lead.instagram)}</a>` : ''}</p>
 <p>Ziel: ${esc(labels.ziel)}<br>Bisher im Weg: ${esc(labels.hindernis)}<br>Alltag: ${esc(labels.alltag)}<br>Start: ${esc(labels.start)}</p>
 <p>Nächster Schritt: heute noch eine kurze Sprachnachricht schicken.</p>`;
   try {
@@ -182,10 +183,11 @@ exports.handler = async function (event) {
     if (!p) return json(404, { error: 'Unbekannter Link' });
     const name = clean(b.name, 80);
     const phone = clean(b.phone, 40);
-    const email = clean(b.email, 120);
+    // Instagram-Name: @, Leerzeichen und ganze Profil-Links auf den reinen Namen kürzen
+    const instagram = clean(b.instagram, 120).replace(/^https?:\/\/(www\.)?instagram\.com\//i, '').replace(/[/?#].*$/, '').replace(/^@+/, '').replace(/\s+/g, '').slice(0, 30);
     if (!name) return json(400, { error: 'Bitte gib deinen Namen ein.' });
     if (phone.replace(/[^\d]/g, '').length < 7) return json(400, { error: 'Bitte gib deine Handynummer ein.' });
-    if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json(400, { error: 'Die E-Mail-Adresse stimmt nicht ganz.' });
+    if (instagram && !/^[A-Za-z0-9._]{1,30}$/.test(instagram)) return json(400, { error: 'Der Instagram-Name stimmt nicht ganz.' });
     if (b.consent !== true) return json(400, { error: 'Bitte bestätige die Einwilligung.' });
 
     const a = b.answers || {};
@@ -193,23 +195,25 @@ exports.handler = async function (event) {
     const labels = {};
     for (const k of Object.keys(ALLOWED)) {
       const v = a[k] && a[k].value;
-      // Ziel: Mehrfachauswahl (Liste), alle anderen Fragen: eine Antwort
-      const ok = k === 'ziel'
-        ? Array.isArray(v) && v.length > 0 && v.length <= ALLOWED.ziel.length && v.every((x) => ALLOWED.ziel.includes(x))
+      // Ziel, Hindernis, Alltag: Mehrfachauswahl (Liste), Start: eine Antwort
+      const multi = MULTI.includes(k);
+      const ok = multi
+        ? Array.isArray(v) && v.length > 0 && v.length <= ALLOWED[k].length && v.every((x) => ALLOWED[k].includes(x))
         : ALLOWED[k].includes(v);
       if (!ok) return json(400, { error: 'Bitte beantworte alle Fragen.' });
-      answers[k] = k === 'ziel' ? [...new Set(v)] : v;
-      labels[k] = clean(a[k].label, k === 'ziel' ? 400 : 120);
+      answers[k] = multi ? [...new Set(v)] : v;
+      labels[k] = clean(a[k].label, multi ? 400 : 120);
     }
     answers.labels = labels;
+    if (instagram) answers.instagram = instagram;
 
     const rows = await pgrest('c9_leads', {
       method: 'POST',
       prefer: 'return=representation',
-      body: [{ partner_slug: p.slug, name, phone, email: email || null, answers, consent_text: CONSENT_TEXT.replace('{name}', p.name) }],
+      body: [{ partner_slug: p.slug, name, phone, answers, consent_text: CONSENT_TEXT.replace('{name}', p.name) }],
     });
     const lead = rows && rows[0];
-    await notify(p, { name, phone, email }, labels);
+    await notify(p, { name, phone, instagram }, labels);
     return json(200, { id: lead ? lead.id : null });
   } catch (err) {
     console.error('c9-neujahr', err.message, err.data || '');
