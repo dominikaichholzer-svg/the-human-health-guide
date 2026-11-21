@@ -96,7 +96,7 @@
   <div class="eyebrow">1. bis 24. Dezember 2026</div>
   <h1>Dein <em>Adventskalender</em></h1>
   <div style="font-family:var(--serif); font-size:20px; color:var(--muted);">24 Tage Zeit für dich</div>
-  <p class="lede">Jeden Tag ein Türchen und fünf Minuten nur für dich: ein Ritual, ein Pflege-Tipp, ein kleines Quiz oder ein Angebot. In der zweiten Hälfte schauen wir gemeinsam aufs neue Jahr.</p>
+  <p class="lede">Jeden Tag ein Türchen und fünf Minuten nur für dich: ein Ritual, ein Pflege-Tipp, ein kleines Quiz oder ein Angebot. In der zweiten Hälfte schaust du mit <span class="pname">…</span> aufs neue Jahr.</p>
 
   <div class="from">
     <div><small>Dein Kalender von</small><b class="pname">…</b></div>
@@ -113,7 +113,7 @@
 
   <div class="banner gold">
     <div class="row" style="justify-content:space-between; margin-bottom:6px;"><h3 style="margin:0;">🎁 Das Gewinnspiel</h3><span class="count" id="drawCount"></span></div>
-    <p>Jede Quiz-Antwort, jedes Foto und dein Wunsch für 2027 sind ein Los. Mitmachen bis 24.12., die Auslosung ist am 27.12. <span id="prizeLine">Was im Lostopf steckt, verraten wir am 20. Dezember.</span></p>
+    <p><b>Zu gewinnen: eine Geschenkbox von <span class="pname">…</span></b>, gepackt mit Lieblingsprodukten für die Feiertage. Jede Quiz-Antwort, jedes Foto und dein Wunsch für 2027 sind ein Los. Mitmachen bis 24.12., die Auslosung ist am 27.12. <span id="prizeLine"></span></p>
     <div class="row"><button class="pill" type="button" id="howBtn">Wie komme ich in den Lostopf?</button></div>
   </div>
 
@@ -135,7 +135,7 @@
   // Türchen öffnen sich ab dem jeweiligen Tag (Wiener Zeit).
   // ?vorschau=1 öffnet alle Türchen (zum Korrekturlesen).
   // ============================================================
-  const PRIZE = ''; // z. B. 'ein Forever-Pflegeset im Wert von 60 €' (erscheint ab 20.12.)
+  const PRIZE = 'eine Geschenkbox'; // Preis im Gewinnspiel, steht von Anfang an im Kalender
   const YEAR = 2026;
   const slug = (location.pathname.match(/\/advent\/([a-z0-9-]+)/) || [])[1] || new URLSearchParams(location.search).get('p') || '';
   const preview = new URLSearchParams(location.search).get('vorschau') === '1';
@@ -148,30 +148,30 @@
 
   // Inhalte der 24 Türchen. {name} = Name der Partnerin.
   const DOORS = [
-    { t:'ritual', title:'Dein 5-Minuten-Morgen', body:`<p>Bevor das Handy dich hat: ein Glas lauwarmes Wasser, drei tiefe Atemzüge am offenen Fenster und ein Gedanke an etwas, auf das du dich heute freust.</p><p>Fünf Minuten, die den ganzen Tag ruhiger machen. Probier es die nächsten 24 Tage, das ist unser gemeinsamer Start.</p>` },
+    { t:'ritual', title:'Dein 5-Minuten-Morgen', body:`<p>Bevor das Handy dich hat: ein Glas lauwarmes Wasser, drei tiefe Atemzüge am offenen Fenster und ein Gedanke an etwas, auf das du dich heute freust.</p><p>Fünf Minuten, die den ganzen Tag ruhiger machen. Probier es die nächsten 24 Tage. {name} begleitet dich jeden Tag mit einem neuen Türchen.</p>` },
     { t:'rabatt', pct:10, product:'Aloe Lips', title:'Kleines Geschenk, große Freude', body:`<p>Der Lippenpflegestift mit Aloe Vera, Jojobaöl und Bienenwachs passt in jede Jackentasche und in jeden Adventskalender.</p><p>Als Mitbringsel, Wichtelgeschenk oder einfach für dich, wenn die Kälte an den Lippen zieht.</p>` },
     { t:'quiz', title:'Wie gut kennst du Aloe Vera?', q:'Woraus wird das Forever Aloe Vera Gel zum Trinken gewonnen?', opts:['Aus dem ganzen Blatt mit Schale','Aus dem Gel im Inneren des Blattes','Aus getrocknetem Aloe-Pulver'], right:1, explain:'Forever verwendet das Gel aus dem Inneren des Blattes. Die Blätter werden von Hand geerntet und das Gel herausgelöst.' },
     { t:'tipp', title:'Winterhaut: Hände und Lippen', body:`<p>Heizungsluft und Kälte trocknen die Haut aus. Ein einfacher Trick für die Nacht: Hände großzügig eincremen und dünne Baumwollhandschuhe drüberziehen. Am Morgen fühlen sie sich ganz anders an.</p>`, tool:'Gut geeignet ist eine reichhaltige Creme, zum Beispiel die <b>Aloe Propolis Creme</b> mit Aloe Vera, Propolis und Kamille.' },
     { t:'rabatt', pct:10, product:'Aloe Propolis Creme', title:'Pflege für kalte Tage', body:`<p>Die reichhaltige Creme mit Aloe Vera, Propolis und Kamille für Hände, Ellbogen und alle Stellen, die im Winter spannen.</p>` },
-    { t:'foto', title:'Nikolaus: dein gemütlichster Moment', body:`<p>Heute zeigst du uns dein schönstes Winter-Ritual: die Tasse Tee am Fenster, die Kuscheldecke, der Spaziergang im Schnee.</p><p>Schick ein Foto an {name}, das ist ein Los im Gewinnspiel.</p>` },
+    { t:'foto', title:'Nikolaus: dein gemütlichster Moment', body:`<p>Heute zeigst du {name} dein schönstes Winter-Ritual: die Tasse Tee am Fenster, die Kuscheldecke, der Spaziergang im Schnee.</p><p>Schick ein Foto an {name}, das ist ein Los im Gewinnspiel.</p>` },
     { t:'beratung', title:'Deine persönliche Pflege-Beratung', body:`<p>Trockene Haut, unreine Haut, Mischhaut oder einfach keine Ahnung, was zu dir passt? {name} nimmt sich 10 Minuten für dich, ganz unverbindlich.</p><p>Schreib einfach, was dich an deiner Haut gerade beschäftigt.</p>` },
     { t:'tipp', title:'Geschenke, die wirklich ankommen', body:`<p>Die schönsten Geschenke sind die, die man selbst benutzt: Lippenpflege, eine gute Handcreme, ein Duschgel, das nach Urlaub riecht.</p><ul><li>Für die Kollegin: Aloe Lips mit einer kleinen Karte</li><li>Für die Mama: ein Pflegeset für die Hände</li><li>Für den Partner: etwas für nach dem Rasieren</li></ul><p>{name} stellt dir gern ein Set zusammen.</p>` },
     { t:'quiz', title:'Trinken im Winter', q:'Wie viel sollten Erwachsene laut Ernährungsempfehlung ungefähr am Tag trinken?', opts:['Etwa 0,5 Liter','Etwa 1,5 Liter','Etwa 4 Liter'], right:1, explain:'Die Empfehlung liegt bei etwa 1,5 Litern am Tag, am besten Wasser oder ungesüßter Tee. Im Winter vergessen wir es besonders oft.' },
     { t:'ritual', title:'Das warme Fußbad', body:`<p>Eine Schüssel warmes Wasser, eine Handvoll Salz, zehn Minuten Zeit. Danach die Füße eincremen und warme Socken an.</p><p>Ein kleines Ritual, das sich nach Wellness anfühlt und nichts kostet außer zehn Minuten.</p>` },
     { t:'tipp', title:'Besser schlafen im Advent', body:`<ul><li>30 Minuten vor dem Schlafen das Handy weglegen</li><li>Das Schlafzimmer eher kühl halten, etwa 18 Grad</li><li>Zur gleichen Zeit ins Bett, auch am Wochenende</li></ul><p>Klingt simpel, macht aber im stressigen Dezember einen spürbaren Unterschied.</p>` },
     { t:'rabatt', pct:15, product:'ein Pflegeset deiner Wahl', title:'Halbzeit-Angebot', body:`<p>Zwölf Türchen geschafft! Heute gibt es das größte Angebot der ersten Hälfte: auf ein Pflegeset deiner Wahl, für dich oder als Geschenk.</p>` },
-    { t:'foto', title:'Zeig uns deinen Weihnachtsbaum', body:`<p>Ob prachtvoll geschmückt, minimalistisch oder noch im Netz vor der Tür: Wir wollen ihn sehen!</p><p>Schick ein Foto an {name}, das ist ein Los im Gewinnspiel.</p>` },
-    { t:'geschenk', title:'Ein Geschenk für dich: unsere Rezepte', body:`<p>Für die Zeit zwischen Keksen und Festtagsbraten: einfache, warme Rezepte, die satt machen und leicht sind.</p>`, link:{ href:'/rezepte.html', label:'Zu den Rezepten' } },
-    { t:'neustart', title:'Was willst du 2027 verändern?', body:`<p>Ab heute schauen wir gemeinsam aufs neue Jahr. Mach die kurze Neujahrs-Umfrage: 4 Fragen, eine Minute, und du bekommst sofort deine persönliche Auswertung.</p>`, survey:true },
+    { t:'foto', title:'Zeig {name} deinen Weihnachtsbaum', body:`<p>Ob prachtvoll geschmückt, minimalistisch oder noch im Netz vor der Tür: {name} will ihn sehen!</p><p>Schick ein Foto an {name}, das ist ein Los im Gewinnspiel.</p>` },
+    { t:'geschenk', title:'Ein Geschenk von {name}: Rezepte für die Feiertage', body:`<p>Für die Zeit zwischen Keksen und Festtagsbraten: einfache, warme Rezepte, die satt machen und leicht sind.</p>`, link:{ href:'/rezepte.html', label:'Zu den Rezepten' } },
+    { t:'neustart', title:'Was willst du 2027 verändern?', body:`<p>Ab heute schaust du mit {name} aufs neue Jahr. Mach die kurze Neujahrs-Umfrage von {name}: 4 Fragen, eine Minute, und du bekommst sofort deine persönliche Auswertung.</p>`, survey:true },
     { t:'tipp', title:'Dein Bauch und die Feiertage', body:`<p>Zwischen Keksen, Punsch und Festessen hat der Bauch viel zu tun. Was hilft:</p><ul><li>Öfter warm und gekocht essen statt kalt</li><li>In Ruhe essen, nicht nebenbei</li><li>Zwischen den Mahlzeiten Pausen lassen</li></ul>` },
     { t:'tipp', title:'Heißhunger an Feiertagen', body:`<p>Wer morgens nur Kaffee trinkt, kämpft abends mit dem Keksteller. Ein Frühstück mit Eiweiß, zum Beispiel Joghurt, Eier oder ein Shake, hält deutlich länger satt.</p><p>Probier es die nächsten drei Tage und beobachte, was am Nachmittag passiert.</p>` },
     { t:'tipp', title:'Die 10-Minuten-Regel', body:`<p>Nach dem Essen zehn Minuten raus: einmal um den Block, frische Luft, Tageslicht. Kein Sportprogramm, einfach gehen.</p><p>Gerade an Feiertagen ist das die einfachste Gewohnheit, die man ins neue Jahr mitnehmen kann.</p>` },
     { t:'quiz', title:'Ballaststoffe', q:'Wie viele Gramm Ballaststoffe am Tag werden für Erwachsene empfohlen?', opts:['Etwa 10 Gramm','Etwa 30 Gramm','Etwa 60 Gramm'], right:1, explain:'Empfohlen sind etwa 30 Gramm am Tag. Die meisten essen deutlich weniger. Haferflocken, Leinsamen, Gemüse und Hülsenfrüchte helfen.' },
-    { t:'gewinn', title:'Das steckt im Lostopf', body:`<p>{prize}</p><p>Noch bis 24.12. kannst du Lose sammeln: mit den Quiz-Antworten, deinen Fotos und deinem Wunsch für 2027. Am 27.12. wird ausgelost.</p>` },
+    { t:'gewinn', title:'Endspurt für die Geschenkbox', body:`<p>Noch vier Tage! Im Lostopf wartet die <b>Geschenkbox von {name}</b>, gepackt mit Lieblingsprodukten für die Feiertage.</p><p>Hast du schon alle Lose? Die Quiz-Türchen 3, 9 und 19, die Foto-Türchen 6 und 13 und am 22. dein Wunsch für 2027. Am 27.12. lost {name} aus.</p>` },
     { t:'rabatt', pct:10, product:'Forever Aloe Vera Gel zum Trinken', title:'Für einen frischen Start in den Tag', body:`<p>Das Aloe Vera Gel zum Trinken, pur oder mit Frucht, als kleines Morgenritual. Ein Glas am Morgen, mehr braucht es nicht.</p>` },
     { t:'wunsch', title:'Dein Wunsch für 2027', body:`<p>Was wünschst du dir für das neue Jahr, ganz für dich? Mehr Ruhe, mehr Energie, mehr Zeit mit Menschen, die dir guttun?</p><p>Schreib deinen Wunsch an {name}. Wer ihn aufschreibt, nimmt ihn ernster. Und er ist ein Los im Gewinnspiel.</p>` },
-    { t:'rabatt', pct:15, product:'das C9-Programm', note:'Die bis zu 15 % auf das C9 gibt es über den Link von {name}, den Bonus mit den 3 Jokern nur bis 31.12. Bestellschluss für den gemeinsamen Start ist der 23.01.', title:'Gemeinsam ins neue Jahr', body:`<p>Am Samstag, 30.01., starten wir gemeinsam die C9 Neujahrs-Challenge: 9 Tage mit klarem Tagesplan, WhatsApp-Gruppe, persönlicher Begleitung und Rezeptbuch, alles geschenkt dazu.</p><p>Wer bis 31.12. dabei ist, bekommt zusätzlich ein Starter-Set mit 3 Jokern für die 9 Tage.</p>`, survey:true },
-    { t:'danke', title:'Danke, dass du dabei warst', body:`<p>24 Türchen, 24 Mal fünf Minuten für dich. Wir hoffen, ein paar Rituale bleiben.</p><p>Frohe Weihnachten von {name} und dem ganzen Team. Am 27.12. wird das Gewinnspiel ausgelost, und am 30.01. sehen wir uns hoffentlich bei der Neujahrs-Challenge.</p>` },
+    { t:'rabatt', pct:15, product:'das C9-Programm', note:'Die bis zu 15 % auf das C9 gibt es über den Link von {name}, den Bonus mit den 3 Jokern nur bis 31.12. Bestellschluss für den gemeinsamen Start ist der 23.01.', title:'Gemeinsam ins neue Jahr', body:`<p>Am Samstag, 30.01., startet {name} mit einer ganzen Gruppe die C9 Neujahrs-Challenge: 9 Tage mit klarem Tagesplan, WhatsApp-Gruppe, persönlicher Begleitung und Rezeptbuch, alles geschenkt dazu.</p><p>Wer bis 31.12. dabei ist, bekommt zusätzlich ein Starter-Set mit 3 Jokern für die 9 Tage.</p>`, survey:true },
+    { t:'danke', title:'Danke, dass du dabei warst', body:`<p>24 Türchen, 24 Mal fünf Minuten für dich. {name} hofft, dass ein paar Rituale bleiben.</p><p>Frohe Weihnachten von {name} und dem ganzen Team. Am 27.12. lost {name} die Geschenkbox aus, und am 30.01. seht ihr euch hoffentlich bei der Neujahrs-Challenge.</p>` },
   ];
 
   // ---------- Datum (Wiener Zeit) ----------
@@ -199,7 +199,7 @@
     const num = partner.whatsapp ? String(partner.whatsapp).replace(/[^\d]/g, '') : '';
     return num ? `https://wa.me/${num}?text=${encodeURIComponent(text)}` : `https://wa.me/?text=${encodeURIComponent(text)}`;
   }
-  const fill = (html) => html.replace(/\{name\}/g, esc(partner.name)).replace(/\{prize\}/g, PRIZE ? `Im Lostopf: <b>${esc(PRIZE)}</b>.` : 'Den Preis verrät dir {name} heute persönlich.').replace(/\{name\}/g, esc(partner.name));
+  const fill = (html) => html.replace(/\{name\}/g, esc(partner.name));
 
   function renderGrid(){
     $('grid').innerHTML = DOORS.map((d, i) => {
@@ -217,7 +217,7 @@
     const d = DOORS[day - 1];
     markOpened(day);
     renderGrid();
-    const head = `<div class="top"><span class="eyebrow" style="margin:0;">Türchen ${day} · ${d.t === 'rabatt' ? 'Angebot −' + d.pct + ' %' : LABEL[d.t]}</span><button class="x" type="button" data-close aria-label="Schließen">×</button></div><h2>${esc(d.title)}</h2>`;
+    const head = `<div class="top"><span class="eyebrow" style="margin:0;">Türchen ${day} · ${d.t === 'rabatt' ? 'Angebot −' + d.pct + ' %' : LABEL[d.t]}</span><button class="x" type="button" data-close aria-label="Schließen">×</button></div><h2>${fill(esc(d.title))}</h2>`;
     let html = head;
     if(d.t === 'quiz'){
       html += `<p>${esc(d.q)}</p><div class="opts" id="quizOpts">${d.opts.map((o, i) => `<button type="button" data-opt="${i}">${esc(o)}</button>`).join('')}</div><div id="quizAfter"></div>`;
@@ -274,11 +274,11 @@
     <ol class="how"><li><b>Quiz:</b> In den Türchen 3, 9 und 19 beantwortest du eine kleine Frage und schickst deine Antwort an ${esc(partner.name)}.</li>
     <li><b>Fotos:</b> In den Türchen 6 und 13 schickst du ein Foto an ${esc(partner.name)}.</li>
     <li><b>Wunsch:</b> In Türchen 22 schickst du deinen Wunsch für 2027.</li></ol>
-    <p>Jede Einsendung ist ein Los, also bis zu 6 Lose. Richtig oder falsch ist beim Quiz egal. Mitmachen bis 24.12., Auslosung am 27.12. Teilnahme kostenlos und ohne Kauf.</p>`));
+    <p>Jede Einsendung ist ein Los, also bis zu 6 Lose. Richtig oder falsch ist beim Quiz egal. Mitmachen bis 24.12., am 27.12. lost ${esc(partner.name)} die Geschenkbox aus. Teilnahme kostenlos und ohne Kauf.</p>`));
   $('termsBtn').addEventListener('click', () => showSheet(`<h2>Teilnahmebedingungen</h2>
-    <p><b>Veranstalterin</b> ist die Person, die dir diesen Kalender geschickt hat (${esc(partner.name)}), als unabhängige Forever-Partnerin. Das Gewinnspiel steht in keiner Verbindung zu Meta, WhatsApp oder Forever Living Products.</p>
-    <p><b>Teilnahme:</b> kostenlos und unabhängig von einem Kauf. Teilnehmen dürfen Personen ab 18 Jahren mit Wohnsitz in Österreich, Deutschland oder der Schweiz. Ein Los gibt es für jede per WhatsApp an die Veranstalterin geschickte Quiz-Antwort (Türchen 3, 9, 19), jedes eigene Foto (Türchen 6, 13) und den Wunsch für 2027 (Türchen 22), höchstens 6 Lose pro Person. Einsendeschluss: 24.12.${YEAR}, 23:59 Uhr.</p>
-    <p><b>Gewinn und Auslosung:</b> Die Auslosung findet am 27.12.${YEAR} unter allen Losen bei der Veranstalterin statt. Der Gewinn wird am 20.12. im Kalender bekannt gegeben. Die Gewinnerin oder der Gewinner wird per WhatsApp benachrichtigt. Eine Barauszahlung ist nicht möglich.</p>
+    <p><b>Veranstaltet</b> wird das Gewinnspiel von der Person, die dir diesen Kalender geschickt hat (${esc(partner.name)}), als unabhängige Forever-Partnerin oder unabhängiger Forever-Partner. Das Gewinnspiel steht in keiner Verbindung zu Meta, WhatsApp oder Forever Living Products.</p>
+    <p><b>Teilnahme:</b> kostenlos und unabhängig von einem Kauf. Teilnehmen dürfen Personen ab 18 Jahren mit Wohnsitz in Österreich, Deutschland oder der Schweiz. Ein Los gibt es für jede per WhatsApp an ${esc(partner.name)} geschickte Quiz-Antwort (Türchen 3, 9, 19), jedes eigene Foto (Türchen 6, 13) und den Wunsch für 2027 (Türchen 22), höchstens 6 Lose pro Person. Einsendeschluss: 24.12.${YEAR}, 23:59 Uhr.</p>
+    <p><b>Gewinn und Auslosung:</b> Die Auslosung findet am 27.12.${YEAR} unter allen Losen bei ${esc(partner.name)} statt. Zu gewinnen ist ${esc(PRIZE)} von ${esc(partner.name)}. Die Gewinnerin oder der Gewinner wird per WhatsApp benachrichtigt. Eine Barauszahlung ist nicht möglich.</p>
     <p><b>Fotos:</b> Bitte nur eigene Fotos schicken, auf denen keine anderen Personen ohne deren Einverständnis zu sehen sind. Fotos werden nur mit deiner ausdrücklichen Zustimmung veröffentlicht.</p>
     <p><b>Daten:</b> Deine Nachricht und Telefonnummer werden nur zur Durchführung des Gewinnspiels genutzt und danach gelöscht, wenn du nichts anderes möchtest.</p>`));
 
@@ -299,7 +299,6 @@
     }
     const draw = daysUntil(`${YEAR}-12-27`);
     $('drawCount').textContent = draw > 0 ? `Noch ${draw} Tage` : 'Ausgelost';
-    if(PRIZE && today >= isoOf(20)) $('prizeLine').innerHTML = `Im Lostopf: <b>${esc(PRIZE)}</b>.`;
   }
 
   // Sterne
