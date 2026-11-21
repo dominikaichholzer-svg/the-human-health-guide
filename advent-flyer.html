@@ -31,7 +31,8 @@
     background: radial-gradient(circle at 34% 30%, rgba(255,255,255,.75), transparent 26%), var(--c); }
   .ball .b::before{ content:''; position:absolute; left:50%; top:-12px; transform:translateX(-50%); width:22px; height:14px; border-radius:4px; background:var(--gold); }
 
-  .content{ position:absolute; left:96px; right:96px; top:180px; bottom:80px; display:flex; flex-direction:column; }
+  .content{ position:absolute; left:96px; right:96px; top:170px; bottom:70px; display:flex; flex-direction:column; }
+  .content > *{ flex-shrink:0; }
   .eyebrow{ font-family:'IBM Plex Mono',monospace; font-size:34px; letter-spacing:.18em; text-transform:uppercase; color:var(--gold); }
   h1{ font-family:'Fraunces',serif; font-weight:400; font-size:120px; line-height:1.0; margin:26px 0 0; }
   h1 em{ font-style:italic; font-weight:500; color:var(--gold); }
@@ -42,8 +43,8 @@
   .gift{ position:relative; width:420px; height:433px; flex-shrink:0; }
   .gift img{ width:100%; height:100%; display:block; }
   .gift .tag{ position:absolute; left:304px; top:270px; width:96px; transform:rotate(14deg); text-align:center; font-family:'Fraunces',serif; font-style:italic; font-size:20px; color:var(--red2); }
-  .chips{ display:flex; flex-wrap:wrap; gap:16px; margin-top:34px; }
-  .chips span{ font-size:30px; font-weight:600; padding:14px 26px; border-radius:999px; }
+  .chips{ display:flex; flex-wrap:wrap; gap:14px; margin-top:24px; }
+  .chips span{ font-size:28px; font-weight:600; padding:12px 22px; border-radius:999px; }
   .chips .r{ background:var(--red); color:#fff; }
   .chips .g{ background:#1E5A45; color:var(--ink); border:2px solid #2F7458; }
   .chips .c{ background:var(--cream); color:#3A1E12; }
