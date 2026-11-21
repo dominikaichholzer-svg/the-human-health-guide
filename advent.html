@@ -170,7 +170,7 @@
     { t:'gewinn', title:'Das steckt im Lostopf', body:`<p>{prize}</p><p>Noch bis 24.12. kannst du Lose sammeln: mit den Quiz-Antworten, deinen Fotos und deinem Wunsch für 2027. Am 27.12. wird ausgelost.</p>` },
     { t:'rabatt', pct:10, product:'Forever Aloe Vera Gel zum Trinken', title:'Für einen frischen Start in den Tag', body:`<p>Das Aloe Vera Gel zum Trinken, pur oder mit Frucht, als kleines Morgenritual. Ein Glas am Morgen, mehr braucht es nicht.</p>` },
     { t:'wunsch', title:'Dein Wunsch für 2027', body:`<p>Was wünschst du dir für das neue Jahr, ganz für dich? Mehr Ruhe, mehr Energie, mehr Zeit mit Menschen, die dir guttun?</p><p>Schreib deinen Wunsch an {name}. Wer ihn aufschreibt, nimmt ihn ernster. Und er ist ein Los im Gewinnspiel.</p>` },
-    { t:'rabatt', pct:15, product:'das C9-Programm', title:'Gemeinsam ins neue Jahr', body:`<p>Am Samstag, 30.01., starten wir gemeinsam die C9 Neujahrs-Challenge: 9 Tage mit klarem Tagesplan, WhatsApp-Gruppe, persönlicher Begleitung und Rezeptbuch, alles geschenkt dazu.</p><p>Wer bis 31.12. dabei ist, bekommt zusätzlich ein Starter-Set mit 3 Jokern für die 9 Tage.</p>`, survey:true },
+    { t:'rabatt', pct:15, product:'das C9-Programm', note:'Die bis zu 15 % auf das C9 gibt es über den Link von {name}, den Bonus mit den 3 Jokern nur bis 31.12. Bestellschluss für den gemeinsamen Start ist der 23.01.', title:'Gemeinsam ins neue Jahr', body:`<p>Am Samstag, 30.01., starten wir gemeinsam die C9 Neujahrs-Challenge: 9 Tage mit klarem Tagesplan, WhatsApp-Gruppe, persönlicher Begleitung und Rezeptbuch, alles geschenkt dazu.</p><p>Wer bis 31.12. dabei ist, bekommt zusätzlich ein Starter-Set mit 3 Jokern für die 9 Tage.</p>`, survey:true },
     { t:'danke', title:'Danke, dass du dabei warst', body:`<p>24 Türchen, 24 Mal fünf Minuten für dich. Wir hoffen, ein paar Rituale bleiben.</p><p>Frohe Weihnachten von {name} und dem ganzen Team. Am 27.12. wird das Gewinnspiel ausgelost, und am 30.01. sehen wir uns hoffentlich bei der Neujahrs-Challenge.</p>` },
   ];
 
@@ -228,7 +228,7 @@
     const acts = [];
     if(d.t === 'rabatt'){
       acts.push(`<a class="btn wa" target="_blank" rel="noopener" href="${waLink(`Hallo ${partner.name}, ich hab Türchen ${day} im Adventskalender geöffnet und hätte gern das Angebot: −${d.pct} % auf ${d.product}.`)}">💬 Angebot bei ${esc(partner.name)} sichern</a>`);
-      html += `<p class="note">Nur heute, am ${day}.12., und nur bei ${esc(partner.name)}. ${esc(partner.name)} schickt dir den passenden Bestell-Link.</p>`;
+      html += `<p class="note">${d.note ? fill(esc(d.note)) : `Nur heute, am ${day}.12., und nur bei ${esc(partner.name)}. ${esc(partner.name)} schickt dir den passenden Bestell-Link.`}</p>`;
     }
     if(d.t === 'foto') acts.push(`<a class="btn wa" target="_blank" rel="noopener" href="${waLink(`Hallo ${partner.name}, hier ist mein Foto zu Türchen ${day} für das Gewinnspiel:`)}">📸 Foto an ${esc(partner.name)} schicken</a>`);
     if(d.t === 'wunsch') acts.push(`<a class="btn wa" target="_blank" rel="noopener" href="${waLink(`Hallo ${partner.name}, mein Wunsch für 2027 (Türchen ${day}): `)}">✨ Wunsch an ${esc(partner.name)} schicken</a>`);
