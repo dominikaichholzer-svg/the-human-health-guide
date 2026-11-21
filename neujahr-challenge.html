@@ -104,6 +104,7 @@
   .pick{ background: var(--bg-raised); border:1.5px solid var(--hairline); border-radius:16px; overflow:hidden; }
   .pick.open{ border-color: var(--gold); }
   .pick-head{ display:flex; align-items:center; gap:14px; width:100%; padding:16px; background:none; border:none; color: var(--ink); text-align:left; cursor:pointer; font-family: var(--sans); }
+  a.pick-head{ text-decoration:none; }
   .pick-head .ic{ width:46px; height:46px; border-radius:13px; background: var(--gold-dim); display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
   .pick-head .tx b{ display:block; font-family: var(--serif); font-weight:600; font-size:19px; line-height:1.25; }
   .pick-head .tx span{ display:block; font-size:13.5px; color: var(--ink-muted); margin-top:2px; }
@@ -186,7 +187,7 @@
     <div class="eyebrow" id="resEyebrow">Deine Auswertung</div>
     <h1 class="hero">Hier ist deine <em>Auswertung</em>.</h1>
     <p class="lede res-sum" id="resSummary"></p>
-    <p class="small" style="margin:-8px 0 18px;">Tipp auf das, was dich interessiert. Jedes Thema erklärt dir ein kurzes Video in etwa 1,5 Minuten.</p>
+    <p class="small" style="margin:-8px 0 18px;">Tipp auf das, was dich interessiert. Ein kurzes Video erklärt dir alles in etwa 1,5 Minuten.</p>
     <div class="picks" id="picks"></div>
     <p class="small" style="margin-top:18px;">Bei Schwangerschaft, Stillzeit, Medikamenten oder Erkrankungen bitte vorher ärztlich abklären.</p>
   </section>
@@ -388,6 +389,8 @@
     const videos = (partner && partner.videos) || {};
     $('picks').innerHTML = PICKS.map(p => {
       const wa = waAsk(p);
+      // Beratung: kein Video, direkt zu WhatsApp mit vorbereiteter Nachricht
+      if(p.k === 'beratung' && wa) return `<div class="pick"><a class="pick-head" data-ask="beratung" href="${wa}" target="_blank" rel="noopener"><span class="ic">${p.ic}</span><span class="tx"><b>${esc(p.title)}</b><span>Schreib ${esc(pn)} direkt auf WhatsApp</span></span><span class="pl">WhatsApp</span></a></div>`;
       const label = p.k === 'beratung' ? `💬 Beratung bei ${esc(pn)} anfragen` : `💬 Mehr dazu bei ${esc(pn)}`;
       return `<div class="pick" data-k="${p.k}">
         <button type="button" class="pick-head" aria-expanded="false"><span class="ic">${p.ic}</span><span class="tx"><b>${esc(p.title)}</b><span>${esc(p.sub)}</span></span><span class="pl">▶ 1:30</span></button>

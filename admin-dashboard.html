@@ -314,12 +314,11 @@
         <button type="button" class="btn" id="r2SaveG" style="padding:9px; font-size:13px; margin-top:4px;">Gruppenlink speichern</button></div>
       </details>
       <details class="more-box" id="r200VideoBox"><summary id="r200VideoSum">Videos auf der Auswertung</summary>
-        <p class="r2-hint" style="margin-top:8px;">Diese 4 Videos sehen alle am Ende der Umfrage, bei jeder Partnerin gleich. YouTube (auch Shorts), Vimeo oder ein direkter mp4-Link. Leer lassen heißt: „Das Video folgt in Kürze.“</p>
+        <p class="r2-hint" style="margin-top:8px;">Diese 3 Videos sehen alle am Ende der Umfrage, bei jeder Partnerin gleich. YouTube (auch Shorts), Vimeo oder ein direkter mp4-Link. Leer lassen heißt: „Das Video folgt in Kürze.“</p>
         <div class="inc-form">
           <label>🌿 C9 Basic</label><div class="r2-row"><input id="r2VidC9" placeholder="https://youtu.be/…"></div>
           <label>✨ Beauty &amp; Glow Ergänzung</label><div class="r2-row"><input id="r2VidBeauty" placeholder="https://youtu.be/…"></div>
           <label>⚡ Energie Boost Ergänzung</label><div class="r2-row"><input id="r2VidEnergie" placeholder="https://youtu.be/…"></div>
-          <label>💬 Individuelle Beratung</label><div class="r2-row"><input id="r2VidBeratung" placeholder="https://youtu.be/…"></div>
           <button type="button" class="btn" id="r2SaveV" style="padding:9px; font-size:13px; margin-top:4px;">Videos speichern</button>
         </div>
       </details>
@@ -743,7 +742,7 @@
     const vids = d.videos || {};
     R2_VIDS.forEach(([k, id]) => { const el = document.getElementById(id); if(document.activeElement !== el) el.value = vids[k] || ''; });
     const nv = R2_VIDS.filter(([k]) => vids[k]).length;
-    document.getElementById('r200VideoSum').textContent = d.videos === undefined ? 'Videos auf der Auswertung (SQL-Ergänzung fehlt noch)' : `Videos auf der Auswertung (${nv} von 4 hinterlegt)`;
+    document.getElementById('r200VideoSum').textContent = d.videos === undefined ? 'Videos auf der Auswertung (SQL-Ergänzung fehlt noch)' : `Videos auf der Auswertung (${nv} von 3 hinterlegt)`;
     document.getElementById('r2MPartner').innerHTML = (d.partners || []).map(p => `<option value="${incEsc(p.slug)}">${incEsc(p.name)}</option>`).join('');
     const pname = Object.fromEntries((d.partners || []).map(p => [p.slug, p.name]));
     renderR200Advent(d.advent, d.partners || []);
@@ -757,7 +756,7 @@
         <div class="meta">${wa.length > 6 ? `<a href="https://wa.me/${wa}" target="_blank">${incEsc(l.phone)}</a>` : incEsc(l.phone)}${l.wa ? ' · hat selbst geschrieben' : ' · <b style="color:var(--gold)">noch nicht geschrieben, melde dich</b>'}${l.friend ? ' · weitergeleitet' : ''}${l.instagram ? ` · <a href="https://instagram.com/${incEsc(l.instagram)}" target="_blank">IG @${incEsc(l.instagram)}</a>` : ''}</div>`}${r2Clicks(l.clicks)}</div>`;
     }).join('') || '<p class="card-sub">Noch keine Anmeldungen.</p>';
   }
-  const R2_VIDS = [['c9','r2VidC9'],['beauty','r2VidBeauty'],['energie','r2VidEnergie'],['beratung','r2VidBeratung']];
+  const R2_VIDS = [['c9','r2VidC9'],['beauty','r2VidBeauty'],['energie','r2VidEnergie']]; // Beratung: direkt WhatsApp, kein Video
   const R2_OPT = { c9:'C9 Basic', beauty:'Beauty & Glow', energie:'Energie Boost', beratung:'Beratung' };
   // Was die Person auf der Auswertung angeklickt hat
   function r2Clicks(c){
