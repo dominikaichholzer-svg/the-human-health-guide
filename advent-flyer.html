@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Adventskalender · Flyer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<style>
+  /* Flyer zum Adventskalender (/advent/<slug>), eine Vorlage für alle Partnerinnen.
+     ?p=<slug>               Story-Format 1080 x 1920 (WhatsApp-Status, Instagram)
+     ?p=<slug>&format=a5     Druckversion A5 */
+  :root{ --bg:#0F1730; --raised:#172244; --ink:#F6F1E4; --muted:#AAB2CC; --line:#2C3866; --gold:#E9C77B; }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; background:#0B1124; font-family:'Inter',sans-serif; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .flyer{ position:relative; width:1080px; height:1920px; overflow:hidden; color:var(--ink);
+    background: radial-gradient(1400px 900px at 50% -260px, rgba(233,199,123,0.28), transparent 65%), var(--bg);
+    padding: 104px 96px 84px; display:flex; flex-direction:column; transform-origin: top left; }
+  .spark{ position:absolute; border-radius:50%; background: var(--gold); box-shadow: 0 0 24px var(--gold); }
+  .eyebrow{ font-family:'IBM Plex Mono',monospace; font-size:34px; letter-spacing:0.18em; text-transform:uppercase; color:var(--gold); margin-bottom:40px; display:flex; align-items:center; gap:20px; }
+  .eyebrow i{ width:14px; height:14px; border-radius:50%; background:var(--gold); box-shadow:0 0 16px var(--gold); }
+  h1{ font-family:'Fraunces',serif; font-weight:400; font-size:106px; line-height:1.04; margin:0 0 36px; letter-spacing:-0.01em; }
+  h1 em{ font-style:italic; font-weight:500; color:var(--gold); }
+  .lede{ font-size:40px; line-height:1.42; color:var(--muted); margin:0 0 44px; }
+  .lede b{ color:var(--ink); font-weight:600; }
+  .chips{ display:flex; flex-wrap:wrap; gap:18px; margin-bottom:auto; }
+  .chips span{ font-size:31px; padding:14px 26px; border:2px solid var(--line); border-radius:999px; background:rgba(255,255,255,0.04); }
+  .qrbox{ display:flex; align-items:center; gap:52px; background:var(--raised); border:2px solid var(--line); border-radius:40px; padding:40px; margin: 44px 0 36px; }
+  .qr{ width:340px; height:340px; background:#fff; border-radius:24px; padding:22px; flex-shrink:0; }
+  .qr svg{ width:100%; height:100%; display:block; }
+  .qrtext .t{ font-family:'Fraunces',serif; font-size:60px; line-height:1.1; margin-bottom:18px; }
+  .qrtext .s{ font-size:32px; line-height:1.4; color:var(--muted); }
+  .qrtext .u{ font-family:'IBM Plex Mono',monospace; font-size:23px; line-height:1.45; color:var(--gold); margin-top:18px; }
+  .event{ border:2px dashed var(--gold); border-radius:32px; padding:34px 40px; display:flex; justify-content:space-between; align-items:center; gap:30px; }
+  .event .l{ font-size:34px; line-height:1.35; }
+  .event .l b{ display:block; font-family:'Fraunces',serif; font-weight:600; font-size:46px; color:var(--gold); margin-bottom:6px; }
+  .event .d{ font-family:'IBM Plex Mono',monospace; font-size:30px; text-align:right; color:var(--ink); white-space:nowrap; }
+  .from{ margin-top:32px; font-size:30px; color:var(--muted); display:flex; justify-content:space-between; }
+  .from b{ color:var(--ink); }
+
+  /* Anzeige am Bildschirm: auf die Fensterbreite verkleinern */
+  .stage{ padding: 16px; display:flex; justify-content:center; }
+  .wrap{ position:relative; }
+  @media print{ .stage{ padding:0; } }
+  body.export .stage{ padding:0; display:block; }
+
+  /* A5 zum Drucken: gleiche Gestaltung, kompakter */
+  body.a5 .flyer{ width:1080px; height:1528px; padding:80px 90px 64px; }
+  body.a5 .eyebrow{ font-size:28px; margin-bottom:28px; }
+  body.a5 h1{ font-size:96px; margin-bottom:30px; }
+  body.a5 .lede{ font-size:36px; margin-bottom:34px; }
+  body.a5 .chips{ gap:14px; }
+  body.a5 .chips span{ font-size:26px; padding:11px 20px; }
+  body.a5 .qrbox{ margin:32px 0 26px; padding:32px; gap:40px; }
+  body.a5 .qr{ width:330px; height:330px; padding:20px; }
+  body.a5 .qrtext .t{ font-size:50px; }
+  body.a5 .qrtext .s{ font-size:28px; }
+  body.a5 .event{ padding:26px 34px; }
+  body.a5 .event .l{ font-size:30px; }
+  body.a5 .event .l b{ font-size:40px; }
+  body.a5 .event .d{ font-size:28px; }
+  body.a5 .from{ margin-top:22px; font-size:26px; }
+  @page{ size: A5; margin:0; }
+  @media print{ body.a5{ background:var(--bg); } body.a5 .flyer{ zoom:0.5175; } body.a5 .stage{ padding:0; display:block; } }
+  .err{ color:#fff; text-align:center; padding:60px 20px; font-size:16px; }
+</style>
+</head>
+<body>
+<div class="stage"><div class="wrap" id="wrap">
+  <div class="flyer" id="flyer">
+    <span class="spark" style="width:10px;height:10px;top:180px;right:150px;"></span>
+    <span class="spark" style="width:6px;height:6px;top:300px;right:260px;opacity:.7"></span>
+    <span class="spark" style="width:8px;height:8px;top:110px;right:330px;opacity:.5"></span>
+    <span class="spark" style="width:7px;height:7px;top:420px;right:90px;opacity:.6"></span>
+    <span class="spark" style="width:5px;height:5px;top:60px;right:520px;opacity:.5"></span>
+    <div style="position:absolute; right:70px; top:90px; font-size:150px; line-height:1; opacity:.9; filter: drop-shadow(0 0 30px rgba(233,199,123,.35));">🎄</div>
+    <div class="eyebrow"><i></i>1. bis 24. Dezember</div>
+    <h1 style="max-width:800px;">Dein <em>Adventskalender</em>: 24 Tage Zeit für dich</h1>
+    <p class="lede">Jeden Tag ein Türchen und <b>fünf Minuten nur für dich</b>: Rituale, Pflege-Tipps, Quiz und Angebote. Kostenlos, ohne App und ohne Anmeldung.</p>
+    <div class="chips"><span>🕯️ Rituale</span><span>✨ Pflege-Tipps</span><span>❓ Quiz</span><span>🏷️ Angebote</span><span>🎁 Geschenkbox gewinnen</span></div>
+    <div class="qrbox">
+      <div class="qr" id="qr"></div>
+      <div class="qrtext">
+        <div class="t">Scannen und Türchen öffnen</div>
+        <div class="s">Kamera aufs Handy, QR-Code antippen, Link speichern.</div>
+        <div class="u" id="url"></div>
+      </div>
+    </div>
+    <div class="event">
+      <div class="l"><b>Gewinnspiel: Geschenkbox</b>Lose mit Quiz, Fotos und deinem Wunsch</div>
+      <div class="d">Start<br>Di, 1.12.</div>
+    </div>
+    <div class="from"><span>Dein Kalender von <b id="pname">uns</b></span><span>Coach Oaki Team</span></div>
+  </div>
+</div></div>
+
+<script>
+  const q = new URLSearchParams(location.search);
+  const slug = (q.get('p') || '').toLowerCase().replace(/[^a-z0-9-]/g, '');
+  const a5 = q.get('format') === 'a5';
+  if(a5) document.body.classList.add('a5');
+  if(q.get('export') === '1') document.body.classList.add('export');
+  const flyer = document.getElementById('flyer');
+
+  function fit(){
+    // am Bildschirm verkleinern, beim Export (?export=1) in Originalgröße lassen
+    if(q.get('export') === '1') return;
+    const W = 1080, H = a5 ? 1528 : 1920;
+    const s = Math.min((window.innerWidth - 32) / W, 1);
+    flyer.style.transform = `scale(${s})`;
+    document.getElementById('wrap').style.width = W * s + 'px';
+    document.getElementById('wrap').style.height = H * s + 'px';
+  }
+
+  (async function(){
+    if(!slug){ document.body.innerHTML = '<p class="err">Link fehlt: ?p=name</p>'; return; }
+    const link = 'https://mein-quiz-health.netlify.app/advent/' + slug;
+    try {
+      const r = await fetch('/.netlify/functions/c9-neujahr?p=' + encodeURIComponent(slug));
+      if(r.ok){ const p = await r.json(); document.getElementById('pname').textContent = p.name; }
+    } catch(e){}
+    const qr = qrcode(0, 'M');
+    qr.addData(link);
+    qr.make();
+    document.getElementById('qr').innerHTML = qr.createSvgTag({ cellSize: 8, margin: 0, scalable: true });
+    document.getElementById('url').innerHTML = 'mein-quiz-health.netlify.app<br>/advent/' + slug;
+    fit();
+    window.addEventListener('resize', fit);
+    document.body.dataset.ready = '1';
+  })();
+</script>
+</body>
+</html>
