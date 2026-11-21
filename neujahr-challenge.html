@@ -100,6 +100,24 @@
   .tips li::before{ content: counter(t); position:absolute; left:0; top:9px; width:24px; height:24px; border-radius:50%; border:1.5px solid var(--gold); color: var(--gold); font-family: var(--serif); font-style:italic; font-size:13px; display:flex; align-items:center; justify-content:center; }
   .lever{ border-left: 3px solid var(--gold); padding: 10px 14px; background: rgba(255,255,255,0.03); border-radius: 0 10px 10px 0; font-size: 14.5px; line-height:1.55; margin-top: 10px; }
 
+  .picks{ display:grid; gap:12px; }
+  .pick{ background: var(--bg-raised); border:1.5px solid var(--hairline); border-radius:16px; overflow:hidden; }
+  .pick.open{ border-color: var(--gold); }
+  .pick-head{ display:flex; align-items:center; gap:14px; width:100%; padding:16px; background:none; border:none; color: var(--ink); text-align:left; cursor:pointer; font-family: var(--sans); }
+  .pick-head .ic{ width:46px; height:46px; border-radius:13px; background: var(--gold-dim); display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
+  .pick-head .tx b{ display:block; font-family: var(--serif); font-weight:600; font-size:19px; line-height:1.25; }
+  .pick-head .tx span{ display:block; font-size:13.5px; color: var(--ink-muted); margin-top:2px; }
+  .pick-head .pl{ margin-left:auto; flex-shrink:0; font-size:12.5px; font-weight:700; color: var(--gold); border:1.5px solid var(--gold); border-radius:999px; padding:6px 10px; white-space:nowrap; }
+  .pick.open .pick-head .pl{ background: var(--gold); color:#1A1406; }
+  .pick-body{ padding: 0 16px 16px; }
+  .vid{ position:relative; width:100%; border-radius:12px; overflow:hidden; background:#000; }
+  .vid.wide{ aspect-ratio: 16 / 9; }
+  .vid.tall{ aspect-ratio: 9 / 16; max-height: 70vh; margin: 0 auto; }
+  .vid iframe, .vid video{ position:absolute; inset:0; width:100%; height:100%; border:0; }
+  .vid.file{ aspect-ratio:auto; } .vid.file video{ position:static; height:auto; max-height:70vh; display:block; }
+  .vid-soon{ border:1.5px dashed var(--hairline); border-radius:12px; padding:26px 16px; text-align:center; color: var(--ink-muted); font-size:14px; }
+  .pick-body .btn{ margin-top:12px; }
+  .res-sum b{ color: var(--ink); font-weight:600; }
   .challenge{ border-color: var(--gold); background: linear-gradient(180deg, rgba(233,199,123,0.10), rgba(233,199,123,0.02)); }
   .challenge .date{ font-family: var(--mono); font-size: 11px; letter-spacing:0.12em; text-transform:uppercase; color: var(--gold); margin-bottom: 6px; }
   .incl{ list-style:none; padding:0; margin: 10px 0 12px; }
@@ -163,43 +181,14 @@
     <button class="back" type="button" id="backToQ">← zurück zu den Fragen</button>
   </section>
 
-  <!-- Auswertung -->
+  <!-- Auswertung: kurz zusammengefasst, darunter 4 Wahl-Knöpfe mit kurzem Video -->
   <section class="screen" id="screen-result">
     <div class="eyebrow" id="resEyebrow">Deine Auswertung</div>
-    <h1 class="hero" id="resTitle"></h1>
-    <p class="lede" id="resLede"></p>
-
-    <div class="card">
-      <h3>Deine 3 ersten Schritte</h3>
-      <ol class="tips" id="resTips"></ol>
-      <div class="lever" id="resLever"></div>
-    </div>
-
-    <div class="card">
-      <h3 id="obstTitle">Was dich bisher aufgehalten hat</h3>
-      <p id="resObstacle"></p>
-    </div>
-
-    <div class="card challenge">
-      <div class="date">Start: Samstag, 30.01.</div>
-      <h3>Die C9 Neujahrs-Challenge</h3>
-      <p>9 Tage mit klarem Tagesplan. Wir haben schon über 500 Menschen dabei begleitet, und viele haben die 9 Tage als Neustart für neue Gewohnheiten genutzt. Wir machen es gemeinsam, damit du nicht allein bist.</p>
-      <p class="muted" style="margin-top:10px;">Kostenlos dazu für alle Teilnehmerinnen und Teilnehmer:</p>
-      <ul class="incl">
-        <li>Persönliche Begleitung durch <span class="pname">mich</span> während der 9 Tage</li>
-        <li>WhatsApp-Gruppe mit allen, die gemeinsam starten</li>
-        <li>Rezeptbuch mit einfachen Ideen für die Challenge</li>
-        <li>Gewinnspiel für alle, die mitmachen</li>
-      </ul>
-      <div class="bonus"><b>Dezember-Bonus:</b> Wer bis 31.12. dabei ist, bekommt zusätzlich ein Starter-Set geschenkt: 3 Joker für die 9 Tage, die dir das Durchhalten leichter machen und dich bis zum Ziel unterstützen.</div>
-      <p class="small" style="margin-top:10px;">Preis und alle Details bekommst du persönlich von <span class="pname">mir</span>. Bei Schwangerschaft, Stillzeit, Medikamenten oder Erkrankungen bitte vorher ärztlich abklären.</p>
-    </div>
-
-    <div class="cta-wrap">
-      <a class="btn btn-wa" id="waBtn" href="#" target="_blank" rel="noopener">💬 <span id="waLabel">Ich will dabei sein</span></a>
-      <button class="btn-outline" type="button" id="friendBtn">👯 Mit einer Freundin starten: Umfrage weiterleiten</button>
-    </div>
-    <p class="small" id="waNote"></p>
+    <h1 class="hero">Hier ist deine <em>Auswertung</em>.</h1>
+    <p class="lede res-sum" id="resSummary"></p>
+    <p class="small" style="margin:-8px 0 18px;">Tipp auf das, was dich interessiert. Jedes Thema erklärt dir ein kurzes Video in etwa 1,5 Minuten.</p>
+    <div class="picks" id="picks"></div>
+    <p class="small" style="margin-top:18px;">Bei Schwangerschaft, Stillzeit, Medikamenten oder Erkrankungen bitte vorher ärztlich abklären.</p>
   </section>
 
   <section class="screen" id="screen-unknown">
@@ -344,61 +333,87 @@
 
   function waNumber(){ return partner && partner.whatsapp ? String(partner.whatsapp).replace(/[^\d]/g, '') : ''; }
 
-  function renderResult(name){
-    const a = state.answers;
-    // Mehrere Ziele: das zuerst gewählte bestimmt den Titel, die 3 Schritte
-    // kommen abwechselnd aus allen gewählten Zielen
-    const goals = a.ziel.value.map(v => GOALS[v]);
-    const g = goals[0];
-    const tips = [];
-    for(let r = 0; tips.length < 3 && r < 3; r++){
-      for(const x of goals){ if(tips.length < 3 && x.tips[r]) tips.push(x.tips[r]); }
-    }
-    const shorts = goals.map(x => x.short);
-    const shortAll = shorts.length > 1 ? shorts.slice(0, -1).join(', ') + ' und ' + shorts[shorts.length - 1] : (g.single || g.short);
-    $('resEyebrow').textContent = `Deine Auswertung, ${name}`;
-    $('resTitle').innerHTML = g.title;
-    $('resLede').textContent = goals.length > 1 ? `${g.lede} Die Schritte unten decken auch deine anderen Ziele ab.` : g.lede;
-    $('resTips').innerHTML = tips.map(t => `<li>${esc(t)}</li>`).join('');
-    $('resLever').innerHTML = LEVERS[a.alltag.value];
-    $('resObstacle').textContent = OBSTACLES[a.hindernis.value];
+  // Auswertung: kurz zusammengefasst, darunter 4 Wahl-Knöpfe mit Video
+  const LEVER_SHORT = {
+    fruehstueck: 'ein Frühstück, das lange satt hält',
+    nachmittag: 'das Nachmittagstief abfangen',
+    abends: 'ein fixes Ritual am Abend',
+    wasser: 'über den Tag mehr trinken',
+    passt: 'jetzt den nächsten Schritt gehen',
+  };
+  const PICKS = [
+    { k:'c9', ic:'🌿', title:'C9 Basic', sub:'Der 9-Tage-Neustart mit klarem Tagesplan', ask:'Mich interessiert das C9 Basic.' },
+    { k:'beauty', ic:'✨', title:'Beauty & Glow Ergänzung', sub:'Pflege und Ausstrahlung für deinen Neustart', ask:'Mich interessiert die Beauty & Glow Ergänzung.' },
+    { k:'energie', ic:'⚡', title:'Energie Boost Ergänzung', sub:'Für mehr Schwung im Alltag', ask:'Mich interessiert die Energie Boost Ergänzung.' },
+    { k:'beratung', ic:'💬', title:'Individuelle Beratung', sub:'Persönlich besprechen, was zu dir passt', ask:'Ich hätte gern eine individuelle Beratung.' },
+  ];
+  let resultName = '', resultGoals = '';
 
-    // WhatsApp: Sie schreibt selbst, mit vorbereitetem Text
-    const start = a.start.value;
-    const label = start === 'infos' ? 'Schick mir die Infos zur Challenge' : start === 'freundin' ? 'Ich will mit einer Freundin dabei sein' : 'Ich will bei der Challenge dabei sein';
-    $('waLabel').textContent = label;
-    const pn = partner ? partner.name : '';
-    // Vorbereitete Nachricht (Dominiks Vorlage), sie kann sie vor dem Senden ändern
-    const text = `Hallo ${pn}, ich bin ${name} und habe gerade deine Neujahrs-Umfrage gemacht.\n`
-      + `${goals.length > 1 ? 'Meine Ziele für 2027 sind' : 'Mein Ziel für 2027 ist'}: ${shortAll}.\n`
-      + `Ich hätte gerne mehr Infos zum Ablauf etc.\n`
-      + `Ich freue mich auf deine Rückmeldung.\n`
-      + `Liebe Grüße`;
-    const num = waNumber();
-    if(num){
-      $('waBtn').href = `https://wa.me/${num}?text=${encodeURIComponent(text)}`;
-      $('waBtn').hidden = false;
-      $('waNote').textContent = `Der Knopf öffnet WhatsApp mit einer vorbereiteten Nachricht an ${pn}. Du kannst sie vor dem Senden noch ändern.`;
-    } else {
-      $('waBtn').hidden = true;
-      $('waNote').textContent = `${pn || 'Ich'} meldet sich in Kürze persönlich bei dir.`;
-    }
-    if(start === 'freundin'){ $('friendBtn').parentNode.insertBefore($('friendBtn'), $('waBtn')); }
+  // YouTube, Vimeo oder Videodatei einbetten (Link kommt aus dem Admin)
+  function videoHtml(url){
+    if(!url) return '<div class="vid-soon">🎬 Das Video folgt in Kürze.</div>';
+    let m;
+    if((m = url.match(/youtube\.com\/shorts\/([\w-]{6,})/))) return `<div class="vid tall"><iframe src="https://www.youtube-nocookie.com/embed/${m[1]}?rel=0&playsinline=1" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen title="Video"></iframe></div>`;
+    if((m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([\w-]{6,})/))) return `<div class="vid wide"><iframe src="https://www.youtube-nocookie.com/embed/${m[1]}?rel=0&playsinline=1" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen title="Video"></iframe></div>`;
+    if((m = url.match(/vimeo\.com\/(?:video\/)?(\d+)/))) return `<div class="vid wide"><iframe src="https://player.vimeo.com/video/${m[1]}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen title="Video"></iframe></div>`;
+    if(/\.(mp4|webm|mov)(\?|$)/i.test(url)) return `<div class="vid file"><video src="${esc(url)}" controls playsinline preload="metadata"></video></div>`;
+    return `<a class="btn-outline" href="${esc(url)}" target="_blank" rel="noopener">▶ Video ansehen</a>`;
   }
 
-  $('waBtn').addEventListener('click', () => { track('wa'); });
-  $('friendBtn').addEventListener('click', async () => {
-    const url = location.origin + '/neujahr/' + slug;
-    const msg = `Ich hab gerade diese kurze Neujahrs-Umfrage gemacht, dauert eine Minute. Magst du auch? Dann starten wir am 30.01. gemeinsam: ${url}`;
-    track('friend');
-    if(navigator.share){
-      try { await navigator.share({ title: 'Dein Neustart 2027', text: msg }); return; } catch(e){ if(e && e.name === 'AbortError') return; }
-    }
-    window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank', 'noopener');
+  function waAsk(pick){
+    const num = waNumber();
+    const pn = partner ? partner.name : '';
+    const text = `Hallo ${pn}, ich bin ${resultName} und habe gerade deine Neujahrs-Umfrage gemacht.\n`
+      + `${resultGoals}\n`
+      + `${pick.ask}\n`
+      + `Ich freue mich auf deine Rückmeldung.\nLiebe Grüße`;
+    return num ? `https://wa.me/${num}?text=${encodeURIComponent(text)}` : '';
+  }
+
+  function renderResult(name){
+    const a = state.answers;
+    const goals = a.ziel.value.map(v => GOALS[v]);
+    const g = goals[0];
+    const shorts = goals.map(x => x.short);
+    const shortAll = shorts.length > 1 ? shorts.slice(0, -1).join(', ') + ' und ' + shorts[shorts.length - 1] : (g.single || g.short);
+    resultName = name;
+    resultGoals = `${goals.length > 1 ? 'Meine Ziele für 2027 sind' : 'Mein Ziel für 2027 ist'}: ${shortAll}.`;
+    $('resEyebrow').textContent = `Deine Auswertung, ${name}`;
+    $('resSummary').innerHTML = `${goals.length > 1 ? 'Deine Ziele' : 'Dein Ziel'} für 2027: <b>${esc(shortAll)}</b>. Dein größter Hebel im Alltag: <b>${esc(LEVER_SHORT[a.alltag.value] || '')}</b>.`;
+    const pn = partner ? partner.name : '';
+    const videos = (partner && partner.videos) || {};
+    $('picks').innerHTML = PICKS.map(p => {
+      const wa = waAsk(p);
+      const label = p.k === 'beratung' ? `💬 Beratung bei ${esc(pn)} anfragen` : `💬 Mehr dazu bei ${esc(pn)}`;
+      return `<div class="pick" data-k="${p.k}">
+        <button type="button" class="pick-head" aria-expanded="false"><span class="ic">${p.ic}</span><span class="tx"><b>${esc(p.title)}</b><span>${esc(p.sub)}</span></span><span class="pl">▶ 1:30</span></button>
+        <div class="pick-body" hidden>${videoHtml(videos[p.k])}${wa ? `<a class="btn btn-wa" data-ask="${p.k}" href="${wa}" target="_blank" rel="noopener">${label}</a>` : `<p class="small" style="margin-top:12px;">${esc(pn || 'Ich')} meldet sich in Kürze persönlich bei dir.</p>`}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Aufklappen: Video zeigen und anonym-pro-Anmeldung merken, was angesehen wurde
+  $('picks').addEventListener('click', e => {
+    const ask = e.target.closest('[data-ask]');
+    if(ask){ track('anfrage', ask.dataset.ask); return; }
+    const head = e.target.closest('.pick-head');
+    if(!head) return;
+    const pick = head.closest('.pick');
+    const body = pick.querySelector('.pick-body');
+    const open = body.hidden;
+    document.querySelectorAll('#picks .pick').forEach(x => {
+      if(x !== pick){ x.classList.remove('open'); x.querySelector('.pick-body').hidden = true; x.querySelector('.pick-head').setAttribute('aria-expanded', 'false');
+        const v = x.querySelector('video'); if(v) v.pause(); }
+    });
+    body.hidden = !open;
+    pick.classList.toggle('open', open);
+    head.setAttribute('aria-expanded', String(open));
+    if(open){ track('video', pick.dataset.k); pick.scrollIntoView({ block: 'start', behavior: 'smooth' }); }
   });
-  function track(ev){
+
+  function track(ev, option){
     if(!leadId) return;
-    fetch('/.netlify/functions/c9-neujahr', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: leadId, event: ev }), keepalive: true }).catch(() => {});
+    fetch('/.netlify/functions/c9-neujahr', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: leadId, event: ev, option }), keepalive: true }).catch(() => {});
   }
 
   $('contactForm').addEventListener('submit', async e => {

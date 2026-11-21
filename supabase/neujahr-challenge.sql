@@ -61,3 +61,10 @@ alter table advent_events enable row level security;
 -- Ergänzung (21.11.2026): Shop-Link und Instagram pro Partnerin (im Adventskalender oben verlinkt)
 alter table c9_partners add column if not exists shop_link text;
 alter table c9_partners add column if not exists instagram text;
+
+-- Ergänzung (21.11.2026): Auswertungsseite mit 4 Wahl-Knöpfen und Videos.
+-- clicks = was sich die Person angesehen oder angefragt hat, z. B. [{"k":"video:c9","t":"…"}]
+alter table c9_leads add column if not exists clicks jsonb not null default '[]'::jsonb;
+-- Video-Links (YouTube, Vimeo oder MP4) trägt Dominik im Admin ein:
+insert into c9_settings (key, value) values ('video_c9', null), ('video_beauty', null), ('video_energie', null), ('video_beratung', null)
+on conflict (key) do nothing;

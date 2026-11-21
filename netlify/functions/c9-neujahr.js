@@ -9,7 +9,7 @@
 // GET  ?stats=1                        -> { goal, bestellt, umfragen, partnerinnen } (Team-Zähler)
 // POST { p, name, phone, email?, answers, consent }  -> { id }
 //      speichert in c9_leads und schickt Dominik eine Benachrichtigung
-// POST { id, event: "wa" | "friend" }  -> merkt, ob sie selbst auf WhatsApp
+// POST { id, event: "wa" | "friend" } bzw. { id, event: "video" | "anfrage", option: "c9" | "beauty" | "energie" | "beratung" }  -> merkt, ob sie selbst auf WhatsApp
 //      geschrieben oder an eine Freundin weitergeleitet hat (für die Quote)
 //
 // Tabellen: supabase/neujahr-challenge.sql
@@ -17,6 +17,7 @@
 const { pgrest } = require('./_lib/supabase');
 
 const SLUG = /^[a-z0-9-]{2,40}$/;
+const OPTIONS = ['c9', 'beauty', 'energie', 'beratung'];
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const CONSENT_TEXT = 'Ich bin einverstanden, dass mich {name} zu meiner Auswertung und zur C9-Neujahrs-Challenge per WhatsApp, Telefon oder E-Mail kontaktiert. Ich kann das jederzeit mit einer kurzen Nachricht widerrufen.';
 const ALLOWED = {
@@ -96,7 +97,13 @@ exports.handler = async function (event) {
       if (!p) return json(404, { error: 'Unbekannter Link' });
       // Schon gespeicherte Nummern ohne Ländervorwahl (0664…) für wa.me reparieren
       const waNum = p.whatsapp ? String(p.whatsapp).replace(/[^\d]/g, '').replace(/^00/, '').replace(/^0/, '43') : null;
-      return json(200, { name: p.name, whatsapp: waNum, shop: p.shop_link || null, instagram: p.instagram || null });
+      // Videos für die Auswertungsseite (im Admin eingetragen)
+      const videos = {};
+      try {
+        const st = (await pgrest('c9_settings', { query: 'key=in.(video_c9,video_beauty,video_energie,video_beratung)&select=key,value' })) || [];
+        for (const r of st) if (r.value) videos[r.key.replace('video_', '')] = r.value;
+      } catch (e) { /* noch nicht eingerichtet */ }
+      return json(200, { name: p.name, whatsapp: waNum, shop: p.shop_link || null, instagram: p.instagram || null, videos });
     }
     if (event.httpMethod !== 'POST') return json(405, { error: 'Method Not Allowed' });
 
@@ -105,8 +112,22 @@ exports.handler = async function (event) {
 
     // Klick-Ereignisse nach dem Absenden
     if (b.id) {
-      if (!UUID.test(b.id) || !['wa', 'friend'].includes(b.event)) return json(400, { error: 'Ungültig' });
-      const col = b.event === 'wa' ? 'wa_clicked_at' : 'friend_shared_at';
+      if (!UUID.test(b.id) || !['wa', 'friend', 'video', 'anfrage'].includes(b.event)) return json(400, { error: 'Ungültig' });
+      // Auswertungsseite: welches Video angesehen bzw. wofür angefragt wurde
+      if (b.event === 'video' || b.event === 'anfrage') {
+        if (!OPTIONS.includes(b.option)) return json(400, { error: 'Ungültig' });
+        const k = `${b.event}:${b.option}`;
+        try {
+          const rows = await pgrest('c9_leads', { query: `id=eq.${b.id}&select=clicks` });
+          const clicks = (rows && rows[0] && Array.isArray(rows[0].clicks)) ? rows[0].clicks : [];
+          if (!clicks.some((c) => c && c.k === k) && clicks.length < 40) {
+            clicks.push({ k, t: new Date().toISOString() });
+            await pgrest('c9_leads', { method: 'PATCH', query: `id=eq.${b.id}`, body: { clicks } });
+          }
+        } catch (e) { /* Spalte fehlt noch: still ignorieren */ }
+        if (b.event === 'video') return json(200, { ok: true });
+      }
+      const col = b.event === 'friend' ? 'friend_shared_at' : 'wa_clicked_at';
       await pgrest('c9_leads', { method: 'PATCH', query: `id=eq.${b.id}&${col}=is.null`, body: { [col]: new Date().toISOString() } });
       return json(200, { ok: true });
     }

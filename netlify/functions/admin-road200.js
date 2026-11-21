@@ -44,9 +44,13 @@ exports.handler = async function (event) {
       });
       const list = leads || [];
       let groupLink = null;
+      const videos = {};
       try {
-        const st = await pgrest('c9_settings', { query: 'key=eq.group_link&select=value' });
-        groupLink = st && st[0] ? st[0].value : null;
+        const st = (await pgrest('c9_settings', { query: 'key=in.(group_link,video_c9,video_beauty,video_energie,video_beratung)&select=key,value' })) || [];
+        for (const r of st) {
+          if (r.key === 'group_link') groupLink = r.value;
+          else videos[r.key.replace('video_', '')] = r.value || '';
+        }
       } catch (e) { groupLink = undefined; } // Tabelle fehlt noch
       // Adventskalender: anonyme Zahlen je Partnerin und Türchen
       let advent = null;
@@ -65,6 +69,7 @@ exports.handler = async function (event) {
         goal: GOAL,
         advent,
         groupLink,
+        videos,
         totals: count(list),
         partners: (partners || []).map((p) => ({ ...p, ...count(list.filter((l) => l.partner_slug === p.slug)) })),
         leads: list.slice(0, 300).map((l) => ({
@@ -72,6 +77,7 @@ exports.handler = async function (event) {
           ziel: (l.answers && l.answers.labels && l.answers.labels.ziel) || '',
           start: (l.answers && l.answers.labels && l.answers.labels.start) || '',
           status: l.status, wa: !!l.wa_clicked_at, friend: !!l.friend_shared_at,
+          clicks: Array.isArray(l.clicks) ? l.clicks.map((c) => c && c.k).filter(Boolean) : [],
           manual: l.consent_text.startsWith('Manuell'), confirmed: !!l.confirmed_at, survey: !!(l.answers && l.answers.ziel), created_at: l.created_at,
         })),
       });
@@ -95,6 +101,18 @@ exports.handler = async function (event) {
         method: 'POST',
         body: [{ partner_slug: slug, name, phone: 'manuell', answers: {}, status: 'bestellt', ordered_at: new Date().toISOString(), consent_text: 'Manuell eingetragen: Bestellung ohne Umfrage' }],
       });
+      return json(200, { ok: true });
+    }
+    if (p.videos) {
+      // Video-Links für die Auswertungsseite: YouTube, Vimeo oder direkte Videodatei (https)
+      const rows = [];
+      for (const k of ['c9', 'beauty', 'energie', 'beratung']) {
+        if (p.videos[k] === undefined) continue;
+        const v = clean(p.videos[k], 400);
+        if (v && !/^https:\/\/[^\s]+$/.test(v)) return json(400, { error: 'Video-Links bitte vollständig mit https:// einfügen' });
+        rows.push({ key: 'video_' + k, value: v || null, updated_at: new Date().toISOString() });
+      }
+      if (rows.length) await pgrest('c9_settings', { method: 'POST', query: 'on_conflict=key', prefer: 'resolution=merge-duplicates', body: rows });
       return json(200, { ok: true });
     }
     if (p.group_link !== undefined) {
