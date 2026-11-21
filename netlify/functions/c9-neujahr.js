@@ -19,7 +19,7 @@ const { pgrest } = require('./_lib/supabase');
 const SLUG = /^[a-z0-9-]{2,40}$/;
 const OPTIONS = ['c9', 'beauty', 'energie', 'beratung'];
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const CONSENT_TEXT = 'Ich bin einverstanden, dass mich {name} zu meiner Auswertung und zur C9-Neujahrs-Challenge per WhatsApp, Telefon oder Instagram kontaktiert. Ich kann das jederzeit mit einer kurzen Nachricht widerrufen.';
+const CONSENT_TEXT = 'Mit dem Absenden bist du einverstanden, dass {name} dich zu deiner Auswertung und zur C9-Neujahrs-Challenge per WhatsApp, Telefon oder Instagram kontaktiert. Widerruf jederzeit mit einer kurzen Nachricht.';
 const ALLOWED = {
   ziel: ['abnehmen', 'energie', 'haut', 'bauch', 'essen', 'bewegung'],
   hindernis: ['heisshunger', 'zeit', 'allein', 'anfang', 'muede'],

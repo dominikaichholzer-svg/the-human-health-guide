@@ -174,7 +174,7 @@
       <div class="field"><label for="fphone">Handynummer (WhatsApp)</label><input id="fphone" type="tel" autocomplete="tel" inputmode="tel" placeholder="z. B. 0664 1234567"></div>
       <div class="field"><label for="fig">Instagram-Name <span style="text-transform:none; letter-spacing:0;">(optional)</span></label><input id="fig" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="z. B. @lisa.mueller"></div>
       <div class="hp" aria-hidden="true"><label for="fweb">Website</label><input id="fweb" type="text" tabindex="-1" autocomplete="off"></div>
-      <label class="consent"><input type="checkbox" id="fconsent"><span id="consentText"></span></label>
+      <p class="small" id="consentText" style="margin:4px 0 12px;"></p>
       <div class="err" id="formErr"></div>
       <button class="btn" type="submit" id="submitBtn">Auswertung ansehen</button>
     </form>
@@ -429,7 +429,6 @@
     err.textContent = '';
     if(!name){ err.textContent = 'Bitte gib deinen Vornamen ein.'; $('fname').focus(); return; }
     if(phone.replace(/[^\d]/g, '').length < 7){ err.textContent = 'Bitte gib deine Handynummer ein.'; $('fphone').focus(); return; }
-    if(!$('fconsent').checked){ err.textContent = 'Bitte bestätige noch kurz die Einwilligung.'; return; }
     const btn = $('submitBtn');
     btn.disabled = true; btn.textContent = 'Einen Moment …';
     try {
@@ -453,7 +452,7 @@
     const n = partner.name;
     $('introPartner').textContent = n;
     document.querySelectorAll('.pname').forEach(el => { el.textContent = n; });
-    $('consentText').textContent = `Ich bin einverstanden, dass mich ${n} zu meiner Auswertung und zur C9-Neujahrs-Challenge per WhatsApp, Telefon oder Instagram kontaktiert. Ich kann das jederzeit mit einer kurzen Nachricht widerrufen.`;
+    $('consentText').textContent = `Mit dem Absenden bist du einverstanden, dass ${n} dich zu deiner Auswertung und zur C9-Neujahrs-Challenge per WhatsApp, Telefon oder Instagram kontaktiert. Widerruf jederzeit mit einer kurzen Nachricht.`;
   }
 
   (async function boot(){
