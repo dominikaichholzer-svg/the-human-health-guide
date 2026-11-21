@@ -74,39 +74,25 @@
   .btn.ghost{ background:transparent; color:var(--gold); border:1.5px solid var(--gold); }
   .count{ font-family:var(--mono); font-size:12px; letter-spacing:.08em; color:#fff; border:1px solid rgba(255,255,255,.5); border-radius:999px; padding:5px 10px; }
 
-  /* Türchen als kleine Geschenke */
-  .grid{ display:grid; grid-template-columns: repeat(4, 1fr); gap:12px; margin: 18px 0 20px; }
+  /* Türchen: schlicht, einheitlich dunkelgrün mit feinem Goldrand */
+  .grid{ display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; margin: 18px 0 20px; }
   @media (max-width: 560px){ .grid{ grid-template-columns: repeat(3, 1fr); } }
-  .door{ position:relative; aspect-ratio: 1 / 1.08; border-radius:14px; border:none; color:var(--cream); cursor:pointer; padding:10px; text-align:left; display:flex; flex-direction:column; justify-content:space-between; font-family:var(--sans); overflow:hidden;
-    background:
-      linear-gradient(90deg, transparent 66%, rgba(232,194,106,.95) 66%, rgba(232,194,106,.95) 76%, transparent 76%),
-      linear-gradient(180deg, transparent 22%, rgba(232,194,106,.95) 22%, rgba(232,194,106,.95) 31%, transparent 31%),
-      linear-gradient(160deg, #D4503F, var(--red2));
-    box-shadow: 0 6px 16px rgba(0,0,0,.28), inset 0 0 0 1px rgba(255,255,255,.08);
-    transition: transform .15s ease, box-shadow .15s ease; }
-  .door:nth-child(3n+2){ background:
-      linear-gradient(90deg, transparent 66%, rgba(232,194,106,.95) 66%, rgba(232,194,106,.95) 76%, transparent 76%),
-      linear-gradient(180deg, transparent 22%, rgba(232,194,106,.95) 22%, rgba(232,194,106,.95) 31%, transparent 31%),
-      linear-gradient(160deg, #1E5A45, #123D30); }
-  .door:nth-child(3n){ background:
-      linear-gradient(90deg, transparent 66%, rgba(200,69,59,.95) 66%, rgba(200,69,59,.95) 76%, transparent 76%),
-      linear-gradient(180deg, transparent 22%, rgba(200,69,59,.95) 22%, rgba(200,69,59,.95) 31%, transparent 31%),
-      linear-gradient(160deg, #F3E6C8, #E2CFA3); color:#3A1E12; }
-  .door:hover{ transform: translateY(-3px) rotate(-1deg); }
-  .door .n{ font-family:var(--serif); font-size:34px; line-height:1; text-shadow: 0 1px 2px rgba(0,0,0,.25); }
-  .door:nth-child(3n) .n{ text-shadow:none; }
-  .door .t{ font-family:var(--mono); font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; background:rgba(0,0,0,.28); color:#fff; align-self:flex-start; padding:3px 6px; border-radius:6px; }
-  .door:nth-child(3n) .t{ background:rgba(58,30,18,.12); color:#3A1E12; }
-  .door .d{ font-size:11px; opacity:.85; }
-  .door.locked{ cursor:default; filter: saturate(.55) brightness(.8); }
-  .door.locked:hover{ transform:none; }
+  .door{ position:relative; aspect-ratio: 1 / 1.08; border-radius:14px; border:1px solid rgba(232,194,106,.45); color:var(--cream); cursor:pointer; padding:10px; text-align:left; display:flex; flex-direction:column; justify-content:space-between; font-family:var(--sans);
+    background: linear-gradient(160deg, #15433A, #0F3129); box-shadow: 0 4px 12px rgba(0,0,0,.22); transition: transform .15s ease, border-color .15s ease; }
+  .door:hover{ transform: translateY(-2px); border-color: var(--gold); }
+  .door .n{ font-family:var(--serif); font-size:34px; line-height:1; color:var(--cream); }
+  .door .t{ font-family:var(--mono); font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--gold); }
+  .door .d{ font-size:11px; color:var(--muted); }
+  .door.type-rabatt .t{ color:#F0A898; }
+  .door.locked{ cursor:default; opacity:.6; }
+  .door.locked:hover{ transform:none; border-color: rgba(232,194,106,.45); }
   .door.locked .n::after{ content:' 🔒'; font-size:12px; vertical-align:middle; }
-  .door.today{ box-shadow: 0 0 0 3px var(--gold), 0 0 28px rgba(232,194,106,.55); animation: wiggle 2.8s ease-in-out infinite; }
-  @keyframes wiggle{ 0%,88%,100%{ transform:none; } 92%{ transform: rotate(-3deg); } 96%{ transform: rotate(3deg); } }
-  @media (prefers-reduced-motion: reduce){ .door.today{ animation:none; } }
-  .door.opened{ background: linear-gradient(160deg, #FBF5E8, #EFE3C6) !important; color:#1F3A2F; }
-  .door.opened .n{ text-shadow:none; color:#1F3A2F; }
-  .door.opened .t{ background:rgba(31,58,47,.1); color:#1F3A2F; }
+  .door.today{ border:1.5px solid var(--gold); box-shadow: 0 0 0 3px var(--gold-dim), 0 0 24px rgba(232,194,106,.35); }
+  .door.today .t::after{ content:' · heute'; }
+  .door.opened{ background: linear-gradient(160deg, #F7F0E1, #EDE2C8); border-color: transparent; }
+  .door.opened .n{ color:#1F3A2F; }
+  .door.opened .t{ color:#A8322A; }
+  .door.opened .d{ color:#5A6E62; }
   .door.opened .d::after{ content:' · geöffnet ✓'; }
 
   /* Türchen geöffnet */
