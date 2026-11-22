@@ -761,9 +761,11 @@
     }).join('') || '<p class="card-sub">Noch keine Anmeldungen.</p>';
   }
   // Fertiger Nachrichtentext mit allen Links einer Partnerin
+  const R2_VIDEO = 'https://youtu.be/Ex-JljsxGV8';
+  const R2_VIDEO_TEXT = `🎬 *ZUERST ANSCHAUEN!!!*\nIn diesem Video erkläre ich dir, wie wir bis Silvester vorgehen:\n${R2_VIDEO}\n\n`;
   function r2LinkText(p, greet){
     const o = location.origin, s = encodeURIComponent(p.slug);
-    return (greet ? `Hallo ${p.name}, hier sind deine persönlichen Links:\n\n` : `*${p.name}*\n`)
+    return (greet ? `Hallo ${p.name}, hier sind deine persönlichen Links:\n\n${R2_VIDEO_TEXT}` : `*${p.name}*\n`)
       + `🎄 Adventskalender: ${o}/advent/${s}\n`
       + `📋 Neujahrs-Umfrage: ${o}/neujahr/${s}\n`
       + `✅ Nach der Bestellung („Ich bin dabei“): ${o}/dabei/${s}\n`
@@ -774,7 +776,7 @@
   }
   document.getElementById('r2CopyAll').addEventListener('click', async () => {
     const ps = ((r200 && r200.partners) || []).filter(p => p.active !== false);
-    const text = 'Eure persönlichen Links 🎁\n\n' + ps.map(p => r2LinkText(p, false)).join('\n\n');
+    const text = 'Eure persönlichen Links 🎁\n\n' + R2_VIDEO_TEXT + ps.map(p => r2LinkText(p, false)).join('\n\n');
     try { await navigator.clipboard.writeText(text); document.getElementById('r200Status').textContent = `Links von ${ps.length} Partnerinnen kopiert ✓`; }
     catch(e){ window.prompt('Zum Kopieren markieren:', text); }
   });
