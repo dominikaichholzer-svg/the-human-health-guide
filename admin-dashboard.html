@@ -738,6 +738,7 @@
     document.getElementById('r200Partners').innerHTML = (d.partners || []).map(p => `
       <div class="r2-p"><div><b>${incEsc(p.name)}</b>${p.active ? '' : ' <span class="meta">(inaktiv)</span>'}<div class="lnk"><a href="${base}${incEsc(p.slug)}" target="_blank">${incEsc(base + p.slug)}</a> · <a href="/neujahr-flyer.html?p=${incEsc(p.slug)}" target="_blank">Flyer</a> · <a href="/advent/${incEsc(p.slug)}" target="_blank">Adventskalender</a> · <a href="/advent-flyer.html?p=${incEsc(p.slug)}" target="_blank">Advent-Flyer</a> · <a href="/advent-post.html?p=${incEsc(p.slug)}" target="_blank">Advent-Post</a> · <a href="/advent-post.html?p=${incEsc(p.slug)}&v=link" target="_blank">Post mit Link-Sticker</a> · Nach der Bestellung: <a href="${location.origin}/dabei/${incEsc(p.slug)}" target="_blank">${incEsc(location.origin + '/dabei/' + p.slug)}</a>${p.whatsapp ? '' : ' · <span style="color:var(--error)">WhatsApp fehlt</span>'}</div></div>
       <div class="lnk">${p.shop_link ? `Shop: <a href="${incEsc(p.shop_link)}" target="_blank">${incEsc(p.shop_link)}</a>` : '<span style="color:var(--error)">Shop-Link fehlt</span>'} · ${p.instagram ? `Instagram: @${incEsc(p.instagram)}` : '<span style="color:var(--error)">Instagram fehlt</span>'} · <button type="button" class="r2-edit" data-r2edit="${incEsc(p.slug)}" style="background:none;border:none;color:var(--gold);cursor:pointer;padding:0;font:inherit;text-decoration:underline;">bearbeiten</button>${p.whatsapp ? ` · <a href="https://wa.me/${incEsc(String(p.whatsapp).replace(/[^\d]/g, '').replace(/^00/, '').replace(/^0/, '43'))}?text=${encodeURIComponent(r2LinkText(p, true))}" target="_blank">📲 Links senden</a>` : ''}</div>
+      <div style="margin:6px 0 2px;"><button type="button" data-r2copy="${incEsc(p.slug)}" style="background:var(--gold);color:#1A1406;border:none;border-radius:8px;padding:6px 12px;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;">📋 Links für ${incEsc(p.name)} kopieren</button></div>
       <div class="meta">${p.umfragen} Umfragen · ${p.im_gespraech} im Gespräch · <b style="color:var(--ink)">${p.bestellt} bestellt</b></div></div>`).join('') || '<p class="card-sub">Noch keine Partnerinnen.</p>';
     const gi = document.getElementById('r2Group');
     if(document.activeElement !== gi) gi.value = d.groupLink || '';
@@ -820,6 +821,16 @@
   });
   // Bestehende Partnerin bearbeiten: Formular mit ihren Daten füllen
   document.getElementById('r200Partners').addEventListener('click', e => {
+    const c = e.target.closest('[data-r2copy]');
+    if(c && r200){
+      const cp = (r200.partners || []).find(x => x.slug === c.dataset.r2copy);
+      if(!cp) return;
+      const text = r2LinkText(cp, true);
+      navigator.clipboard.writeText(text).then(() => {
+        const old = c.textContent; c.textContent = '✓ Kopiert'; setTimeout(() => { c.textContent = old; }, 1800);
+      }).catch(() => window.prompt('Zum Kopieren markieren:', text));
+      return;
+    }
     const b = e.target.closest('[data-r2edit]');
     if(!b || !r200) return;
     const p = (r200.partners || []).find(x => x.slug === b.dataset.r2edit);
