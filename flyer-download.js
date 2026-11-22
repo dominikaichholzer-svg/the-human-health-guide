@@ -24,12 +24,35 @@
     return `${page}${v}${f}-${slug}.png`;
   }
 
+  // Google-Schriften selbst einbetten, sonst nimmt das Bild Ersatzschriften und der Text bricht anders um
+  let fontCSS = null;
+  async function fontEmbedCSS(){
+    if (fontCSS !== null) return fontCSS;
+    const toData = (blob) => new Promise((ok) => { const r = new FileReader(); r.onload = () => ok(r.result); r.readAsDataURL(blob); });
+    let out = '';
+    for (const l of document.querySelectorAll('link[rel="stylesheet"][href*="fonts.googleapis.com"]')) {
+      try {
+        const css = await (await fetch(l.href)).text();
+        // nur lateinische Zeichen (inkl. Umlaute), das hält das Bild klein
+        const blocks = css.split('/* ').filter(b => /^latin \*\//.test(b)).map(b => b.replace(/^latin \*\/\s*/, ''));
+        for (let b of blocks) {
+          const m = b.match(/url\((https:[^)]+)\)/);
+          if (m) b = b.replace(m[1], await toData(await (await fetch(m[1])).blob()));
+          out += b + '\n';
+        }
+      } catch (e) {}
+    }
+    fontCSS = out;
+    return out;
+  }
+
   async function render(){
     const el = target();
     const w = el.offsetWidth, h = el.offsetHeight; // Originalgröße (die Verkleinerung ist nur ein transform)
     if (document.fonts && document.fonts.ready) await document.fonts.ready;
+    const fe = await fontEmbedCSS();
     return window.htmlToImage.toBlob(el, {
-      width: w, height: h, pixelRatio: 1, cacheBust: true,
+      width: w, height: h, pixelRatio: 1, cacheBust: true, fontEmbedCSS: fe || undefined,
       style: { transform: 'none', transformOrigin: 'top left', margin: '0' },
     });
   }
