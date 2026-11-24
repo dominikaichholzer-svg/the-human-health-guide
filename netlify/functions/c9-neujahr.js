@@ -137,7 +137,7 @@ exports.handler = async function (event) {
 
     // Adventskalender: anonyme Zahlen (keine Personendaten), siehe advent.html
     if (b.advent) {
-      const EV = ['besuch', 'tuerchen', 'dabei', 'quiz', 'foto', 'wunsch', 'angebot', 'beratung', 'umfrage'];
+      const EV = ['besuch', 'tuerchen', 'dabei', 'quiz', 'foto', 'wunsch', 'angebot', 'beratung', 'umfrage', 'shop', 'geschenk'];
       const ev = String(b.ev || '');
       const day = b.day == null ? null : Number(b.day);
       if (!SLUG.test(b.p || '') || !EV.includes(ev) || (day !== null && !(Number.isInteger(day) && day >= 1 && day <= 24))) return json(400, { error: 'Ungültig' });

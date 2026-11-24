@@ -145,6 +145,69 @@
   .gal{ display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin:12px 0 6px; }
   .gal figure{ margin:0; background:var(--cream); border-radius:14px; overflow:hidden; }
   .gal img{ width:100%; aspect-ratio:1 / 1; object-fit:cover; display:block; }
+  .gal.four{ grid-template-columns:repeat(2, 1fr); }
+  .gal.four img{ aspect-ratio: 4 / 3; }
+
+  /* Rabatt-Hinweis */
+  .deal{ display:flex; align-items:center; gap:14px; margin:16px 0 4px; padding:14px 16px; border-radius:16px; border:1.5px dashed var(--gold); background:var(--gold-dim); }
+  .deal b{ font-family:var(--serif); font-weight:600; font-size:34px; color:var(--gold); line-height:1; white-space:nowrap; }
+  .deal span{ font-size:14px; line-height:1.45; }
+  .deal small{ display:block; font-size:12px; color:var(--muted); margin-top:2px; }
+
+  /* Countdown zum nächsten Geschenk-Türchen */
+  .tease{ display:flex; gap:12px; align-items:flex-start; margin:18px 0 0; padding:14px 16px; border-radius:16px; background:linear-gradient(135deg, var(--red), var(--red2)); color:#fff; box-shadow:0 10px 26px rgba(168,50,42,.3); }
+  .tease span{ font-size:24px; line-height:1; }
+  .tease p{ margin:0; font-size:14.5px; line-height:1.5; }
+
+  /* Ergebnis Mini-Test */
+  .result{ margin-top:14px; padding:16px; border-radius:18px; background:linear-gradient(160deg, #1D5A49, #123A2F); border:1.5px solid var(--gold); }
+  .result .rk{ font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold); }
+  .result .rn{ font-family:var(--serif); font-size:25px; margin:4px 0 8px; }
+  .result p{ margin:0; }
+  .result ol.rs{ margin:4px 0 0; padding-left:20px; }
+
+  /* Rezept, FAQ, Kit */
+  .recipe{ background:var(--cream); color:#1F3A2F; border-radius:18px; padding:14px 16px; margin:12px 0; }
+  .recipe h4{ font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:#A8322A; margin:6px 0 6px; }
+  .recipe ul, .recipe ol{ font-size:14.5px; margin-bottom:8px; }
+  .faq{ border:1px solid var(--line); background:rgba(255,255,255,.04); border-radius:16px; padding:14px 16px; margin:14px 0 6px; }
+  .faq h4{ font-family:var(--serif); font-weight:600; font-size:19px; margin:0 0 8px; color:var(--gold); }
+  .faq p{ font-size:14.5px; margin:0 0 8px; }
+  ul.kit li{ margin-bottom:6px; }
+
+  /* C9: Ersparnis und Bring a Friend */
+  .save{ text-align:center; margin:16px 0 12px; padding:20px 16px; border-radius:20px; background:var(--cream); color:#1F3A2F; }
+  .save .big{ font-family:var(--serif); font-size:30px; line-height:1.1; }
+  .save .big b{ font-size:56px; color:#A8322A; display:block; }
+  .save .plus{ font-size:18px; margin-top:6px; }
+  .save .till{ font-size:12.5px; color:#5A6E62; margin-top:8px; }
+  .friend{ padding:18px 16px; border-radius:20px; background:linear-gradient(135deg, var(--red), var(--red2)); color:#fff; margin-bottom:6px; }
+  .friend .fh{ font-family:var(--mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase; opacity:.9; }
+  .friend .fb{ font-family:var(--serif); font-size:30px; margin:2px 0 6px; }
+  .friend .fb b{ font-size:44px; }
+  .friend p{ font-size:14.5px; }
+  .friend .btn{ width:100%; }
+
+  /* Gutschein Türchen 24 */
+  .voucher{ position:relative; text-align:center; margin:16px 0 10px; padding:24px 16px; border-radius:20px; color:#2A1D05;
+    background: radial-gradient(260px 120px at 50% 0, rgba(255,255,255,.5), transparent 70%), linear-gradient(135deg, #F2D488, var(--gold) 55%, #C99A3E); box-shadow:0 14px 34px rgba(0,0,0,.35); }
+  .voucher::before, .voucher::after{ content:''; position:absolute; top:50%; width:26px; height:26px; margin-top:-13px; border-radius:50%; background:var(--bg); }
+  .voucher::before{ left:-13px; } .voucher::after{ right:-13px; }
+  .voucher .vk{ font-family:var(--mono); font-size:12px; letter-spacing:.2em; text-transform:uppercase; }
+  .voucher .vp{ font-family:var(--serif); font-weight:600; font-size:76px; line-height:1; margin:6px 0; color:#7A1E18; }
+  .voucher .vt{ font-weight:700; font-size:17px; }
+  .voucher .vu{ font-size:12.5px; margin-top:8px; opacity:.8; border-top:1.5px dashed rgba(42,29,5,.35); padding-top:8px; }
+
+  /* Geschenk-Türchen im Raster und im Kopf */
+  .door.type-special{ border:1.5px solid var(--gold); background: linear-gradient(160deg, #C8453B, #8E2620); }
+  .door.type-special .t{ color:#FFE7A8; }
+  .door.type-special .d{ color:#F6D2CB; }
+  .door.type-special{ box-shadow: 0 0 0 2px rgba(232,194,106,.25), 0 6px 18px rgba(200,69,59,.35); }
+  .door.type-special .n::before{ content:'🎁'; position:absolute; right:8px; bottom:8px; font-size:22px; }
+  .door.type-special.locked{ opacity:.9; }
+  .door > span{ position:relative; z-index:1; }
+  .hero.motif.gift{ background: radial-gradient(260px 160px at 50% 40%, rgba(255,231,168,.35), transparent 70%), linear-gradient(160deg, #C8453B, #7E211B); }
+  .badge.gift{ background:var(--gold); color:#2A1D05; }
   .gal figcaption{ font-size:11.5px; font-weight:600; color:#1F3A2F; padding:7px 8px 8px; line-height:1.3; }
   .sheet p{ font-size:15px; line-height:1.65; margin:0 0 12px; }
   .sheet ul, .sheet ol{ margin:0 0 12px; padding-left:20px; font-size:15px; line-height:1.65; }
@@ -171,7 +234,7 @@
   <div class="eyebrow">1. bis 24. Dezember 2026</div>
   <h1>Dein <em>Adventskalender</em></h1>
   <div class="sub">24 Tage Zeit für dich 🎄</div>
-  <p class="lede">Jeden Tag ein Türchen und fünf Minuten nur für dich: ein Ritual, ein Pflege-Tipp, ein kleines Quiz oder ein Angebot. In der zweiten Hälfte schaust du mit <span class="pname">…</span> aufs neue Jahr.</p>
+  <p class="lede">Jeden Tag ein Türchen und ein paar Minuten nur für dich: Quiz, Pflege-Tipps, Rezepte und Angebote. <b>3 Türchen sind Geschenk-Türchen</b> (6, 12 und 24), die solltest du nicht verpassen. In der zweiten Hälfte schaust du mit <span class="pname">…</span> aufs neue Jahr.</p>
 
   <div class="from">
     <div><small>Dein Kalender von</small><b class="pname">…</b></div>
@@ -197,7 +260,7 @@
   <div class="grid" id="grid"></div>
 
   <div class="legal">
-    #werbung · Coach Oaki Team, unabhängige Forever-Partner. Produktangaben laut Forever Living Products. Nahrungsergänzungsmittel ersetzen keine ausgewogene, abwechslungsreiche Ernährung und gesunde Lebensweise. Angebote gelten am jeweiligen Tag, das C9-Angebot aus Türchen 23 bis 31.12., jeweils nur bei der Person, die dir diesen Kalender geschickt hat, höchstens 15 %, bei gemeinsamer Bestellung mit einer Freundin 20 %. Gewinnspiel: Teilnahme kostenlos und ohne Kauf, <button type="button" id="termsBtn">Teilnahmebedingungen</button>. Der Kalender speichert nur in deinem Browser, welche Türchen du schon geöffnet hast. Gezählt wird anonym, wie oft Türchen geöffnet und Knöpfe angetippt werden, ohne Name, Nummer oder Geräte-Kennung.
+    #werbung · Coach Oaki Team, unabhängige Forever-Partner. Produktangaben laut Forever Living Products. Nahrungsergänzungsmittel ersetzen keine ausgewogene, abwechslungsreiche Ernährung und gesunde Lebensweise. Alle Angebote gelten nur bei der Person, die dir diesen Kalender geschickt hat: 15 % über ihren Shop-Link, Mindestbestellwert 30 €. Halbzeit-Geschenk (Aloe Lips gratis) bei Bestellung ab 30 € am 12.12. C9-Angebot aus Türchen 23 bis 31.12., bei gemeinsamer Bestellung mit einer Freundin 20 %. Gutschein aus Türchen 24: 30 % auf eine Bestellung ab 100 €, einmal pro Person, gültig bis 23.01.2027, nicht mit anderen Rabatten kombinierbar. Nikolaus-Überraschung solange der Vorrat reicht. Gewinnspiel: Teilnahme kostenlos und ohne Kauf, <button type="button" id="termsBtn">Teilnahmebedingungen</button>. Der Kalender speichert nur in deinem Browser, welche Türchen du schon geöffnet hast. Gezählt wird anonym, wie oft Türchen geöffnet und Knöpfe angetippt werden, ohne Name, Nummer oder Geräte-Kennung.
   </div>
 </div>
 
@@ -220,10 +283,11 @@
   const $ = (id) => document.getElementById(id);
   const esc = (t) => String(t == null ? '' : t).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-  // Typen: tipp, ritual, quiz, foto, rabatt, beratung, geschenk, neustart, gewinn, wunsch, danke
-  const LABEL = { tipp:'Tipp', ritual:'Ritual', quiz:'Quiz', foto:'Foto', rabatt:'Angebot', beratung:'Beratung', geschenk:'Geschenk', neustart:'Neustart', gewinn:'Gewinn', wunsch:'Wunsch', danke:'Danke' };
+  // Typen: tipp, ritual, quiz, typ, foto, rabatt, rezept, geschenk, neustart, gewinn, wunsch, special
+  const LABEL = { tipp:'Tipp', ritual:'Ritual', quiz:'Quiz', typ:'Mini-Test', foto:'Foto', rabatt:'−15 %', rezept:'Rezept', beratung:'Beratung', geschenk:'Geschenk', neustart:'Neustart', gewinn:'Gewinn', wunsch:'Wunsch', special:'Geschenk', danke:'Danke' };
   // Motiv oben im Türchen, wenn es kein Produktbild gibt
-  const ICON = { tipp:'💡', ritual:'🕯️', quiz:'🧩', foto:'📸', rabatt:'🎁', beratung:'💬', geschenk:'🎀', neustart:'✨', gewinn:'🏆', wunsch:'🌟', danke:'❤️' };
+  const ICON = { tipp:'💡', ritual:'🕯️', quiz:'🧩', typ:'✨', foto:'📸', rabatt:'🛍️', rezept:'🍪', beratung:'💬', geschenk:'🎀', neustart:'✨', gewinn:'🏆', wunsch:'🌟', special:'🎁', danke:'❤️' };
+  const VOUCHER_UNTIL = '23.01.2027';
 
   // Produkte mit Bild, Infos und Anwendung (Angaben laut Forever Living Products)
   const PRODUCTS = {
@@ -235,10 +299,22 @@
       facts:['Aloe Vera, Bienen-Propolis und Kamille','Mit Vitamin A und E','Reichhaltig, für Stellen, die im Winter spannen'],
       use:['Auf trockene Stellen auftragen: Hände, Ellbogen, Knie, Fersen','Sanft einmassieren, bis die Creme eingezogen ist','Als Nachtmaske für die Hände: dick auftragen, Baumwollhandschuhe drüber'],
       tip:'<b>Tipp:</b> Eine kleine Menge reicht, die Creme ist sehr ergiebig.' },
+    lotion: { img:'/img/advent/bodylotion.jpg', name:'Aloe Body Lotion', size:'Körperlotion',
+      facts:['Mit Aloe Vera als Hauptbestandteil','Leicht, zieht schnell ein und klebt nicht','Für den ganzen Körper, jeden Tag'],
+      use:['Nach dem Duschen oder Fußbad auftragen, solange die Haut noch warm ist','Sanft einmassieren, an trockenen Stellen etwas mehr','Bei Füßen: danach warme Socken drüber'],
+      tip:'<b>Tipp:</b> Im Winter morgens und abends, dann spannt die Haut unter der dicken Kleidung nicht.' },
+    first: { img:'/img/advent/aloe-first.jpg', name:'Aloe First', size:'Pflegespray',
+      facts:['Aloe Vera, Bienen-Propolis und 11 Pflanzenextrakte','Leicht und kühlend, ohne zu fetten','Praktisch als Spray, auch für unterwegs'],
+      use:['Auf die gereinigte Haut sprühen','Kurz einziehen lassen, nicht reiben','Danach wie gewohnt eincremen'],
+      tip:'<b>Tipp:</b> Im Kühlschrank aufbewahrt fühlt es sich nach heißer Heizungsluft besonders frisch an.' },
     gel: { img:'/img/advent/aloe-gel.jpg', name:'Forever Aloe Vera Gel', size:'Zum Trinken · 1 Liter',
       facts:['Bis zu 99,7 % reines Aloe-Vera-Gel aus dem Blattinneren','Die Blätter werden von Hand geerntet','Mit Vitamin C, das zur normalen Funktion des Immunsystems beiträgt'],
       use:['Täglich ein kleines Glas, am besten morgens','Pur, gut gekühlt oder mit Wasser oder Saft gemischt','Die empfohlene Tagesmenge steht auf der Flasche','Nach dem Öffnen im Kühlschrank aufbewahren'],
       tip:'<b>Tipp:</b> Mit einem Spritzer Zitrone oder im Smoothie schmeckt es besonders frisch.' },
+    ultra: { name:'Forever Lite Ultra', size:'Shake-Pulver · Vanille oder Schoko',
+      facts:['Eiweiß-Shake zum Anrühren','Mit Vitaminen und Mineralstoffen','Auch Teil des C9 Programms'],
+      use:['Als Shake: Pulver mit Milch oder Pflanzendrink im Shaker mischen','Im Porridge, im Smoothie oder in Keksen wie diesen','Die Portionsangabe steht auf der Packung'],
+      tip:'<b>Tipp:</b> Vanille passt perfekt in Weihnachtsgebäck mit Zimt.' },
     c9: { img:'/img/advent/c9.jpg', contain:true, name:'C9 Programm', size:'9 Tage · alles in einer Box',
       facts:['2 × Forever Aloe Vera Gel (je 1 Liter)','Forever Lite Ultra Shake','Forever Therm, Forever Garcinia Plus und Forever Fiber','Shaker, Maßband und Tagesplan'],
       use:['Tag 1 und 2: Aloe Vera Gel, Kapseln, Fiber und Shakes nach Plan','Tag 3 bis 9: dazu eine leichte Mahlzeit am Tag','Viel Wasser trinken und jeden Tag ein bisschen bewegen'],
@@ -250,34 +326,82 @@
     propolis:{ img:'/img/advent/propolis.jpg', name:'Aloe Propolis Creme' },
     seife:{ img:'/img/advent/seife.jpg', name:'Aloe Liquid Soap' },
     lotion:{ img:'/img/advent/bodylotion.jpg', name:'Aloe Body Lotion' },
+    gel:{ img:'/img/advent/aloe-gel.jpg', name:'Aloe Vera Gel' },
+    fiber:{ img:'/img/advent/fiber.jpg', name:'Forever Fiber' },
+    berry:{ img:'/img/advent/berry.jpg', name:'Aloe Berry Nectar' },
   };
 
   // Inhalte der 24 Türchen. {name} = Name der Partnerin.
+  // tease = Countdown-Hinweis auf das nächste Geschenk-Türchen (6, 12, 24)
   const DOORS = [
-    { t:'ritual', title:'Dein 5-Minuten-Morgen', body:`<p>Bevor das Handy dich hat: ein Glas lauwarmes Wasser, drei tiefe Atemzüge am offenen Fenster und ein Gedanke an etwas, auf das du dich heute freust.</p><p>Fünf Minuten, die den ganzen Tag ruhiger machen. Probier es die nächsten 24 Tage. {name} begleitet dich jeden Tag mit einem neuen Türchen.</p>` },
-    { t:'rabatt', pct:10, product:'Aloe Lips', prod:'lips', title:'Kleines Geschenk, große Freude', body:`<p>Der Lippenpflegestift mit Aloe Vera, Jojobaöl und Bienenwachs passt in jede Jackentasche und in jeden Adventskalender.</p><p>Als Mitbringsel, Wichtelgeschenk oder einfach für dich, wenn die Kälte an den Lippen zieht.</p>` },
+    { t:'typ', title:'Welcher Winter-Typ bist du?',
+      intro:`<p>Willkommen in deinem Adventskalender! 24 Türchen, <b>3 davon mit einem Geschenk</b> von {name}. Zum Start eine kleine Frage:</p>`,
+      q:'Wie verbringst du einen freien Wintertag am liebsten?',
+      opts:[
+        { a:'Decke, Tee und ein gutes Buch', name:'Der Kuschel-Typ 🧣', res:'Du tankst in Ruhe auf. Dein Winter-Ritual: abends ein warmer Tee und eine Handmaske mit reichhaltiger Creme, während du liest.', prod:'propolis' },
+        { a:'Spaziergang im Schnee, egal wie kalt', name:'Der Frischluft-Typ ❄️', res:'Du brauchst Bewegung und frische Luft. Kälte und Wind ziehen an den Lippen, also gehört ein Pflegestift in jede Jackentasche.', prod:'lips' },
+        { a:'Mit Freunden kochen und genießen', name:'Der Genießer-Typ 🍪', res:'Bei dir ist der Advent voller guter Dinge. Ein Glas Aloe Vera Gel am Morgen ist ein einfacher, frischer Start in genussvolle Tage.', prod:'gel' },
+        { a:'Endlich mal ausschlafen', name:'Der Auftank-Typ 😴', res:'Du holst dir im Winter Ruhe zurück. Gönn dir nach einer warmen Dusche eine Körperlotion und dann früh ins Bett, ganz ohne Handy.', prod:'lotion' },
+      ],
+      tease:'Noch <b>5 Mal schlafen</b>, dann kommt der Nikolaus zu dir: Hinter Türchen 6 wartet eine <b>Überraschung per Post</b>. Nicht verpassen!' },
+    { t:'rabatt', prod:'lips', title:'Kleines Geschenk, große Freude', body:`<p>Der Lippenpflegestift mit Aloe Vera, Jojobaöl und Bienenwachs passt in jede Jackentasche und in jeden Adventskalender.</p><p>Als Mitbringsel, Wichtelgeschenk oder einfach für dich, wenn die Kälte an den Lippen zieht.</p>`,
+      tease:'Noch <b>4 Mal schlafen</b> bis zur Nikolaus-Überraschung 🎅' },
     { t:'quiz', prod:'gel', title:'Wie gut kennst du Aloe Vera?', q:'Woraus wird das Forever Aloe Vera Gel zum Trinken gewonnen?', opts:['Aus dem ganzen Blatt mit Schale','Aus dem Gel im Inneren des Blattes','Aus getrocknetem Aloe-Pulver'], right:1, explain:'Forever verwendet das Gel aus dem Inneren des Blattes. Die Blätter werden von Hand geerntet und das Gel herausgelöst.' },
-    { t:'tipp', img:'propolis', title:'Winterhaut: Hände und Lippen', body:`<p>Heizungsluft und Kälte trocknen die Haut aus. Ein einfacher Trick für die Nacht: Hände großzügig eincremen und dünne Baumwollhandschuhe drüberziehen. Am Morgen fühlen sie sich ganz anders an.</p>`, tool:'Gut geeignet ist eine reichhaltige Creme, zum Beispiel die <b>Aloe Propolis Creme</b> mit Aloe Vera, Propolis und Kamille.' },
-    { t:'rabatt', pct:10, product:'Aloe Propolis Creme', prod:'propolis', title:'Pflege für kalte Tage', body:`<p>Die reichhaltige Creme mit Aloe Vera, Propolis und Kamille für Hände, Ellbogen und alle Stellen, die im Winter spannen.</p>` },
-    { t:'foto', title:'Nikolaus: dein gemütlichster Moment', body:`<p>Heute zeigst du {name} dein schönstes Winter-Ritual: die Tasse Tee am Fenster, die Kuscheldecke, der Spaziergang im Schnee.</p><p>Schick ein Foto an {name}, das ist ein Los im Gewinnspiel.</p>` },
-    { t:'beratung', title:'Deine persönliche Pflege-Beratung', body:`<p>Trockene Haut, unreine Haut, Mischhaut oder einfach keine Ahnung, was zu dir passt? {name} nimmt sich 10 Minuten für dich, ganz unverbindlich.</p><p>Schreib einfach, was dich an deiner Haut gerade beschäftigt.</p>` },
-    { t:'tipp', gal:['lips','propolis','seife'], title:'Geschenke, die wirklich ankommen', body:`<p>Die schönsten Geschenke sind die, die man selbst benutzt: Lippenpflege, eine gute Handcreme, ein Duschgel, das nach Urlaub riecht.</p><ul><li>Für die Kollegin: Aloe Lips mit einer kleinen Karte</li><li>Für die Mama: ein Pflegeset für die Hände</li><li>Für den Partner: etwas für nach dem Rasieren</li></ul><p>{name} stellt dir gern ein Set zusammen.</p>` },
+    { t:'tipp', img:'propolis', title:'Winterhaut: Hände und Lippen', body:`<p>Heizungsluft und Kälte trocknen die Haut aus. Ein einfacher Trick für die Nacht: Hände großzügig eincremen und dünne Baumwollhandschuhe drüberziehen. Am Morgen fühlen sie sich ganz anders an.</p>`, tool:'Gut geeignet ist eine reichhaltige Creme, zum Beispiel die <b>Aloe Propolis Creme</b> mit Aloe Vera, Propolis und Kamille.',
+      tease:'Noch <b>2 Mal schlafen</b>, dann kommt der Nikolaus 🎅' },
+    { t:'rabatt', prod:'propolis', title:'Pflege für kalte Tage', body:`<p>Die reichhaltige Creme mit Aloe Vera, Propolis und Kamille für Hände, Ellbogen und alle Stellen, die im Winter spannen.</p>`,
+      tease:'<b>Morgen kommt der Nikolaus!</b> Schau unbedingt rein, hinter Türchen 6 wartet ein Geschenk von {name}.' },
+    { t:'special', gift:'nikolaus', title:'Der Nikolaus kommt zu dir 🎅', body:`<p>Heute hat {name} eine <b>kleine Überraschung für dich</b>, per Post direkt zu dir nach Hause. Gratis, ohne Kauf, ohne Haken.</p><p>Was drin ist? Bleibt eine Überraschung! Schick {name} einfach deine Adresse per WhatsApp.</p>`,
+      giftNote:'Solange der Vorrat reicht. {name} nutzt deine Adresse nur für diese Überraschung.',
+      tease:'Das nächste Geschenk wartet schon: <b>Türchen 12</b> ist das Halbzeit-Geschenk 🎁' },
+    { t:'foto', title:'Dein gemütlichster Moment', body:`<p>Heute zeigst du {name} dein schönstes Winter-Ritual: die Tasse Tee am Fenster, die Kuscheldecke, der Spaziergang im Schnee.</p><p>Schick ein Foto an {name}, das ist ein Los im Gewinnspiel.</p>` },
+    { t:'tipp', gal:['lips','propolis','seife'], galNote:'Ein Foto von einem fertigen Weihnachts-Set kommt hier bald dazu.', title:'Geschenke, die wirklich ankommen', body:`<p>Die schönsten Geschenke sind die, die man selbst benutzt: Lippenpflege, eine gute Handcreme, eine Seife, die nach Urlaub riecht.</p><ul><li>Für die Kollegin: Aloe Lips mit einer kleinen Karte</li><li>Für die Mama: ein Pflegeset für die Hände</li><li>Für den Partner: etwas für nach dem Rasieren</li></ul><p>{name} stellt dir gern ein Set zusammen.</p>` },
     { t:'quiz', title:'Trinken im Winter', q:'Wie viel sollten Erwachsene laut Ernährungsempfehlung ungefähr am Tag trinken?', opts:['Etwa 0,5 Liter','Etwa 1,5 Liter','Etwa 4 Liter'], right:1, explain:'Die Empfehlung liegt bei etwa 1,5 Litern am Tag, am besten Wasser oder ungesüßter Tee. Im Winter vergessen wir es besonders oft.' },
-    { t:'ritual', title:'Das warme Fußbad', body:`<p>Eine Schüssel warmes Wasser, eine Handvoll Salz, zehn Minuten Zeit. Danach die Füße eincremen und warme Socken an.</p><p>Ein kleines Ritual, das sich nach Wellness anfühlt und nichts kostet außer zehn Minuten.</p>` },
-    { t:'tipp', title:'Besser schlafen im Advent', body:`<ul><li>30 Minuten vor dem Schlafen das Handy weglegen</li><li>Das Schlafzimmer eher kühl halten, etwa 18 Grad</li><li>Zur gleichen Zeit ins Bett, auch am Wochenende</li></ul><p>Klingt simpel, macht aber im stressigen Dezember einen spürbaren Unterschied.</p>` },
-    { t:'rabatt', pct:15, product:'ein Pflegeset deiner Wahl', gal:['lips','propolis','lotion'], galNote:'Zum Beispiel: Aloe Lips, Aloe Propolis Creme und Aloe Body Lotion. {name} stellt dir dein Set nach deinen Wünschen zusammen, für Gesicht, Körper oder Haare.', title:'Halbzeit-Angebot', body:`<p>Zwölf Türchen geschafft! Heute gibt es das größte Angebot der ersten Hälfte: auf ein Pflegeset deiner Wahl, für dich oder als Geschenk.</p>` },
+    { t:'rabatt', prod:'lotion', title:'Warme Füße, weiche Haut', body:`<p>Eine Schüssel warmes Wasser, eine Handvoll Salz, zehn Minuten Zeit. Dann kommt der wichtigste Schritt: die Füße eincremen, solange die Haut noch warm ist, und dicke Socken drüber.</p><p>Am nächsten Morgen fühlen sich die Fersen viel weicher an. Und das Beste: Es dauert keine Viertelstunde.</p>`,
+      tease:'<b>Übermorgen ist Halbzeit</b>, und da gibt es wieder ein Geschenk von {name} 🎁' },
+    { t:'typ', title:'Dein Winter-Haut-Check',
+      intro:`<p>Eine Frage, und du bekommst deine <b>persönliche Winter-Routine</b> in 3 Schritten, mit dem passenden Produkt.</p>`,
+      q:'Was stört dich an deiner Haut im Winter am meisten?',
+      opts:[
+        { a:'Sie spannt und ist trocken', name:'Deine Routine gegen Spannen', steps:['Morgens und abends mild reinigen, nicht zu heiß waschen','Danach eine reichhaltige Pflege, auch am Hals','Raue Stellen wie Hände und Ellbogen abends extra eincremen'], prod:'propolis' },
+        { a:'Rote, gereizte Stellen', name:'Deine Routine für gereizte Haut', steps:['Sanft reinigen, nicht rubbeln','Eine leichte, kühlende Pflege mit Aloe Vera','Heißes Wasser und starke Duftstoffe meiden'], prod:'first' },
+        { a:'Sie wirkt fahl und müde', name:'Deine Routine für mehr Frische', steps:['Viel trinken, auch wenn du keinen Durst hast','Jeden Tag mindestens 10 Minuten Tageslicht','Abends gründlich reinigen, morgens leicht pflegen'], prod:'gel' },
+        { a:'Lippen und Hände', name:'Deine Routine für Lippen und Hände', steps:['Pflegestift immer dabei haben, vor allem draußen','Nach jedem Händewaschen kurz eincremen','Einmal pro Woche eine Nachtmaske mit Handschuhen'], prod:'lips' },
+      ],
+      beratung:true,
+      tease:'<b>Morgen ist Halbzeit:</b> Türchen 12 ist ein Geschenk-Türchen 🎁' },
+    { t:'special', gift:'halbzeit', prod:'lips', title:'Halbzeit-Geschenk: Aloe Lips gratis', body:`<p>Zwölf Türchen geschafft! Dein Geschenk zur Halbzeit:</p><p><b>Bestellst du heute, am 12.12., ab 30 € über den Shop-Link von {name}, bekommst du einen Aloe Lips gratis dazu.</b> Und wie immer sparst du 15 % auf deine Bestellung.</p><p>Ideal für ein Pflegeset, für dich oder als Geschenk.</p>`,
+      gal:['lips','propolis','lotion'], galNote:'Zum Beispiel Aloe Lips, Aloe Propolis Creme und Aloe Body Lotion. {name} stellt dir dein Set nach deinen Wünschen zusammen.',
+      giftNote:'Nur am 12.12. Schick {name} nach deiner Bestellung kurz eine Nachricht, dann kommt dein Aloe Lips zu dir.',
+      tease:'Das größte Geschenk kommt zum Schluss: <b>Türchen 24</b> 🎁' },
     { t:'foto', title:'Zeig {name} deinen Weihnachtsbaum', body:`<p>Ob prachtvoll geschmückt, minimalistisch oder noch im Netz vor der Tür: {name} will ihn sehen!</p><p>Schick ein Foto an {name}, das ist ein Los im Gewinnspiel.</p>` },
-    { t:'geschenk', title:'Ein Geschenk von {name}: Rezepte für die Feiertage', body:`<p>Für die Zeit zwischen Keksen und Festtagsbraten: einfache, warme Rezepte, die satt machen und leicht sind.</p>`, link:{ href:'/rezepte.html', label:'Zu den Rezepten' } },
+    { t:'rezept', prod:'ultra', title:'Protein-Kekse mit Zimt', body:`<p>Weihnachtskekse ohne Zucker und Butter, dafür mit Eiweiß. Saftig, schnell gemacht und mit etwa <b>90 kcal pro Keks</b>.</p>
+      <div class="recipe"><h4>Zutaten für ca. 12 Kekse</h4><ul>
+        <li>100 g zarte Haferflocken</li><li>50 g Forever Lite Ultra Vanille</li><li>1 reife Banane</li><li>1 Ei</li><li>2 EL Mandelmus</li><li>1 TL Zimt und 1 Prise Lebkuchengewürz</li><li>1 TL Backpulver</li><li>30 g Zartbitterschokolade, gehackt (oder Cranberries)</li></ul>
+      <h4>So geht's</h4><ol>
+        <li>Ofen auf 180 °C Ober- und Unterhitze vorheizen.</li><li>Banane zerdrücken, mit Ei und Mandelmus verrühren.</li><li>Haferflocken, Lite Ultra, Gewürze und Backpulver unterrühren, dann die Schokolade.</li><li>12 Kugeln formen, aufs Blech setzen und flach drücken.</li><li>12 bis 14 Minuten backen und auf dem Blech auskühlen lassen.</li></ol></div>`,
+      link:{ href:'/rezepte.html', label:'🍲 Mehr leichte Rezepte' } },
     { t:'neustart', title:'Was willst du 2027 verändern?', body:`<p>Ab heute schaust du mit {name} aufs neue Jahr. Mach die kurze Neujahrs-Umfrage von {name}: 4 Fragen, eine Minute, und du bekommst sofort deine persönliche Auswertung.</p>`, survey:true },
-    { t:'tipp', title:'Dein Bauch und die Feiertage', body:`<p>Zwischen Keksen, Punsch und Festessen hat der Bauch viel zu tun. Was hilft:</p><ul><li>Öfter warm und gekocht essen statt kalt</li><li>In Ruhe essen, nicht nebenbei</li><li>Zwischen den Mahlzeiten Pausen lassen</li></ul>` },
-    { t:'quiz', title:'Was wünschst du dir 2027?', q:'Was möchtest du im neuen Jahr am liebsten für dich verändern?', opts:['Ein paar Kilo loswerden und mich wieder wohlfühlen','Mehr Energie, weniger müde sein','Ein leichteres Bauchgefühl','Gesünder essen, weniger Heißhunger','Mehr Bewegung, die auch bleibt'], right:null, explain:'Danke dir! Hier gibt es kein Richtig oder Falsch. Schick deine Antwort an {name}: Sie ist ein Los, und {name} hat einen passenden Tipp für dich.' },
-    { t:'tipp', title:'Die 10-Minuten-Regel', body:`<p>Nach dem Essen zehn Minuten raus: einmal um den Block, frische Luft, Tageslicht. Kein Sportprogramm, einfach gehen.</p><p>Gerade an Feiertagen ist das die einfachste Gewohnheit, die man ins neue Jahr mitnehmen kann.</p>` },
-    { t:'quiz', title:'Was hat dich bisher aufgehalten?', q:'Was stand dir bei guten Vorsätzen bisher am meisten im Weg?', opts:['Heißhunger, vor allem am Abend','Zu wenig Zeit, zu viel Stress','Allein höre ich nach ein paar Wochen wieder auf','Ich weiß nicht, wo ich anfangen soll','Mir fehlt die Energie dafür'], right:null, explain:'Damit bist du nicht allein, das geht fast allen so. Schick deine Antwort an {name}: Sie ist ein Los, und {name} erzählt dir gern, wie andere das gelöst haben.' },
-    { t:'gewinn', title:'Endspurt für die Geschenkbox', body:`<p>Noch vier Tage! Im Lostopf wartet die <b>Geschenkbox von {name}</b>, gepackt mit Lieblingsprodukten für die Feiertage.</p><p>Hast du schon alle Lose? Die Quiz-Türchen 3, 9, 17 und 19, die Foto-Türchen 6 und 13 und am 22. dein Wunsch für 2027. Am 27.12. lost {name} aus.</p>` },
-    { t:'rabatt', pct:10, product:'Forever Aloe Vera Gel zum Trinken', prod:'gel', title:'Für einen frischen Start in den Tag', body:`<p>Das Aloe Vera Gel zum Trinken, pur oder mit Frucht, als kleines Morgenritual. Ein Glas am Morgen, mehr braucht es nicht.</p>` },
-    { t:'wunsch', title:'Dein Wunsch für 2027', body:`<p>Was wünschst du dir für das neue Jahr, ganz für dich? Mehr Ruhe, mehr Energie, mehr Zeit mit Menschen, die dir guttun?</p><p>Schreib deinen Wunsch an {name}. Wer ihn aufschreibt, nimmt ihn ernster. Und er ist ein Los im Gewinnspiel.</p>` },
-    { t:'rabatt', pct:15, product:'das C9-Programm', prod:'c9', note:'Die 15 % und das Starter-Set gibt es bei Bestellung bis 31.12. über den Link von {name}. Wer eine Freundin mitbringt, bekommt mit ihr gemeinsam je 20 % und das Starter-Set.', title:'Gemeinsam ins neue Jahr', body:`<p>Am Samstag, 30.01., startet {name} mit einer ganzen Gruppe die C9 Neujahrs-Challenge: 9 Tage mit klarem Tagesplan, WhatsApp-Gruppe, persönlicher Begleitung und Rezeptbuch, alles geschenkt dazu.</p><p>Wer bis 31.12. bestellt, bekommt 15 % auf das C9 und ein Surprise Starter-Set geschenkt, als kleinen Boost für dein Ergebnis. Was drin ist, bleibt noch eine Überraschung. Und zu zweit wird es noch schöner: Bringst du eine Freundin mit, bekommt ihr beide 20 % und das Starter-Set.</p>`, survey:true },
-    { t:'danke', title:'Danke, dass du dabei warst', body:`<p>24 Türchen, 24 Mal fünf Minuten für dich. {name} hofft, dass ein paar Rituale bleiben.</p><p>Frohe Weihnachten von {name} und dem ganzen Team. Am 27.12. lost {name} die Geschenkbox aus, und am 30.01. seht ihr euch hoffentlich bei der Neujahrs-Challenge.</p>` },
+    { t:'tipp', img:'c9', title:'Feiertage ohne Heißhunger', body:`<p>Zwischen Keksen, Punsch und Festessen kippt der Alltag schnell. Drei Dinge, die wirklich helfen:</p><ul><li><b>Nicht hungrig auf die Feier.</b> Vorher eine Eiweiß-Mahlzeit oder ein Shake, dann greifst du am Buffet viel bewusster zu.</li><li><b>Wasser vor jedem Glas Punsch.</b> Oft ist Durst, was sich wie Hunger anfühlt.</li><li><b>Nach dem Essen 10 Minuten raus.</b> Kein Sport, einfach gehen.</li></ul>
+      <div class="faq"><h4>Und was ist dieses C9, von dem {name} erzählt?</h4>
+        <p><b>Was ist das?</b> Ein 9-Tage-Programm mit klarem Tagesplan: Aloe Vera Gel, Shakes, Kapseln und ab Tag 3 eine leichte Mahlzeit am Tag.</p>
+        <p><b>Muss ich da viel planen?</b> Nein. Der Plan sagt dir jeden Tag, was dran ist. Das macht es leichter als jede Diät, die du dir selbst zusammenstellst.</p>
+        <p><b>Schaffe ich das neben Job und Familie?</b> Der Plan passt in einen normalen Tag. Und du bist nicht allein: {name} startet am 30.01. mit einer ganzen Gruppe.</p></div>`,
+      ask:'Ich hab Türchen 16 gelesen und hätte eine Frage zum C9: ' },
+    { t:'quiz', title:'Mythos oder Wahrheit?', q:'„Wer abends isst, nimmt zu.“ Stimmt das?', opts:['Stimmt, nach 18 Uhr lieber nichts mehr','Stimmt so nicht, entscheidend ist, was und wie viel du über den ganzen Tag isst','Stimmt nur bei Kohlenhydraten'], right:1, explain:'Fürs Gewicht zählt vor allem, was und wie viel du über den ganzen Tag isst. Ein spätes, schweres Essen kann aber den Schlaf stören. Darum abends lieber leicht und nicht zu spät.' },
+    { t:'rabatt', gal:['gel','fiber','berry','lips'], title:'Dein Feiertags-Kit', body:`<p>Weihnachtsfeier, Kekse, Festessen und dazu Kälte und Heizungsluft. Diese vier passen gerade besonders gut in den Alltag:</p>
+      <ul class="kit"><li><b>Aloe Vera Gel:</b> das Glas am Morgen, bevor der Trubel losgeht</li><li><b>Forever Fiber:</b> Ballaststoffe zum Einrühren in Wasser oder Saft, praktisch an üppigen Tagen</li><li><b>Aloe Berry Nectar:</b> Aloe Vera mit Cranberry und Apfel, schmeckt auch warm verdünnt wie ein Früchtepunsch</li><li><b>Aloe Lips:</b> gegen rissige Lippen nach dem Christkindlmarkt</li></ul>` },
+    { t:'quiz', title:'Deine Gewohnheit für 2027', q:'Welche kleine Gewohnheit nimmst du mit ins neue Jahr?', opts:['Jeden Tag mehr Wasser trinken','10 Minuten gehen nach dem Essen','Eine feste Zeit fürs Schlafengehen','Ein Frühstück, das lange satt macht'], right:null, explain:'Gute Wahl! Kleine Gewohnheiten halten länger als große Vorsätze. Schick deine Antwort an {name}: Sie ist ein Los. Und falls du die Neujahrs-Umfrage aus Türchen 15 noch nicht gemacht hast, hol sie jetzt nach.', survey:true },
+    { t:'gewinn', title:'Endspurt für die Geschenkbox', body:`<p>Noch vier Tage! Im Lostopf wartet die <b>Geschenkbox von {name}</b>, gepackt mit Lieblingsprodukten für die Feiertage.</p><p>Hast du schon alle Lose? Die Quiz-Türchen 3, 9, 17 und 19, die Foto-Türchen 7 und 13 und am 22. dein Wunsch für 2027. Am 27.12. lost {name} aus.</p>`,
+      tease:'Noch <b>4 Mal schlafen</b> bis Türchen 24, dem größten Geschenk des Kalenders 🎁' },
+    { t:'rabatt', prod:'gel', title:'Für einen frischen Start in den Tag', body:`<p>Das Aloe Vera Gel zum Trinken, pur oder mit Frucht, als kleines Morgenritual. Ein Glas am Morgen, mehr braucht es nicht.</p>`,
+      tease:'Noch <b>3 Mal schlafen</b>: Hinter Türchen 24 wartet ein Dankeschön, das sich richtig lohnt.' },
+    { t:'wunsch', title:'Dein Wunsch für 2027', body:`<p>Was wünschst du dir für das neue Jahr, ganz für dich? Mehr Ruhe, mehr Energie, mehr Zeit mit Menschen, die dir guttun?</p><p>Schreib deinen Wunsch an {name}. Wer ihn aufschreibt, nimmt ihn ernster. Und er ist ein Los im Gewinnspiel.</p>`,
+      tease:'<b>Übermorgen</b> öffnest du das letzte und größte Geschenk-Türchen ⭐' },
+    { t:'rabatt', prod:'c9', c9:true, title:'Gemeinsam ins neue Jahr', body:`<p>Am Samstag, 30.01., startet {name} mit einer ganzen Gruppe die C9 Neujahrs-Challenge: 9 Tage mit klarem Tagesplan, WhatsApp-Gruppe, persönlicher Begleitung und Rezeptbuch, alles geschenkt dazu.</p>`, survey:true,
+      tease:'<b>Morgen ist Heiligabend</b>, und hinter Türchen 24 wartet dein Dankeschön-Gutschein ⭐' },
+    { t:'special', gift:'gutschein', title:'Danke, dass du dabei warst ❤️', body:`<p>24 Türchen, 24 Mal Zeit für dich. Als Dankeschön hat {name} hier dein größtes Geschenk:</p>` ,
+      after:`<p>Frohe Weihnachten von {name} und dem ganzen Team. Am 27.12. lost {name} die Geschenkbox aus, und am 30.01. seht ihr euch hoffentlich bei der Neujahrs-Challenge.</p>` },
   ];
 
   // ---------- Datum (Wiener Zeit) ----------
@@ -329,10 +453,13 @@
       if(!isOpenable(day)) cls.push('locked');
       if(iso === today) cls.push('today');
       if(opened.includes(day)) cls.push('opened');
-      const tag = d.t === 'rabatt' ? `−${d.pct} %` : LABEL[d.t];
-      return `<button type="button" class="${cls.join(' ')}" data-day="${day}" aria-label="Türchen ${day}"><span class="t">${tag}</span><span class="n">${day}</span><span class="d">${wdOf(day)} ${day}.12.</span></button>`;
+      return `<button type="button" class="${cls.join(' ')}" data-day="${day}" aria-label="Türchen ${day}"><span class="t">${LABEL[d.t]}</span><span class="n">${day}</span><span class="d">${wdOf(day)} ${day}.12.</span></button>`;
     }).join('');
   }
+
+  // Hat das Türchen Produkte? Dann gibt es den Rabatt-Hinweis und den Shop-Knopf prominent
+  const hasProducts = (d) => !!(d.prod || d.gal || d.img || d.t === 'rabatt');
+  const shopUrl = () => (partner.shop && /^https:\/\//.test(partner.shop)) ? partner.shop : '';
 
   function prodHtml(P){
     return `<div class="prod"><div class="ph"><span class="pn">${esc(P.name)}</span><span class="ps">${esc(P.size)}</span></div>
@@ -341,7 +468,24 @@
       ${P.tip ? `<div class="pt">${fill(P.tip)}</div>` : ''}</div>`;
   }
   function galHtml(d){
-    return `<div class="gal">${d.gal.map(k => `<figure><img src="${GAL[k].img}" alt="${esc(GAL[k].name)}" loading="lazy"><figcaption>${esc(GAL[k].name)}</figcaption></figure>`).join('')}</div>${d.galNote ? `<p class="note" style="margin-top:4px;">${fill(esc(d.galNote))}</p>` : ''}`;
+    return `<div class="gal${d.gal.length === 4 ? ' four' : ''}">${d.gal.map(k => `<figure><img src="${GAL[k].img}" alt="${esc(GAL[k].name)}" loading="lazy"><figcaption>${esc(GAL[k].name)}</figcaption></figure>`).join('')}</div>${d.galNote ? `<p class="note" style="margin-top:4px;">${fill(esc(d.galNote))}</p>` : ''}`;
+  }
+  const dealHtml = () => `<div class="deal"><b>−15 %</b><span>auf deine Bestellung mit dem Shop-Link von ${esc(partner.name)}<small>Mindestbestellwert 30 €</small></span></div>`;
+  function shopBtn(day, main){
+    const u = shopUrl();
+    if(u) return `<a class="btn${main ? '' : ' ghost'}" data-track="shop" data-day="${day}" href="${esc(u)}" target="_blank" rel="noopener">🛍️ Zum Shop von ${esc(partner.name)} (−15 %)</a>`;
+    return main ? `<a class="btn wa" data-track="angebot" data-day="${day}" target="_blank" rel="noopener" href="${waLink(`Hallo ${partner.name}, ich hab Türchen ${day} im Adventskalender geöffnet und hätte gern deinen Shop-Link mit 15 %.`)}">💬 Shop-Link bei ${esc(partner.name)} anfragen</a>` : '';
+  }
+  const teaseHtml = (d) => d.tease ? `<div class="tease"><span>⏳</span><p>${fill(d.tease)}</p></div>` : '';
+
+  function c9Html(){
+    return `<div class="save"><div class="big">Du sparst <b>15 %</b></div><div class="plus">+ <b>Surprise Starter-Set</b> geschenkt</div><div class="till">bei Bestellung bis 31.12. über den Link von ${esc(partner.name)}</div></div>
+      <div class="friend"><div class="fh">👯 Bring a Friend</div><div class="fb">Ihr beide <b>20 %</b></div><p>Bestellst du gemeinsam mit einer Freundin, bekommt ihr beide 20 % statt 15 % und jede ihr Starter-Set. Und ihr macht die 9 Tage zusammen.</p>
+      <a class="btn wa" data-track="angebot" data-day="23" target="_blank" rel="noopener" href="${waLink(`Hallo ${partner.name}, wir sind zu zweit und hätten gern das C9 mit Bring a Friend (je 20 %) aus Türchen 23.`)}">👯 Mit Freundin bei ${esc(partner.name)} melden</a></div>`;
+  }
+  function voucherHtml(){
+    return `<div class="voucher"><div class="vk">Gutschein</div><div class="vp">−30 %</div><div class="vt">auf deine nächste Bestellung ab 100&nbsp;€</div><div class="vu">gültig bis ${VOUCHER_UNTIL} · bei ${esc(partner.name)}</div></div>
+      <p class="note" style="text-align:center;">So löst du ihn ein: Mach einen Screenshot von diesem Gutschein und schick ihn ${esc(partner.name)} vor deiner Bestellung. Einmal pro Person, nicht mit anderen Rabatten kombinierbar.</p>`;
   }
 
   function openDoor(day){
@@ -350,52 +494,108 @@
     track('tuerchen', day);
     renderGrid();
     const P = d.prod ? PRODUCTS[d.prod] : null;
-    // Bild oben: Produktfoto (außer beim Quiz, da kommt es erst nach der Antwort), sonst ein Motiv
-    const heroImg = d.t !== 'quiz' && P ? P : (d.img ? PRODUCTS[d.img] : null);
-    const kind = d.t === 'rabatt' ? 'Angebot' : LABEL[d.t];
+    // Bild oben: Produktfoto (beim Quiz und Mini-Test erst nach der Antwort), sonst ein Motiv
+    const heroImg = (d.t !== 'quiz' && P && P.img) ? P : (d.img ? PRODUCTS[d.img] : null);
+    const kind = d.t === 'special' ? 'Geschenk-Türchen' : d.t === 'rabatt' ? 'Angebot' : LABEL[d.t];
     const num = `<div class="num"><b>${day}</b><span>${wdOf(day)} ${day}.12. · ${kind}</span></div>`;
-    const badge = d.t === 'rabatt' ? `<span class="badge">−${d.pct} % nur heute</span>` : '';
+    const badge = d.t === 'special' ? '' : hasProducts(d) ? `<span class="badge">−15 %</span>` : '';
     const close = `<button class="x" type="button" data-close aria-label="Schließen">×</button>`;
     let html = heroImg
       ? `<div class="hero${heroImg.contain ? ' contain' : ''}"><img src="${heroImg.img}" alt="${esc(heroImg.name)}">${num}${badge}${close}</div>`
-      : `<div class="hero motif"><span class="glow">${ICON[d.t] || '🎄'}</span>${num}${badge}${close}</div>`;
+      : `<div class="hero motif${d.t === 'special' ? ' gift' : ''}"><span class="glow">${ICON[d.t] || '🎄'}</span>${num}${badge}${close}</div>`;
     html += `<div class="inner"><h2 style="margin-top:16px;">${fill(esc(d.title))}</h2>`;
+    const acts = [];
     if(d.t === 'quiz'){
       html += `<p>${esc(d.q)}</p><div class="opts" id="quizOpts">${d.opts.map((o, i) => `<button type="button" data-opt="${i}">${esc(o)}</button>`).join('')}</div><div id="quizAfter"></div>`;
+    } else if(d.t === 'typ'){
+      html += fill(d.intro || '') + `<p><b>${esc(d.q)}</b></p><div class="opts" id="typOpts">${d.opts.map((o, i) => `<button type="button" data-opt="${i}">${esc(o.a)}</button>`).join('')}</div><div id="typAfter"></div>`;
     } else {
       html += fill(d.body || '');
       if(d.tool) html += `<div class="tool">${d.tool}</div>`;
+      if(d.gift === 'gutschein') html += voucherHtml() + fill(d.after || '');
+      if(d.c9) html += c9Html();
       if(d.gal) html += galHtml(d);
-      if(P) html += prodHtml(P);
+      if(P && d.t !== 'special') html += prodHtml(P);
     }
-    const acts = [];
-    if(d.t === 'rabatt'){
-      acts.push(`<a class="btn wa" data-track="angebot" data-day="${day}" target="_blank" rel="noopener" href="${waLink(`Hallo ${partner.name}, ich hab Türchen ${day} im Adventskalender geöffnet und hätte gern das Angebot: −${d.pct} % auf ${d.product}.`)}">💬 Angebot bei ${esc(partner.name)} sichern</a>`);
-      html += `<p class="note">${d.note ? fill(esc(d.note)) : `Nur heute, am ${day}.12., und nur bei ${esc(partner.name)}. ${esc(partner.name)} schickt dir den passenden Bestell-Link.`}</p>`;
+
+    // Knöpfe je nach Türchen
+    if(d.gift === 'nikolaus'){
+      acts.push(`<a class="btn wa" data-track="geschenk" data-day="${day}" target="_blank" rel="noopener" href="${waLink(`Hallo ${partner.name}, ich hätte gern die Nikolaus-Überraschung aus Türchen 6! Meine Adresse:\n`)}">🎅 Adresse an ${esc(partner.name)} schicken</a>`);
+    }
+    if(d.gift === 'halbzeit'){
+      acts.push(shopBtn(day, true));
+      acts.push(`<a class="btn wa" data-track="geschenk" data-day="${day}" target="_blank" rel="noopener" href="${waLink(`Hallo ${partner.name}, ich hab heute über deinen Shop bestellt und hätte gern meinen gratis Aloe Lips aus Türchen 12.`)}">💬 Bestellt? Kurz ${esc(partner.name)} Bescheid geben</a>`);
+    }
+    if(d.gift === 'gutschein'){
+      acts.push(`<a class="btn wa" data-track="geschenk" data-day="${day}" target="_blank" rel="noopener" href="${waLink(`Hallo ${partner.name}, danke für den Adventskalender! Ich möchte meinen −30-%-Gutschein aus Türchen 24 einlösen.`)}">⭐ Gutschein bei ${esc(partner.name)} einlösen</a>`);
     }
     if(d.t === 'foto') acts.push(`<a class="btn wa" data-track="foto" data-day="${day}" target="_blank" rel="noopener" href="${waLink(`Hallo ${partner.name}, hier ist mein Foto zu Türchen ${day} für das Gewinnspiel:`)}">📸 Foto an ${esc(partner.name)} schicken</a>`);
     if(d.t === 'wunsch') acts.push(`<a class="btn wa" data-track="wunsch" data-day="${day}" target="_blank" rel="noopener" href="${waLink(`Hallo ${partner.name}, mein Wunsch für 2027 (Türchen ${day}): `)}">✨ Wunsch an ${esc(partner.name)} schicken</a>`);
-    if(d.t === 'beratung') acts.push(`<a class="btn wa" data-track="beratung" data-day="${day}" target="_blank" rel="noopener" href="${waLink(`Hallo ${partner.name}, ich hätte gern die Pflege-Beratung aus Türchen ${day}. Bei meiner Haut beschäftigt mich gerade: `)}">💬 Beratung bei ${esc(partner.name)} anfragen</a>`);
-    if(d.survey && slug) acts.push(`<a class="btn${d.t === 'rabatt' ? ' ghost' : ''}" data-track="umfrage" data-day="${day}" href="/neujahr/${esc(slug)}" target="_blank" rel="noopener">✨ Zur Neujahrs-Umfrage</a>`);
-    if(d.link) acts.push(`<a class="btn" href="${d.link.href}" target="_blank" rel="noopener">${esc(d.link.label)}</a>`);
-    if(acts.length) html += `<div class="actions">${acts.join('')}</div>`;
+    if(d.ask) acts.push(`<a class="btn wa" data-track="beratung" data-day="${day}" target="_blank" rel="noopener" href="${waLink(`Hallo ${partner.name}, ${d.ask}`)}">💬 Frage an ${esc(partner.name)} stellen</a>`);
+    if(d.survey && slug && d.t !== 'quiz') acts.push(`<a class="btn${d.t === 'rabatt' ? ' ghost' : ''}" data-track="umfrage" data-day="${day}" href="/neujahr/${esc(slug)}" target="_blank" rel="noopener">✨ Zur Neujahrs-Umfrage</a>`);
+    if(d.link) acts.push(`<a class="btn ghost" href="${d.link.href}" target="_blank" rel="noopener">${esc(d.link.label)}</a>`);
+
+    // Unten immer: Rabatt-Hinweis (bei Produkten) und Shop-Knopf
+    let foot = '';
+    if(d.gift !== 'halbzeit' && d.t !== 'quiz' && d.t !== 'typ'){
+      const main = hasProducts(d);
+      if(main && d.gift !== 'gutschein' && !d.c9) foot += dealHtml();
+      const sb = shopBtn(day, main);
+      if(sb) acts[main ? 'unshift' : 'push'](sb);
+    }
+    if(d.giftNote) foot += `<p class="note">${fill(esc(d.giftNote))}</p>`;
+    html += foot;
+    if(acts.length) html += `<div class="actions" id="acts">${acts.join('')}</div>`;
+    html += teaseHtml(d);
     html += `</div>`;
     $('sheet').className = 'sheet door-sheet';
     $('sheet').innerHTML = html;
     $('sheet').scrollTop = 0;
     $('modal').classList.add('open');
     document.body.style.overflow = 'hidden';
+
     if(d.t === 'quiz'){
       $('quizOpts').addEventListener('click', e => {
         const b = e.target.closest('[data-opt]');
         if(!b || $('quizOpts').dataset.done) return;
         $('quizOpts').dataset.done = '1';
         const pick = Number(b.dataset.opt);
-        // Ohne richtige Antwort (Wunsch-Quiz): nur die eigene Wahl markieren
+        // Ohne richtige Antwort: nur die eigene Wahl markieren
         const open = d.right == null;
         $('quizOpts').querySelectorAll('button').forEach((x, i) => { if(open ? i === pick : i === d.right) x.classList.add('right'); else if(i === pick) x.classList.add('wrong'); });
-        $('quizAfter').innerHTML = `<p>${open ? '' : pick === d.right ? '<b>Richtig!</b> ' : '<b>Fast.</b> '}${fill(esc(d.explain))}</p>
-          <div class="actions"><a class="btn wa" data-track="quiz" data-day="${day}" target="_blank" rel="noopener" href="${waLink(`Hallo ${partner.name}, meine Antwort zum Quiz in Türchen ${day}: ${d.opts[pick]}`)}">🎟️ Antwort an ${esc(partner.name)} schicken (1 Los)</a></div>${P ? `<p style="margin-top:18px;"><b>Gut zu wissen:</b> So sieht das Aloe Vera Gel zum Trinken aus.</p><div class="hero" style="border-radius:16px; height:200px;"><img src="${P.img}" alt="${esc(P.name)}"></div>${prodHtml(P)}` : ''}`;
+        let after = `<p>${open ? '' : pick === d.right ? '<b>Richtig!</b> ' : '<b>Fast.</b> '}${fill(esc(d.explain))}</p>
+          <div class="actions"><a class="btn wa" data-track="quiz" data-day="${day}" target="_blank" rel="noopener" href="${waLink(`Hallo ${partner.name}, meine Antwort zum Quiz in Türchen ${day}: ${d.opts[pick]}`)}">🎟️ Antwort an ${esc(partner.name)} schicken (1 Los)</a>
+          ${d.survey && slug ? `<a class="btn ghost" data-track="umfrage" data-day="${day}" href="/neujahr/${esc(slug)}" target="_blank" rel="noopener">✨ Zur Neujahrs-Umfrage</a>` : ''}</div>`;
+        if(P) after += `<p style="margin-top:18px;"><b>Gut zu wissen:</b> So sieht das ${esc(P.name.replace('Forever ', ''))} zum Trinken aus.</p><div class="hero" style="border-radius:16px; height:200px;"><img src="${P.img}" alt="${esc(P.name)}"></div>${prodHtml(P)}${dealHtml()}<div class="actions">${shopBtn(day, true)}</div>`;
+        else { const sb = shopBtn(day, false); if(sb) after += `<div class="actions">${sb}</div>`; }
+        $('quizAfter').innerHTML = after;
+      });
+    }
+    if(d.t === 'typ'){
+      $('typOpts').addEventListener('click', e => {
+        const b = e.target.closest('[data-opt]');
+        if(!b || $('typOpts').dataset.done) return;
+        $('typOpts').dataset.done = '1';
+        const o = d.opts[Number(b.dataset.opt)];
+        $('typOpts').querySelectorAll('button').forEach(x => x.classList.toggle('right', x === b));
+        const R = o.prod ? PRODUCTS[o.prod] : null;
+        let after = `<div class="result"><div class="rk">Dein Ergebnis</div><div class="rn">${esc(o.name)}</div>`;
+        if(o.res) after += `<p>${fill(esc(o.res))}</p>`;
+        if(o.steps) after += `<ol class="rs">${o.steps.map(s => `<li>${esc(s)}</li>`).join('')}</ol>`;
+        after += `</div>`;
+        if(R){
+          after += `<p style="margin-top:16px;"><b>Passt zu dir:</b></p>`;
+          if(R.img) after += `<div class="hero" style="border-radius:16px; height:190px;"><img src="${R.img}" alt="${esc(R.name)}"></div>`;
+          after += prodHtml(R) + dealHtml();
+        }
+        const btns = [shopBtn(day, true)];
+        if(d.beratung) btns.push(`<a class="btn ghost" data-track="beratung" data-day="${day}" target="_blank" rel="noopener" href="${waLink(`Hallo ${partner.name}, mein Ergebnis im Haut-Check (Türchen ${day}): ${o.name}. Kannst du mich kurz beraten?`)}">💬 Persönliche Beratung bei ${esc(partner.name)}</a>`);
+        after += `<div class="actions">${btns.join('')}</div>` + teaseHtml(d);
+        $('typAfter').innerHTML = after;
+        // Countdown steht dann unter dem Ergebnis, nicht doppelt
+        const t = $('sheet').querySelector(':scope .inner > .tease');
+        if(t) t.remove();
+        setTimeout(() => $('typAfter').scrollIntoView({ behavior:'smooth', block:'start' }), 60);
       });
     }
   }
@@ -426,12 +626,12 @@
   }
   $('howBtn').addEventListener('click', () => showSheet(`<h2>So kommst du in den Lostopf</h2>
     <ol class="how"><li><b>Quiz:</b> In den Türchen 3, 9, 17 und 19 beantwortest du eine kleine Frage und schickst deine Antwort an ${esc(partner.name)}.</li>
-    <li><b>Fotos:</b> In den Türchen 6 und 13 schickst du ein Foto an ${esc(partner.name)}.</li>
+    <li><b>Fotos:</b> In den Türchen 7 und 13 schickst du ein Foto an ${esc(partner.name)}.</li>
     <li><b>Wunsch:</b> In Türchen 22 schickst du deinen Wunsch für 2027.</li></ol>
     <p>Jede Einsendung ist ein Los, also bis zu 7 Lose. Richtig oder falsch ist beim Quiz egal. Mitmachen bis 24.12., am 27.12. lost ${esc(partner.name)} die Geschenkbox aus. Teilnahme kostenlos und ohne Kauf.</p>`));
   $('termsBtn').addEventListener('click', () => showSheet(`<h2>Teilnahmebedingungen</h2>
     <p><b>Veranstaltet</b> wird das Gewinnspiel von der Person, die dir diesen Kalender geschickt hat (${esc(partner.name)}), als unabhängige Forever-Partnerin oder unabhängiger Forever-Partner. Das Gewinnspiel steht in keiner Verbindung zu Meta, WhatsApp oder Forever Living Products.</p>
-    <p><b>Teilnahme:</b> kostenlos und unabhängig von einem Kauf. Teilnehmen dürfen Personen ab 18 Jahren mit Wohnsitz in Österreich, Deutschland oder der Schweiz. Ein Los gibt es für jede per WhatsApp an ${esc(partner.name)} geschickte Quiz-Antwort (Türchen 3, 9, 17, 19), jedes eigene Foto (Türchen 6, 13) und den Wunsch für 2027 (Türchen 22), höchstens 7 Lose pro Person. Einsendeschluss: 24.12.${YEAR}, 23:59 Uhr.</p>
+    <p><b>Teilnahme:</b> kostenlos und unabhängig von einem Kauf. Teilnehmen dürfen Personen ab 18 Jahren mit Wohnsitz in Österreich, Deutschland oder der Schweiz. Ein Los gibt es für jede per WhatsApp an ${esc(partner.name)} geschickte Quiz-Antwort (Türchen 3, 9, 17, 19), jedes eigene Foto (Türchen 7, 13) und den Wunsch für 2027 (Türchen 22), höchstens 7 Lose pro Person. Einsendeschluss: 24.12.${YEAR}, 23:59 Uhr.</p>
     <p><b>Gewinn und Auslosung:</b> Die Auslosung findet am 27.12.${YEAR} unter allen Losen bei ${esc(partner.name)} statt. Zu gewinnen ist ${esc(PRIZE)} von ${esc(partner.name)}. Die Gewinnerin oder der Gewinner wird per WhatsApp benachrichtigt. Eine Barauszahlung ist nicht möglich.</p>
     <p><b>Fotos:</b> Bitte nur eigene Fotos schicken, auf denen keine anderen Personen ohne deren Einverständnis zu sehen sind. Fotos werden nur mit deiner ausdrücklichen Zustimmung veröffentlicht.</p>
     <p><b>Daten:</b> Deine Nachricht und Telefonnummer werden nur zur Durchführung des Gewinnspiels genutzt und danach gelöscht, wenn du nichts anderes möchtest.</p>`));
