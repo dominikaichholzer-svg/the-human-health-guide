@@ -68,3 +68,9 @@ alter table c9_leads add column if not exists clicks jsonb not null default '[]'
 -- Video-Links (YouTube, Vimeo oder MP4) trägt Dominik im Admin ein:
 insert into c9_settings (key, value) values ('video_c9', null), ('video_beauty', null), ('video_energie', null), ('video_beratung', null)
 on conflict (key) do nothing;
+
+-- Adventskalender: Klicks auf den Shop-Knopf und Anfragen zu Geschenk-Türchen mitzählen
+-- (netlify/functions/c9-neujahr.js erlaubt seit 24.11.2026 auch "shop" und "geschenk")
+alter table advent_events drop constraint if exists advent_events_event_check;
+alter table advent_events add constraint advent_events_event_check
+  check (event in ('besuch', 'tuerchen', 'dabei', 'quiz', 'foto', 'wunsch', 'angebot', 'beratung', 'umfrage', 'shop', 'geschenk'));
