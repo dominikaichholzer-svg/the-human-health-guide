@@ -321,8 +321,8 @@
       facts:['Bis zu 99,7 % reines Aloe-Vera-Gel aus dem Blattinneren','Die Blätter werden von Hand geerntet','Mit Vitamin C, das zur normalen Funktion des Immunsystems beiträgt'],
       use:['Täglich ein kleines Glas, am besten morgens','Pur, gut gekühlt oder mit Wasser oder Saft gemischt','Die empfohlene Tagesmenge steht auf der Flasche','Nach dem Öffnen im Kühlschrank aufbewahren'],
       tip:'<b>Tipp:</b> Mit einem Spritzer Zitrone oder im Smoothie schmeckt es besonders frisch.' },
-    ultra: { name:'Forever Lite Ultra', size:'Shake-Pulver · Vanille oder Schoko',
-      facts:['Eiweiß-Shake zum Anrühren','Mit Vitaminen und Mineralstoffen','Auch Teil des C9 Programms'],
+    ultra: { img:'/img/advent/ultra.jpg', pos:'50% 55%', name:'Forever Ultra', size:'Shake-Mix · Vanille oder Schoko',
+      facts:['21 g Eiweiß pro zubereitetem Shake (Angabe auf der Packung)','Mit Vitaminen und Mineralstoffen','Auch Teil des C9 Programms'],
       use:['Als Shake: Pulver mit Milch oder Pflanzendrink im Shaker mischen','Im Porridge, im Smoothie oder in Keksen wie diesen','Die Portionsangabe steht auf der Packung'],
       tip:'<b>Tipp:</b> Vanille passt perfekt in Weihnachtsgebäck mit Zimt.' },
     berry: { img:'/img/advent/berry.jpg', name:'Forever Aloe Berry Nectar', size:'Zum Trinken · 1 Liter',
@@ -340,7 +340,7 @@
     set8: { img:'/img/advent/geschenk-set.jpg', pos:'50% 46%', name:'Geschenk-Set mit Aloe Propolis Creme, Aloe Lips und Aloe Liquid Soap' },
     duo: { img:'/img/advent/dusch-duo.jpg', pos:'50% 55%', name:'Aloe Body Wash und Aloe Body Lotion' },
     c9: { img:'/img/advent/c9.jpg', contain:true, name:'C9 Programm', size:'9 Tage · alles in einer Box',
-      facts:['2 × Forever Aloe Vera Gel (je 1 Liter)','Forever Lite Ultra Shake','Forever Therm, Forever Garcinia Plus und Forever Fiber','Shaker, Maßband und Tagesplan'],
+      facts:['2 × Forever Aloe Vera Gel (je 1 Liter)','Forever Ultra Shake','Forever Therm, Forever Garcinia Plus und Forever Fiber','Shaker, Maßband und Tagesplan'],
       use:['Tag 1 und 2: Aloe Vera Gel, Kapseln, Fiber und Shakes nach Plan','Tag 3 bis 9: dazu eine leichte Mahlzeit am Tag','Viel Wasser trinken und jeden Tag ein bisschen bewegen'],
       tip:'<b>Bei {name} dazu:</b> WhatsApp-Gruppe, Rezeptbuch und persönliche Begleitung an allen 9 Tagen.' },
   };
@@ -405,9 +405,9 @@
     { t:'foto', title:'Zeig {name} deinen Weihnachtsbaum', body:`<p>Ob prachtvoll geschmückt, minimalistisch oder noch im Netz vor der Tür: {name} will ihn sehen!</p><div class="chance">🎟️ Foto an {name} schicken = <b>1 Los mehr</b><span>Das erhöht deine Gewinnchance auf die Geschenkbox!</span></div>` },
     { t:'rezept', prod:'ultra', title:'Protein-Kekse mit Zimt', body:`<p>Weihnachtskekse ohne Zucker und Butter, dafür mit Eiweiß. Saftig, schnell gemacht und mit etwa <b>90 kcal pro Keks</b>.</p>
       <div class="recipe"><h4>Zutaten für ca. 12 Kekse</h4><ul>
-        <li>100 g zarte Haferflocken</li><li>50 g Forever Lite Ultra Vanille</li><li>1 reife Banane</li><li>1 Ei</li><li>2 EL Mandelmus</li><li>1 TL Zimt und 1 Prise Lebkuchengewürz</li><li>1 TL Backpulver</li><li>30 g Zartbitterschokolade, gehackt (oder Cranberries)</li></ul>
+        <li>100 g zarte Haferflocken</li><li>50 g Forever Ultra Vanille</li><li>1 reife Banane</li><li>1 Ei</li><li>2 EL Mandelmus</li><li>1 TL Zimt und 1 Prise Lebkuchengewürz</li><li>1 TL Backpulver</li><li>30 g Zartbitterschokolade, gehackt (oder Cranberries)</li></ul>
       <h4>So geht's</h4><ol>
-        <li>Ofen auf 180 °C Ober- und Unterhitze vorheizen.</li><li>Banane zerdrücken, mit Ei und Mandelmus verrühren.</li><li>Haferflocken, Lite Ultra, Gewürze und Backpulver unterrühren, dann die Schokolade.</li><li>12 Kugeln formen, aufs Blech setzen und flach drücken.</li><li>12 bis 14 Minuten backen und auf dem Blech auskühlen lassen.</li></ol></div>`,
+        <li>Ofen auf 180 °C Ober- und Unterhitze vorheizen.</li><li>Banane zerdrücken, mit Ei und Mandelmus verrühren.</li><li>Haferflocken, Forever Ultra, Gewürze und Backpulver unterrühren, dann die Schokolade.</li><li>12 Kugeln formen, aufs Blech setzen und flach drücken.</li><li>12 bis 14 Minuten backen und auf dem Blech auskühlen lassen.</li></ol></div>`,
       link:{ href:'/rezepte.html', label:'🍲 Mehr leichte Rezepte' } },
     { t:'neustart', title:'Was willst du 2027 verändern?', body:`<p>Ab heute schaust du mit {name} aufs neue Jahr. Mach die kurze Neujahrs-Umfrage von {name}: 4 Fragen, eine Minute, und du bekommst sofort deine persönliche Auswertung.</p>`, survey:true },
     { t:'rezept', prod:'berry', title:'Alkoholfreier Aloe-Punsch', body:`<p>Duftet nach Christkindlmarkt, schmeckt nach Beeren und Zimt und geht ganz ohne Alkohol. Perfekt für gemütliche Abende oder wenn Gäste kommen.</p>
