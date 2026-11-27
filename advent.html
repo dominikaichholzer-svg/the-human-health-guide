@@ -167,6 +167,11 @@
   /* Countdown zum nächsten Geschenk-Türchen */
   .tease{ display:flex; gap:12px; align-items:flex-start; margin:18px 0 0; padding:14px 16px; border-radius:16px; background:linear-gradient(135deg, var(--red), var(--red2)); color:#fff; box-shadow:0 10px 26px rgba(168,50,42,.3); }
   .tease span{ font-size:24px; line-height:1; }
+  .clip{ margin:18px 0 0; padding:14px; border-radius:18px; background:#0B2620; color:var(--cream); text-align:center; }
+  .clip .ck{ font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--gold); font-weight:700; }
+  .clip p{ margin:6px 0 12px; font-size:15px; line-height:1.45; }
+  .clip video{ display:block; width:100%; max-width:300px; margin:0 auto; aspect-ratio:9/16; border-radius:14px; background:#000; object-fit:cover; }
+  .clip.full video{ max-width:340px; }
   .tease p{ margin:0; font-size:14.5px; line-height:1.5; }
 
   /* Ergebnis Mini-Test */
@@ -409,26 +414,32 @@
       <h4>So geht's</h4><ol>
         <li>Ofen auf 180 °C Ober- und Unterhitze vorheizen.</li><li>Banane zerdrücken, mit Ei und Mandelmus verrühren.</li><li>Haferflocken, Forever Ultra, Gewürze und Backpulver unterrühren, dann die Schokolade.</li><li>12 Kugeln formen, aufs Blech setzen und flach drücken.</li><li>12 bis 14 Minuten backen und auf dem Blech auskühlen lassen.</li></ol></div>`,
       link:{ href:'/rezepte.html', label:'🍲 Mehr leichte Rezepte' } },
-    { t:'neustart', title:'Was willst du 2027 verändern?', body:`<p>Ab heute schaust du mit {name} aufs neue Jahr. Mach die kurze Neujahrs-Umfrage von {name}: 4 Fragen, eine Minute, und du bekommst sofort deine persönliche Auswertung.</p>`, survey:true },
+    { t:'neustart', title:'Was willst du 2027 verändern?', body:`<p>Ab heute schaust du mit {name} aufs neue Jahr. Mach die kurze Neujahrs-Umfrage von {name}: 4 Fragen, eine Minute, und du bekommst sofort deine persönliche Auswertung.</p>`, survey:true,
+      clip:{ n:1, src:'/img/advent/c9-teaser-1.mp4', poster:'/img/advent/c9-teaser-1.jpg', text:'Ab heute läuft hier ein kleiner Film in 6 Teilen. Teil 1: Kekse, Braten, noch ein Stück Kuchen … kennst du das? 🎄 Weiter geht es in Türchen 17.' } },
     { t:'rezept', prod:'berry', title:'Alkoholfreier Aloe-Punsch', body:`<p>Duftet nach Christkindlmarkt, schmeckt nach Beeren und Zimt und geht ganz ohne Alkohol. Perfekt für gemütliche Abende oder wenn Gäste kommen.</p>
       <div class="recipe"><h4>Zutaten für 2 Tassen</h4><ul>
         <li>300 ml Früchtetee, zum Beispiel Hagebutte</li><li>150 ml Aloe Berry Nectar</li><li>1 Zimtstange und 2 Nelken</li><li>2 Orangenscheiben</li><li>nach Geschmack 1 TL Honig</li></ul>
       <h4>So geht's</h4><ol>
         <li>Tee mit Zimt, Nelken und Orangenscheiben aufkochen und 5 Minuten ziehen lassen.</li><li>Vom Herd nehmen und kurz abkühlen lassen, bis er trinkwarm ist.</li><li>Aloe Berry Nectar einrühren, nicht mehr kochen.</li><li>In Tassen füllen, mit Orangenscheibe servieren.</li></ol></div>` },
     { t:'rabatt', img:'duo', title:'Dein Dusch-Duo', body:`<p>Die Dusche am Abend ist für viele der schönste Moment des Tages. Mit diesem Duo wird sie zum kleinen Wellness-Ritual:</p>
-      <ul class="kit"><li><b>Aloe Body Wash:</b> cremiges Duschgel mit Aloe Vera, reinigt mild und trocknet die Haut nicht aus</li><li><b>Aloe Body Lotion:</b> danach auf die noch warme Haut, zieht schnell ein und klebt nicht</li></ul><p>Für dich oder als Geschenk, das garantiert benutzt wird.</p>` },
+      <ul class="kit"><li><b>Aloe Body Wash:</b> cremiges Duschgel mit Aloe Vera, reinigt mild und trocknet die Haut nicht aus</li><li><b>Aloe Body Lotion:</b> danach auf die noch warme Haut, zieht schnell ein und klebt nicht</li></ul><p>Für dich oder als Geschenk, das garantiert benutzt wird.</p>`,
+      clip:{ n:2, src:'/img/advent/c9-teaser-2.mp4', poster:'/img/advent/c9-teaser-2.jpg', text:'Und danach? Müde auf der Couch. Und ein Gedanke, der bleibt … Weiter geht es in Türchen 19.' } },
     { t:'rabatt', prod:'fiber', title:'Bereite deinen Bauch auf die Feiertage vor', body:`<p>Kekse, Raclette, Festessen: An den Feiertagen hat dein Bauch viel zu tun. Und ausgerechnet dann kommen Gemüse und Vollkorn oft zu kurz.</p><p>Die Deutsche Gesellschaft für Ernährung empfiehlt <b>mindestens 30 g Ballaststoffe am Tag</b>. Die meisten schaffen das nicht. Forever Fiber ist eine einfache Ergänzung: ein Beutel ins Glas, umrühren, fertig.</p>
       <ul class="kit"><li><b>Vor dem Festessen:</b> ein großes Glas Wasser mit Fiber</li><li><b>Beim Essen:</b> mit Gemüse oder Salat anfangen</li><li><b>Danach:</b> 10 Minuten an die frische Luft</li></ul>` },
     { t:'raten', prod:'propolis', title:'Errate das Produkt', body:`<p>Drei Hinweise, ein Produkt. Wie schnell kommst du drauf?</p>`,
       hints:['🐝 Ein Teil von mir stammt aus dem Bienenstock.','🧴 Ich wohne in einer Tube mit Waben-Muster.','🤲 Hände, Ellbogen und Fersen lieben mich im Winter.'],
-      opts:['Aloe Lips','Aloe Propolis Creme','Aloe Body Lotion'], right:1 },
+      opts:['Aloe Lips','Aloe Propolis Creme','Aloe Body Lotion'], right:1,
+      clip:{ n:3, src:'/img/advent/c9-teaser-3.mp4', poster:'/img/advent/c9-teaser-3.jpg', text:'Sie greift zum Handy. Was hat sie vor? Weiter geht es in Türchen 21.' } },
     { t:'rabatt', prod:'logic', title:'Deine 3-Schritte-Routine fürs Gesicht', body:`<p>Kälte draußen, Heizungsluft drinnen und dazu Weihnachtsstress: Die Gesichtshaut hat im Dezember einiges auszuhalten.</p><p>Das <b>Logic Set</b> macht Pflege ganz einfach: reinigen, ausgleichen, pflegen. Drei Schritte, zwei Minuten, morgens und abends. Für dich oder als Geschenk, das garantiert benutzt wird.</p>`,
       tease:'Noch <b>4 Mal schlafen</b> bis Türchen 24, dem größten Geschenk 🎁 Und denk an deine Lose: Einsendeschluss fürs Gewinnspiel ist der 24.12.' },
     { t:'rabatt', prod:'gel', title:'Für einen frischen Start in den Tag', body:`<p>Das Aloe Vera Gel zum Trinken, pur oder mit Frucht, als kleines Morgenritual. Ein Glas am Morgen, mehr braucht es nicht.</p>`,
+      clip:{ n:4, src:'/img/advent/c9-teaser-4.mp4', poster:'/img/advent/c9-teaser-4.jpg', text:'Sie sucht nach einem Weg. Was sie wohl eintippt? Morgen geht es weiter.' },
       tease:'Noch <b>3 Mal schlafen</b>: Hinter Türchen 24 wartet ein Dankeschön, das sich richtig lohnt.' },
     { t:'wunsch', title:'Dein Wunsch für 2027', body:`<p>Was wünschst du dir für das neue Jahr, ganz für dich? Mehr Ruhe, mehr Energie, mehr Zeit mit Menschen, die dir guttun?</p><p>Schreib deinen Wunsch an {name}. Wer ihn aufschreibt, nimmt ihn ernster. Und er ist ein Los im Gewinnspiel.</p>`,
+      clip:{ n:5, src:'/img/advent/c9-teaser-5.mp4', poster:'/img/advent/c9-teaser-5.jpg', text:'Drei Fragen, drei Häkchen. Und das Ergebnis? Zeigt dir {name} <b>morgen in Türchen 23</b>. 👀' },
       tease:'<b>Übermorgen</b> öffnest du das letzte und größte Geschenk-Türchen ⭐' },
     { t:'rabatt', prod:'c9', c9:true, title:'Gemeinsam ins neue Jahr', body:`<p>Am Samstag, 30.01., startet {name} mit einer ganzen Gruppe die C9 Neujahrs-Challenge: 9 Tage mit klarem Tagesplan, WhatsApp-Gruppe, persönlicher Begleitung und Rezeptbuch, alles geschenkt dazu.</p>`, survey:true,
+      clip:{ full:true, src:'/img/advent/c9-video.mp4', poster:'/img/advent/c9-video.jpg', text:'Jetzt weißt du, was sie gefunden hat. Ton an! 🔊' },
       tease:'<b>Morgen ist Heiligabend</b>, und hinter Türchen 24 wartet dein Dankeschön-Gutschein ⭐' },
     { t:'special', gift:'gutschein', title:'Danke, dass du dabei warst ❤️', body:`<p>24 Türchen, 24 Mal Zeit für dich. Als Dankeschön hat {name} hier dein größtes Geschenk:</p>` ,
       after:`<p>Frohe Weihnachten von {name} und dem ganzen Team. Am 27.12. lost {name} die Geschenkbox aus, und am 30.01. seht ihr euch hoffentlich bei der Neujahrs-Challenge.</p>` },
@@ -506,7 +517,15 @@
     if(u) return `<a class="btn${main ? '' : ' ghost'}" data-track="shop" data-day="${day}" href="${esc(u)}" target="_blank" rel="noopener">🛍️ Zum Shop von ${esc(partner.name)} (−15 %)</a>`;
     return main ? `<a class="btn wa" data-track="angebot" data-day="${day}" target="_blank" rel="noopener" href="${waLink(`Hallo ${partner.name}, ich hab Türchen ${day} im Adventskalender geöffnet und hätte gern deinen Shop-Link mit 15 %.`)}">💬 Shop-Link bei ${esc(partner.name)} anfragen</a>` : '';
   }
-  const teaseHtml = (d) => d.tease ? `<div class="tease"><span>⏳</span><p>${fill(d.tease)}</p></div>` : '';
+  // C9-Video: kurze stumme Teaser in Türchen 15, 17, 19, 21 und 22, das ganze Video in Türchen 23
+  function clipHtml(c){
+    if(!c) return '';
+    const v = c.full
+      ? `<video src="${c.src}" poster="${c.poster}" controls playsinline preload="none"></video>`
+      : `<video src="${c.src}" poster="${c.poster}" autoplay muted loop playsinline preload="metadata"></video>`;
+    return `<div class="clip${c.full ? ' full' : ''}"><div class="ck">${c.full ? '🎬 Teil 6 von 6 · Das ganze Video' : '🎬 Teil ' + c.n + ' von 6'}</div><p>${fill(c.text)}</p>${v}</div>`;
+  }
+  const teaseHtml = (d) => d.tease ?`<div class="tease"><span>⏳</span><p>${fill(d.tease)}</p></div>` : '';
 
   function c9Html(){
     return `<div class="save"><div class="big">Du sparst <b>15 %</b></div><div class="plus">+ <b>Surprise Starter-Set</b> geschenkt</div><div class="till">bei Bestellung bis 31.12. über den Link von ${esc(partner.name)}</div></div>
@@ -549,6 +568,7 @@
       if(d.gift === 'haut') html += `<div id="hautBox"></div>`;
       if(d.tool) html += `<div class="tool">${d.tool}</div>`;
       if(d.gift === 'gutschein') html += voucherHtml() + fill(d.after || '');
+      if(d.clip && d.clip.full) html += clipHtml(d.clip);
       if(d.c9) html += c9Html();
       if(d.gal) html += galHtml(d);
       if(P && d.t !== 'special') html += prodHtml(P);
@@ -583,6 +603,7 @@
     if(d.giftNote) foot += `<p class="note">${fill(esc(d.giftNote))}</p>`;
     html += foot;
     if(acts.length) html += `<div class="actions" id="acts">${acts.join('')}</div>`;
+    if(d.clip && !d.clip.full) html += clipHtml(d.clip);
     html += teaseHtml(d);
     html += `</div>`;
     $('sheet').className = 'sheet door-sheet';
@@ -723,7 +744,7 @@
     if(a) track(a.dataset.track, Number(a.dataset.day) || null);
   });
   $('joinBtn').addEventListener('click', () => track('dabei'));
-  function closeDoor(){ $('modal').classList.remove('open'); document.body.style.overflow = ''; }
+  function closeDoor(){ $('sheet').querySelectorAll('video').forEach(v => v.pause()); $('modal').classList.remove('open'); document.body.style.overflow = ''; }
   $('modal').addEventListener('click', e => { if(e.target === $('modal') || e.target.closest('[data-close]')) closeDoor(); });
   document.addEventListener('keydown', e => { if(e.key === 'Escape') closeDoor(); });
   $('grid').addEventListener('click', e => {
