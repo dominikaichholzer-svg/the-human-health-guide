@@ -112,6 +112,10 @@
   .hero{ position:relative; height:230px; overflow:hidden; border-radius:22px 22px 0 0; background:#0F3129; }
   .hero img{ width:100%; height:100%; object-fit:cover; display:block; }
   .hero.tall{ height:330px; }
+  .hero.full{ height:auto; } .hero.full img{ height:auto; }
+  .pview{ margin:0 0 22px; } .pview .pimg{ border-radius:16px; overflow:hidden; background:#0F3129; } .pview .pimg img{ width:100%; height:auto; display:block; }
+  .pview .pimg.contain img{ background:#fff; padding:14px; max-height:420px; object-fit:contain; }
+  .pview + .pview{ border-top:1px solid rgba(255,255,255,.12); padding-top:22px; }
   .hero.contain img{ object-fit:contain; background:#fff; padding:14px; }
   .hero::after{ content:''; position:absolute; left:0; right:0; bottom:0; height:90px; background:linear-gradient(180deg, transparent, rgba(11,38,32,.85)); pointer-events:none; }
   .hero.motif{ height:150px; display:flex; align-items:center; justify-content:center; font-size:64px;
@@ -256,6 +260,7 @@
     <div style="display:flex; gap:8px; flex-wrap:wrap;">
       <a class="pill" id="igPill" href="#" target="_blank" rel="noopener" hidden>📸 Instagram</a>
       <a class="pill shop" id="shopPill" href="#" target="_blank" rel="noopener" hidden>🛍️ Online-Shop</a>
+      <a class="pill" id="infoPill" href="#">ℹ️ Alle Produkte</a>
       <a class="pill wa" id="waPill" href="#" target="_blank" rel="noopener">💬 WhatsApp</a>
     </div>
   </div>
@@ -338,12 +343,24 @@
       facts:['Lösliche Ballaststoffe zum Einrühren','Löst sich in Wasser, Saft oder Tee auf','Praktisch portioniert, auch für unterwegs'],
       use:['Einen Beutel in ein Glas Wasser oder Saft rühren','Am besten vor einer größeren Mahlzeit','Über den Tag ausreichend trinken'],
       tip:'<b>Tipp:</b> Auch Teil des C9 Programms.' },
+    fusion: { img:'/img/advent/fiber-fusion.jpg', name:'Forever Fiber Fusion', size:'Sticks zum Einrühren',
+      facts:['8 g Ballaststoff-Mischung pro Stick (Angabe auf der Packung)','Einzeln verpackte Sticks, praktisch für unterwegs','Einfach in Wasser einrühren'],
+      use:['Einen Stick in ein großes Glas Wasser rühren','Am besten vor einer größeren Mahlzeit','Über den Tag ausreichend trinken'],
+      tip:'<b>Tipp:</b> Ein Stick passt in jede Handtasche, auch zum Festessen bei der Familie.' },
+    wash: { img:'/img/advent/bodywash.jpg', name:'Aloe Body Wash', size:'Duschgel',
+      facts:['Mit Aloe Vera','Cremig und mild, trocknet die Haut nicht aus','Für jeden Tag, für den ganzen Körper'],
+      use:['Eine kleine Menge auf die feuchte Haut oder einen Schwamm geben','Sanft aufschäumen und abspülen','Danach die Body Lotion auf die noch warme Haut'],
+      tip:'<b>Tipp:</b> Zusammen mit der Body Lotion ein schönes Geschenk-Duo.' },
+    seife: { img:'/img/advent/xmas-seife.jpg', name:'Aloe Liquid Soap', size:'Flüssigseife',
+      facts:['Mit Aloe Vera','Mild für Hände, Gesicht und Körper','Angenehmer, frischer Duft'],
+      use:['Eine kleine Menge in die feuchten Hände geben','Aufschäumen und gründlich abspülen','Nach dem Händewaschen im Winter kurz eincremen'],
+      tip:'<b>Tipp:</b> Steht schön am Waschbecken, auch im Gäste-WC.' },
     logic: { img:'/img/advent/logic-set.jpg', pos:'50% 58%', name:'Logic by Forever Gesichtspflege-Set', size:'3 Schritte · Reinigen, Ausgleichen, Pflegen',
       facts:['Gel Cleanser: reinigt sanft, ohne die Haut auszutrocknen, frei von Duftstoffen und Sulfaten','Balancing Essence: mit Gurken- und Grüntee-Extrakt, leicht und frisch, ideal unter Make-up','Gel Moisturizer: mit Aloe Vera, Baobab, Granatapfel und Vitamin B3, nicht komedogen, vegan'],
       use:['Gel Cleanser in den feuchten Händen aufschäumen und das Gesicht sanft reinigen','Eine kleine Menge Balancing Essence sanft ins Gesicht einklopfen','Zum Schluss den Gel Moisturizer gleichmäßig verteilen, morgens und abends'],
       tip:'<b>Tipp:</b> Ein schönes Geschenk für alle, die eine einfache Routine ohne viel Aufwand suchen.' },
-    set8: { img:'/img/advent/geschenk-set.jpg', pos:'50% 46%', name:'Geschenk-Set mit Aloe Propolis Creme, Aloe Lips und Aloe Liquid Soap' },
-    duo: { img:'/img/advent/dusch-duo.jpg', pos:'50% 55%', name:'Aloe Body Wash und Aloe Body Lotion' },
+    set8: { img:'/img/advent/geschenk-set.jpg', pos:'50% 46%', name:'Geschenk-Set mit Aloe Propolis Creme, Aloe Lips und Aloe Liquid Soap', items:['propolis','lips','seife'] },
+    duo: { img:'/img/advent/dusch-duo.jpg', pos:'50% 55%', name:'Aloe Body Wash und Aloe Body Lotion', items:['wash','lotion'] },
     c9: { img:'/img/advent/c9.jpg', contain:true, name:'C9 Programm', size:'9 Tage · alles in einer Box',
       facts:['2 × Forever Aloe Vera Gel (je 1 Liter)','Forever Ultra Shake','Forever Therm, Forever Garcinia Plus und Forever Fiber','Shaker, Maßband und Tagesplan'],
       use:['Tag 1 und 2: Aloe Vera Gel, Kapseln, Fiber und Shakes nach Plan','Tag 3 bis 9: dazu eine leichte Mahlzeit am Tag','Viel Wasser trinken und jeden Tag ein bisschen bewegen'],
@@ -415,7 +432,7 @@
         <li>Ofen auf 180 °C Ober- und Unterhitze vorheizen.</li><li>Banane zerdrücken, mit Ei und Mandelmus verrühren.</li><li>Haferflocken, Forever Ultra, Gewürze und Backpulver unterrühren, dann die Schokolade.</li><li>12 Kugeln formen, aufs Blech setzen und flach drücken.</li><li>12 bis 14 Minuten backen und auf dem Blech auskühlen lassen.</li></ol></div>`,
       link:{ href:'/rezepte.html', label:'🍲 Mehr leichte Rezepte' } },
     { t:'neustart', title:'Was willst du 2027 verändern?', body:`<p>Ab heute schaust du mit {name} aufs neue Jahr. Mach die kurze Neujahrs-Umfrage von {name}: 4 Fragen, eine Minute, und du bekommst sofort deine persönliche Auswertung.</p>`, survey:true,
-      clip:{ n:1, src:'/img/advent/c9-teaser-1.mp4', poster:'/img/advent/c9-teaser-1.jpg', text:'Ab heute läuft hier ein kleiner Film in 6 Teilen. Teil 1: Kekse, Braten, noch ein Stück Kuchen … kennst du das? 🎄 Weiter geht es in Türchen 17.' } },
+      clip:{ n:1, src:'/img/advent/c9-teaser-1.mp4', poster:'/img/advent/c9-teaser-1.jpg', text:'<b>Film ab!</b> Ab heute läuft hier ein kleiner Weihnachtsfilm, nur in diesem Kalender. 6 Teile, jeder verrät ein bisschen mehr. Wie die Geschichte ausgeht, siehst du erst in Türchen 23. Teil 1: Kekse, Braten, noch ein Stück Kuchen … kennst du das? 🎄', hunt:true } },
     { t:'rezept', prod:'berry', title:'Alkoholfreier Aloe-Punsch', body:`<p>Duftet nach Christkindlmarkt, schmeckt nach Beeren und Zimt und geht ganz ohne Alkohol. Perfekt für gemütliche Abende oder wenn Gäste kommen.</p>
       <div class="recipe"><h4>Zutaten für 2 Tassen</h4><ul>
         <li>300 ml Früchtetee, zum Beispiel Hagebutte</li><li>150 ml Aloe Berry Nectar</li><li>1 Zimtstange und 2 Nelken</li><li>2 Orangenscheiben</li><li>nach Geschmack 1 TL Honig</li></ul>
@@ -424,11 +441,11 @@
     { t:'rabatt', img:'duo', title:'Dein Dusch-Duo', body:`<p>Die Dusche am Abend ist für viele der schönste Moment des Tages. Mit diesem Duo wird sie zum kleinen Wellness-Ritual:</p>
       <ul class="kit"><li><b>Aloe Body Wash:</b> cremiges Duschgel mit Aloe Vera, reinigt mild und trocknet die Haut nicht aus</li><li><b>Aloe Body Lotion:</b> danach auf die noch warme Haut, zieht schnell ein und klebt nicht</li></ul><p>Für dich oder als Geschenk, das garantiert benutzt wird.</p>`,
       clip:{ n:2, src:'/img/advent/c9-teaser-2.mp4', poster:'/img/advent/c9-teaser-2.jpg', text:'Und danach? Müde auf der Couch. Und ein Gedanke, der bleibt … Weiter geht es in Türchen 19.' } },
-    { t:'rabatt', prod:'fiber', title:'Bereite deinen Bauch auf die Feiertage vor', body:`<p>Kekse, Raclette, Festessen: An den Feiertagen hat dein Bauch viel zu tun. Und ausgerechnet dann kommen Gemüse und Vollkorn oft zu kurz.</p><p>Die Deutsche Gesellschaft für Ernährung empfiehlt <b>mindestens 30 g Ballaststoffe am Tag</b>. Die meisten schaffen das nicht. Forever Fiber ist eine einfache Ergänzung: ein Beutel ins Glas, umrühren, fertig.</p>
-      <ul class="kit"><li><b>Vor dem Festessen:</b> ein großes Glas Wasser mit Fiber</li><li><b>Beim Essen:</b> mit Gemüse oder Salat anfangen</li><li><b>Danach:</b> 10 Minuten an die frische Luft</li></ul>` },
+    { t:'rabatt', prod:'fusion', title:'Bereite deinen Bauch auf die Feiertage vor', body:`<p>Kekse, Raclette, Festessen: An den Feiertagen hat dein Bauch viel zu tun. Und ausgerechnet dann kommen Gemüse und Vollkorn oft zu kurz.</p><p>Die Deutsche Gesellschaft für Ernährung empfiehlt <b>mindestens 30 g Ballaststoffe am Tag</b>. Die meisten schaffen das nicht. Forever Fiber Fusion ist eine einfache Ergänzung: ein Stick ins Glas, umrühren, fertig.</p>
+      <ul class="kit"><li><b>Vor dem Festessen:</b> ein großes Glas Wasser mit Fiber Fusion</li><li><b>Beim Essen:</b> mit Gemüse oder Salat anfangen</li><li><b>Danach:</b> 10 Minuten an die frische Luft</li></ul>` },
     { t:'raten', prod:'propolis', title:'Errate das Produkt', body:`<p>Drei Hinweise, ein Produkt. Wie schnell kommst du drauf?</p>`,
-      hints:['🐝 Ein Teil von mir stammt aus dem Bienenstock.','🧴 Ich wohne in einer Tube mit Waben-Muster.','🤲 Hände, Ellbogen und Fersen lieben mich im Winter.'],
-      opts:['Aloe Lips','Aloe Propolis Creme','Aloe Body Lotion'], right:1,
+      hints:['🐝 Ein Teil von mir stammt aus dem Bienenstock.','🧴 Ich wohne in einer Tube mit Waben-Muster.','🌼 Neben Aloe Vera steckt auch Kamille in mir.'],
+      opts:['Aloe Body Lotion','Aloe Propolis Creme','Aloe Liquid Soap'], right:1,
       clip:{ n:3, src:'/img/advent/c9-teaser-3.mp4', poster:'/img/advent/c9-teaser-3.jpg', text:'Sie greift zum Handy. Was hat sie vor? Weiter geht es in Türchen 21.' } },
     { t:'rabatt', prod:'logic', title:'Deine 3-Schritte-Routine fürs Gesicht', body:`<p>Kälte draußen, Heizungsluft drinnen und dazu Weihnachtsstress: Die Gesichtshaut hat im Dezember einiges auszuhalten.</p><p>Das <b>Logic Set</b> macht Pflege ganz einfach: reinigen, ausgleichen, pflegen. Drei Schritte, zwei Minuten, morgens und abends. Für dich oder als Geschenk, das garantiert benutzt wird.</p>`,
       tease:'Noch <b>4 Mal schlafen</b> bis Türchen 24, dem größten Geschenk 🎁 Und denk an deine Lose: Einsendeschluss fürs Gewinnspiel ist der 24.12.' },
@@ -439,7 +456,7 @@
       clip:{ n:5, src:'/img/advent/c9-teaser-5.mp4', poster:'/img/advent/c9-teaser-5.jpg', text:'Drei Fragen, drei Häkchen. Und das Ergebnis? Zeigt dir {name} <b>morgen in Türchen 23</b>. 👀' },
       tease:'<b>Übermorgen</b> öffnest du das letzte und größte Geschenk-Türchen ⭐' },
     { t:'rabatt', prod:'c9', c9:true, title:'Gemeinsam ins neue Jahr', body:`<p>Am Samstag, 30.01., startet {name} mit einer ganzen Gruppe die C9 Neujahrs-Challenge: 9 Tage mit klarem Tagesplan, WhatsApp-Gruppe, persönlicher Begleitung und Rezeptbuch, alles geschenkt dazu.</p>`, survey:true,
-      clip:{ full:true, src:'/img/advent/c9-video.mp4', poster:'/img/advent/c9-video.jpg', text:'Jetzt weißt du, was sie gefunden hat. Ton an! 🔊' },
+      clip:{ full:true, src:'/img/advent/c9-video.mp4', poster:'/img/advent/c9-video.jpg', text:'Jetzt weißt du, was sie gefunden hat. Ton an! 🔊 Und hast du die Uhrzeit auf dem Handy entdeckt? Schick sie an {name}, das ist 1 Los mehr.' }, hunt23:true,
       tease:'<b>Morgen ist Heiligabend</b>, und hinter Türchen 24 wartet dein Dankeschön-Gutschein ⭐' },
     { t:'special', gift:'gutschein', title:'Danke, dass du dabei warst ❤️', body:`<p>24 Türchen, 24 Mal Zeit für dich. Als Dankeschön hat {name} hier dein größtes Geschenk:</p>` ,
       after:`<p>Frohe Weihnachten von {name} und dem ganzen Team. Am 27.12. lost {name} die Geschenkbox aus, und am 30.01. seht ihr euch hoffentlich bei der Neujahrs-Challenge.</p>` },
@@ -523,7 +540,8 @@
     const v = c.full
       ? `<video src="${c.src}" poster="${c.poster}" controls playsinline preload="none"></video>`
       : `<video src="${c.src}" poster="${c.poster}" autoplay muted loop playsinline preload="metadata"></video>`;
-    return `<div class="clip${c.full ? ' full' : ''}"><div class="ck">${c.full ? '🎬 Teil 6 von 6 · Das ganze Video' : '🎬 Teil ' + c.n + ' von 6'}</div><p>${fill(c.text)}</p>${v}</div>`;
+    const hunt = c.hunt ? `<div class="chance" style="text-align:left; margin:14px 0 0;">🔎 <b>Detektiv-Aufgabe:</b> Schau in allen Teilen genau hin! <b>Welche Uhrzeit zeigt das Handy im Film?</b> Schick sie bis 24.12. an ${esc(partner.name)} = <b>1 Los mehr</b><span>Ein Tipp: Ab Teil 4 (Türchen 21) hast du eine gute Chance.</span></div>` : '';
+    return hunt ? `<div class="clip"><div class="ck">🎬 Teil 1 von 6</div><p>${fill(c.text)}</p>${v}${hunt}</div>` : `<div class="clip${c.full ? ' full' : ''}"><div class="ck">${c.full ? '🎬 Teil 6 von 6 · Das ganze Video' : '🎬 Teil ' + c.n + ' von 6'}</div><p>${fill(c.text)}</p>${v}</div>`;
   }
   const teaseHtml = (d) => d.tease ?`<div class="tease"><span>⏳</span><p>${fill(d.tease)}</p></div>` : '';
 
@@ -550,7 +568,7 @@
     const badge = d.t === 'special' ? '' : hasProducts(d) ? `<span class="badge">−15 %</span>` : '';
     const close = `<button class="x" type="button" data-close aria-label="Schließen">×</button>`;
     let html = heroImg
-      ? `<div class="hero${heroImg.contain ? ' contain' : ''}${heroImg.pos ? ' tall' : ''}"><img src="${heroImg.img}" alt="${esc(heroImg.name)}"${heroImg.pos ? ` style="object-position:${heroImg.pos}"` : ''}>${num}${badge}${close}</div>`
+      ? `<div class="hero${heroImg.contain ? ' contain' : ' full'}"><img src="${heroImg.img}" alt="${esc(heroImg.name)}">${num}${badge}${close}</div>`
       : `<div class="hero motif${d.t === 'special' ? ' gift' : ''}"><span class="glow">${d.icon || ICON[d.t] || '🎄'}</span>${num}${badge}${close}</div>`;
     html += `<div class="inner"><h2 style="margin-top:16px;">${fill(esc(d.title))}</h2>`;
     const acts = [];
@@ -586,6 +604,9 @@
     if(d.gift === 'gutschein'){
       acts.push(`<a class="btn wa" data-track="geschenk" data-day="${day}" target="_blank" rel="noopener" href="${waLink(`Hallo ${partner.name}, danke für den Adventskalender! Ich möchte meinen −30-%-Gutschein aus Türchen 24 einlösen.`)}">⭐ Gutschein bei ${esc(partner.name)} einlösen</a>`);
     }
+    if(d.hunt23) acts.push(`<a class="btn wa" data-track="quiz" data-day="${day}" target="_blank" rel="noopener" href="${waLink(`Hallo ${partner.name}, die Uhrzeit auf dem Handy im Film ist: `)}">🔎 Uhrzeit an ${esc(partner.name)} schicken (1 Los)</a>`);
+    const items = d.items || (d.img && PRODUCTS[d.img] && PRODUCTS[d.img].items);
+    if(items) acts.push(`<button class="btn ghost" type="button" data-info="${items.join(',')}" data-back="${day}">ℹ️ Infos zu den Produkten ansehen</button>`);
     if(d.t === 'foto') acts.push(`<a class="btn wa" data-track="foto" data-day="${day}" target="_blank" rel="noopener" href="${waLink(`Hallo ${partner.name}, hier ist mein Foto zu Türchen ${day} für das Gewinnspiel:`)}">📸 Foto an ${esc(partner.name)} schicken</a>`);
     if(d.t === 'wunsch') acts.push(`<a class="btn wa" data-track="wunsch" data-day="${day}" target="_blank" rel="noopener" href="${waLink(`Hallo ${partner.name}, mein Wunsch für 2027 (Türchen ${day}): `)}">✨ Wunsch an ${esc(partner.name)} schicken</a>`);
     if(d.ask) acts.push(`<a class="btn wa" data-track="beratung" data-day="${day}" target="_blank" rel="noopener" href="${waLink(`Hallo ${partner.name}, ${d.ask}`)}">💬 Frage an ${esc(partner.name)} stellen</a>`);
@@ -736,10 +757,49 @@
       $('ratOpts').querySelectorAll('button').forEach((x, i) => { if(i === d.right) x.classList.add('right'); else if(i === pick) x.classList.add('wrong'); });
       $('ratAfter').innerHTML = `<p style="margin-top:12px;">${pick === d.right ? '<b>Richtig!</b>' : '<b>Knapp daneben!</b>'} Gesucht war die <b>${esc(P.name)}</b>. Schick deine Antwort an ${esc(partner.name)}: <b>Das ist ein Los</b>, egal ob richtig oder falsch.</p>
         <div class="actions"><a class="btn wa" data-track="quiz" data-day="${day}" target="_blank" rel="noopener" href="${waLink(`Hallo ${partner.name}, meine Antwort beim Rätsel in Türchen 19: ${d.opts[pick]} 🎟️`)}">🎟️ Antwort an ${esc(partner.name)} schicken (1 Los)</a></div>
-        <div class="hero" style="border-radius:16px; height:260px; margin-top:16px;"><img src="${P.img}" alt="${esc(P.name)}" style="object-position:${P.pos || '50% 50%'}"></div>${prodHtml(P)}${dealHtml()}<div class="actions">${shopBtn(day, true)}</div>`;
+        <div class="hero full" style="border-radius:16px; margin-top:16px;"><img src="${P.img}" alt="${esc(P.name)}"></div>${prodHtml(P)}${dealHtml()}<div class="actions">${shopBtn(day, true)}</div>`;
     });
   }
+  // Produkt-Infos: einzelne Produkte (aus einem Türchen) oder alle auf einen Blick
+  // Übersicht zeigt nur Produkte aus Türchen, die schon aufgehen dürfen, damit nichts verraten wird
+  function doorKeys(d){
+    const k = [];
+    if(d.prod) k.push(d.prod);
+    if(d.img && PRODUCTS[d.img]) k.push(...(PRODUCTS[d.img].items || [d.img]));
+    if(d.c9) k.push('c9');
+    return k.filter(x => PRODUCTS[x] && PRODUCTS[x].facts);
+  }
+  function unlockedKeys(){
+    const seen = [], later = [];
+    DOORS.forEach((d, i) => doorKeys(d).forEach(k => { (isOpenable(i + 1) ? seen : later).push(k); }));
+    const open = [...new Set(seen)];
+    return { open, hidden: [...new Set(later)].filter(k => !open.includes(k)).length };
+  }
+  function openInfo(keys, back){
+    let hidden = 0;
+    if(!keys){ const u = unlockedKeys(); keys = u.open; hidden = u.hidden; }
+    const list = keys.map(k => PRODUCTS[k]).filter(P => P && P.facts);
+    let html = `<div class="inner" style="padding-top:18px;"><button class="x" type="button" data-close aria-label="Schließen" style="position:sticky; top:0; float:right;">×</button>
+      <h2 style="margin-top:6px;">${back ? 'Die Produkte' : 'Deine Produkte aus dem Kalender'}</h2><p class="note" style="margin-bottom:18px;">${back ? 'Alles Wichtige zu den Produkten aus diesem Türchen.' : 'Bilder, Infos und Anwendung zu allen Produkten aus den Türchen, die schon offen sind.'}</p>`;
+    if(!list.length) html += `<p>Noch ist kein Produkt-Türchen offen. Ab dem 2. Dezember findest du hier nach und nach alle Produkte aus deinem Kalender.</p>`;
+    html += list.map(P => `<div class="pview"><div class="pimg${P.contain ? ' contain' : ''}"><img src="${P.img}" alt="${esc(P.name)}" loading="lazy"></div>${prodHtml(P)}</div>`).join('');
+    if(hidden) html += `<div class="chance" style="margin:0 0 18px;">🔒 <b>${hidden} weitere ${hidden === 1 ? 'Produkt wartet' : 'Produkte warten'} noch hinter den Türchen.</b><span>Jeden Tag kommt ein Stück mehr dazu.</span></div>`;
+    if(list.length) html += dealHtml();
+    const acts = [shopBtn(back || 0, true)];
+    if(back) acts.push(`<button class="btn ghost" type="button" data-door="${back}">← Zurück zu Türchen ${back}</button>`);
+    html += `<div class="actions">${acts.filter(Boolean).join('')}</div></div>`;
+    $('sheet').className = 'sheet door-sheet';
+    $('sheet').innerHTML = html;
+    $('sheet').scrollTop = 0;
+    $('modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  $('infoPill').addEventListener('click', e => { e.preventDefault(); openInfo(null, 0); });
   $('sheet').addEventListener('click', e => {
+    const i = e.target.closest('[data-info]');
+    if(i){ $('sheet').querySelectorAll('video').forEach(v => v.pause()); openInfo(i.dataset.info.split(','), Number(i.dataset.back) || 0); return; }
+    const b = e.target.closest('[data-door]');
+    if(b){ openDoor(Number(b.dataset.door)); return; }
     const a = e.target.closest('[data-track]');
     if(a) track(a.dataset.track, Number(a.dataset.day) || null);
   });
