@@ -171,6 +171,15 @@
   /* Countdown zum nächsten Geschenk-Türchen */
   .tease{ display:flex; gap:12px; align-items:flex-start; margin:18px 0 0; padding:14px 16px; border-radius:16px; background:linear-gradient(135deg, var(--red), var(--red2)); color:#fff; box-shadow:0 10px 26px rgba(168,50,42,.3); }
   .tease span{ font-size:24px; line-height:1; }
+  .next{ margin:20px 0 0; padding:12px; border:1.5px dashed var(--gold); border-radius:18px; }
+  .next .nk{ font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--gold); font-weight:700; margin-bottom:8px; }
+  .next .nimg{ position:relative; height:170px; border-radius:14px; overflow:hidden; background:#123A31; display:flex; align-items:center; justify-content:center; }
+  .next .nimg img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter:blur(14px) saturate(1.1); transform:scale(1.2); }
+  .next .nimg .ic{ font-size:64px; filter:blur(1.5px); opacity:.85; }
+  .next .lock{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff; text-shadow:0 2px 10px rgba(0,0,0,.6); background:rgba(11,38,32,.25); }
+  .next .lock b{ font-size:30px; line-height:1; } .next .lock span{ font-size:14px; font-weight:600; margin-top:6px; }
+  .next p{ margin:10px 2px 0; font-size:15px; line-height:1.45; }
+  .next .btn{ margin-top:10px; }
   .clip{ margin:18px 0 0; padding:14px; border-radius:18px; background:#0B2620; color:var(--cream); text-align:center; }
   .clip .ck{ font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--gold); font-weight:700; }
   .clip p{ margin:6px 0 12px; font-size:15px; line-height:1.45; }
@@ -543,6 +552,40 @@
     const hunt = c.hunt ? `<div class="chance" style="text-align:left; margin:14px 0 0;">🔎 <b>Detektiv-Aufgabe:</b> Schau in allen Teilen genau hin! <b>Welche Uhrzeit zeigt das Handy im Film?</b> Schick sie bis 24.12. an ${esc(partner.name)} = <b>1 Los mehr</b><span>Ein Tipp: Ab Teil 4 (Türchen 21) hast du eine gute Chance.</span></div>` : '';
     return hunt ? `<div class="clip"><div class="ck">🎬 Teil 1 von 6</div><p>${fill(c.text)}</p>${v}${hunt}</div>` : `<div class="clip${c.full ? ' full' : ''}"><div class="ck">${c.full ? '🎬 Teil 6 von 6 · Das ganze Video' : '🎬 Teil ' + c.n + ' von 6'}</div><p>${fill(c.text)}</p>${v}</div>`;
   }
+  // Morgen-Vorschau: verschwommenes Bild vom nächsten Türchen mit Countdown
+  const NEXT_HINT = { 2:'Klein, passt in jede Jackentasche 🧥', 3:'Morgen wird gerubbelt … 🎟️', 4:'Etwas Frisches gegen Heizungsluft 💨', 5:'Etwas für kalte Hände 🧤',
+    6:'Der Nikolaus hat etwas für dich 🎅', 7:'Morgen bist du dran: Zeig deinen Winter 📸', 8:'Geschenkideen, die wirklich ankommen 🎀', 9:'Etwas für Bewegung … und gratis 🏋️',
+    10:'Dein Wohlfühl-Abend wartet 🛁', 11:'Eine Frage zu deiner Haut ✨', 12:'Halbzeit! Ein Geschenk, passend zu dir 🎁', 13:'Morgen will {name} etwas von dir sehen 🎄',
+    14:'Etwas zum Backen, mit viel Eiweiß 🍪', 15:'Morgen startet ein kleiner Film 🎬', 16:'Duftet nach Christkindlmarkt ☕', 17:'Ein Wellness-Ritual für die Dusche, und Teil 2 vom Film 🚿',
+    18:'Etwas für deinen Bauch vor den Feiertagen 🎄', 19:'Ein Rätsel mit drei Hinweisen, und Teil 3 vom Film 🔍', 20:'Drei Schritte, zwei Minuten 🧴', 21:'Ein Glas am Morgen, und Teil 4 vom Film 🥤',
+    22:'Dein Wunsch für 2027, und Teil 5 vom Film 🌟', 23:'Das Ende vom Film 🎬', 24:'Dein größtes Geschenk ⭐' };
+  function nextImg(d){
+    if(d.t === 'special' || d.t === 'raten' || d.c9) return null;
+    const P = d.prod ? PRODUCTS[d.prod] : (d.img ? PRODUCTS[d.img] : null);
+    return P && P.img ? P.img : null;
+  }
+  function msUntil(day){ return Date.parse(isoOf(day) + 'T00:00:00+01:00') - Date.now(); }
+  function countdownText(day){
+    const ms = msUntil(day); if(ms <= 0) return 'Jetzt offen';
+    const h = Math.floor(ms / 3600000), m = Math.floor(ms / 60000) % 60;
+    return h >= 24 ? `in ${Math.ceil(ms / 86400000)} Tagen` : `noch ${h} Std. ${String(m).padStart(2, '0')} Min.`;
+  }
+  function nextHtml(day){
+    if(day >= 24) return '';
+    const n = day + 1, d = DOORS[n - 1], img = nextImg(d);
+    const icon = d.t === 'special' ? '🎁' : (d.clip ? '🎬' : (d.icon || ICON[d.t] || '🎄'));
+    const open = isOpenable(n);
+    return `<div class="next"><div class="nk">${open ? 'Das nächste Türchen' : 'Morgen hinter Türchen ' + n}</div>
+      <div class="nimg">${img ? `<img src="${img}" alt="" aria-hidden="true">` : `<span class="ic">${icon}</span>`}
+        <div class="lock"><b>${open ? '🔓' : '🔒'}</b><span id="nextCd" data-day="${n}">${open ? 'Schon offen' : countdownText(n)}</span></div></div>
+      <p>${fill(NEXT_HINT[n] || '')}${img ? ' Erkennst du es schon?' : ''}</p>
+      ${open ? `<button class="btn ghost" type="button" data-door="${n}">Türchen ${n} öffnen →</button>` : ''}</div>`;
+  }
+  let cdTimer = null;
+  function startCountdown(){
+    clearInterval(cdTimer);
+    cdTimer = setInterval(() => { const el = document.getElementById('nextCd'); if(!el){ clearInterval(cdTimer); return; } el.textContent = countdownText(Number(el.dataset.day)); }, 30000);
+  }
   const teaseHtml = (d) => d.tease ?`<div class="tease"><span>⏳</span><p>${fill(d.tease)}</p></div>` : '';
 
   function c9Html(){
@@ -626,12 +669,14 @@
     if(acts.length) html += `<div class="actions" id="acts">${acts.join('')}</div>`;
     if(d.clip && !d.clip.full) html += clipHtml(d.clip);
     html += teaseHtml(d);
+    html += nextHtml(day);
     html += `</div>`;
     $('sheet').className = 'sheet door-sheet';
     $('sheet').innerHTML = html;
     $('sheet').scrollTop = 0;
     $('modal').classList.add('open');
     document.body.style.overflow = 'hidden';
+    startCountdown();
 
     if(d.t === 'quiz'){
       $('quizOpts').addEventListener('click', e => {
@@ -804,7 +849,7 @@
     if(a) track(a.dataset.track, Number(a.dataset.day) || null);
   });
   $('joinBtn').addEventListener('click', () => track('dabei'));
-  function closeDoor(){ $('sheet').querySelectorAll('video').forEach(v => v.pause()); $('modal').classList.remove('open'); document.body.style.overflow = ''; }
+  function closeDoor(){ clearInterval(cdTimer); $('sheet').querySelectorAll('video').forEach(v => v.pause()); $('modal').classList.remove('open'); document.body.style.overflow = ''; }
   $('modal').addEventListener('click', e => { if(e.target === $('modal') || e.target.closest('[data-close]')) closeDoor(); });
   document.addEventListener('keydown', e => { if(e.key === 'Escape') closeDoor(); });
   $('grid').addEventListener('click', e => {
