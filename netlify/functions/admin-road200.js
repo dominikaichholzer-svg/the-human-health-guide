@@ -4,6 +4,7 @@
 // GET                                   -> { goal, totals, partners, leads }
 // POST { lead_id, status }              -> Status ändern (neu, im_gespraech, bestellt, kein_interesse)
 // POST { manual: { partner_slug, name } } -> Teilnehmerin ohne Umfrage als "bestellt" eintragen
+// POST { bulk: { partner_slug, count, note } } -> mehrere Verkäufe einer Partnerin auf einmal als "bestellt" eintragen
 // POST { partner: { slug, name, whatsapp, active } } -> Partnerin anlegen oder ändern (Link /neujahr/<slug>)
 // POST { group_link }                  -> Link zur WhatsApp-Gruppe für "Ich bin dabei" (/dabei/<slug>)
 // Tabellen: supabase/neujahr-challenge.sql
@@ -102,6 +103,16 @@ exports.handler = async function (event) {
         body: [{ partner_slug: slug, name, phone: 'manuell', answers: {}, status: 'bestellt', ordered_at: new Date().toISOString(), consent_text: 'Manuell eingetragen: Bestellung ohne Umfrage' }],
       });
       return json(200, { ok: true });
+    }
+    if (p.bulk) {
+      const slug = clean(p.bulk.partner_slug, 40);
+      const n = parseInt(p.bulk.count, 10);
+      const note = clean(p.bulk.note, 60) || 'Verkauf';
+      if (!SLUG.test(slug) || !(n >= 1 && n <= 50)) return json(400, { error: 'Partnerin und Anzahl (1 bis 50) angeben' });
+      const now = new Date().toISOString();
+      const rows = Array.from({ length: n }, (_, i) => ({ partner_slug: slug, name: n > 1 ? `${note} (${i + 1}/${n})` : note, phone: 'manuell', answers: {}, status: 'bestellt', ordered_at: now, consent_text: 'Manuell eingetragen: Verkäufe nachgetragen' }));
+      await pgrest('c9_leads', { method: 'POST', body: rows });
+      return json(200, { ok: true, added: n });
     }
     if (p.videos) {
       // Video-Links für die Auswertungsseite: YouTube, Vimeo oder direkte Videodatei (https)

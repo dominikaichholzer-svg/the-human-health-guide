@@ -308,6 +308,12 @@
     <section class="card" id="r200Card" hidden>
       <div class="mv-head" style="margin-bottom:6px;"><span class="mv-title">Road to 200</span><span class="chip chip-green">C9 · Start 30.01.</span></div>
       <div id="r200Top"></div>
+      <div class="inc-form" style="margin:10px 0 4px;">
+        <label>➕ Verkäufe eintragen (zählt sofort im Zähler)</label>
+        <div class="r2-row"><select id="r2BPartner"></select><input id="r2BCount" type="number" min="1" max="50" inputmode="numeric" placeholder="Anzahl, z. B. 5" style="max-width:150px;"><input id="r2BNote" placeholder="Notiz (optional), z. B. Kundinnen Dezember"></div>
+        <button type="button" class="btn" id="r2SaveB" style="padding:9px; font-size:13px; margin-top:4px;">Verkäufe eintragen</button>
+        <p class="r2-hint" style="margin-top:6px;">Falsch eingetragen? Unter „Anmeldungen“ den Eintrag auf „Kein Interesse“ stellen, dann zählt er nicht mehr.</p>
+      </div>
       <details class="more-box" id="r200GroupBox"><summary id="r200GroupSum">WhatsApp-Gruppe für „Ich bin dabei“</summary>
         <p class="r2-hint" style="margin-top:8px;">Nach der Bestellung trägt sich die Kundin über den „Ich bin dabei“-Link ihrer Partnerin selbst ein. Sie zählt dann automatisch als bestellt und sieht sofort diesen Gruppenlink. Ohne Link steht dort: „Wir nehmen dich in die Gruppe auf.“</p>
         <div class="inc-form"><div class="r2-row"><input id="r2Group" placeholder="https://chat.whatsapp.com/…"></div>
@@ -747,7 +753,8 @@
     R2_VIDS.forEach(([k, id]) => { const el = document.getElementById(id); if(document.activeElement !== el) el.value = vids[k] || ''; });
     const nv = R2_VIDS.filter(([k]) => vids[k]).length;
     document.getElementById('r200VideoSum').textContent = d.videos === undefined ? 'Videos auf der Auswertung (SQL-Ergänzung fehlt noch)' : `Videos auf der Auswertung (${nv} von 3 hinterlegt)`;
-    document.getElementById('r2MPartner').innerHTML = (d.partners || []).map(p => `<option value="${incEsc(p.slug)}">${incEsc(p.name)}</option>`).join('');
+    const popts = (d.partners || []).map(p => `<option value="${incEsc(p.slug)}">${incEsc(p.name)}</option>`).join('');
+    ['r2MPartner', 'r2BPartner'].forEach(id => { const el = document.getElementById(id); const v = el.value; el.innerHTML = popts; if(v) el.value = v; });
     const pname = Object.fromEntries((d.partners || []).map(p => [p.slug, p.name]));
     renderR200Advent(d.advent, d.partners || []);
     document.getElementById('r200LeadsSum').textContent = `Anmeldungen (${d.leads.length})`;
@@ -846,6 +853,16 @@
   });
   document.getElementById('r2SaveV').addEventListener('click', () => r2Post({ videos: Object.fromEntries(R2_VIDS.map(([k, id]) => [k, document.getElementById(id).value.trim()])) }));
   document.getElementById('r2SaveG').addEventListener('click', () => r2Post({ group_link: document.getElementById('r2Group').value.trim() }));
+  document.getElementById('r2SaveB').addEventListener('click', async () => {
+    const n = parseInt(document.getElementById('r2BCount').value, 10);
+    const sel = document.getElementById('r2BPartner');
+    if(!(n >= 1 && n <= 50)){ document.getElementById('r200Status').textContent = 'Bitte eine Anzahl von 1 bis 50 eingeben.'; return; }
+    const who = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : '';
+    if(await r2Post({ bulk: { partner_slug: sel.value, count: n, note: document.getElementById('r2BNote').value.trim() } })){
+      document.getElementById('r2BCount').value = ''; document.getElementById('r2BNote').value = '';
+      document.getElementById('r200Status').textContent = `✓ ${n} ${n === 1 ? 'Verkauf' : 'Verkäufe'} für ${who} eingetragen`;
+    }
+  });
   document.getElementById('r2SaveM').addEventListener('click', async () => {
     const name = document.getElementById('r2MName').value.trim();
     if(!name){ document.getElementById('r200Status').textContent = 'Bitte einen Namen eingeben.'; return; }
